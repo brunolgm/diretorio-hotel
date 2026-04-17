@@ -80,7 +80,7 @@ export default async function EditDepartmentPage({ params }: PageProps) {
           </div>
 
           <label className="flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium md:col-span-2">
-            <input type="checkbox" name="enabled" defaultChecked={department.enabled} />
+            <input type="checkbox" name="enabled" defaultChecked={department.enabled ?? false} />
             Ativo no diretório
           </label>
         </div>

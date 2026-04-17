@@ -53,7 +53,7 @@ export default async function EditPolicyPage({ params }: PageProps) {
           </div>
 
           <label className="flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium">
-            <input type="checkbox" name="enabled" defaultChecked={policy.enabled} />
+            <input type="checkbox" name="enabled" defaultChecked={policy.enabled ?? false} />
             Ativa no diretório
           </label>
         </div>

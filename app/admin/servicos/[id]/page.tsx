@@ -102,7 +102,7 @@ export default async function EditServicePage({ params }: PageProps) {
           </div>
 
           <label className="flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium">
-            <input type="checkbox" name="enabled" defaultChecked={section.enabled} />
+            <input type="checkbox" name="enabled" defaultChecked={section.enabled ?? false} />
             Ativo no diretório
           </label>
         </div>
