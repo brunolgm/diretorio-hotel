@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import {
   ArrowUpRight,
   Building2,
@@ -7,10 +6,9 @@ import {
   ChevronRight,
   Clock3,
   Coffee,
-  ConciergeBell,
-  FileText,
   Globe,
   Hotel,
+  Info,
   MapPin,
   MessageCircle,
   Phone,
@@ -30,15 +28,14 @@ const iconMap = {
   Globe,
   Wifi,
   Coffee,
-  ConciergeBell,
   Building2,
   ShieldCheck,
-  FileText,
   Phone,
   Hotel,
+  Info,
 };
 
-function resolveIcon(iconName?: string) {
+function getIcon(iconName?: string) {
   if (!iconName) return Globe;
   return iconMap[iconName as keyof typeof iconMap] || Globe;
 }
@@ -47,18 +44,24 @@ function QuickInfoCard({
   icon: Icon,
   title,
   value,
+  helper,
 }: {
   icon: React.ElementType;
   title: string;
   value: string;
+  helper?: string;
 }) {
   return (
     <div className="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-slate-500">{title}</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
+            {title}
+          </p>
           <p className="mt-2 text-base font-semibold tracking-tight text-slate-950">{value}</p>
+          {helper ? <p className="mt-1 text-xs text-slate-500">{helper}</p> : null}
         </div>
+
         <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
           <Icon className="h-4 w-4" />
         </div>
@@ -68,7 +71,7 @@ function QuickInfoCard({
 }
 
 function SectionCard({ item }: { item: any }) {
-  const Icon = resolveIcon(item.icon);
+  const Icon = getIcon(item.icon);
 
   return (
     <div className="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-md">
@@ -82,6 +85,7 @@ function SectionCard({ item }: { item: any }) {
             <h3 className="text-lg font-semibold tracking-tight text-slate-950">
               {item.title}
             </h3>
+
             {item.category ? (
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
                 {item.category}
@@ -93,21 +97,23 @@ function SectionCard({ item }: { item: any }) {
             {item.content || 'Informação não disponível.'}
           </p>
 
-          {item.url ? (
-            <a
-              href={item.url}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-4 inline-flex h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800"
-            >
-              {item.cta || 'Acessar'}
-              <ArrowUpRight className="ml-2 h-4 w-4" />
-            </a>
-          ) : (
-            <div className="mt-4 inline-flex h-11 items-center justify-center rounded-2xl bg-slate-100 px-4 text-sm font-medium text-slate-700">
-              {item.cta || 'Consultar'}
-            </div>
-          )}
+          <div className="mt-4">
+            {item.url ? (
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800"
+              >
+                {item.cta || 'Acessar'}
+                <ArrowUpRight className="ml-2 h-4 w-4" />
+              </a>
+            ) : (
+              <div className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-100 px-4 text-sm font-medium text-slate-700">
+                {item.cta || 'Consultar'}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -165,6 +171,7 @@ function PolicyCard({ item }: { item: any }) {
         <div className="rounded-2xl bg-slate-100 p-2.5 text-slate-700">
           <ShieldCheck className="h-4 w-4" />
         </div>
+
         <div>
           <h3 className="text-base font-semibold tracking-tight text-slate-950">{item.title}</h3>
           <p className="mt-2 text-sm leading-7 text-slate-600">
@@ -211,6 +218,10 @@ export default async function HotelPublicPage({ params }: PageProps) {
       .order('created_at', { ascending: true }),
   ]);
 
+  const whatsappHref = hotel.whatsapp_number
+    ? `https://wa.me/${String(hotel.whatsapp_number).replace(/\D/g, '')}`
+    : null;
+
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_100%)]">
       <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8">
@@ -227,10 +238,10 @@ export default async function HotelPublicPage({ params }: PageProps) {
                   <img
                     src={hotel.logo_url}
                     alt={hotel.name}
-                    className="h-14 w-14 rounded-[18px] bg-white object-cover p-1"
+                    className="h-16 w-16 rounded-[20px] bg-white object-cover p-1 shadow-sm"
                   />
                 ) : (
-                  <div className="rounded-[18px] bg-white/10 p-4">
+                  <div className="rounded-[20px] bg-white/10 p-4">
                     <Hotel className="h-6 w-6" />
                   </div>
                 )}
@@ -250,15 +261,15 @@ export default async function HotelPublicPage({ params }: PageProps) {
 
                     <span className="inline-flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4" />
-                      Bem-vindo ao diretório do hotel
+                      Informações úteis em um só lugar
                     </span>
                   </div>
                 </div>
               </div>
 
               <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-200 md:text-base">
-                Acesse informações úteis, serviços, canais de atendimento e políticas do hotel em um
-                só lugar.
+                Acesse serviços, contatos, orientações e links importantes do hotel com uma
+                experiência mais rápida, bonita e organizada.
               </p>
             </div>
 
@@ -270,7 +281,7 @@ export default async function HotelPublicPage({ params }: PageProps) {
                   rel="noreferrer"
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-white px-5 text-sm font-medium text-slate-950 transition hover:bg-slate-100"
                 >
-                  Reservar
+                  Reservar agora
                   <ArrowUpRight className="ml-2 h-4 w-4" />
                 </a>
               ) : (
@@ -295,15 +306,15 @@ export default async function HotelPublicPage({ params }: PageProps) {
                 </div>
               )}
 
-              {hotel.whatsapp_number ? (
+              {whatsappHref ? (
                 <a
-                  href={`https://wa.me/${String(hotel.whatsapp_number).replace(/\D/g, '')}`}
+                  href={whatsappHref}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white transition hover:bg-white/20 sm:col-span-2"
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
-                  Falar com o hotel
+                  Atendimento via WhatsApp
                 </a>
               ) : null}
             </div>
@@ -315,21 +326,25 @@ export default async function HotelPublicPage({ params }: PageProps) {
             icon={Coffee}
             title="Café da manhã"
             value={hotel.breakfast_hours || 'Não informado'}
+            helper="Horário de serviço"
           />
           <QuickInfoCard
             icon={Wifi}
             title="Wi-Fi"
             value={hotel.wifi_name || 'Não informado'}
+            helper={hotel.wifi_password ? `Senha: ${hotel.wifi_password}` : 'Consulte a recepção'}
           />
           <QuickInfoCard
             icon={Clock3}
             title="Check-in"
             value={hotel.checkin_time || 'Não informado'}
+            helper="Entrada padrão"
           />
           <QuickInfoCard
             icon={Clock3}
             title="Check-out"
             value={hotel.checkout_time || 'Não informado'}
+            helper="Saída padrão"
           />
         </section>
 
@@ -422,13 +437,13 @@ export default async function HotelPublicPage({ params }: PageProps) {
         <section className="mt-10 rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70 md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-2xl">
-              <p className="text-sm text-slate-500">Acesso rápido</p>
+              <p className="text-sm text-slate-500">Links úteis</p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                Precisa de ajuda?
+                Acesso rápido
               </h2>
               <p className="mt-2 text-sm leading-7 text-slate-600">
-                Utilize os canais disponíveis acima ou acesse o site oficial do hotel para mais
-                informações.
+                Utilize os canais oficiais do hotel para reservas, atendimento e informações
+                institucionais.
               </p>
             </div>
 
@@ -445,9 +460,21 @@ export default async function HotelPublicPage({ params }: PageProps) {
                 </a>
               ) : null}
 
-              {hotel.whatsapp_number ? (
+              {hotel.booking_url ? (
                 <a
-                  href={`https://wa.me/${String(hotel.whatsapp_number).replace(/\D/g, '')}`}
+                  href={hotel.booking_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                >
+                  <ArrowUpRight className="mr-2 h-4 w-4" />
+                  Reservas
+                </a>
+              ) : null}
+
+              {whatsappHref ? (
+                <a
+                  href={whatsappHref}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800"
@@ -460,6 +487,18 @@ export default async function HotelPublicPage({ params }: PageProps) {
           </div>
         </section>
       </div>
+
+      {whatsappHref ? (
+        <a
+          href={whatsappHref}
+          target="_blank"
+          rel="noreferrer"
+          className="fixed bottom-5 right-5 z-50 inline-flex h-14 items-center justify-center rounded-full bg-slate-900 px-5 text-sm font-medium text-white shadow-lg transition hover:bg-slate-800"
+        >
+          <MessageCircle className="mr-2 h-5 w-5" />
+          WhatsApp
+        </a>
+      ) : null}
     </main>
   );
 }
