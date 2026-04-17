@@ -64,6 +64,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
 
       hotel_sections: {
@@ -109,6 +110,15 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'hotel_sections_hotel_id_fkey';
+            columns: ['hotel_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotels';
+            referencedColumns: ['id'];
+          }
+        ];
       };
 
       hotel_departments: {
@@ -148,6 +158,15 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'hotel_departments_hotel_id_fkey';
+            columns: ['hotel_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotels';
+            referencedColumns: ['id'];
+          }
+        ];
       };
 
       hotel_policies: {
@@ -178,6 +197,15 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'hotel_policies_hotel_id_fkey';
+            columns: ['hotel_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotels';
+            referencedColumns: ['id'];
+          }
+        ];
       };
 
       profiles: {
@@ -208,6 +236,15 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'profiles_hotel_id_fkey';
+            columns: ['hotel_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotels';
+            referencedColumns: ['id'];
+          }
+        ];
       };
     };
 

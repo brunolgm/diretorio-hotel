@@ -3,12 +3,13 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getAdminHotel } from '@/lib/queries';
+import type { Database } from '@/types/database';
 
 export async function updateDepartmentAction(id: string, formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
 
-  const payload = {
+  const payload: Database['public']['Tables']['hotel_departments']['Update'] = {
     name: String(formData.get('name') || ''),
     description: String(formData.get('description') || ''),
     hours: String(formData.get('hours') || ''),
@@ -24,7 +25,6 @@ export async function updateDepartmentAction(id: string, formData: FormData) {
     .eq('hotel_id', hotel.id);
 
   if (error) {
-    console.error('Erro ao atualizar departamento:', error);
     throw new Error(`Não foi possível atualizar o departamento: ${error.message}`);
   }
 
