@@ -3,12 +3,13 @@
 import { revalidatePath } from 'next/cache';
 import { getAdminHotel } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
+import type { Database } from '@/types/database';
 
 export async function updateHotelAction(formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
 
-  const payload = {
+  const payload: Database['public']['Tables']['hotels']['Update'] = {
     name: String(formData.get('name') || ''),
     city: String(formData.get('city') || ''),
     booking_url: String(formData.get('booking_url') || ''),
@@ -29,7 +30,7 @@ export async function updateHotelAction(formData: FormData) {
     .eq('id', hotel.id);
 
   if (error) {
-    throw new Error('Não foi possível atualizar os dados do hotel.');
+    throw new Error(`Não foi possível atualizar os dados do hotel: ${error.message}`);
   }
 
   revalidatePath('/admin');
