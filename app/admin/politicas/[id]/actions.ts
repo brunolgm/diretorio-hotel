@@ -1,5 +1,6 @@
 'use server';
 
+import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getAdminHotel } from '@/lib/queries';
@@ -22,10 +23,18 @@ export async function updatePolicyAction(id: string, formData: FormData) {
     .eq('hotel_id', hotel.id);
 
   if (error) {
-    throw new Error(`Não foi possível atualizar a política: ${error.message}`);
+    redirect(
+      `/admin/politicas/${id}?error=${encodeURIComponent(
+        `Não foi possível atualizar a política: ${error.message}`
+      )}`
+    );
   }
 
   revalidatePath('/admin/politicas');
   revalidatePath(`/admin/politicas/${id}`);
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect(
+    `/admin/politicas/${id}?success=${encodeURIComponent('Política atualizada com sucesso')}`
+  );
 }

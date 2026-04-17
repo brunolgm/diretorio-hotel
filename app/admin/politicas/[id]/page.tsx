@@ -1,13 +1,22 @@
 import { createClient } from '@/lib/supabase/server';
 import { getAdminHotel } from '@/lib/queries';
 import { updatePolicyAction } from './actions';
+import { FeedbackToast } from '@/components/feedback-toast';
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{
+    success?: string;
+    error?: string;
+  }>;
 }
 
-export default async function EditPolicyPage({ params }: PageProps) {
+export default async function EditPolicyPage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const success = resolvedSearchParams?.success;
+  const errorMessage = resolvedSearchParams?.error;
+
   const supabase = await createClient();
   const hotel = await getAdminHotel();
 
@@ -26,12 +35,19 @@ export default async function EditPolicyPage({ params }: PageProps) {
 
   return (
     <main className="space-y-6">
-      <div className="rounded-3xl bg-white p-8 shadow-sm">
+      <FeedbackToast success={success} error={errorMessage} />
+
+      <div className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70">
         <p className="text-sm text-slate-500">Editar registro</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Editar política</h1>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
+          Editar política
+        </h1>
       </div>
 
-      <form action={action} className="rounded-3xl bg-white p-8 shadow-sm">
+      <form
+        action={action}
+        className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70"
+      >
         <div className="grid gap-4">
           <div>
             <label className="mb-2 block text-sm font-medium">Título</label>

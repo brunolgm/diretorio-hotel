@@ -1,5 +1,6 @@
 'use server';
 
+import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getAdminHotel } from '@/lib/queries';
@@ -25,10 +26,20 @@ export async function updateDepartmentAction(id: string, formData: FormData) {
     .eq('hotel_id', hotel.id);
 
   if (error) {
-    throw new Error(`Não foi possível atualizar o departamento: ${error.message}`);
+    redirect(
+      `/admin/departamentos/${id}?error=${encodeURIComponent(
+        `Não foi possível atualizar o departamento: ${error.message}`
+      )}`
+    );
   }
 
   revalidatePath('/admin/departamentos');
   revalidatePath(`/admin/departamentos/${id}`);
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect(
+    `/admin/departamentos/${id}?success=${encodeURIComponent(
+      'Departamento atualizado com sucesso'
+    )}`
+  );
 }

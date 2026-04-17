@@ -1,5 +1,6 @@
 'use server';
 
+import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getAdminHotel } from '@/lib/queries';
@@ -27,10 +28,16 @@ export async function updateSectionAction(id: string, formData: FormData) {
     .eq('hotel_id', hotel.id);
 
   if (error) {
-    throw new Error(`Não foi possível atualizar o serviço: ${error.message}`);
+    redirect(
+      `/admin/servicos/${id}?error=${encodeURIComponent(
+        `Não foi possível atualizar o serviço: ${error.message}`
+      )}`
+    );
   }
 
   revalidatePath('/admin/servicos');
   revalidatePath(`/admin/servicos/${id}`);
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect(`/admin/servicos/${id}?success=${encodeURIComponent('Serviço atualizado com sucesso')}`);
 }
