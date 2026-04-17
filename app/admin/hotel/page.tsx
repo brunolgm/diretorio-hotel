@@ -13,7 +13,7 @@ import {
   Upload,
 } from 'lucide-react';
 import { getAdminHotel } from '@/lib/queries';
-import { updateHotelAction } from './actions';
+import { updateHotelAction, removeHotelLogoAction } from './actions';
 import { uploadHotelLogoAction } from './upload-logo-action';
 import { FeedbackToast } from '@/components/feedback-toast';
 
@@ -325,6 +325,14 @@ export default async function AdminHotelPage({
                 </div>
               )}
             </div>
+
+            {hotel.logo_url ? (
+              <form action={removeHotelLogoAction} className="mt-4">
+                <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-red-200 bg-white px-4 text-sm font-medium text-red-600 transition hover:bg-red-50">
+                  Remover logo
+                </button>
+              </form>
+            ) : null}
 
             <form action={uploadHotelLogoAction} className="mt-6 space-y-4">
               <div>

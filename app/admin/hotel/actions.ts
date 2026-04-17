@@ -35,3 +35,19 @@ export async function updateHotelAction(formData: FormData) {
 
   redirect('/admin/hotel?success=Alterações salvas com sucesso');
 }
+
+export async function removeHotelLogoAction() {
+  const supabase = await createClient();
+  const hotel = await getAdminHotel();
+
+  const { error } = await supabase
+    .from('hotels')
+    .update({ logo_url: null })
+    .eq('id', hotel.id);
+
+  if (error) {
+    redirect('/admin/hotel?error=Não foi possível remover a logo');
+  }
+
+  redirect('/admin/hotel?success=Logo removida com sucesso');
+}
