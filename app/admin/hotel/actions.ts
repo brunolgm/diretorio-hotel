@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { getAdminHotel } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
@@ -30,10 +30,8 @@ export async function updateHotelAction(formData: FormData) {
     .eq('id', hotel.id);
 
   if (error) {
-    throw new Error(`Não foi possível atualizar os dados do hotel: ${error.message}`);
+    redirect('/admin/hotel?error=Não foi possível salvar os dados do hotel');
   }
 
-  revalidatePath('/admin');
-  revalidatePath('/admin/hotel');
-  revalidatePath(`/hotel/${hotel.slug}`);
+  redirect('/admin/hotel?success=Alterações salvas com sucesso');
 }
