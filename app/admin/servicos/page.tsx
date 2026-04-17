@@ -2,10 +2,23 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { getAdminHotel } from '@/lib/queries';
 import { createSectionAction, deleteSectionAction, toggleSectionAction } from './actions';
+import { FeedbackToast } from '@/components/feedback-toast';
 
-export default async function AdminServicesPage() {
+interface AdminServicesPageProps {
+  searchParams?: Promise<{
+    success?: string;
+    error?: string;
+  }>;
+}
+
+export default async function AdminServicesPage({
+  searchParams,
+}: AdminServicesPageProps) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
+  const params = searchParams ? await searchParams : {};
+  const success = params?.success;
+  const errorMessage = params?.error;
 
   const { data: sections, error } = await supabase
     .from('hotel_sections')
@@ -19,14 +32,24 @@ export default async function AdminServicesPage() {
 
   return (
     <main className="space-y-6">
-      <div className="rounded-3xl bg-white p-8 shadow-sm">
+      <FeedbackToast success={success} error={errorMessage} />
+
+      <div className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70">
         <p className="text-sm text-slate-500">Cadastro dinâmico</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Serviços e seções</h1>
-        <p className="mt-2 text-sm text-slate-600">Cadastre os cards exibidos no diretório do hóspede.</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
+          Serviços e seções
+        </h1>
+        <p className="mt-2 text-sm text-slate-600">
+          Cadastre os cards exibidos no diretório do hóspede.
+        </p>
       </div>
 
-      <form action={createSectionAction} className="rounded-3xl bg-white p-8 shadow-sm">
+      <form
+        action={createSectionAction}
+        className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70"
+      >
         <h2 className="text-lg font-semibold">Novo serviço</h2>
+
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
             <label className="mb-2 block text-sm font-medium">Título</label>
@@ -35,7 +58,11 @@ export default async function AdminServicesPage() {
 
           <div>
             <label className="mb-2 block text-sm font-medium">Ícone</label>
-            <input name="icon" defaultValue="Globe" className="w-full rounded-2xl border px-4 py-3" />
+            <input
+              name="icon"
+              defaultValue="Globe"
+              className="w-full rounded-2xl border px-4 py-3"
+            />
           </div>
 
           <div>
@@ -45,7 +72,10 @@ export default async function AdminServicesPage() {
 
           <div className="md:col-span-2">
             <label className="mb-2 block text-sm font-medium">Descrição</label>
-            <textarea name="content" className="min-h-28 w-full rounded-2xl border px-4 py-3" />
+            <textarea
+              name="content"
+              className="min-h-28 w-full rounded-2xl border px-4 py-3"
+            />
           </div>
 
           <div>
@@ -60,7 +90,12 @@ export default async function AdminServicesPage() {
 
           <div>
             <label className="mb-2 block text-sm font-medium">Ordem</label>
-            <input type="number" name="sort_order" defaultValue="0" className="w-full rounded-2xl border px-4 py-3" />
+            <input
+              type="number"
+              name="sort_order"
+              defaultValue="0"
+              className="w-full rounded-2xl border px-4 py-3"
+            />
           </div>
 
           <label className="flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium">
@@ -78,7 +113,10 @@ export default async function AdminServicesPage() {
 
       <div className="space-y-4">
         {sections?.map((item) => (
-          <div key={item.id} className="rounded-3xl bg-white p-6 shadow-sm">
+          <div
+            key={item.id}
+            className="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70"
+          >
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <div className="flex items-center gap-2">

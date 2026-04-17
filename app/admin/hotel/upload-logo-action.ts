@@ -1,5 +1,6 @@
 'use server';
 
+import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getAdminHotel } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
@@ -7,12 +8,14 @@ import { createClient } from '@/lib/supabase/server';
 export async function uploadHotelLogoAction(formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
-  const file = formData.get('logo') as File | null;
 
-  if (!file || file.size === 0) {
-    throw new Error('Arquivo de logo não enviado.');
+  const fileEntry = formData.get('logo');
+
+  if (!(fileEntry instanceof File) || fileEntry.size === 0) {
+    redirect('/admin/hotel?error=Selecione uma imagem antes de enviar');
   }
 
+  const file = fileEntry;
   const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
   const path = `${hotel.id}/logo.${ext}`;
 
@@ -24,8 +27,7 @@ export async function uploadHotelLogoAction(formData: FormData) {
     });
 
   if (uploadError) {
-    console.error('Erro no upload da logo:', uploadError);
-    throw new Error(`Não foi possível enviar a logo: ${uploadError.message}`);
+    redirect(`/admin/hotel?error=${encodeURIComponent(`Não foi possível enviar a logo: ${uploadError.message}`)}`);
   }
 
   const { data } = supabase.storage.from('hotel-assets').getPublicUrl(path);
@@ -36,10 +38,11 @@ export async function uploadHotelLogoAction(formData: FormData) {
     .eq('id', hotel.id);
 
   if (updateError) {
-    console.error('Erro ao atualizar logo_url do hotel:', updateError);
-    throw new Error(`Logo enviada, mas não foi possível atualizar o hotel: ${updateError.message}`);
+    redirect(`/admin/hotel?error=${encodeURIComponent(`Logo enviada, mas não foi possível atualizar o hotel: ${updateError.message}`)}`);
   }
 
   revalidatePath('/admin/hotel');
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect('/admin/hotel?success=Logo enviada com sucesso');
 }

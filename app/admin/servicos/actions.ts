@@ -1,5 +1,6 @@
 'use server';
 
+import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getAdminHotel } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
@@ -23,11 +24,13 @@ export async function createSectionAction(formData: FormData) {
   const { error } = await supabase.from('hotel_sections').insert(payload);
 
   if (error) {
-    throw new Error('Não foi possível criar a seção.');
+    redirect(`/admin/servicos?error=${encodeURIComponent(`Não foi possível criar o serviço: ${error.message}`)}`);
   }
 
   revalidatePath('/admin/servicos');
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect('/admin/servicos?success=Serviço criado com sucesso');
 }
 
 export async function deleteSectionAction(formData: FormData) {
@@ -38,11 +41,13 @@ export async function deleteSectionAction(formData: FormData) {
   const { error } = await supabase.from('hotel_sections').delete().eq('id', id);
 
   if (error) {
-    throw new Error('Não foi possível excluir a seção.');
+    redirect(`/admin/servicos?error=${encodeURIComponent(`Não foi possível excluir o serviço: ${error.message}`)}`);
   }
 
   revalidatePath('/admin/servicos');
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect('/admin/servicos?success=Serviço excluído com sucesso');
 }
 
 export async function toggleSectionAction(formData: FormData) {
@@ -57,9 +62,11 @@ export async function toggleSectionAction(formData: FormData) {
     .eq('id', id);
 
   if (error) {
-    throw new Error('Não foi possível atualizar o status da seção.');
+    redirect(`/admin/servicos?error=${encodeURIComponent(`Não foi possível atualizar o status do serviço: ${error.message}`)}`);
   }
 
   revalidatePath('/admin/servicos');
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect(`/admin/servicos?success=${encodeURIComponent(enabled ? 'Serviço ativado com sucesso' : 'Serviço desativado com sucesso')}`);
 }

@@ -1,5 +1,6 @@
 'use server';
 
+import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getAdminHotel } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
@@ -18,11 +19,13 @@ export async function createPolicyAction(formData: FormData) {
   const { error } = await supabase.from('hotel_policies').insert(payload);
 
   if (error) {
-    throw new Error('Não foi possível criar a política.');
+    redirect(`/admin/politicas?error=${encodeURIComponent(`Não foi possível criar a política: ${error.message}`)}`);
   }
 
   revalidatePath('/admin/politicas');
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect('/admin/politicas?success=Política criada com sucesso');
 }
 
 export async function deletePolicyAction(formData: FormData) {
@@ -33,11 +36,13 @@ export async function deletePolicyAction(formData: FormData) {
   const { error } = await supabase.from('hotel_policies').delete().eq('id', id);
 
   if (error) {
-    throw new Error('Não foi possível excluir a política.');
+    redirect(`/admin/politicas?error=${encodeURIComponent(`Não foi possível excluir a política: ${error.message}`)}`);
   }
 
   revalidatePath('/admin/politicas');
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect('/admin/politicas?success=Política excluída com sucesso');
 }
 
 export async function togglePolicyAction(formData: FormData) {
@@ -52,9 +57,11 @@ export async function togglePolicyAction(formData: FormData) {
     .eq('id', id);
 
   if (error) {
-    throw new Error('Não foi possível atualizar o status da política.');
+    redirect(`/admin/politicas?error=${encodeURIComponent(`Não foi possível atualizar o status da política: ${error.message}`)}`);
   }
 
   revalidatePath('/admin/politicas');
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect(`/admin/politicas?success=${encodeURIComponent(enabled ? 'Política ativada com sucesso' : 'Política desativada com sucesso')}`);
 }

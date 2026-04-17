@@ -1,5 +1,6 @@
 'use server';
 
+import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getAdminHotel } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
@@ -21,11 +22,13 @@ export async function createDepartmentAction(formData: FormData) {
   const { error } = await supabase.from('hotel_departments').insert(payload);
 
   if (error) {
-    throw new Error('Não foi possível criar o departamento.');
+    redirect(`/admin/departamentos?error=${encodeURIComponent(`Não foi possível criar o departamento: ${error.message}`)}`);
   }
 
   revalidatePath('/admin/departamentos');
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect('/admin/departamentos?success=Departamento criado com sucesso');
 }
 
 export async function deleteDepartmentAction(formData: FormData) {
@@ -36,11 +39,13 @@ export async function deleteDepartmentAction(formData: FormData) {
   const { error } = await supabase.from('hotel_departments').delete().eq('id', id);
 
   if (error) {
-    throw new Error('Não foi possível excluir o departamento.');
+    redirect(`/admin/departamentos?error=${encodeURIComponent(`Não foi possível excluir o departamento: ${error.message}`)}`);
   }
 
   revalidatePath('/admin/departamentos');
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect('/admin/departamentos?success=Departamento excluído com sucesso');
 }
 
 export async function toggleDepartmentAction(formData: FormData) {
@@ -55,9 +60,11 @@ export async function toggleDepartmentAction(formData: FormData) {
     .eq('id', id);
 
   if (error) {
-    throw new Error('Não foi possível atualizar o status do departamento.');
+    redirect(`/admin/departamentos?error=${encodeURIComponent(`Não foi possível atualizar o status do departamento: ${error.message}`)}`);
   }
 
   revalidatePath('/admin/departamentos');
   revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect(`/admin/departamentos?success=${encodeURIComponent(enabled ? 'Departamento ativado com sucesso' : 'Departamento desativado com sucesso')}`);
 }
