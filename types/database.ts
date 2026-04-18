@@ -208,6 +208,132 @@ export interface Database {
         ];
       };
 
+      hotel_section_translations: {
+        Row: {
+          id: string;
+          section_id: string;
+          language: string;
+          title: string | null;
+          content: string | null;
+          cta: string | null;
+          category: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          section_id: string;
+          language: string;
+          title?: string | null;
+          content?: string | null;
+          cta?: string | null;
+          category?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          section_id?: string;
+          language?: string;
+          title?: string | null;
+          content?: string | null;
+          cta?: string | null;
+          category?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'hotel_section_translations_section_id_fkey';
+            columns: ['section_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotel_sections';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
+      hotel_department_translations: {
+        Row: {
+          id: string;
+          department_id: string;
+          language: string;
+          name: string | null;
+          description: string | null;
+          action: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          department_id: string;
+          language: string;
+          name?: string | null;
+          description?: string | null;
+          action?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          department_id?: string;
+          language?: string;
+          name?: string | null;
+          description?: string | null;
+          action?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'hotel_department_translations_department_id_fkey';
+            columns: ['department_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotel_departments';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
+      hotel_policy_translations: {
+        Row: {
+          id: string;
+          policy_id: string;
+          language: string;
+          title: string | null;
+          description: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          policy_id: string;
+          language: string;
+          title?: string | null;
+          description?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          policy_id?: string;
+          language?: string;
+          title?: string | null;
+          description?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'hotel_policy_translations_policy_id_fkey';
+            columns: ['policy_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotel_policies';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
       profiles: {
         Row: {
           id: string;

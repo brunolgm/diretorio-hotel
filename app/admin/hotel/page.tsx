@@ -275,7 +275,7 @@ export default async function AdminHotelPage({
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <button className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800">
+            <button className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2">
               Salvar alterações
             </button>
 
@@ -328,7 +328,7 @@ export default async function AdminHotelPage({
 
             {hotel.logo_url ? (
               <form action={removeHotelLogoAction} className="mt-4">
-                <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-red-200 bg-white px-4 text-sm font-medium text-red-600 transition hover:bg-red-50">
+                <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-red-200 bg-white px-4 text-sm font-medium text-red-600 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 focus-visible:ring-offset-2">
                   Remover logo
                 </button>
               </form>
@@ -344,11 +344,11 @@ export default async function AdminHotelPage({
                   name="logo"
                   accept="image/*"
                   required
-                  className="block w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm"
+                  className="block w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm outline-none transition focus:border-slate-300 focus:bg-white focus-visible:ring-2 focus-visible:ring-slate-200"
                 />
               </div>
 
-              <button className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800">
+              <button className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2">
                 <Upload className="mr-2 h-4 w-4" />
                 Enviar logo
               </button>

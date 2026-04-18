@@ -1,13 +1,10 @@
-import Link from 'next/link';
 import {
-  Building2,
   Phone,
   Clock3,
   CheckCircle2,
   ShieldCheck,
   Sparkles,
   Plus,
-  ArrowRight,
   Power,
   Pencil,
   Trash2,
@@ -22,39 +19,32 @@ import {
   toggleDepartmentAction,
 } from './actions';
 import { FeedbackToast } from '@/components/feedback-toast';
+import {
+  AdminActionGroup,
+  AdminCheckboxRow,
+  AdminEmptyState,
+  AdminField,
+  AdminFormGrid,
+  AdminInfoBadge,
+  AdminLinkButton,
+  AdminListItem,
+  AdminPageHero,
+  AdminPrimaryButton,
+  AdminSecondaryButton,
+  AdminDangerButton,
+  AdminSectionTitle,
+  AdminStatCard,
+  AdminStatusPill,
+  AdminSurface,
+  AdminTextInput,
+  AdminTextarea,
+} from '@/components/admin/ui';
 
 interface AdminDepartmentsPageProps {
   searchParams?: Promise<{
     success?: string;
     error?: string;
   }>;
-}
-
-function StatCard({
-  icon: Icon,
-  title,
-  value,
-  description,
-}: {
-  icon: React.ElementType;
-  title: string;
-  value: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm text-slate-500">{title}</p>
-          <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">{value}</p>
-        </div>
-        <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-      <p className="mt-4 text-sm leading-6 text-slate-600">{description}</p>
-    </div>
-  );
 }
 
 export default async function AdminDepartmentsPage({
@@ -84,24 +74,12 @@ export default async function AdminDepartmentsPage({
     <main className="space-y-6">
       <FeedbackToast success={success} error={errorMessage} />
 
-      <section className="overflow-hidden rounded-[32px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_55%,#1e293b_100%)] p-8 text-white shadow-sm md:p-10">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 backdrop-blur">
-              <Building2 className="h-3.5 w-3.5" />
-              Gestão de departamentos
-            </div>
-
-            <h1 className="mt-6 text-3xl font-semibold tracking-tight md:text-4xl">
-              Departamentos e contatos
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200 md:text-base">
-              Gerencie os setores que o hóspede pode acionar diretamente no diretório digital, com
-              clareza, organização e resposta rápida.
-            </p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:w-[360px]">
+      <AdminPageHero
+        eyebrow="gestão de departamentos"
+        title="Departamentos e contatos"
+        description="Gerencie os setores que o hóspede pode acionar diretamente no diretório digital, com clareza, organização e resposta rápida."
+        rightSlot={
+          <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
               <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Hotel</p>
               <p className="mt-2 text-lg font-semibold text-white">{hotel.name}</p>
@@ -114,30 +92,30 @@ export default async function AdminDepartmentsPage({
               </p>
             </div>
           </div>
-        </div>
-      </section>
+        }
+      />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={Users}
+        <AdminStatCard
+          icon={<Users className="h-5 w-5" />}
           title="Total de departamentos"
           value={String(totalDepartments)}
           description="Quantidade total de setores cadastrados no painel."
         />
-        <StatCard
-          icon={Phone}
+        <AdminStatCard
+          icon={<Phone className="h-5 w-5" />}
           title="Ativos"
           value={String(activeDepartments)}
           description="Setores atualmente visíveis para contato no diretório."
         />
-        <StatCard
-          icon={Power}
+        <AdminStatCard
+          icon={<Power className="h-5 w-5" />}
           title="Inativos"
           value={String(inactiveDepartments)}
           description="Departamentos cadastrados, mas ocultos no momento."
         />
-        <StatCard
-          icon={ShieldCheck}
+        <AdminStatCard
+          icon={<ShieldCheck className="h-5 w-5" />}
           title="Atendimento"
           value="Organizado"
           description="Os contatos do hotel podem ser mantidos sempre atualizados."
@@ -145,193 +123,130 @@ export default async function AdminDepartmentsPage({
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
-        <form
-          action={createDepartmentAction}
-          className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm text-slate-500">Cadastro rápido</p>
-              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                Novo departamento
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Cadastre setores como Recepção, Reservas, Governança, Eventos e outros canais de
-                atendimento do hotel.
-              </p>
-            </div>
+        <AdminSurface>
+          <AdminSectionTitle
+            eyebrow="Cadastro rápido"
+            title="Novo departamento"
+            description="Cadastre setores como Recepção, Reservas, Governança, Eventos e outros canais de atendimento do hotel."
+            action={<AdminInfoBadge>Canal disponível no diretório</AdminInfoBadge>}
+          />
 
-            <div className="hidden rounded-2xl bg-slate-100 p-3 text-slate-700 md:block">
-              <Plus className="h-5 w-5" />
-            </div>
-          </div>
+          <form action={createDepartmentAction}>
+            <AdminFormGrid>
+              <AdminField label="Nome" className="md:col-span-2">
+                <AdminTextInput name="name" required placeholder="Ex.: Recepção" />
+              </AdminField>
 
-          <div className="mt-8 grid gap-5 md:grid-cols-2">
-            <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700">Nome</label>
-              <input
-                name="name"
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
-                required
-                placeholder="Ex.: Recepção"
-              />
-            </div>
-
-            <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700">Descrição</label>
-              <textarea
-                name="description"
-                className="min-h-32 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
-                placeholder="Descreva como esse departamento atende o hóspede."
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Horário</label>
-              <div className="relative">
-                <Clock3 className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  name="hours"
-                  className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-11 pr-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
-                  placeholder="Ex.: 24 horas"
+              <AdminField label="Descrição" className="md:col-span-2">
+                <AdminTextarea
+                  name="description"
+                  placeholder="Descreva como esse departamento atende o hóspede."
                 />
-              </div>
+              </AdminField>
+
+              <AdminField label="Horário">
+                <div className="relative">
+                  <Clock3 className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <AdminTextInput
+                    name="hours"
+                    className="pl-11"
+                    placeholder="Ex.: 24 horas"
+                  />
+                </div>
+              </AdminField>
+
+              <AdminField label="Texto do botão">
+                <AdminTextInput name="action" placeholder="Ex.: Falar com a Recepção" />
+              </AdminField>
+
+              <AdminField label="Link" className="md:col-span-2">
+                <div className="relative">
+                  <MessageCircle className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <AdminTextInput
+                    name="url"
+                    className="pl-11"
+                    placeholder="https://... ou link do WhatsApp"
+                  />
+                </div>
+              </AdminField>
+
+              <AdminCheckboxRow className="md:col-span-2">
+                <input type="checkbox" name="enabled" defaultChecked />
+                Ativo no diretório
+              </AdminCheckboxRow>
+            </AdminFormGrid>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <AdminPrimaryButton type="submit">
+                <Plus className="mr-2 h-4 w-4" />
+                Criar departamento
+              </AdminPrimaryButton>
+
+              <AdminInfoBadge>
+                <Sparkles className="h-3.5 w-3.5" />
+                Os contatos aparecem automaticamente para o hóspede
+              </AdminInfoBadge>
             </div>
+          </form>
+        </AdminSurface>
 
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Texto do botão</label>
-              <input
-                name="action"
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
-                placeholder="Ex.: Falar com a Recepção"
-              />
-            </div>
-
-            <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700">Link</label>
-              <div className="relative">
-                <MessageCircle className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  name="url"
-                  className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-11 pr-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
-                  placeholder="https://... ou link do WhatsApp"
-                />
-              </div>
-            </div>
-
-            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm font-medium text-slate-700 md:col-span-2">
-              <input type="checkbox" name="enabled" defaultChecked />
-              Ativo no diretório
-            </label>
-          </div>
-
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <button className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800">
-              <Plus className="mr-2 h-4 w-4" />
-              Criar departamento
-            </button>
-
-            <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-medium text-slate-600">
-              <Sparkles className="h-3.5 w-3.5" />
-              Os contatos aparecem automaticamente para o hóspede
-            </div>
-          </div>
-        </form>
-
-        <div className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-slate-500">Setores cadastrados</p>
-              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                Lista de departamentos
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Edite, ative, desative ou remova os canais de atendimento disponíveis.
-              </p>
-            </div>
-
-            <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-medium text-slate-600">
-              <ArrowRight className="h-3.5 w-3.5" />
-              Gestão rápida
-            </div>
-          </div>
+        <AdminSurface>
+          <AdminSectionTitle
+            eyebrow="Setores cadastrados"
+            title="Lista de departamentos"
+            description="Edite, ative, desative ou remova os canais de atendimento disponíveis."
+            action={<AdminInfoBadge>Gestão rápida</AdminInfoBadge>}
+          />
 
           <div className="mt-6 space-y-4">
             {departments?.length ? (
               departments.map((item) => (
-                <div
+                <AdminListItem
                   key={item.id}
-                  className="rounded-[28px] border border-slate-200 bg-slate-50/60 p-5 transition hover:bg-white"
-                >
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-lg font-semibold tracking-tight text-slate-950">
-                          {item.name}
-                        </h3>
-
-                        {!item.enabled ? (
-                          <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
-                            Inativo
-                          </span>
-                        ) : (
-                          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
-                            Ativo
-                          </span>
-                        )}
-                      </div>
-
-                      <p className="mt-3 text-sm leading-6 text-slate-600">
-                        {item.description || 'Sem descrição cadastrada.'}
-                      </p>
-
-                      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                        <span>Horário: {item.hours || 'Não informado'}</span>
-                        <span>Botão: {item.action || '—'}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <Link
-                        href={`/admin/departamentos/${item.id}`}
-                        className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-                      >
+                  title={item.name}
+                  description={item.description || 'Sem descrição cadastrada.'}
+                  status={<AdminStatusPill active={Boolean(item.enabled)} />}
+                  meta={
+                    <>
+                      <span>Horário: {item.hours || 'Não informado'}</span>
+                      <span>Botão: {item.action || '—'}</span>
+                    </>
+                  }
+                  actions={
+                    <AdminActionGroup>
+                      <AdminLinkButton href={`/admin/departamentos/${item.id}`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Editar
-                      </Link>
+                      </AdminLinkButton>
 
                       <form action={toggleDepartmentAction}>
                         <input type="hidden" name="id" value={item.id} />
                         <input type="hidden" name="enabled" value={String(!item.enabled)} />
-                        <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                        <AdminSecondaryButton type="submit">
                           <Power className="mr-2 h-4 w-4" />
                           {item.enabled ? 'Desativar' : 'Ativar'}
-                        </button>
+                        </AdminSecondaryButton>
                       </form>
 
                       <form action={deleteDepartmentAction}>
                         <input type="hidden" name="id" value={item.id} />
-                        <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-red-200 bg-white px-4 text-sm font-medium text-red-600 transition hover:bg-red-50">
+                        <AdminDangerButton type="submit">
                           <Trash2 className="mr-2 h-4 w-4" />
                           Excluir
-                        </button>
+                        </AdminDangerButton>
                       </form>
-                    </div>
-                  </div>
-                </div>
+                    </AdminActionGroup>
+                  }
+                />
               ))
             ) : (
-              <div className="rounded-[28px] border border-dashed border-slate-200 bg-slate-50 p-10 text-center">
-                <p className="text-base font-semibold text-slate-900">
-                  Nenhum departamento cadastrado ainda
-                </p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Crie o primeiro setor de atendimento para exibir canais de contato ao hóspede.
-                </p>
-              </div>
+              <AdminEmptyState
+                title="Nenhum departamento cadastrado ainda"
+                description="Crie o primeiro setor de atendimento para exibir canais de contato ao hóspede."
+              />
             )}
           </div>
-        </div>
+        </AdminSurface>
       </section>
     </main>
   );

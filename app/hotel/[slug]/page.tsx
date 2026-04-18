@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import {
   ArrowUpRight,
@@ -24,12 +23,21 @@ interface PageProps {
   params: Promise<{
     slug: string;
   }>;
+  searchParams?: Promise<{
+    lang?: string;
+  }>;
 }
 
+type SupportedLanguage = 'pt' | 'en' | 'es';
 type HotelRow = Database['public']['Tables']['hotels']['Row'];
 type HotelSection = Database['public']['Tables']['hotel_sections']['Row'];
 type HotelDepartment = Database['public']['Tables']['hotel_departments']['Row'];
 type HotelPolicy = Database['public']['Tables']['hotel_policies']['Row'];
+type HotelSectionTranslation =
+  Database['public']['Tables']['hotel_section_translations']['Row'];
+type HotelDepartmentTranslation =
+  Database['public']['Tables']['hotel_department_translations']['Row'];
+type HotelPolicyTranslation = Database['public']['Tables']['hotel_policy_translations']['Row'];
 
 function SectionIcon({
   iconName,
@@ -109,7 +117,7 @@ function SectionCard({ item }: { item: HotelSection }) {
           </div>
 
           <p className="mt-3 text-sm leading-7 text-slate-600">
-            {item.content || 'InformaÃ§Ã£o nÃ£o disponÃ­vel.'}
+            {item.content || 'Informação não disponível.'}
           </p>
 
           <div className="mt-4">
@@ -190,7 +198,7 @@ function PolicyCard({ item }: { item: HotelPolicy }) {
         <div>
           <h3 className="text-base font-semibold tracking-tight text-slate-950">{item.title}</h3>
           <p className="mt-2 text-sm leading-7 text-slate-600">
-            {item.description || 'PolÃ­tica do hotel.'}
+            {item.description || 'Política do hotel.'}
           </p>
         </div>
       </div>
@@ -198,8 +206,12 @@ function PolicyCard({ item }: { item: HotelPolicy }) {
   );
 }
 
-export default async function HotelPublicPage({ params }: PageProps) {
+export default async function HotelPublicPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const requestedLang = resolvedSearchParams?.lang;
+  const lang: SupportedLanguage =
+    requestedLang === 'en' || requestedLang === 'es' ? requestedLang : 'pt';
   const supabase = await createClient();
 
   const { data: hotel, error: hotelError } = await supabase
@@ -238,9 +250,114 @@ export default async function HotelPublicPage({ params }: PageProps) {
   const typedDepartments: HotelDepartment[] = departments || [];
   const typedPolicies: HotelPolicy[] = policies || [];
 
+  const [sectionTranslationsResult, departmentTranslationsResult, policyTranslationsResult] =
+    lang === 'pt'
+      ? [{ data: [] }, { data: [] }, { data: [] }]
+      : await Promise.all([
+          typedSections.length
+            ? supabase
+                .from('hotel_section_translations')
+                .select('*')
+                .in(
+                  'section_id',
+                  typedSections.map((item) => item.id)
+                )
+                .eq('language', lang)
+            : Promise.resolve({ data: [], error: null }),
+          typedDepartments.length
+            ? supabase
+                .from('hotel_department_translations')
+                .select('*')
+                .in(
+                  'department_id',
+                  typedDepartments.map((item) => item.id)
+                )
+                .eq('language', lang)
+            : Promise.resolve({ data: [], error: null }),
+          typedPolicies.length
+            ? supabase
+                .from('hotel_policy_translations')
+                .select('*')
+                .in(
+                  'policy_id',
+                  typedPolicies.map((item) => item.id)
+                )
+                .eq('language', lang)
+            : Promise.resolve({ data: [], error: null }),
+        ]);
+
+  if (lang !== 'pt') {
+    if (sectionTranslationsResult.error) {
+      console.error('Failed to load section translations:', sectionTranslationsResult.error);
+    }
+    if (departmentTranslationsResult.error) {
+      console.error(
+        'Failed to load department translations:',
+        departmentTranslationsResult.error
+      );
+    }
+    if (policyTranslationsResult.error) {
+      console.error('Failed to load policy translations:', policyTranslationsResult.error);
+    }
+  }
+
+  const sectionTranslations = (sectionTranslationsResult.data || []) as HotelSectionTranslation[];
+  const departmentTranslations = (departmentTranslationsResult.data ||
+    []) as HotelDepartmentTranslation[];
+  const policyTranslations = (policyTranslationsResult.data || []) as HotelPolicyTranslation[];
+
+  const sectionTranslationsById = new Map(
+    sectionTranslations.map((translation) => [translation.section_id, translation])
+  );
+  const departmentTranslationsById = new Map(
+    departmentTranslations.map((translation) => [translation.department_id, translation])
+  );
+  const policyTranslationsById = new Map(
+    policyTranslations.map((translation) => [translation.policy_id, translation])
+  );
+
+  const displaySections = typedSections.map((item) => {
+    const translation = sectionTranslationsById.get(item.id);
+
+    return {
+      ...item,
+      title: translation?.title ?? item.title,
+      content: translation?.content ?? item.content,
+      cta: translation?.cta ?? item.cta,
+      category: translation?.category ?? item.category,
+    };
+  });
+
+  const displayDepartments = typedDepartments.map((item) => {
+    const translation = departmentTranslationsById.get(item.id);
+
+    return {
+      ...item,
+      name: translation?.name ?? item.name,
+      description: translation?.description ?? item.description,
+      action: translation?.action ?? item.action,
+    };
+  });
+
+  const displayPolicies = typedPolicies.map((item) => {
+    const translation = policyTranslationsById.get(item.id);
+
+    return {
+      ...item,
+      title: translation?.title ?? item.title,
+      description: translation?.description ?? item.description,
+    };
+  });
+
   const whatsappHref = typedHotel.whatsapp_number
     ? `https://wa.me/${String(typedHotel.whatsapp_number).replace(/\D/g, '')}`
     : null;
+
+  const languageLinks: Array<{ code: SupportedLanguage; label: string }> = [
+    { code: 'pt', label: 'PT' },
+    { code: 'en', label: 'EN' },
+    { code: 'es', label: 'ES' },
+  ];
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_100%)]">
@@ -250,18 +367,34 @@ export default async function HotelPublicPage({ params }: PageProps) {
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 backdrop-blur">
                 <Sparkles className="h-3.5 w-3.5" />
-                DiretÃ³rio digital
+                Diretório digital
+              </div>
+
+              <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1 text-xs font-medium text-slate-200">
+                {languageLinks.map((item) => {
+                  const isActive = item.code === lang;
+
+                  return (
+                    <a
+                      key={item.code}
+                      href={`/hotel/${typedHotel.slug}?lang=${item.code}`}
+                      className={`rounded-full px-3 py-1.5 transition ${
+                        isActive
+                          ? 'bg-white text-slate-950'
+                          : 'text-slate-200 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      {item.label}
+                    </a>
+                  );
+                })}
               </div>
 
               <div className="mt-6 flex items-start gap-4">
                 {typedHotel.logo_url ? (
-                  <Image
-                    loader={() => typedHotel.logo_url || ''}
-                    unoptimized
+                  <img
                     src={typedHotel.logo_url}
                     alt={typedHotel.name}
-                    width={64}
-                    height={64}
                     className="h-16 w-16 rounded-[20px] bg-white object-cover p-1 shadow-sm"
                   />
                 ) : (
@@ -285,15 +418,15 @@ export default async function HotelPublicPage({ params }: PageProps) {
 
                     <span className="inline-flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4" />
-                      InformaÃ§Ãµes Ãºteis em um sÃ³ lugar
+                      Informações úteis em um só lugar
                     </span>
                   </div>
                 </div>
               </div>
 
               <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-200 md:text-base">
-                Acesse serviÃ§os, contatos, orientaÃ§Ãµes e links importantes do hotel com uma
-                experiÃªncia mais rÃ¡pida, bonita e organizada.
+                Acesse serviços, contatos, orientações e links importantes do hotel com uma
+                experiência mais rápida, bonita e organizada.
               </p>
             </div>
 
@@ -310,7 +443,7 @@ export default async function HotelPublicPage({ params }: PageProps) {
                 </a>
               ) : (
                 <div className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white/80">
-                  Reservas indisponÃ­veis
+                  Reservas indisponíveis
                 </div>
               )}
 
@@ -326,7 +459,7 @@ export default async function HotelPublicPage({ params }: PageProps) {
                 </a>
               ) : (
                 <div className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white/80">
-                  Site indisponÃ­vel
+                  Site indisponível
                 </div>
               )}
 
@@ -348,27 +481,27 @@ export default async function HotelPublicPage({ params }: PageProps) {
         <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <QuickInfoCard
             icon={Coffee}
-            title="CafÃ© da manhÃ£"
-            value={typedHotel.breakfast_hours || 'NÃ£o informado'}
-            helper="HorÃ¡rio de serviÃ§o"
+            title="Café da manhã"
+            value={typedHotel.breakfast_hours || 'Não informado'}
+            helper="Horário de serviço"
           />
           <QuickInfoCard
             icon={Wifi}
             title="Wi-Fi"
-            value={typedHotel.wifi_name || 'NÃ£o informado'}
-            helper={typedHotel.wifi_password ? `Senha: ${typedHotel.wifi_password}` : 'Consulte a recepÃ§Ã£o'}
+            value={typedHotel.wifi_name || 'Não informado'}
+            helper={typedHotel.wifi_password ? `Senha: ${typedHotel.wifi_password}` : 'Consulte a recepção'}
           />
           <QuickInfoCard
             icon={Clock3}
             title="Check-in"
-            value={typedHotel.checkin_time || 'NÃ£o informado'}
-            helper="Entrada padrÃ£o"
+            value={typedHotel.checkin_time || 'Não informado'}
+            helper="Entrada padrão"
           />
           <QuickInfoCard
             icon={Clock3}
             title="Check-out"
-            value={typedHotel.checkout_time || 'NÃ£o informado'}
-            helper="SaÃ­da padrÃ£o"
+            value={typedHotel.checkout_time || 'Não informado'}
+            helper="Saída padrão"
           />
         </section>
 
@@ -377,28 +510,28 @@ export default async function HotelPublicPage({ params }: PageProps) {
             <div>
               <p className="text-sm text-slate-500">Explorar</p>
               <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-                ServiÃ§os e informaÃ§Ãµes
+                Serviços e informações
               </h2>
             </div>
 
             <div className="hidden rounded-full bg-white px-4 py-2 text-xs font-medium text-slate-600 shadow-sm ring-1 ring-slate-200/70 md:inline-flex">
-              {typedSections.length} itens disponÃ­veis
+              {displaySections.length} itens disponíveis
             </div>
           </div>
 
-          {typedSections.length ? (
+          {displaySections.length ? (
             <div className="grid gap-4 lg:grid-cols-2">
-              {typedSections.map((item) => (
+              {displaySections.map((item) => (
                 <SectionCard key={item.id} item={item} />
               ))}
             </div>
           ) : (
             <div className="rounded-[28px] border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm">
               <p className="text-base font-semibold text-slate-900">
-                Nenhum serviÃ§o disponÃ­vel no momento
+                Nenhum serviço disponível no momento
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                As informaÃ§Ãµes do diretÃ³rio serÃ£o atualizadas em breve.
+                As informações do diretório serão atualizadas em breve.
               </p>
             </div>
           )}
@@ -413,19 +546,19 @@ export default async function HotelPublicPage({ params }: PageProps) {
               </h2>
             </div>
 
-            {typedDepartments.length ? (
+            {displayDepartments.length ? (
               <div className="space-y-4">
-                {typedDepartments.map((item) => (
+                {displayDepartments.map((item) => (
                   <DepartmentCard key={item.id} item={item} />
                 ))}
               </div>
             ) : (
               <div className="rounded-[28px] border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm">
                 <p className="text-base font-semibold text-slate-900">
-                  Nenhum canal disponÃ­vel no momento
+                  Nenhum canal disponível no momento
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Os contatos do hotel serÃ£o disponibilizados em breve.
+                  Os contatos do hotel serão disponibilizados em breve.
                 </p>
               </div>
             )}
@@ -433,25 +566,25 @@ export default async function HotelPublicPage({ params }: PageProps) {
 
           <div>
             <div className="mb-4">
-              <p className="text-sm text-slate-500">InformaÃ§Ãµes importantes</p>
+              <p className="text-sm text-slate-500">Informações importantes</p>
               <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-                PolÃ­ticas do hotel
+                Políticas do hotel
               </h2>
             </div>
 
-            {typedPolicies.length ? (
+            {displayPolicies.length ? (
               <div className="space-y-4">
-                {typedPolicies.map((item) => (
+                {displayPolicies.map((item) => (
                   <PolicyCard key={item.id} item={item} />
                 ))}
               </div>
             ) : (
               <div className="rounded-[28px] border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm">
                 <p className="text-base font-semibold text-slate-900">
-                  Nenhuma polÃ­tica publicada
+                  Nenhuma política publicada
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  As orientaÃ§Ãµes do hotel aparecerÃ£o aqui quando estiverem disponÃ­veis.
+                  As orientações do hotel aparecerão aqui quando estiverem disponíveis.
                 </p>
               </div>
             )}
@@ -461,12 +594,12 @@ export default async function HotelPublicPage({ params }: PageProps) {
         <section className="mt-10 rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70 md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-2xl">
-              <p className="text-sm text-slate-500">Links Ãºteis</p>
+              <p className="text-sm text-slate-500">Links úteis</p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                Acesso rÃ¡pido
+                Acesso rápido
               </h2>
               <p className="mt-2 text-sm leading-7 text-slate-600">
-                Utilize os canais oficiais do hotel para reservas, atendimento e informaÃ§Ãµes
+                Utilize os canais oficiais do hotel para reservas, atendimento e informações
                 institucionais.
               </p>
             </div>

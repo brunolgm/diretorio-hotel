@@ -1,11 +1,66 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
-import { getAdminHotel } from '@/lib/queries';
-import type { Database } from '@/types/database';
+import { redirect } from 'next/navigation';
 import { readCheckboxBoolean, readNullableString, readTrimmedString } from '@/lib/form-utils';
+import { getAdminHotel } from '@/lib/queries';
+import { translatePolicyFields } from '@/lib/services/translation-service';
+import { createClient } from '@/lib/supabase/server';
+import type { Database } from '@/types/database';
+
+async function syncPolicyTranslations({
+  supabase,
+  policyId,
+  fields,
+}: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  policyId: string;
+  fields: {
+    title: string;
+    description: string | null;
+  };
+}) {
+  try {
+    const timestamp = new Date().toISOString();
+    const [englishTranslation, spanishTranslation] = await Promise.all([
+      translatePolicyFields(fields, 'en'),
+      translatePolicyFields(fields, 'es'),
+    ]);
+
+    const translations = [
+      englishTranslation
+        ? {
+            policy_id: policyId,
+            language: 'en' as const,
+            ...englishTranslation,
+            updated_at: timestamp,
+          }
+        : null,
+      spanishTranslation
+        ? {
+            policy_id: policyId,
+            language: 'es' as const,
+            ...spanishTranslation,
+            updated_at: timestamp,
+          }
+        : null,
+    ].filter((translation) => translation !== null);
+
+    if (!translations.length) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from('hotel_policy_translations')
+      .upsert(translations, { onConflict: 'policy_id,language' });
+
+    if (error) {
+      console.error('Failed to persist policy translations:', error);
+    }
+  } catch (error) {
+    console.error('Failed to sync policy translations:', error);
+  }
+}
 
 export async function updatePolicyAction(id: string, formData: FormData) {
   const supabase = await createClient();
@@ -35,6 +90,15 @@ export async function updatePolicyAction(id: string, formData: FormData) {
       )}`
     );
   }
+
+  await syncPolicyTranslations({
+    supabase,
+    policyId: id,
+    fields: {
+      title: payload.title || '',
+      description: payload.description ?? null,
+    },
+  });
 
   revalidatePath('/admin/politicas');
   revalidatePath(`/admin/politicas/${id}`);

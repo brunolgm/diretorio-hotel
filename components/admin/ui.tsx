@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
 import { ArrowRight } from 'lucide-react';
@@ -44,7 +45,12 @@ export function AdminSurface({
   className?: string;
 }) {
   return (
-    <div className={cn('rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70', className)}>
+    <div
+      className={cn(
+        'rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70',
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -152,13 +158,27 @@ export function AdminListItem({
             <p className="mt-3 text-sm leading-6 text-slate-600">{description}</p>
           ) : null}
 
-          {meta ? <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500">{meta}</div> : null}
+          {meta ? (
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+              {meta}
+            </div>
+          ) : null}
         </div>
 
         {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
       </div>
     </div>
   );
+}
+
+export function AdminActionGroup({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <div className={cn('flex flex-wrap gap-2', className)}>{children}</div>;
 }
 
 export function AdminPrimaryButton({
@@ -174,7 +194,7 @@ export function AdminPrimaryButton({
     <button
       type={type}
       className={cn(
-        'inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800',
+        'inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2',
         className
       )}
     >
@@ -196,7 +216,7 @@ export function AdminSecondaryButton({
     <button
       type={type}
       className={cn(
-        'inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50',
+        'inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2',
         className
       )}
     >
@@ -218,12 +238,39 @@ export function AdminDangerButton({
     <button
       type={type}
       className={cn(
-        'inline-flex h-11 items-center justify-center rounded-2xl border border-red-200 bg-white px-4 text-sm font-medium text-red-600 transition hover:bg-red-50',
+        'inline-flex h-11 items-center justify-center rounded-2xl border border-red-200 bg-white px-4 text-sm font-medium text-red-600 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 focus-visible:ring-offset-2',
         className
       )}
     >
       {children}
     </button>
+  );
+}
+
+export function AdminLinkButton({
+  href,
+  children,
+  className,
+  variant = 'secondary',
+}: {
+  href: string;
+  children: ReactNode;
+  className?: string;
+  variant?: 'secondary' | 'danger';
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        'inline-flex items-center justify-center rounded-2xl text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+        variant === 'secondary'
+          ? 'h-11 border border-slate-200 bg-white px-4 text-slate-700 hover:bg-slate-50 focus-visible:ring-slate-300'
+          : 'h-11 border border-red-200 bg-white px-4 text-red-600 hover:bg-red-50 focus-visible:ring-red-200',
+        className
+      )}
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -259,7 +306,7 @@ export function AdminTextInput(props: React.InputHTMLAttributes<HTMLInputElement
     <input
       {...props}
       className={cn(
-        'h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white',
+        'h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white focus-visible:ring-2 focus-visible:ring-slate-200',
         props.className
       )}
     />
@@ -271,10 +318,29 @@ export function AdminTextarea(props: React.TextareaHTMLAttributes<HTMLTextAreaEl
     <textarea
       {...props}
       className={cn(
-        'min-h-32 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm outline-none transition focus:border-slate-300 focus:bg-white',
+        'min-h-32 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm outline-none transition focus:border-slate-300 focus:bg-white focus-visible:ring-2 focus-visible:ring-slate-200',
         props.className
       )}
     />
+  );
+}
+
+export function AdminCheckboxRow({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <label
+      className={cn(
+        'flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm font-medium text-slate-700',
+        className
+      )}
+    >
+      {children}
+    </label>
   );
 }
 

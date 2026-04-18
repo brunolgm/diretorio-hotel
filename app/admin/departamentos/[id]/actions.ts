@@ -1,16 +1,72 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
-import { getAdminHotel } from '@/lib/queries';
-import type { Database } from '@/types/database';
+import { redirect } from 'next/navigation';
 import {
   readCheckboxBoolean,
   readNullableString,
   readOptionalUrl,
   readTrimmedString,
 } from '@/lib/form-utils';
+import { getAdminHotel } from '@/lib/queries';
+import { translateDepartmentFields } from '@/lib/services/translation-service';
+import { createClient } from '@/lib/supabase/server';
+import type { Database } from '@/types/database';
+
+async function syncDepartmentTranslations({
+  supabase,
+  departmentId,
+  fields,
+}: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  departmentId: string;
+  fields: {
+    name: string;
+    description: string | null;
+    action: string | null;
+  };
+}) {
+  try {
+    const timestamp = new Date().toISOString();
+    const [englishTranslation, spanishTranslation] = await Promise.all([
+      translateDepartmentFields(fields, 'en'),
+      translateDepartmentFields(fields, 'es'),
+    ]);
+
+    const translations = [
+      englishTranslation
+        ? {
+            department_id: departmentId,
+            language: 'en' as const,
+            ...englishTranslation,
+            updated_at: timestamp,
+          }
+        : null,
+      spanishTranslation
+        ? {
+            department_id: departmentId,
+            language: 'es' as const,
+            ...spanishTranslation,
+            updated_at: timestamp,
+          }
+        : null,
+    ].filter((translation) => translation !== null);
+
+    if (!translations.length) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from('hotel_department_translations')
+      .upsert(translations, { onConflict: 'department_id,language' });
+
+    if (error) {
+      console.error('Failed to persist department translations:', error);
+    }
+  } catch (error) {
+    console.error('Failed to sync department translations:', error);
+  }
+}
 
 export async function updateDepartmentAction(id: string, formData: FormData) {
   const supabase = await createClient();
@@ -49,6 +105,16 @@ export async function updateDepartmentAction(id: string, formData: FormData) {
       )}`
     );
   }
+
+  await syncDepartmentTranslations({
+    supabase,
+    departmentId: id,
+    fields: {
+      name: payload.name || '',
+      description: payload.description ?? null,
+      action: payload.action ?? null,
+    },
+  });
 
   revalidatePath('/admin/departamentos');
   revalidatePath(`/admin/departamentos/${id}`);

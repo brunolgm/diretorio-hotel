@@ -1,10 +1,7 @@
-import Link from 'next/link';
 import {
-  ShieldCheck,
   CheckCircle2,
   Sparkles,
   Plus,
-  ArrowRight,
   Power,
   Pencil,
   Trash2,
@@ -17,39 +14,31 @@ import { createClient } from '@/lib/supabase/server';
 import { getAdminHotel } from '@/lib/queries';
 import { createPolicyAction, deletePolicyAction, togglePolicyAction } from './actions';
 import { FeedbackToast } from '@/components/feedback-toast';
+import {
+  AdminActionGroup,
+  AdminCheckboxRow,
+  AdminEmptyState,
+  AdminField,
+  AdminInfoBadge,
+  AdminLinkButton,
+  AdminListItem,
+  AdminPageHero,
+  AdminPrimaryButton,
+  AdminSecondaryButton,
+  AdminDangerButton,
+  AdminSectionTitle,
+  AdminStatCard,
+  AdminStatusPill,
+  AdminSurface,
+  AdminTextInput,
+  AdminTextarea,
+} from '@/components/admin/ui';
 
 interface AdminPoliciesPageProps {
   searchParams?: Promise<{
     success?: string;
     error?: string;
   }>;
-}
-
-function StatCard({
-  icon: Icon,
-  title,
-  value,
-  description,
-}: {
-  icon: React.ElementType;
-  title: string;
-  value: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm text-slate-500">{title}</p>
-          <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">{value}</p>
-        </div>
-        <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-      <p className="mt-4 text-sm leading-6 text-slate-600">{description}</p>
-    </div>
-  );
 }
 
 export default async function AdminPoliciesPage({
@@ -79,24 +68,12 @@ export default async function AdminPoliciesPage({
     <main className="space-y-6">
       <FeedbackToast success={success} error={errorMessage} />
 
-      <section className="overflow-hidden rounded-[32px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_55%,#1e293b_100%)] p-8 text-white shadow-sm md:p-10">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 backdrop-blur">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Regras do hotel
-            </div>
-
-            <h1 className="mt-6 text-3xl font-semibold tracking-tight md:text-4xl">
-              Políticas e orientações
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200 md:text-base">
-              Organize as regras, orientações e informações institucionais que precisam estar
-              claras para o hóspede durante toda a estadia.
-            </p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:w-[360px]">
+      <AdminPageHero
+        eyebrow="regras do hotel"
+        title="Políticas e orientações"
+        description="Organize as regras, orientações e informações institucionais que precisam estar claras para o hóspede durante toda a estadia."
+        rightSlot={
+          <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
               <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Hotel</p>
               <p className="mt-2 text-lg font-semibold text-white">{hotel.name}</p>
@@ -109,30 +86,30 @@ export default async function AdminPoliciesPage({
               </p>
             </div>
           </div>
-        </div>
-      </section>
+        }
+      />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={FileText}
+        <AdminStatCard
+          icon={<FileText className="h-5 w-5" />}
           title="Total de políticas"
           value={String(totalPolicies)}
           description="Quantidade total de regras e orientações cadastradas."
         />
-        <StatCard
-          icon={Eye}
+        <AdminStatCard
+          icon={<Eye className="h-5 w-5" />}
           title="Ativas"
           value={String(activePolicies)}
           description="Políticas atualmente visíveis no diretório público."
         />
-        <StatCard
-          icon={Power}
+        <AdminStatCard
+          icon={<Power className="h-5 w-5" />}
           title="Inativas"
           value={String(inactivePolicies)}
           description="Políticas cadastradas, mas ocultas no momento."
         />
-        <StatCard
-          icon={Scale}
+        <AdminStatCard
+          icon={<Scale className="h-5 w-5" />}
           title="Conformidade"
           value="Organizada"
           description="As regras do hotel podem ser mantidas claras e atualizadas."
@@ -140,160 +117,105 @@ export default async function AdminPoliciesPage({
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
-        <form
-          action={createPolicyAction}
-          className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm text-slate-500">Cadastro rápido</p>
-              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                Nova política
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Cadastre regras como check-in, check-out, não fumante, pets, uso de áreas comuns e
-                demais orientações importantes.
-              </p>
+        <AdminSurface>
+          <AdminSectionTitle
+            eyebrow="Cadastro rápido"
+            title="Nova política"
+            description="Cadastre regras como check-in, check-out, não fumante, pets, uso de áreas comuns e demais orientações importantes."
+            action={<AdminInfoBadge>Regras visíveis ao hóspede</AdminInfoBadge>}
+          />
+
+          <form action={createPolicyAction}>
+            <div className="mt-8 grid gap-5">
+              <AdminField label="Título">
+                <AdminTextInput name="title" required placeholder="Ex.: Não fumar" />
+              </AdminField>
+
+              <AdminField label="Descrição">
+                <AdminTextarea
+                  name="description"
+                  className="min-h-36"
+                  placeholder="Descreva claramente a política para o hóspede."
+                />
+              </AdminField>
+
+              <AdminCheckboxRow>
+                <input type="checkbox" name="enabled" defaultChecked />
+                Ativa no diretório
+              </AdminCheckboxRow>
             </div>
 
-            <div className="hidden rounded-2xl bg-slate-100 p-3 text-slate-700 md:block">
-              <Plus className="h-5 w-5" />
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <AdminPrimaryButton type="submit">
+                <Plus className="mr-2 h-4 w-4" />
+                Criar política
+              </AdminPrimaryButton>
+
+              <AdminInfoBadge>
+                <Sparkles className="h-3.5 w-3.5" />
+                As políticas aparecem automaticamente no diretório
+              </AdminInfoBadge>
             </div>
-          </div>
+          </form>
+        </AdminSurface>
 
-          <div className="mt-8 grid gap-5">
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Título</label>
-              <input
-                name="title"
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
-                required
-                placeholder="Ex.: Não fumar"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Descrição</label>
-              <textarea
-                name="description"
-                className="min-h-36 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
-                placeholder="Descreva claramente a política para o hóspede."
-              />
-            </div>
-
-            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm font-medium text-slate-700">
-              <input type="checkbox" name="enabled" defaultChecked />
-              Ativa no diretório
-            </label>
-          </div>
-
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <button className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800">
-              <Plus className="mr-2 h-4 w-4" />
-              Criar política
-            </button>
-
-            <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-medium text-slate-600">
-              <Sparkles className="h-3.5 w-3.5" />
-              As políticas aparecem automaticamente no diretório
-            </div>
-          </div>
-        </form>
-
-        <div className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-slate-500">Políticas cadastradas</p>
-              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                Lista de políticas
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Edite, ative, desative ou remova as regras exibidas para o hóspede.
-              </p>
-            </div>
-
-            <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-medium text-slate-600">
-              <ArrowRight className="h-3.5 w-3.5" />
-              Gestão rápida
-            </div>
-          </div>
+        <AdminSurface>
+          <AdminSectionTitle
+            eyebrow="Políticas cadastradas"
+            title="Lista de políticas"
+            description="Edite, ative, desative ou remova as regras exibidas para o hóspede."
+            action={<AdminInfoBadge>Gestão rápida</AdminInfoBadge>}
+          />
 
           <div className="mt-6 space-y-4">
             {policies?.length ? (
               policies.map((item) => (
-                <div
+                <AdminListItem
                   key={item.id}
-                  className="rounded-[28px] border border-slate-200 bg-slate-50/60 p-5 transition hover:bg-white"
-                >
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-lg font-semibold tracking-tight text-slate-950">
-                          {item.title}
-                        </h3>
-
-                        {!item.enabled ? (
-                          <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
-                            Inativa
-                          </span>
-                        ) : (
-                          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
-                            Ativa
-                          </span>
-                        )}
-                      </div>
-
-                      <p className="mt-3 text-sm leading-6 text-slate-600">
-                        {item.description || 'Sem descrição cadastrada.'}
-                      </p>
-
-                      <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-                        <AlertTriangle className="h-3.5 w-3.5" />
-                        Política exibida ao hóspede no diretório digital
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <Link
-                        href={`/admin/politicas/${item.id}`}
-                        className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-                      >
+                  title={item.title}
+                  description={item.description || 'Sem descrição cadastrada.'}
+                  status={<AdminStatusPill active={Boolean(item.enabled)} activeText="Ativa" inactiveText="Inativa" />}
+                  meta={
+                    <span className="inline-flex items-center gap-2">
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      Política exibida ao hóspede no diretório digital
+                    </span>
+                  }
+                  actions={
+                    <AdminActionGroup>
+                      <AdminLinkButton href={`/admin/politicas/${item.id}`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Editar
-                      </Link>
+                      </AdminLinkButton>
 
                       <form action={togglePolicyAction}>
                         <input type="hidden" name="id" value={item.id} />
                         <input type="hidden" name="enabled" value={String(!item.enabled)} />
-                        <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                        <AdminSecondaryButton type="submit">
                           <Power className="mr-2 h-4 w-4" />
                           {item.enabled ? 'Desativar' : 'Ativar'}
-                        </button>
+                        </AdminSecondaryButton>
                       </form>
 
                       <form action={deletePolicyAction}>
                         <input type="hidden" name="id" value={item.id} />
-                        <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-red-200 bg-white px-4 text-sm font-medium text-red-600 transition hover:bg-red-50">
+                        <AdminDangerButton type="submit">
                           <Trash2 className="mr-2 h-4 w-4" />
                           Excluir
-                        </button>
+                        </AdminDangerButton>
                       </form>
-                    </div>
-                  </div>
-                </div>
+                    </AdminActionGroup>
+                  }
+                />
               ))
             ) : (
-              <div className="rounded-[28px] border border-dashed border-slate-200 bg-slate-50 p-10 text-center">
-                <p className="text-base font-semibold text-slate-900">
-                  Nenhuma política cadastrada ainda
-                </p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Cadastre a primeira política para orientar o hóspede com mais clareza.
-                </p>
-              </div>
+              <AdminEmptyState
+                title="Nenhuma política cadastrada ainda"
+                description="Cadastre a primeira política para orientar o hóspede com mais clareza."
+              />
             )}
           </div>
-        </div>
+        </AdminSurface>
       </section>
     </main>
   );

@@ -1,10 +1,7 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
-import { getAdminHotel } from '@/lib/queries';
-import type { Database } from '@/types/database';
+import { redirect } from 'next/navigation';
 import {
   readCheckboxBoolean,
   readNullableString,
@@ -12,6 +9,66 @@ import {
   readOptionalUrl,
   readTrimmedString,
 } from '@/lib/form-utils';
+import { getAdminHotel } from '@/lib/queries';
+import { translateSectionFields } from '@/lib/services/translation-service';
+import { createClient } from '@/lib/supabase/server';
+import type { Database } from '@/types/database';
+
+async function syncSectionTranslations({
+  supabase,
+  sectionId,
+  fields,
+}: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  sectionId: string;
+  fields: {
+    title: string;
+    content: string | null;
+    cta: string | null;
+    category: string | null;
+  };
+}) {
+  try {
+    const timestamp = new Date().toISOString();
+    const [englishTranslation, spanishTranslation] = await Promise.all([
+      translateSectionFields(fields, 'en'),
+      translateSectionFields(fields, 'es'),
+    ]);
+
+    const translations = [
+      englishTranslation
+        ? {
+            section_id: sectionId,
+            language: 'en' as const,
+            ...englishTranslation,
+            updated_at: timestamp,
+          }
+        : null,
+      spanishTranslation
+        ? {
+            section_id: sectionId,
+            language: 'es' as const,
+            ...spanishTranslation,
+            updated_at: timestamp,
+          }
+        : null,
+    ].filter((translation) => translation !== null);
+
+    if (!translations.length) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from('hotel_section_translations')
+      .upsert(translations, { onConflict: 'section_id,language' });
+
+    if (error) {
+      console.error('Failed to persist section translations:', error);
+    }
+  } catch (error) {
+    console.error('Failed to sync section translations:', error);
+  }
+}
 
 export async function updateSectionAction(id: string, formData: FormData) {
   const supabase = await createClient();
@@ -53,6 +110,17 @@ export async function updateSectionAction(id: string, formData: FormData) {
       )}`
     );
   }
+
+  await syncSectionTranslations({
+    supabase,
+    sectionId: id,
+    fields: {
+      title: payload.title || '',
+      content: payload.content ?? null,
+      cta: payload.cta ?? null,
+      category: payload.category ?? null,
+    },
+  });
 
   revalidatePath('/admin/servicos');
   revalidatePath(`/admin/servicos/${id}`);
