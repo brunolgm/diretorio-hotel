@@ -5,18 +5,35 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getAdminHotel } from '@/lib/queries';
 import type { Database } from '@/types/database';
+import {
+  readCheckboxBoolean,
+  readNullableString,
+  readOptionalUrl,
+  readTrimmedString,
+} from '@/lib/form-utils';
 
 export async function updateDepartmentAction(id: string, formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
+  const name = readTrimmedString(formData, 'name');
+  const urlInput = readNullableString(formData, 'url');
+  const url = readOptionalUrl(formData, 'url');
+
+  if (!name) {
+    redirect(`/admin/departamentos/${id}?error=Nome%20%C3%A9%20obrigat%C3%B3rio`);
+  }
+
+  if (urlInput && !url) {
+    redirect(`/admin/departamentos/${id}?error=Informe%20uma%20URL%20v%C3%A1lida`);
+  }
 
   const payload: Database['public']['Tables']['hotel_departments']['Update'] = {
-    name: String(formData.get('name') || ''),
-    description: String(formData.get('description') || ''),
-    hours: String(formData.get('hours') || ''),
-    action: String(formData.get('action') || ''),
-    url: String(formData.get('url') || ''),
-    enabled: formData.get('enabled') === 'on',
+    name,
+    description: readNullableString(formData, 'description'),
+    hours: readNullableString(formData, 'hours'),
+    action: readNullableString(formData, 'action'),
+    url,
+    enabled: readCheckboxBoolean(formData, 'enabled'),
   };
 
   const { error } = await supabase

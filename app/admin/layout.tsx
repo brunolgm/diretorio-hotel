@@ -9,7 +9,7 @@ import {
   ShieldCheck,
   LogOut,
 } from 'lucide-react';
-import { requireUser } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
@@ -56,13 +56,15 @@ function NavLinks() {
 function MobileMenu() {
   return (
     <Sheet>
-      <SheetTrigger>
-        <button
-          type="button"
-          className="flex h-11 w-11 items-center justify-center rounded-2xl border bg-white text-slate-700 transition hover:bg-slate-50 lg:hidden"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+      <SheetTrigger
+        render={
+          <button
+            type="button"
+            className="flex h-11 w-11 items-center justify-center rounded-2xl border bg-white text-slate-700 transition hover:bg-slate-50 lg:hidden"
+          />
+        }
+      >
+        <Menu className="h-5 w-5" />
       </SheetTrigger>
 
       <SheetContent side="left" className="w-[88%] max-w-[320px] border-0 bg-white p-0">
@@ -95,7 +97,7 @@ function MobileMenu() {
 }
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
-  await requireUser();
+  await requireAdmin();
 
   return (
     <div className="min-h-screen bg-slate-100">

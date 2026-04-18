@@ -4,19 +4,36 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getAdminHotel } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
+import {
+  readCheckboxBoolean,
+  readNullableString,
+  readOptionalUrl,
+  readTrimmedString,
+} from '@/lib/form-utils';
 
 export async function createDepartmentAction(formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
+  const name = readTrimmedString(formData, 'name');
+  const urlInput = readNullableString(formData, 'url');
+  const url = readOptionalUrl(formData, 'url');
+
+  if (!name) {
+    redirect('/admin/departamentos?error=Nome%20%C3%A9%20obrigat%C3%B3rio');
+  }
+
+  if (urlInput && !url) {
+    redirect('/admin/departamentos?error=Informe%20uma%20URL%20v%C3%A1lida');
+  }
 
   const payload = {
     hotel_id: hotel.id,
-    name: String(formData.get('name') || ''),
-    description: String(formData.get('description') || ''),
-    hours: String(formData.get('hours') || ''),
-    action: String(formData.get('action') || ''),
-    url: String(formData.get('url') || ''),
-    enabled: formData.get('enabled') === 'on',
+    name,
+    description: readNullableString(formData, 'description'),
+    hours: readNullableString(formData, 'hours'),
+    action: readNullableString(formData, 'action'),
+    url,
+    enabled: readCheckboxBoolean(formData, 'enabled'),
   };
 
   const { error } = await supabase.from('hotel_departments').insert(payload);
@@ -34,9 +51,13 @@ export async function createDepartmentAction(formData: FormData) {
 export async function deleteDepartmentAction(formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
-  const id = String(formData.get('id') || '');
+  const id = readTrimmedString(formData, 'id');
 
-  const { error } = await supabase.from('hotel_departments').delete().eq('id', id);
+  const { error } = await supabase
+    .from('hotel_departments')
+    .delete()
+    .eq('id', id)
+    .eq('hotel_id', hotel.id);
 
   if (error) {
     redirect(`/admin/departamentos?error=${encodeURIComponent(`Não foi possível excluir o departamento: ${error.message}`)}`);
@@ -51,13 +72,14 @@ export async function deleteDepartmentAction(formData: FormData) {
 export async function toggleDepartmentAction(formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
-  const id = String(formData.get('id') || '');
+  const id = readTrimmedString(formData, 'id');
   const enabled = String(formData.get('enabled') || '') === 'true';
 
   const { error } = await supabase
     .from('hotel_departments')
     .update({ enabled })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('hotel_id', hotel.id);
 
   if (error) {
     redirect(`/admin/departamentos?error=${encodeURIComponent(`Não foi possível atualizar o status do departamento: ${error.message}`)}`);

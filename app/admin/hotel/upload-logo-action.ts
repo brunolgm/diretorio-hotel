@@ -17,6 +17,21 @@ export async function uploadHotelLogoAction(formData: FormData) {
 
   const file = fileEntry;
   const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+  const allowedMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']);
+  const maxFileSize = 5 * 1024 * 1024;
+
+  if (!allowedMimeTypes.has(file.type)) {
+    redirect('/admin/hotel?error=Envie%20uma%20imagem%20JPEG,%20PNG,%20WEBP%20ou%20SVG');
+  }
+
+  if (file.size > maxFileSize) {
+    redirect('/admin/hotel?error=A%20logo%20deve%20ter%20no%20m%C3%A1ximo%205MB');
+  }
+
+  if (!file.name.trim()) {
+    redirect('/admin/hotel?error=Arquivo%20de%20logo%20inv%C3%A1lido');
+  }
+
   const path = `${hotel.id}/logo.${ext}`;
 
   const { error: uploadError } = await supabase.storage

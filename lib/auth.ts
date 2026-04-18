@@ -14,6 +14,27 @@ export async function requireUser() {
   return user;
 }
 
+const ADMIN_ROLES = new Set(['admin', 'owner']);
+
+export async function requireAdmin() {
+  const supabase = await createClient();
+  const user = await requireUser();
+
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  const normalizedRole = profile?.role?.trim().toLowerCase() || null;
+
+  if (error || !normalizedRole || !ADMIN_ROLES.has(normalizedRole)) {
+    redirect('/login');
+  }
+
+  return user;
+}
+
 export async function getUserProfile() {
   const supabase = await createClient();
   const user = await requireUser();

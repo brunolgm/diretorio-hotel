@@ -5,15 +5,21 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getAdminHotel } from '@/lib/queries';
 import type { Database } from '@/types/database';
+import { readCheckboxBoolean, readNullableString, readTrimmedString } from '@/lib/form-utils';
 
 export async function updatePolicyAction(id: string, formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
+  const title = readTrimmedString(formData, 'title');
+
+  if (!title) {
+    redirect(`/admin/politicas/${id}?error=T%C3%ADtulo%20%C3%A9%20obrigat%C3%B3rio`);
+  }
 
   const payload: Database['public']['Tables']['hotel_policies']['Update'] = {
-    title: String(formData.get('title') || ''),
-    description: String(formData.get('description') || ''),
-    enabled: formData.get('enabled') === 'on',
+    title,
+    description: readNullableString(formData, 'description'),
+    enabled: readCheckboxBoolean(formData, 'enabled'),
   };
 
   const { error } = await supabase
