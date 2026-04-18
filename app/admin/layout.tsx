@@ -1,16 +1,8 @@
-import Link from 'next/link';
 import { ReactNode } from 'react';
-import {
-  Menu,
-  Hotel,
-  LayoutDashboard,
-  Building2,
-  ConciergeBell,
-  ShieldCheck,
-  LogOut,
-} from 'lucide-react';
+import { Menu, LogOut } from 'lucide-react';
 import { requireAdmin } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
+import { NavLinks } from '@/components/admin/nav-links';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 interface AdminLayoutProps {
@@ -25,33 +17,12 @@ async function signOut() {
 }
 
 const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/hotel', label: 'Informações do hotel', icon: Hotel },
-  { href: '/admin/servicos', label: 'Serviços', icon: ConciergeBell },
-  { href: '/admin/departamentos', label: 'Departamentos', icon: Building2 },
-  { href: '/admin/politicas', label: 'Políticas', icon: ShieldCheck },
+  { href: '/admin', label: 'Dashboard', icon: 'dashboard' as const },
+  { href: '/admin/hotel', label: 'Informações do hotel', icon: 'hotel' as const },
+  { href: '/admin/servicos', label: 'Serviços', icon: 'services' as const },
+  { href: '/admin/departamentos', label: 'Departamentos', icon: 'departments' as const },
+  { href: '/admin/politicas', label: 'Políticas', icon: 'policies' as const },
 ];
-
-function NavLinks() {
-  return (
-    <nav className="space-y-2">
-      {navItems.map((item) => {
-        const Icon = item.icon;
-
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
-          >
-            <Icon className="h-4 w-4" />
-            <span>{item.label}</span>
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
 
 function MobileMenu() {
   return (
@@ -79,12 +50,15 @@ function MobileMenu() {
           </div>
 
           <div className="flex-1 px-4 py-4">
-            <NavLinks />
+            <NavLinks items={navItems} />
           </div>
 
           <div className="border-t p-4">
             <form action={signOut}>
-              <button className="flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+              <button
+                type="submit"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              >
                 <LogOut className="h-4 w-4" />
                 Sair
               </button>
@@ -127,12 +101,15 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
             </div>
 
             <div className="mt-5">
-              <NavLinks />
+              <NavLinks items={navItems} />
             </div>
 
             <div className="mt-8 border-t pt-5">
               <form action={signOut}>
-                <button className="flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                <button
+                  type="submit"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                >
                   <LogOut className="h-4 w-4" />
                   Sair
                 </button>

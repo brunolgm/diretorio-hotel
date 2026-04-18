@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import {
   ArrowUpRight,
@@ -17,6 +18,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
+import type { Database } from '@/types/database';
 
 interface PageProps {
   params: Promise<{
@@ -24,20 +26,37 @@ interface PageProps {
   }>;
 }
 
-const iconMap = {
-  Globe,
-  Wifi,
-  Coffee,
-  Building2,
-  ShieldCheck,
-  Phone,
-  Hotel,
-  Info,
-};
+type HotelRow = Database['public']['Tables']['hotels']['Row'];
+type HotelSection = Database['public']['Tables']['hotel_sections']['Row'];
+type HotelDepartment = Database['public']['Tables']['hotel_departments']['Row'];
+type HotelPolicy = Database['public']['Tables']['hotel_policies']['Row'];
 
-function getIcon(iconName?: string) {
-  if (!iconName) return Globe;
-  return iconMap[iconName as keyof typeof iconMap] || Globe;
+function SectionIcon({
+  iconName,
+  className,
+}: {
+  iconName?: string | null;
+  className?: string;
+}) {
+  switch (iconName) {
+    case 'Wifi':
+      return <Wifi className={className} />;
+    case 'Coffee':
+      return <Coffee className={className} />;
+    case 'Building2':
+      return <Building2 className={className} />;
+    case 'ShieldCheck':
+      return <ShieldCheck className={className} />;
+    case 'Phone':
+      return <Phone className={className} />;
+    case 'Hotel':
+      return <Hotel className={className} />;
+    case 'Info':
+      return <Info className={className} />;
+    case 'Globe':
+    default:
+      return <Globe className={className} />;
+  }
 }
 
 function QuickInfoCard({
@@ -70,21 +89,17 @@ function QuickInfoCard({
   );
 }
 
-function SectionCard({ item }: { item: any }) {
-  const Icon = getIcon(item.icon);
-
+function SectionCard({ item }: { item: HotelSection }) {
   return (
     <div className="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex items-start gap-4">
         <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
-          <Icon className="h-5 w-5" />
+          <SectionIcon iconName={item.icon} className="h-5 w-5" />
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-lg font-semibold tracking-tight text-slate-950">
-              {item.title}
-            </h3>
+            <h3 className="text-lg font-semibold tracking-tight text-slate-950">{item.title}</h3>
 
             {item.category ? (
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
@@ -94,7 +109,7 @@ function SectionCard({ item }: { item: any }) {
           </div>
 
           <p className="mt-3 text-sm leading-7 text-slate-600">
-            {item.content || 'Informação não disponível.'}
+            {item.content || 'InformaÃ§Ã£o nÃ£o disponÃ­vel.'}
           </p>
 
           <div className="mt-4">
@@ -120,7 +135,7 @@ function SectionCard({ item }: { item: any }) {
   );
 }
 
-function DepartmentCard({ item }: { item: any }) {
+function DepartmentCard({ item }: { item: HotelDepartment }) {
   return (
     <div className="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex items-start justify-between gap-4">
@@ -164,7 +179,7 @@ function DepartmentCard({ item }: { item: any }) {
   );
 }
 
-function PolicyCard({ item }: { item: any }) {
+function PolicyCard({ item }: { item: HotelPolicy }) {
   return (
     <div className="rounded-[24px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
       <div className="flex items-start gap-3">
@@ -175,7 +190,7 @@ function PolicyCard({ item }: { item: any }) {
         <div>
           <h3 className="text-base font-semibold tracking-tight text-slate-950">{item.title}</h3>
           <p className="mt-2 text-sm leading-7 text-slate-600">
-            {item.description || 'Política do hotel.'}
+            {item.description || 'PolÃ­tica do hotel.'}
           </p>
         </div>
       </div>
@@ -218,8 +233,13 @@ export default async function HotelPublicPage({ params }: PageProps) {
       .order('created_at', { ascending: true }),
   ]);
 
-  const whatsappHref = hotel.whatsapp_number
-    ? `https://wa.me/${String(hotel.whatsapp_number).replace(/\D/g, '')}`
+  const typedHotel: HotelRow = hotel;
+  const typedSections: HotelSection[] = sections || [];
+  const typedDepartments: HotelDepartment[] = departments || [];
+  const typedPolicies: HotelPolicy[] = policies || [];
+
+  const whatsappHref = typedHotel.whatsapp_number
+    ? `https://wa.me/${String(typedHotel.whatsapp_number).replace(/\D/g, '')}`
     : null;
 
   return (
@@ -230,14 +250,18 @@ export default async function HotelPublicPage({ params }: PageProps) {
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 backdrop-blur">
                 <Sparkles className="h-3.5 w-3.5" />
-                Diretório digital
+                DiretÃ³rio digital
               </div>
 
               <div className="mt-6 flex items-start gap-4">
-                {hotel.logo_url ? (
-                  <img
-                    src={hotel.logo_url}
-                    alt={hotel.name}
+                {typedHotel.logo_url ? (
+                  <Image
+                    loader={() => typedHotel.logo_url || ''}
+                    unoptimized
+                    src={typedHotel.logo_url}
+                    alt={typedHotel.name}
+                    width={64}
+                    height={64}
                     className="h-16 w-16 rounded-[20px] bg-white object-cover p-1 shadow-sm"
                   />
                 ) : (
@@ -248,35 +272,35 @@ export default async function HotelPublicPage({ params }: PageProps) {
 
                 <div>
                   <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                    {hotel.name}
+                    {typedHotel.name}
                   </h1>
 
                   <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-slate-200">
-                    {hotel.city ? (
+                    {typedHotel.city ? (
                       <span className="inline-flex items-center gap-2">
                         <MapPin className="h-4 w-4" />
-                        {hotel.city}
+                        {typedHotel.city}
                       </span>
                     ) : null}
 
                     <span className="inline-flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4" />
-                      Informações úteis em um só lugar
+                      InformaÃ§Ãµes Ãºteis em um sÃ³ lugar
                     </span>
                   </div>
                 </div>
               </div>
 
               <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-200 md:text-base">
-                Acesse serviços, contatos, orientações e links importantes do hotel com uma
-                experiência mais rápida, bonita e organizada.
+                Acesse serviÃ§os, contatos, orientaÃ§Ãµes e links importantes do hotel com uma
+                experiÃªncia mais rÃ¡pida, bonita e organizada.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 lg:w-[360px]">
-              {hotel.booking_url ? (
+              {typedHotel.booking_url ? (
                 <a
-                  href={hotel.booking_url}
+                  href={typedHotel.booking_url}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-white px-5 text-sm font-medium text-slate-950 transition hover:bg-slate-100"
@@ -286,13 +310,13 @@ export default async function HotelPublicPage({ params }: PageProps) {
                 </a>
               ) : (
                 <div className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white/80">
-                  Reservas indisponíveis
+                  Reservas indisponÃ­veis
                 </div>
               )}
 
-              {hotel.website_url ? (
+              {typedHotel.website_url ? (
                 <a
-                  href={hotel.website_url}
+                  href={typedHotel.website_url}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white transition hover:bg-white/20"
@@ -302,7 +326,7 @@ export default async function HotelPublicPage({ params }: PageProps) {
                 </a>
               ) : (
                 <div className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white/80">
-                  Site indisponível
+                  Site indisponÃ­vel
                 </div>
               )}
 
@@ -324,27 +348,27 @@ export default async function HotelPublicPage({ params }: PageProps) {
         <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <QuickInfoCard
             icon={Coffee}
-            title="Café da manhã"
-            value={hotel.breakfast_hours || 'Não informado'}
-            helper="Horário de serviço"
+            title="CafÃ© da manhÃ£"
+            value={typedHotel.breakfast_hours || 'NÃ£o informado'}
+            helper="HorÃ¡rio de serviÃ§o"
           />
           <QuickInfoCard
             icon={Wifi}
             title="Wi-Fi"
-            value={hotel.wifi_name || 'Não informado'}
-            helper={hotel.wifi_password ? `Senha: ${hotel.wifi_password}` : 'Consulte a recepção'}
+            value={typedHotel.wifi_name || 'NÃ£o informado'}
+            helper={typedHotel.wifi_password ? `Senha: ${typedHotel.wifi_password}` : 'Consulte a recepÃ§Ã£o'}
           />
           <QuickInfoCard
             icon={Clock3}
             title="Check-in"
-            value={hotel.checkin_time || 'Não informado'}
-            helper="Entrada padrão"
+            value={typedHotel.checkin_time || 'NÃ£o informado'}
+            helper="Entrada padrÃ£o"
           />
           <QuickInfoCard
             icon={Clock3}
             title="Check-out"
-            value={hotel.checkout_time || 'Não informado'}
-            helper="Saída padrão"
+            value={typedHotel.checkout_time || 'NÃ£o informado'}
+            helper="SaÃ­da padrÃ£o"
           />
         </section>
 
@@ -353,28 +377,28 @@ export default async function HotelPublicPage({ params }: PageProps) {
             <div>
               <p className="text-sm text-slate-500">Explorar</p>
               <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-                Serviços e informações
+                ServiÃ§os e informaÃ§Ãµes
               </h2>
             </div>
 
             <div className="hidden rounded-full bg-white px-4 py-2 text-xs font-medium text-slate-600 shadow-sm ring-1 ring-slate-200/70 md:inline-flex">
-              {sections?.length || 0} itens disponíveis
+              {typedSections.length} itens disponÃ­veis
             </div>
           </div>
 
-          {sections?.length ? (
+          {typedSections.length ? (
             <div className="grid gap-4 lg:grid-cols-2">
-              {sections.map((item) => (
+              {typedSections.map((item) => (
                 <SectionCard key={item.id} item={item} />
               ))}
             </div>
           ) : (
             <div className="rounded-[28px] border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm">
               <p className="text-base font-semibold text-slate-900">
-                Nenhum serviço disponível no momento
+                Nenhum serviÃ§o disponÃ­vel no momento
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                As informações do diretório serão atualizadas em breve.
+                As informaÃ§Ãµes do diretÃ³rio serÃ£o atualizadas em breve.
               </p>
             </div>
           )}
@@ -389,19 +413,19 @@ export default async function HotelPublicPage({ params }: PageProps) {
               </h2>
             </div>
 
-            {departments?.length ? (
+            {typedDepartments.length ? (
               <div className="space-y-4">
-                {departments.map((item) => (
+                {typedDepartments.map((item) => (
                   <DepartmentCard key={item.id} item={item} />
                 ))}
               </div>
             ) : (
               <div className="rounded-[28px] border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm">
                 <p className="text-base font-semibold text-slate-900">
-                  Nenhum canal disponível no momento
+                  Nenhum canal disponÃ­vel no momento
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Os contatos do hotel serão disponibilizados em breve.
+                  Os contatos do hotel serÃ£o disponibilizados em breve.
                 </p>
               </div>
             )}
@@ -409,25 +433,25 @@ export default async function HotelPublicPage({ params }: PageProps) {
 
           <div>
             <div className="mb-4">
-              <p className="text-sm text-slate-500">Informações importantes</p>
+              <p className="text-sm text-slate-500">InformaÃ§Ãµes importantes</p>
               <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
-                Políticas do hotel
+                PolÃ­ticas do hotel
               </h2>
             </div>
 
-            {policies?.length ? (
+            {typedPolicies.length ? (
               <div className="space-y-4">
-                {policies.map((item) => (
+                {typedPolicies.map((item) => (
                   <PolicyCard key={item.id} item={item} />
                 ))}
               </div>
             ) : (
               <div className="rounded-[28px] border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm">
                 <p className="text-base font-semibold text-slate-900">
-                  Nenhuma política publicada
+                  Nenhuma polÃ­tica publicada
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  As orientações do hotel aparecerão aqui quando estiverem disponíveis.
+                  As orientaÃ§Ãµes do hotel aparecerÃ£o aqui quando estiverem disponÃ­veis.
                 </p>
               </div>
             )}
@@ -437,20 +461,20 @@ export default async function HotelPublicPage({ params }: PageProps) {
         <section className="mt-10 rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70 md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-2xl">
-              <p className="text-sm text-slate-500">Links úteis</p>
+              <p className="text-sm text-slate-500">Links Ãºteis</p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                Acesso rápido
+                Acesso rÃ¡pido
               </h2>
               <p className="mt-2 text-sm leading-7 text-slate-600">
-                Utilize os canais oficiais do hotel para reservas, atendimento e informações
+                Utilize os canais oficiais do hotel para reservas, atendimento e informaÃ§Ãµes
                 institucionais.
               </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
-              {hotel.website_url ? (
+              {typedHotel.website_url ? (
                 <a
-                  href={hotel.website_url}
+                  href={typedHotel.website_url}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
@@ -460,9 +484,9 @@ export default async function HotelPublicPage({ params }: PageProps) {
                 </a>
               ) : null}
 
-              {hotel.booking_url ? (
+              {typedHotel.booking_url ? (
                 <a
-                  href={hotel.booking_url}
+                  href={typedHotel.booking_url}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
