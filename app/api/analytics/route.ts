@@ -8,6 +8,7 @@ interface RawAnalyticsPayload {
   hotelId?: unknown;
   hotelSlug?: unknown;
   eventType?: unknown;
+  sessionId?: unknown;
   language?: unknown;
   targetUrl?: unknown;
   departmentId?: unknown;
@@ -32,6 +33,10 @@ function sanitizePayload(payload: RawAnalyticsPayload) {
     hotel_id: payload.hotelId.trim(),
     hotel_slug: payload.hotelSlug.trim(),
     event_type: payload.eventType,
+    session_id:
+      typeof payload.sessionId === 'string' && payload.sessionId.trim()
+        ? payload.sessionId.trim()
+        : null,
     language: normalizePublicLanguage(
       typeof payload.language === 'string' ? payload.language : undefined
     ),

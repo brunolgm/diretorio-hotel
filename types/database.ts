@@ -214,6 +214,7 @@ export interface Database {
           hotel_id: string;
           hotel_slug: string;
           event_type: string;
+          session_id: string | null;
           language: string | null;
           target_url: string | null;
           department_id: string | null;
@@ -225,6 +226,7 @@ export interface Database {
           hotel_id: string;
           hotel_slug: string;
           event_type: string;
+          session_id?: string | null;
           language?: string | null;
           target_url?: string | null;
           department_id?: string | null;
@@ -236,6 +238,7 @@ export interface Database {
           hotel_id?: string;
           hotel_slug?: string;
           event_type?: string;
+          session_id?: string | null;
           language?: string | null;
           target_url?: string | null;
           department_id?: string | null;

@@ -7,18 +7,25 @@ import {
   ConciergeBell,
   Eye,
   Hotel,
+  Languages,
+  MessageCircle,
+  MousePointerClick,
   ShieldCheck,
 } from 'lucide-react';
 import {
+  AdminFilterBar,
   AdminInfoBadge,
+  AdminLinkButton,
   AdminPageHero,
+  AdminPrimaryButton,
   AdminQuickArrow,
   AdminSectionTitle,
+  AdminSelect,
   AdminStatCard,
   AdminSurface,
 } from '@/components/admin/ui';
 import { requireUser } from '@/lib/auth';
-import { getAdminHotel } from '@/lib/queries';
+import { getAdminHotel, getHotelAnalyticsSummary } from '@/lib/queries';
 
 function QuickLink({
   href,
@@ -49,9 +56,23 @@ function QuickLink({
   );
 }
 
-export default async function AdminPage() {
+interface AdminPageProps {
+  searchParams?: Promise<{
+    range?: string;
+  }>;
+}
+
+function getRangeLabel(range: 'today' | '7d' | '30d') {
+  if (range === 'today') return 'Hoje';
+  if (range === '30d') return 'Últimos 30 dias';
+  return 'Últimos 7 dias';
+}
+
+export default async function AdminPage({ searchParams }: AdminPageProps) {
   await requireUser();
   const hotel = await getAdminHotel();
+  const params = searchParams ? await searchParams : {};
+  const analytics = await getHotelAnalyticsSummary(hotel.id, params?.range);
 
   return (
     <main className="space-y-6">
@@ -104,6 +125,127 @@ export default async function AdminPage() {
           description="Área administrativa com autenticação e acesso restrito."
         />
       </section>
+
+      <AdminSurface>
+        <AdminSectionTitle
+          eyebrow="Analytics público"
+          title="Uso da experiência pública"
+          description="Acompanhe visualizações e interações principais do GuestDesk para entender o que mais gera interesse e contato do hóspede."
+          action={
+            <AdminInfoBadge>
+              <AdminQuickArrow />
+              {getRangeLabel(analytics.range)}
+            </AdminInfoBadge>
+          }
+        />
+
+        <AdminFilterBar className="mt-8">
+          <AdminSelect name="range" defaultValue={analytics.range} className="md:w-[220px]">
+            <option value="today">Hoje</option>
+            <option value="7d">Últimos 7 dias</option>
+            <option value="30d">Últimos 30 dias</option>
+          </AdminSelect>
+          <AdminPrimaryButton type="submit" className="h-11 px-4">
+            Aplicar
+          </AdminPrimaryButton>
+          {analytics.range !== '7d' ? (
+            <AdminLinkButton href="/admin" className="h-11 px-4">
+              Limpar
+            </AdminLinkButton>
+          ) : null}
+        </AdminFilterBar>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <AdminStatCard
+            icon={<Eye className="h-5 w-5" />}
+            title="Page views"
+            value={String(analytics.pageViews)}
+            description="Visualizações registradas na página pública do hotel."
+          />
+          <AdminStatCard
+            icon={<MessageCircle className="h-5 w-5" />}
+            title="Cliques em WhatsApp"
+            value={String(analytics.whatsappClicks)}
+            description="Interações com os botões de WhatsApp do hero, rodapé e CTA flutuante."
+          />
+          <AdminStatCard
+            icon={<MousePointerClick className="h-5 w-5" />}
+            title="Reservas e site"
+            value={String(analytics.bookingClicks + analytics.websiteClicks)}
+            description="Soma dos cliques em reservas e no site oficial do hotel."
+          />
+          <AdminStatCard
+            icon={<Languages className="h-5 w-5" />}
+            title="Trocas de idioma"
+            value={String(analytics.languageSelections)}
+            description="Seleções manuais de idioma feitas na experiência pública."
+          />
+        </div>
+
+        <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr,1.1fr]">
+          <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
+            <p className="text-sm font-semibold text-slate-900">Resumo de interações</p>
+            <div className="mt-4 space-y-3 text-sm text-slate-600">
+              <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
+                <span>Cliques em reservas</span>
+                <span className="font-semibold text-slate-950">{analytics.bookingClicks}</span>
+              </div>
+              <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
+                <span>Cliques no site oficial</span>
+                <span className="font-semibold text-slate-950">{analytics.websiteClicks}</span>
+              </div>
+              <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
+                <span>Cliques em departamentos</span>
+                <span className="font-semibold text-slate-950">{analytics.departmentClicks}</span>
+              </div>
+              <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
+                <span>Total de eventos registrados</span>
+                <span className="font-semibold text-slate-950">{analytics.totalEvents}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
+              <p className="text-sm font-semibold text-slate-900">Idiomas mais usados</p>
+              <div className="mt-4 space-y-3">
+                {analytics.languageUsage.map((item) => (
+                  <div
+                    key={item.language}
+                    className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-slate-200/70"
+                  >
+                    <span className="font-medium uppercase tracking-[0.12em] text-slate-500">
+                      {item.language}
+                    </span>
+                    <span className="font-semibold text-slate-950">{item.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
+              <p className="text-sm font-semibold text-slate-900">Departamentos mais clicados</p>
+              <div className="mt-4 space-y-3">
+                {analytics.departmentUsage.length ? (
+                  analytics.departmentUsage.map((item) => (
+                    <div
+                      key={item.departmentId}
+                      className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-slate-200/70"
+                    >
+                      <span className="font-medium text-slate-700">{item.name}</span>
+                      <span className="font-semibold text-slate-950">{item.count}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl bg-white px-4 py-6 text-sm text-slate-500 ring-1 ring-slate-200/70">
+                    Nenhum clique em departamento foi registrado no período selecionado.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </AdminSurface>
 
       <section className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-4">
         <QuickLink
@@ -161,7 +303,7 @@ export default async function AdminPage() {
             <div className="rounded-[24px] bg-slate-50 p-5">
               <p className="text-sm font-semibold text-slate-900">Preparar demonstração</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Organize o link público para portfolio, QR Code e apresentação comercial.
+                Organize o link público para portfólio, QR Code e apresentação comercial.
               </p>
             </div>
           </div>

@@ -18,6 +18,7 @@ export interface AnalyticsEventPayload {
   hotelId: string;
   hotelSlug: string;
   eventType: AnalyticsEventType;
+  sessionId?: string | null;
   language: SupportedPublicLanguage;
   targetUrl?: string | null;
   departmentId?: string | null;
