@@ -4,62 +4,12 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { readCheckboxBoolean, readNullableString, readTrimmedString } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
-import { translatePolicyFields } from '@/lib/services/translation-service';
+import {
+  buildFeedbackRedirect,
+  formatTranslationWarning,
+  syncPolicyTranslations,
+} from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
-
-async function syncPolicyTranslations({
-  supabase,
-  policyId,
-  fields,
-}: {
-  supabase: Awaited<ReturnType<typeof createClient>>;
-  policyId: string;
-  fields: {
-    title: string;
-    description: string | null;
-  };
-}) {
-  try {
-    const timestamp = new Date().toISOString();
-    const [englishTranslation, spanishTranslation] = await Promise.all([
-      translatePolicyFields(fields, 'en'),
-      translatePolicyFields(fields, 'es'),
-    ]);
-
-    const translations = [
-      englishTranslation
-        ? {
-            policy_id: policyId,
-            language: 'en' as const,
-            ...englishTranslation,
-            updated_at: timestamp,
-          }
-        : null,
-      spanishTranslation
-        ? {
-            policy_id: policyId,
-            language: 'es' as const,
-            ...spanishTranslation,
-            updated_at: timestamp,
-          }
-        : null,
-    ].filter((translation) => translation !== null);
-
-    if (!translations.length) {
-      return;
-    }
-
-    const { error } = await supabase
-      .from('hotel_policy_translations')
-      .upsert(translations, { onConflict: 'policy_id,language' });
-
-    if (error) {
-      console.error('Failed to persist policy translations:', error);
-    }
-  } catch (error) {
-    console.error('Failed to sync policy translations:', error);
-  }
-}
 
 export async function createPolicyAction(formData: FormData) {
   const supabase = await createClient();
@@ -85,13 +35,13 @@ export async function createPolicyAction(formData: FormData) {
 
   if (error) {
     redirect(
-      `/admin/politicas?error=${encodeURIComponent(
-        `Não foi possível criar a política: ${error.message}`
-      )}`
+      buildFeedbackRedirect('/admin/politicas', {
+        error: `Não foi possível criar a política: ${error.message}`,
+      })
     );
   }
 
-  await syncPolicyTranslations({
+  const translationResult = await syncPolicyTranslations({
     supabase,
     policyId: policy.id,
     fields: {
@@ -103,7 +53,12 @@ export async function createPolicyAction(formData: FormData) {
   revalidatePath('/admin/politicas');
   revalidatePath(`/hotel/${hotel.slug}`);
 
-  redirect('/admin/politicas?success=Pol%C3%ADtica%20criada%20com%20sucesso');
+  redirect(
+    buildFeedbackRedirect('/admin/politicas', {
+      success: 'Política criada com sucesso',
+      warning: formatTranslationWarning(translationResult),
+    })
+  );
 }
 
 export async function deletePolicyAction(formData: FormData) {
@@ -119,16 +74,20 @@ export async function deletePolicyAction(formData: FormData) {
 
   if (error) {
     redirect(
-      `/admin/politicas?error=${encodeURIComponent(
-        `Não foi possível excluir a política: ${error.message}`
-      )}`
+      buildFeedbackRedirect('/admin/politicas', {
+        error: `Não foi possível excluir a política: ${error.message}`,
+      })
     );
   }
 
   revalidatePath('/admin/politicas');
   revalidatePath(`/hotel/${hotel.slug}`);
 
-  redirect('/admin/politicas?success=Pol%C3%ADtica%20exclu%C3%ADda%20com%20sucesso');
+  redirect(
+    buildFeedbackRedirect('/admin/politicas', {
+      success: 'Política excluída com sucesso',
+    })
+  );
 }
 
 export async function togglePolicyAction(formData: FormData) {
@@ -145,9 +104,9 @@ export async function togglePolicyAction(formData: FormData) {
 
   if (error) {
     redirect(
-      `/admin/politicas?error=${encodeURIComponent(
-        `Não foi possível atualizar o status da política: ${error.message}`
-      )}`
+      buildFeedbackRedirect('/admin/politicas', {
+        error: `Não foi possível atualizar o status da política: ${error.message}`,
+      })
     );
   }
 
@@ -155,8 +114,48 @@ export async function togglePolicyAction(formData: FormData) {
   revalidatePath(`/hotel/${hotel.slug}`);
 
   redirect(
-    `/admin/politicas?success=${encodeURIComponent(
-      enabled ? 'Política ativada com sucesso' : 'Política desativada com sucesso'
-    )}`
+    buildFeedbackRedirect('/admin/politicas', {
+      success: enabled ? 'Política ativada com sucesso' : 'Política desativada com sucesso',
+    })
+  );
+}
+
+export async function retranslatePolicyAction(formData: FormData) {
+  const supabase = await createClient();
+  const hotel = await getAdminHotel();
+  const id = readTrimmedString(formData, 'id');
+
+  const { data: policy, error } = await supabase
+    .from('hotel_policies')
+    .select('id, title, description')
+    .eq('id', id)
+    .eq('hotel_id', hotel.id)
+    .single();
+
+  if (error || !policy) {
+    redirect(
+      buildFeedbackRedirect('/admin/politicas', {
+        error: 'Não foi possível carregar a política para retradução.',
+      })
+    );
+  }
+
+  const translationResult = await syncPolicyTranslations({
+    supabase,
+    policyId: policy.id,
+    fields: {
+      title: policy.title,
+      description: policy.description,
+    },
+  });
+
+  revalidatePath('/admin/politicas');
+  revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect(
+    buildFeedbackRedirect('/admin/politicas', {
+      success: 'Retradução da política concluída',
+      warning: formatTranslationWarning(translationResult),
+    })
   );
 }

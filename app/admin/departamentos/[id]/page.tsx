@@ -1,7 +1,4 @@
 import { Building2, Clock3, Link as LinkIcon, MessageCircle } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
-import { getAdminHotel } from '@/lib/queries';
-import { updateDepartmentAction } from './actions';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminField,
@@ -14,12 +11,16 @@ import {
   AdminTextInput,
   AdminTextarea,
 } from '@/components/admin/ui';
+import { getAdminHotel } from '@/lib/queries';
+import { createClient } from '@/lib/supabase/server';
+import { updateDepartmentAction } from './actions';
 
 interface PageProps {
   params: Promise<{ id: string }>;
   searchParams?: Promise<{
     success?: string;
     error?: string;
+    warning?: string;
   }>;
 }
 
@@ -28,6 +29,7 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const success = resolvedSearchParams?.success;
   const errorMessage = resolvedSearchParams?.error;
+  const warning = resolvedSearchParams?.warning;
 
   const supabase = await createClient();
   const hotel = await getAdminHotel();
@@ -47,7 +49,7 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
 
   return (
     <main className="space-y-6">
-      <FeedbackToast success={success} error={errorMessage} />
+      <FeedbackToast success={success} error={errorMessage} warning={warning} />
 
       <AdminPageHero
         eyebrow="editar departamento"
@@ -137,7 +139,11 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
             <div className="space-y-2 md:col-span-2">
               <label className="block text-sm font-medium text-slate-700">Status</label>
               <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm font-medium text-slate-700">
-                <input type="checkbox" name="enabled" defaultChecked={department.enabled ?? false} />
+                <input
+                  type="checkbox"
+                  name="enabled"
+                  defaultChecked={department.enabled ?? false}
+                />
                 Ativo no diretório
               </label>
             </div>

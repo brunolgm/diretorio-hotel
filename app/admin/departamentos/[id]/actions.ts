@@ -9,64 +9,13 @@ import {
   readTrimmedString,
 } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
-import { translateDepartmentFields } from '@/lib/services/translation-service';
+import {
+  buildFeedbackRedirect,
+  formatTranslationWarning,
+  syncDepartmentTranslations,
+} from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
-
-async function syncDepartmentTranslations({
-  supabase,
-  departmentId,
-  fields,
-}: {
-  supabase: Awaited<ReturnType<typeof createClient>>;
-  departmentId: string;
-  fields: {
-    name: string;
-    description: string | null;
-    action: string | null;
-  };
-}) {
-  try {
-    const timestamp = new Date().toISOString();
-    const [englishTranslation, spanishTranslation] = await Promise.all([
-      translateDepartmentFields(fields, 'en'),
-      translateDepartmentFields(fields, 'es'),
-    ]);
-
-    const translations = [
-      englishTranslation
-        ? {
-            department_id: departmentId,
-            language: 'en' as const,
-            ...englishTranslation,
-            updated_at: timestamp,
-          }
-        : null,
-      spanishTranslation
-        ? {
-            department_id: departmentId,
-            language: 'es' as const,
-            ...spanishTranslation,
-            updated_at: timestamp,
-          }
-        : null,
-    ].filter((translation) => translation !== null);
-
-    if (!translations.length) {
-      return;
-    }
-
-    const { error } = await supabase
-      .from('hotel_department_translations')
-      .upsert(translations, { onConflict: 'department_id,language' });
-
-    if (error) {
-      console.error('Failed to persist department translations:', error);
-    }
-  } catch (error) {
-    console.error('Failed to sync department translations:', error);
-  }
-}
 
 export async function updateDepartmentAction(id: string, formData: FormData) {
   const supabase = await createClient();
@@ -100,13 +49,13 @@ export async function updateDepartmentAction(id: string, formData: FormData) {
 
   if (error) {
     redirect(
-      `/admin/departamentos/${id}?error=${encodeURIComponent(
-        `Não foi possível atualizar o departamento: ${error.message}`
-      )}`
+      buildFeedbackRedirect(`/admin/departamentos/${id}`, {
+        error: `Não foi possível atualizar o departamento: ${error.message}`,
+      })
     );
   }
 
-  await syncDepartmentTranslations({
+  const translationResult = await syncDepartmentTranslations({
     supabase,
     departmentId: id,
     fields: {
@@ -121,8 +70,9 @@ export async function updateDepartmentAction(id: string, formData: FormData) {
   revalidatePath(`/hotel/${hotel.slug}`);
 
   redirect(
-    `/admin/departamentos/${id}?success=${encodeURIComponent(
-      'Departamento atualizado com sucesso'
-    )}`
+    buildFeedbackRedirect(`/admin/departamentos/${id}`, {
+      success: 'Departamento atualizado com sucesso',
+      warning: formatTranslationWarning(translationResult),
+    })
   );
 }

@@ -1,45 +1,61 @@
 import {
+  AlertTriangle,
   CheckCircle2,
-  Sparkles,
+  Eye,
+  FileText,
+  Languages,
+  Pencil,
   Plus,
   Power,
-  Pencil,
+  RefreshCw,
+  Sparkles,
   Trash2,
-  FileText,
-  Scale,
-  Eye,
-  AlertTriangle,
 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
-import { getAdminHotel } from '@/lib/queries';
-import { createPolicyAction, deletePolicyAction, togglePolicyAction } from './actions';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminActionGroup,
   AdminCheckboxRow,
+  AdminDangerButton,
   AdminEmptyState,
   AdminField,
   AdminInfoBadge,
+  AdminLanguageBadge,
   AdminLinkButton,
   AdminListItem,
   AdminPageHero,
   AdminPrimaryButton,
   AdminSecondaryButton,
-  AdminDangerButton,
   AdminSectionTitle,
   AdminStatCard,
   AdminStatusPill,
   AdminSurface,
   AdminTextInput,
   AdminTextarea,
+  AdminTranslationStatusPill,
 } from '@/components/admin/ui';
+import { getAdminHotel } from '@/lib/queries';
+import {
+  getAvailableTranslationLanguages,
+  getTranslationAvailabilityStatus,
+} from '@/lib/services/translation-admin';
+import { createClient } from '@/lib/supabase/server';
+import type { Database } from '@/types/database';
+import {
+  createPolicyAction,
+  deletePolicyAction,
+  retranslatePolicyAction,
+  togglePolicyAction,
+} from './actions';
 
 interface AdminPoliciesPageProps {
   searchParams?: Promise<{
     success?: string;
     error?: string;
+    warning?: string;
   }>;
 }
+
+type PolicyTranslation = Database['public']['Tables']['hotel_policy_translations']['Row'];
 
 export default async function AdminPoliciesPage({
   searchParams,
@@ -49,6 +65,7 @@ export default async function AdminPoliciesPage({
   const params = searchParams ? await searchParams : {};
   const success = params?.success;
   const errorMessage = params?.error;
+  const warning = params?.warning;
 
   const { data: policies, error } = await supabase
     .from('hotel_policies')
@@ -60,13 +77,35 @@ export default async function AdminPoliciesPage({
     throw new Error('Erro ao carregar políticas.');
   }
 
+  const policyIds = policies?.map((item) => item.id) || [];
+  const { data: policyTranslations, error: translationError } = policyIds.length
+    ? await supabase
+        .from('hotel_policy_translations')
+        .select('policy_id, language')
+        .in('policy_id', policyIds)
+    : { data: [], error: null };
+
+  if (translationError) {
+    console.error('Erro ao carregar status de tradução das políticas:', translationError);
+  }
+
+  const translationsByPolicyId = new Map<string, PolicyTranslation[]>();
+
+  ((policyTranslations || []) as Array<Pick<PolicyTranslation, 'policy_id' | 'language'>>).forEach(
+    (translation) => {
+      const currentTranslations = translationsByPolicyId.get(translation.policy_id) || [];
+      currentTranslations.push(translation as PolicyTranslation);
+      translationsByPolicyId.set(translation.policy_id, currentTranslations);
+    }
+  );
+
   const totalPolicies = policies?.length || 0;
   const activePolicies = policies?.filter((item) => item.enabled).length || 0;
   const inactivePolicies = totalPolicies - activePolicies;
 
   return (
     <main className="space-y-6">
-      <FeedbackToast success={success} error={errorMessage} />
+      <FeedbackToast success={success} error={errorMessage} warning={warning} />
 
       <AdminPageHero
         eyebrow="regras do hotel"
@@ -109,10 +148,10 @@ export default async function AdminPoliciesPage({
           description="Políticas cadastradas, mas ocultas no momento."
         />
         <AdminStatCard
-          icon={<Scale className="h-5 w-5" />}
-          title="Conformidade"
-          value="Organizada"
-          description="As regras do hotel podem ser mantidas claras e atualizadas."
+          icon={<Languages className="h-5 w-5" />}
+          title="Traduções"
+          value="PT/EN/ES"
+          description="Monitore idiomas disponíveis e refaça traduções quando necessário."
         />
       </section>
 
@@ -163,51 +202,82 @@ export default async function AdminPoliciesPage({
           <AdminSectionTitle
             eyebrow="Políticas cadastradas"
             title="Lista de políticas"
-            description="Edite, ative, desative ou remova as regras exibidas para o hóspede."
+            description="Edite, ative, desative, retraduza ou remova as regras exibidas para o hóspede."
             action={<AdminInfoBadge>Gestão rápida</AdminInfoBadge>}
           />
 
           <div className="mt-6 space-y-4">
             {policies?.length ? (
-              policies.map((item) => (
-                <AdminListItem
-                  key={item.id}
-                  title={item.title}
-                  description={item.description || 'Sem descrição cadastrada.'}
-                  status={<AdminStatusPill active={Boolean(item.enabled)} activeText="Ativa" inactiveText="Inativa" />}
-                  meta={
-                    <span className="inline-flex items-center gap-2">
-                      <AlertTriangle className="h-3.5 w-3.5" />
-                      Política exibida ao hóspede no diretório digital
-                    </span>
-                  }
-                  actions={
-                    <AdminActionGroup>
-                      <AdminLinkButton href={`/admin/politicas/${item.id}`}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Editar
-                      </AdminLinkButton>
+              policies.map((item) => {
+                const availableLanguages = getAvailableTranslationLanguages(
+                  translationsByPolicyId.get(item.id) || []
+                );
+                const translationStatus = getTranslationAvailabilityStatus(availableLanguages);
 
-                      <form action={togglePolicyAction}>
-                        <input type="hidden" name="id" value={item.id} />
-                        <input type="hidden" name="enabled" value={String(!item.enabled)} />
-                        <AdminSecondaryButton type="submit">
-                          <Power className="mr-2 h-4 w-4" />
-                          {item.enabled ? 'Desativar' : 'Ativar'}
-                        </AdminSecondaryButton>
-                      </form>
+                return (
+                  <AdminListItem
+                    key={item.id}
+                    title={item.title}
+                    description={item.description || 'Sem descrição cadastrada.'}
+                    status={
+                      <>
+                        <AdminStatusPill
+                          active={Boolean(item.enabled)}
+                          activeText="Ativa"
+                          inactiveText="Inativa"
+                        />
+                        <AdminTranslationStatusPill status={translationStatus} />
+                      </>
+                    }
+                    meta={
+                      <>
+                        <span className="inline-flex items-center gap-2">
+                          <AlertTriangle className="h-3.5 w-3.5" />
+                          Política exibida ao hóspede no diretório digital
+                        </span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <AdminLanguageBadge label="PT" available />
+                          <AdminLanguageBadge label="EN" available={availableLanguages.has('en')} />
+                          <AdminLanguageBadge label="ES" available={availableLanguages.has('es')} />
+                        </div>
+                      </>
+                    }
+                    actions={
+                      <AdminActionGroup>
+                        <AdminLinkButton href={`/admin/politicas/${item.id}`}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Editar
+                        </AdminLinkButton>
 
-                      <form action={deletePolicyAction}>
-                        <input type="hidden" name="id" value={item.id} />
-                        <AdminDangerButton type="submit">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Excluir
-                        </AdminDangerButton>
-                      </form>
-                    </AdminActionGroup>
-                  }
-                />
-              ))
+                        <form action={retranslatePolicyAction}>
+                          <input type="hidden" name="id" value={item.id} />
+                          <AdminSecondaryButton type="submit">
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Retraduzir
+                          </AdminSecondaryButton>
+                        </form>
+
+                        <form action={togglePolicyAction}>
+                          <input type="hidden" name="id" value={item.id} />
+                          <input type="hidden" name="enabled" value={String(!item.enabled)} />
+                          <AdminSecondaryButton type="submit">
+                            <Power className="mr-2 h-4 w-4" />
+                            {item.enabled ? 'Desativar' : 'Ativar'}
+                          </AdminSecondaryButton>
+                        </form>
+
+                        <form action={deletePolicyAction}>
+                          <input type="hidden" name="id" value={item.id} />
+                          <AdminDangerButton type="submit">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Excluir
+                          </AdminDangerButton>
+                        </form>
+                      </AdminActionGroup>
+                    }
+                  />
+                );
+              })
             ) : (
               <AdminEmptyState
                 title="Nenhuma política cadastrada ainda"

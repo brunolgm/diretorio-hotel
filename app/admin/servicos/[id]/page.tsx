@@ -1,7 +1,4 @@
 import { ConciergeBell, FileText, Hash, Pencil } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
-import { getAdminHotel } from '@/lib/queries';
-import { updateSectionAction } from './actions';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminField,
@@ -14,12 +11,16 @@ import {
   AdminTextInput,
   AdminTextarea,
 } from '@/components/admin/ui';
+import { getAdminHotel } from '@/lib/queries';
+import { createClient } from '@/lib/supabase/server';
+import { updateSectionAction } from './actions';
 
 interface PageProps {
   params: Promise<{ id: string }>;
   searchParams?: Promise<{
     success?: string;
     error?: string;
+    warning?: string;
   }>;
 }
 
@@ -28,6 +29,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const success = resolvedSearchParams?.success;
   const errorMessage = resolvedSearchParams?.error;
+  const warning = resolvedSearchParams?.warning;
 
   const supabase = await createClient();
   const hotel = await getAdminHotel();
@@ -47,7 +49,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
 
   return (
     <main className="space-y-6">
-      <FeedbackToast success={success} error={errorMessage} />
+      <FeedbackToast success={success} error={errorMessage} warning={warning} />
 
       <AdminPageHero
         eyebrow="editar serviço"

@@ -1,46 +1,62 @@
 import {
-  Plus,
-  Sparkles,
-  LayoutGrid,
   CheckCircle2,
   Eye,
-  Tag,
   FileText,
-  Power,
+  Languages,
+  LayoutGrid,
   Pencil,
+  Plus,
+  Power,
+  RefreshCw,
+  Tag,
   Trash2,
 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
-import { getAdminHotel } from '@/lib/queries';
-import { createSectionAction, deleteSectionAction, toggleSectionAction } from './actions';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminActionGroup,
   AdminCheckboxRow,
+  AdminDangerButton,
   AdminEmptyState,
   AdminField,
   AdminFormGrid,
   AdminInfoBadge,
+  AdminLanguageBadge,
   AdminLinkButton,
   AdminListItem,
   AdminPageHero,
   AdminPrimaryButton,
   AdminSecondaryButton,
-  AdminDangerButton,
   AdminSectionTitle,
   AdminStatCard,
   AdminStatusPill,
   AdminSurface,
   AdminTextInput,
   AdminTextarea,
+  AdminTranslationStatusPill,
 } from '@/components/admin/ui';
+import { getAdminHotel } from '@/lib/queries';
+import {
+  getAvailableTranslationLanguages,
+  getTranslationAvailabilityStatus,
+} from '@/lib/services/translation-admin';
+import { createClient } from '@/lib/supabase/server';
+import type { Database } from '@/types/database';
+import {
+  createSectionAction,
+  deleteSectionAction,
+  retranslateSectionAction,
+  toggleSectionAction,
+} from './actions';
 
 interface AdminServicesPageProps {
   searchParams?: Promise<{
     success?: string;
     error?: string;
+    warning?: string;
   }>;
 }
+
+type SectionTranslation = Database['public']['Tables']['hotel_section_translations']['Row'];
 
 export default async function AdminServicesPage({
   searchParams,
@@ -50,6 +66,7 @@ export default async function AdminServicesPage({
   const params = searchParams ? await searchParams : {};
   const success = params?.success;
   const errorMessage = params?.error;
+  const warning = params?.warning;
 
   const { data: sections, error } = await supabase
     .from('hotel_sections')
@@ -61,13 +78,35 @@ export default async function AdminServicesPage({
     throw new Error('Erro ao carregar serviços do hotel.');
   }
 
+  const sectionIds = sections?.map((item) => item.id) || [];
+  const { data: sectionTranslations, error: translationError } = sectionIds.length
+    ? await supabase
+        .from('hotel_section_translations')
+        .select('section_id, language')
+        .in('section_id', sectionIds)
+    : { data: [], error: null };
+
+  if (translationError) {
+    console.error('Erro ao carregar status de tradução dos serviços:', translationError);
+  }
+
+  const translationsBySectionId = new Map<string, SectionTranslation[]>();
+
+  ((sectionTranslations || []) as Array<Pick<SectionTranslation, 'section_id' | 'language'>>).forEach(
+    (translation) => {
+      const currentTranslations = translationsBySectionId.get(translation.section_id) || [];
+      currentTranslations.push(translation as SectionTranslation);
+      translationsBySectionId.set(translation.section_id, currentTranslations);
+    }
+  );
+
   const totalServices = sections?.length || 0;
   const activeServices = sections?.filter((item) => item.enabled).length || 0;
   const inactiveServices = totalServices - activeServices;
 
   return (
     <main className="space-y-6">
-      <FeedbackToast success={success} error={errorMessage} />
+      <FeedbackToast success={success} error={errorMessage} warning={warning} />
 
       <AdminPageHero
         eyebrow="gestão de serviços"
@@ -110,10 +149,10 @@ export default async function AdminServicesPage({
           description="Itens cadastrados, mas temporariamente ocultos."
         />
         <AdminStatCard
-          icon={<Sparkles className="h-5 w-5" />}
-          title="Organização"
-          value="Dinâmica"
-          description="Os cards podem ser ordenados e administrados a qualquer momento."
+          icon={<Languages className="h-5 w-5" />}
+          title="Traduções"
+          value="PT/EN/ES"
+          description="Acompanhe o status por idioma e retraduza itens individuais quando necessário."
         />
       </section>
 
@@ -190,56 +229,77 @@ export default async function AdminServicesPage({
           <AdminSectionTitle
             eyebrow="Itens cadastrados"
             title="Lista de serviços"
-            description="Edite, ative, desative ou remova cada card do diretório."
+            description="Edite, ative, desative, retraduza ou remova cada card do diretório."
             action={<AdminInfoBadge>Gestão rápida</AdminInfoBadge>}
           />
 
           <div className="mt-6 space-y-4">
             {sections?.length ? (
-              sections.map((item) => (
-                <AdminListItem
-                  key={item.id}
-                  title={item.title}
-                  description={item.content || 'Sem descrição cadastrada.'}
-                  status={
-                    <>
-                      <AdminInfoBadge>{item.category || 'Sem categoria'}</AdminInfoBadge>
-                      <AdminStatusPill active={Boolean(item.enabled)} />
-                    </>
-                  }
-                  meta={
-                    <>
-                      <span>Botão: {item.cta || '—'}</span>
-                      <span>Ordem: {item.sort_order ?? 0}</span>
-                    </>
-                  }
-                  actions={
-                    <AdminActionGroup>
-                      <AdminLinkButton href={`/admin/servicos/${item.id}`}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Editar
-                      </AdminLinkButton>
+              sections.map((item) => {
+                const availableLanguages = getAvailableTranslationLanguages(
+                  translationsBySectionId.get(item.id) || []
+                );
+                const translationStatus = getTranslationAvailabilityStatus(availableLanguages);
 
-                      <form action={toggleSectionAction}>
-                        <input type="hidden" name="id" value={item.id} />
-                        <input type="hidden" name="enabled" value={String(!item.enabled)} />
-                        <AdminSecondaryButton type="submit">
-                          <Power className="mr-2 h-4 w-4" />
-                          {item.enabled ? 'Desativar' : 'Ativar'}
-                        </AdminSecondaryButton>
-                      </form>
+                return (
+                  <AdminListItem
+                    key={item.id}
+                    title={item.title}
+                    description={item.content || 'Sem descrição cadastrada.'}
+                    status={
+                      <>
+                        <AdminInfoBadge>{item.category || 'Sem categoria'}</AdminInfoBadge>
+                        <AdminStatusPill active={Boolean(item.enabled)} />
+                        <AdminTranslationStatusPill status={translationStatus} />
+                      </>
+                    }
+                    meta={
+                      <>
+                        <span>Botão: {item.cta || '—'}</span>
+                        <span>Ordem: {item.sort_order ?? 0}</span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <AdminLanguageBadge label="PT" available />
+                          <AdminLanguageBadge label="EN" available={availableLanguages.has('en')} />
+                          <AdminLanguageBadge label="ES" available={availableLanguages.has('es')} />
+                        </div>
+                      </>
+                    }
+                    actions={
+                      <AdminActionGroup>
+                        <AdminLinkButton href={`/admin/servicos/${item.id}`}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Editar
+                        </AdminLinkButton>
 
-                      <form action={deleteSectionAction}>
-                        <input type="hidden" name="id" value={item.id} />
-                        <AdminDangerButton type="submit">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Excluir
-                        </AdminDangerButton>
-                      </form>
-                    </AdminActionGroup>
-                  }
-                />
-              ))
+                        <form action={retranslateSectionAction}>
+                          <input type="hidden" name="id" value={item.id} />
+                          <AdminSecondaryButton type="submit">
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Retraduzir
+                          </AdminSecondaryButton>
+                        </form>
+
+                        <form action={toggleSectionAction}>
+                          <input type="hidden" name="id" value={item.id} />
+                          <input type="hidden" name="enabled" value={String(!item.enabled)} />
+                          <AdminSecondaryButton type="submit">
+                            <Power className="mr-2 h-4 w-4" />
+                            {item.enabled ? 'Desativar' : 'Ativar'}
+                          </AdminSecondaryButton>
+                        </form>
+
+                        <form action={deleteSectionAction}>
+                          <input type="hidden" name="id" value={item.id} />
+                          <AdminDangerButton type="submit">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Excluir
+                          </AdminDangerButton>
+                        </form>
+                      </AdminActionGroup>
+                    }
+                  />
+                );
+              })
             ) : (
               <AdminEmptyState
                 title="Nenhum serviço cadastrado ainda"

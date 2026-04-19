@@ -117,6 +117,55 @@ export function AdminInfoBadge({ children }: { children: ReactNode }) {
   );
 }
 
+export function AdminLanguageBadge({
+  label,
+  available,
+}: {
+  label: string;
+  available: boolean;
+}) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]',
+        available
+          ? 'bg-slate-900 text-white'
+          : 'bg-slate-100 text-slate-400 ring-1 ring-inset ring-slate-200'
+      )}
+    >
+      {label}
+    </span>
+  );
+}
+
+export function AdminTranslationStatusPill({
+  status,
+}: {
+  status: 'complete' | 'partial' | 'missing';
+}) {
+  if (status === 'complete') {
+    return (
+      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
+        Tradução completa
+      </span>
+    );
+  }
+
+  if (status === 'partial') {
+    return (
+      <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">
+        Tradução parcial
+      </span>
+    );
+  }
+
+  return (
+    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+      Apenas português
+    </span>
+  );
+}
+
 export function AdminEmptyState({
   title,
   description,

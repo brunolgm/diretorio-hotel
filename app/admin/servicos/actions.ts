@@ -10,64 +10,12 @@ import {
   readTrimmedString,
 } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
-import { translateSectionFields } from '@/lib/services/translation-service';
+import {
+  buildFeedbackRedirect,
+  formatTranslationWarning,
+  syncSectionTranslations,
+} from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
-
-async function syncSectionTranslations({
-  supabase,
-  sectionId,
-  fields,
-}: {
-  supabase: Awaited<ReturnType<typeof createClient>>;
-  sectionId: string;
-  fields: {
-    title: string;
-    content: string | null;
-    cta: string | null;
-    category: string | null;
-  };
-}) {
-  try {
-    const timestamp = new Date().toISOString();
-    const [englishTranslation, spanishTranslation] = await Promise.all([
-      translateSectionFields(fields, 'en'),
-      translateSectionFields(fields, 'es'),
-    ]);
-
-    const translations = [
-      englishTranslation
-        ? {
-            section_id: sectionId,
-            language: 'en' as const,
-            ...englishTranslation,
-            updated_at: timestamp,
-          }
-        : null,
-      spanishTranslation
-        ? {
-            section_id: sectionId,
-            language: 'es' as const,
-            ...spanishTranslation,
-            updated_at: timestamp,
-          }
-        : null,
-    ].filter((translation) => translation !== null);
-
-    if (!translations.length) {
-      return;
-    }
-
-    const { error } = await supabase
-      .from('hotel_section_translations')
-      .upsert(translations, { onConflict: 'section_id,language' });
-
-    if (error) {
-      console.error('Failed to persist section translations:', error);
-    }
-  } catch (error) {
-    console.error('Failed to sync section translations:', error);
-  }
-}
 
 export async function createSectionAction(formData: FormData) {
   const supabase = await createClient();
@@ -105,13 +53,13 @@ export async function createSectionAction(formData: FormData) {
 
   if (error) {
     redirect(
-      `/admin/servicos?error=${encodeURIComponent(
-        `Não foi possível criar o serviço: ${error.message}`
-      )}`
+      buildFeedbackRedirect('/admin/servicos', {
+        error: `Não foi possível criar o serviço: ${error.message}`,
+      })
     );
   }
 
-  await syncSectionTranslations({
+  const translationResult = await syncSectionTranslations({
     supabase,
     sectionId: section.id,
     fields: {
@@ -125,7 +73,12 @@ export async function createSectionAction(formData: FormData) {
   revalidatePath('/admin/servicos');
   revalidatePath(`/hotel/${hotel.slug}`);
 
-  redirect('/admin/servicos?success=Servi%C3%A7o%20criado%20com%20sucesso');
+  redirect(
+    buildFeedbackRedirect('/admin/servicos', {
+      success: 'Serviço criado com sucesso',
+      warning: formatTranslationWarning(translationResult),
+    })
+  );
 }
 
 export async function deleteSectionAction(formData: FormData) {
@@ -141,16 +94,20 @@ export async function deleteSectionAction(formData: FormData) {
 
   if (error) {
     redirect(
-      `/admin/servicos?error=${encodeURIComponent(
-        `Não foi possível excluir o serviço: ${error.message}`
-      )}`
+      buildFeedbackRedirect('/admin/servicos', {
+        error: `Não foi possível excluir o serviço: ${error.message}`,
+      })
     );
   }
 
   revalidatePath('/admin/servicos');
   revalidatePath(`/hotel/${hotel.slug}`);
 
-  redirect('/admin/servicos?success=Servi%C3%A7o%20exclu%C3%ADdo%20com%20sucesso');
+  redirect(
+    buildFeedbackRedirect('/admin/servicos', {
+      success: 'Serviço excluído com sucesso',
+    })
+  );
 }
 
 export async function toggleSectionAction(formData: FormData) {
@@ -167,9 +124,9 @@ export async function toggleSectionAction(formData: FormData) {
 
   if (error) {
     redirect(
-      `/admin/servicos?error=${encodeURIComponent(
-        `Não foi possível atualizar o status do serviço: ${error.message}`
-      )}`
+      buildFeedbackRedirect('/admin/servicos', {
+        error: `Não foi possível atualizar o status do serviço: ${error.message}`,
+      })
     );
   }
 
@@ -177,8 +134,50 @@ export async function toggleSectionAction(formData: FormData) {
   revalidatePath(`/hotel/${hotel.slug}`);
 
   redirect(
-    `/admin/servicos?success=${encodeURIComponent(
-      enabled ? 'Serviço ativado com sucesso' : 'Serviço desativado com sucesso'
-    )}`
+    buildFeedbackRedirect('/admin/servicos', {
+      success: enabled ? 'Serviço ativado com sucesso' : 'Serviço desativado com sucesso',
+    })
+  );
+}
+
+export async function retranslateSectionAction(formData: FormData) {
+  const supabase = await createClient();
+  const hotel = await getAdminHotel();
+  const id = readTrimmedString(formData, 'id');
+
+  const { data: section, error } = await supabase
+    .from('hotel_sections')
+    .select('id, title, content, cta, category')
+    .eq('id', id)
+    .eq('hotel_id', hotel.id)
+    .single();
+
+  if (error || !section) {
+    redirect(
+      buildFeedbackRedirect('/admin/servicos', {
+        error: 'Não foi possível carregar o serviço para retradução.',
+      })
+    );
+  }
+
+  const translationResult = await syncSectionTranslations({
+    supabase,
+    sectionId: section.id,
+    fields: {
+      title: section.title,
+      content: section.content,
+      cta: section.cta,
+      category: section.category,
+    },
+  });
+
+  revalidatePath('/admin/servicos');
+  revalidatePath(`/hotel/${hotel.slug}`);
+
+  redirect(
+    buildFeedbackRedirect('/admin/servicos', {
+      success: 'Retradução do serviço concluída',
+      warning: formatTranslationWarning(translationResult),
+    })
   );
 }

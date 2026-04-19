@@ -108,7 +108,9 @@ function SectionCard({ item }: { item: HotelSection }) {
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-lg font-semibold tracking-tight text-slate-950">{item.title}</h3>
+            <h3 className="break-words text-lg font-semibold tracking-tight text-slate-950">
+              {item.title}
+            </h3>
 
             {item.category ? (
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
@@ -117,7 +119,7 @@ function SectionCard({ item }: { item: HotelSection }) {
             ) : null}
           </div>
 
-          <p className="mt-3 text-sm leading-7 text-slate-600">
+          <p className="mt-3 break-words text-sm leading-7 text-slate-600">
             {item.content || 'Informação não disponível.'}
           </p>
 
@@ -127,7 +129,7 @@ function SectionCard({ item }: { item: HotelSection }) {
                 href={item.url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800"
+                className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 text-center text-sm font-medium text-white transition hover:bg-slate-800"
               >
                 {item.cta || 'Acessar'}
                 <ArrowUpRight className="ml-2 h-4 w-4" />
@@ -149,8 +151,10 @@ function DepartmentCard({ item }: { item: HotelDepartment }) {
     <div className="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h3 className="text-lg font-semibold tracking-tight text-slate-950">{item.name}</h3>
-          <p className="mt-2 text-sm leading-7 text-slate-600">
+          <h3 className="break-words text-lg font-semibold tracking-tight text-slate-950">
+            {item.name}
+          </h3>
+          <p className="mt-2 break-words text-sm leading-7 text-slate-600">
             {item.description || 'Canal de atendimento do hotel.'}
           </p>
 
@@ -173,7 +177,7 @@ function DepartmentCard({ item }: { item: HotelDepartment }) {
             href={item.url}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-center text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
             {item.action || `Falar com ${item.name}`}
             <ChevronRight className="ml-2 h-4 w-4" />
@@ -197,8 +201,10 @@ function PolicyCard({ item }: { item: HotelPolicy }) {
         </div>
 
         <div>
-          <h3 className="text-base font-semibold tracking-tight text-slate-950">{item.title}</h3>
-          <p className="mt-2 text-sm leading-7 text-slate-600">
+          <h3 className="break-words text-base font-semibold tracking-tight text-slate-950">
+            {item.title}
+          </h3>
+          <p className="mt-2 break-words text-sm leading-7 text-slate-600">
             {item.description || 'Política do hotel.'}
           </p>
         </div>

@@ -4,63 +4,13 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { readCheckboxBoolean, readNullableString, readTrimmedString } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
-import { translatePolicyFields } from '@/lib/services/translation-service';
+import {
+  buildFeedbackRedirect,
+  formatTranslationWarning,
+  syncPolicyTranslations,
+} from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
-
-async function syncPolicyTranslations({
-  supabase,
-  policyId,
-  fields,
-}: {
-  supabase: Awaited<ReturnType<typeof createClient>>;
-  policyId: string;
-  fields: {
-    title: string;
-    description: string | null;
-  };
-}) {
-  try {
-    const timestamp = new Date().toISOString();
-    const [englishTranslation, spanishTranslation] = await Promise.all([
-      translatePolicyFields(fields, 'en'),
-      translatePolicyFields(fields, 'es'),
-    ]);
-
-    const translations = [
-      englishTranslation
-        ? {
-            policy_id: policyId,
-            language: 'en' as const,
-            ...englishTranslation,
-            updated_at: timestamp,
-          }
-        : null,
-      spanishTranslation
-        ? {
-            policy_id: policyId,
-            language: 'es' as const,
-            ...spanishTranslation,
-            updated_at: timestamp,
-          }
-        : null,
-    ].filter((translation) => translation !== null);
-
-    if (!translations.length) {
-      return;
-    }
-
-    const { error } = await supabase
-      .from('hotel_policy_translations')
-      .upsert(translations, { onConflict: 'policy_id,language' });
-
-    if (error) {
-      console.error('Failed to persist policy translations:', error);
-    }
-  } catch (error) {
-    console.error('Failed to sync policy translations:', error);
-  }
-}
 
 export async function updatePolicyAction(id: string, formData: FormData) {
   const supabase = await createClient();
@@ -85,13 +35,13 @@ export async function updatePolicyAction(id: string, formData: FormData) {
 
   if (error) {
     redirect(
-      `/admin/politicas/${id}?error=${encodeURIComponent(
-        `Não foi possível atualizar a política: ${error.message}`
-      )}`
+      buildFeedbackRedirect(`/admin/politicas/${id}`, {
+        error: `Não foi possível atualizar a política: ${error.message}`,
+      })
     );
   }
 
-  await syncPolicyTranslations({
+  const translationResult = await syncPolicyTranslations({
     supabase,
     policyId: id,
     fields: {
@@ -105,6 +55,9 @@ export async function updatePolicyAction(id: string, formData: FormData) {
   revalidatePath(`/hotel/${hotel.slug}`);
 
   redirect(
-    `/admin/politicas/${id}?success=${encodeURIComponent('Política atualizada com sucesso')}`
+    buildFeedbackRedirect(`/admin/politicas/${id}`, {
+      success: 'Política atualizada com sucesso',
+      warning: formatTranslationWarning(translationResult),
+    })
   );
 }

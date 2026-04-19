@@ -10,65 +10,13 @@ import {
   readTrimmedString,
 } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
-import { translateSectionFields } from '@/lib/services/translation-service';
+import {
+  buildFeedbackRedirect,
+  formatTranslationWarning,
+  syncSectionTranslations,
+} from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
-
-async function syncSectionTranslations({
-  supabase,
-  sectionId,
-  fields,
-}: {
-  supabase: Awaited<ReturnType<typeof createClient>>;
-  sectionId: string;
-  fields: {
-    title: string;
-    content: string | null;
-    cta: string | null;
-    category: string | null;
-  };
-}) {
-  try {
-    const timestamp = new Date().toISOString();
-    const [englishTranslation, spanishTranslation] = await Promise.all([
-      translateSectionFields(fields, 'en'),
-      translateSectionFields(fields, 'es'),
-    ]);
-
-    const translations = [
-      englishTranslation
-        ? {
-            section_id: sectionId,
-            language: 'en' as const,
-            ...englishTranslation,
-            updated_at: timestamp,
-          }
-        : null,
-      spanishTranslation
-        ? {
-            section_id: sectionId,
-            language: 'es' as const,
-            ...spanishTranslation,
-            updated_at: timestamp,
-          }
-        : null,
-    ].filter((translation) => translation !== null);
-
-    if (!translations.length) {
-      return;
-    }
-
-    const { error } = await supabase
-      .from('hotel_section_translations')
-      .upsert(translations, { onConflict: 'section_id,language' });
-
-    if (error) {
-      console.error('Failed to persist section translations:', error);
-    }
-  } catch (error) {
-    console.error('Failed to sync section translations:', error);
-  }
-}
 
 export async function updateSectionAction(id: string, formData: FormData) {
   const supabase = await createClient();
@@ -105,13 +53,13 @@ export async function updateSectionAction(id: string, formData: FormData) {
 
   if (error) {
     redirect(
-      `/admin/servicos/${id}?error=${encodeURIComponent(
-        `Não foi possível atualizar o serviço: ${error.message}`
-      )}`
+      buildFeedbackRedirect(`/admin/servicos/${id}`, {
+        error: `Não foi possível atualizar o serviço: ${error.message}`,
+      })
     );
   }
 
-  await syncSectionTranslations({
+  const translationResult = await syncSectionTranslations({
     supabase,
     sectionId: id,
     fields: {
@@ -126,5 +74,10 @@ export async function updateSectionAction(id: string, formData: FormData) {
   revalidatePath(`/admin/servicos/${id}`);
   revalidatePath(`/hotel/${hotel.slug}`);
 
-  redirect(`/admin/servicos/${id}?success=${encodeURIComponent('Serviço atualizado com sucesso')}`);
+  redirect(
+    buildFeedbackRedirect(`/admin/servicos/${id}`, {
+      success: 'Serviço atualizado com sucesso',
+      warning: formatTranslationWarning(translationResult),
+    })
+  );
 }
