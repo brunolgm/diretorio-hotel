@@ -19,15 +19,19 @@ import {
   AdminDangerButton,
   AdminEmptyState,
   AdminField,
+  AdminFilterBar,
   AdminFormGrid,
   AdminInfoBadge,
   AdminLanguageBadge,
   AdminLinkButton,
   AdminListItem,
+  AdminListSummary,
   AdminPageHero,
   AdminPrimaryButton,
+  AdminSearchInput,
   AdminSecondaryButton,
   AdminSectionTitle,
+  AdminSelect,
   AdminStatCard,
   AdminStatusPill,
   AdminSurface,
@@ -54,6 +58,8 @@ interface AdminDepartmentsPageProps {
     success?: string;
     error?: string;
     warning?: string;
+    q?: string;
+    status?: string;
   }>;
 }
 
@@ -68,6 +74,10 @@ export default async function AdminDepartmentsPage({
   const success = params?.success;
   const errorMessage = params?.error;
   const warning = params?.warning;
+  const searchQuery = (params?.q || '').trim();
+  const normalizedQuery = searchQuery.toLowerCase();
+  const statusFilter =
+    params?.status === 'active' || params?.status === 'inactive' ? params.status : 'all';
 
   const { data: departments, error } = await supabase
     .from('hotel_departments')
@@ -104,6 +114,26 @@ export default async function AdminDepartmentsPage({
   const totalDepartments = departments?.length || 0;
   const activeDepartments = departments?.filter((item) => item.enabled).length || 0;
   const inactiveDepartments = totalDepartments - activeDepartments;
+
+  const filteredDepartments =
+    departments?.filter((item) => {
+      const matchesSearch = !normalizedQuery
+        ? true
+        : [item.name, item.description, item.action, item.hours]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(normalizedQuery));
+
+      const matchesStatus =
+        statusFilter === 'all'
+          ? true
+          : statusFilter === 'active'
+            ? Boolean(item.enabled)
+            : !item.enabled;
+
+      return matchesSearch && matchesStatus;
+    }) || [];
+
+  const hasActiveFilters = Boolean(searchQuery) || statusFilter !== 'all';
 
   return (
     <main className="space-y-6">
@@ -229,13 +259,35 @@ export default async function AdminDepartmentsPage({
           <AdminSectionTitle
             eyebrow="Setores cadastrados"
             title="Lista de departamentos"
-            description="Edite, ative, desative, retraduza ou remova os canais de atendimento disponíveis."
-            action={<AdminInfoBadge>Gestão rápida</AdminInfoBadge>}
+            description="Busque, filtre, edite, ative, retraduza ou remova os canais de atendimento disponíveis."
+            action={<AdminListSummary total={filteredDepartments.length} label="resultado(s)" />}
           />
 
+          <AdminFilterBar>
+            <AdminSearchInput
+              type="search"
+              name="q"
+              defaultValue={searchQuery}
+              placeholder="Buscar por nome, descrição, botão ou horário"
+            />
+            <AdminSelect name="status" defaultValue={statusFilter} className="md:w-[190px]">
+              <option value="all">Todos os status</option>
+              <option value="active">Somente ativos</option>
+              <option value="inactive">Somente inativos</option>
+            </AdminSelect>
+            <AdminPrimaryButton type="submit" className="h-11 px-4">
+              Aplicar
+            </AdminPrimaryButton>
+            {hasActiveFilters ? (
+              <AdminLinkButton href="/admin/departamentos" className="h-11 px-4">
+                Limpar
+              </AdminLinkButton>
+            ) : null}
+          </AdminFilterBar>
+
           <div className="mt-6 space-y-4">
-            {departments?.length ? (
-              departments.map((item) => {
+            {filteredDepartments.length ? (
+              filteredDepartments.map((item) => {
                 const availableLanguages = getAvailableTranslationLanguages(
                   translationsByDepartmentId.get(item.id) || []
                 );
@@ -301,8 +353,16 @@ export default async function AdminDepartmentsPage({
               })
             ) : (
               <AdminEmptyState
-                title="Nenhum departamento cadastrado ainda"
-                description="Crie o primeiro setor de atendimento para exibir canais de contato ao hóspede."
+                title={
+                  hasActiveFilters
+                    ? 'Nenhum departamento encontrado com os filtros atuais'
+                    : 'Nenhum departamento cadastrado ainda'
+                }
+                description={
+                  hasActiveFilters
+                    ? 'Tente ajustar a busca ou trocar o filtro de status para localizar o canal desejado.'
+                    : 'Crie o primeiro setor de atendimento para exibir canais de contato ao hóspede.'
+                }
               />
             )}
           </div>

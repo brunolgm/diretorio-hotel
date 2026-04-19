@@ -18,14 +18,18 @@ import {
   AdminDangerButton,
   AdminEmptyState,
   AdminField,
+  AdminFilterBar,
   AdminInfoBadge,
   AdminLanguageBadge,
   AdminLinkButton,
   AdminListItem,
+  AdminListSummary,
   AdminPageHero,
   AdminPrimaryButton,
+  AdminSearchInput,
   AdminSecondaryButton,
   AdminSectionTitle,
+  AdminSelect,
   AdminStatCard,
   AdminStatusPill,
   AdminSurface,
@@ -52,6 +56,8 @@ interface AdminPoliciesPageProps {
     success?: string;
     error?: string;
     warning?: string;
+    q?: string;
+    status?: string;
   }>;
 }
 
@@ -66,6 +72,10 @@ export default async function AdminPoliciesPage({
   const success = params?.success;
   const errorMessage = params?.error;
   const warning = params?.warning;
+  const searchQuery = (params?.q || '').trim();
+  const normalizedQuery = searchQuery.toLowerCase();
+  const statusFilter =
+    params?.status === 'active' || params?.status === 'inactive' ? params.status : 'all';
 
   const { data: policies, error } = await supabase
     .from('hotel_policies')
@@ -102,6 +112,26 @@ export default async function AdminPoliciesPage({
   const totalPolicies = policies?.length || 0;
   const activePolicies = policies?.filter((item) => item.enabled).length || 0;
   const inactivePolicies = totalPolicies - activePolicies;
+
+  const filteredPolicies =
+    policies?.filter((item) => {
+      const matchesSearch = !normalizedQuery
+        ? true
+        : [item.title, item.description]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(normalizedQuery));
+
+      const matchesStatus =
+        statusFilter === 'all'
+          ? true
+          : statusFilter === 'active'
+            ? Boolean(item.enabled)
+            : !item.enabled;
+
+      return matchesSearch && matchesStatus;
+    }) || [];
+
+  const hasActiveFilters = Boolean(searchQuery) || statusFilter !== 'all';
 
   return (
     <main className="space-y-6">
@@ -202,13 +232,35 @@ export default async function AdminPoliciesPage({
           <AdminSectionTitle
             eyebrow="Políticas cadastradas"
             title="Lista de políticas"
-            description="Edite, ative, desative, retraduza ou remova as regras exibidas para o hóspede."
-            action={<AdminInfoBadge>Gestão rápida</AdminInfoBadge>}
+            description="Busque, filtre, edite, ative, retraduza ou remova as regras exibidas para o hóspede."
+            action={<AdminListSummary total={filteredPolicies.length} label="resultado(s)" />}
           />
 
+          <AdminFilterBar>
+            <AdminSearchInput
+              type="search"
+              name="q"
+              defaultValue={searchQuery}
+              placeholder="Buscar por título ou descrição"
+            />
+            <AdminSelect name="status" defaultValue={statusFilter} className="md:w-[190px]">
+              <option value="all">Todos os status</option>
+              <option value="active">Somente ativos</option>
+              <option value="inactive">Somente inativos</option>
+            </AdminSelect>
+            <AdminPrimaryButton type="submit" className="h-11 px-4">
+              Aplicar
+            </AdminPrimaryButton>
+            {hasActiveFilters ? (
+              <AdminLinkButton href="/admin/politicas" className="h-11 px-4">
+                Limpar
+              </AdminLinkButton>
+            ) : null}
+          </AdminFilterBar>
+
           <div className="mt-6 space-y-4">
-            {policies?.length ? (
-              policies.map((item) => {
+            {filteredPolicies.length ? (
+              filteredPolicies.map((item) => {
                 const availableLanguages = getAvailableTranslationLanguages(
                   translationsByPolicyId.get(item.id) || []
                 );
@@ -280,8 +332,16 @@ export default async function AdminPoliciesPage({
               })
             ) : (
               <AdminEmptyState
-                title="Nenhuma política cadastrada ainda"
-                description="Cadastre a primeira política para orientar o hóspede com mais clareza."
+                title={
+                  hasActiveFilters
+                    ? 'Nenhuma política encontrada com os filtros atuais'
+                    : 'Nenhuma política cadastrada ainda'
+                }
+                description={
+                  hasActiveFilters
+                    ? 'Tente ajustar a busca ou trocar o filtro de status para localizar a regra desejada.'
+                    : 'Cadastre a primeira política para orientar o hóspede com mais clareza.'
+                }
               />
             )}
           </div>

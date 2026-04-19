@@ -18,15 +18,19 @@ import {
   AdminDangerButton,
   AdminEmptyState,
   AdminField,
+  AdminFilterBar,
   AdminFormGrid,
   AdminInfoBadge,
   AdminLanguageBadge,
   AdminLinkButton,
   AdminListItem,
+  AdminListSummary,
   AdminPageHero,
   AdminPrimaryButton,
+  AdminSearchInput,
   AdminSecondaryButton,
   AdminSectionTitle,
+  AdminSelect,
   AdminStatCard,
   AdminStatusPill,
   AdminSurface,
@@ -53,6 +57,8 @@ interface AdminServicesPageProps {
     success?: string;
     error?: string;
     warning?: string;
+    q?: string;
+    status?: string;
   }>;
 }
 
@@ -67,6 +73,10 @@ export default async function AdminServicesPage({
   const success = params?.success;
   const errorMessage = params?.error;
   const warning = params?.warning;
+  const searchQuery = (params?.q || '').trim();
+  const normalizedQuery = searchQuery.toLowerCase();
+  const statusFilter =
+    params?.status === 'active' || params?.status === 'inactive' ? params.status : 'all';
 
   const { data: sections, error } = await supabase
     .from('hotel_sections')
@@ -103,6 +113,26 @@ export default async function AdminServicesPage({
   const totalServices = sections?.length || 0;
   const activeServices = sections?.filter((item) => item.enabled).length || 0;
   const inactiveServices = totalServices - activeServices;
+
+  const filteredSections =
+    sections?.filter((item) => {
+      const matchesSearch = !normalizedQuery
+        ? true
+        : [item.title, item.content, item.category, item.cta]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(normalizedQuery));
+
+      const matchesStatus =
+        statusFilter === 'all'
+          ? true
+          : statusFilter === 'active'
+            ? Boolean(item.enabled)
+            : !item.enabled;
+
+      return matchesSearch && matchesStatus;
+    }) || [];
+
+  const hasActiveFilters = Boolean(searchQuery) || statusFilter !== 'all';
 
   return (
     <main className="space-y-6">
@@ -229,13 +259,35 @@ export default async function AdminServicesPage({
           <AdminSectionTitle
             eyebrow="Itens cadastrados"
             title="Lista de serviços"
-            description="Edite, ative, desative, retraduza ou remova cada card do diretório."
-            action={<AdminInfoBadge>Gestão rápida</AdminInfoBadge>}
+            description="Busque, filtre, edite, ative, retraduza ou remova cada card do diretório."
+            action={<AdminListSummary total={filteredSections.length} label="resultado(s)" />}
           />
 
+          <AdminFilterBar>
+            <AdminSearchInput
+              type="search"
+              name="q"
+              defaultValue={searchQuery}
+              placeholder="Buscar por título, categoria, descrição ou botão"
+            />
+            <AdminSelect name="status" defaultValue={statusFilter} className="md:w-[190px]">
+              <option value="all">Todos os status</option>
+              <option value="active">Somente ativos</option>
+              <option value="inactive">Somente inativos</option>
+            </AdminSelect>
+            <AdminPrimaryButton type="submit" className="h-11 px-4">
+              Aplicar
+            </AdminPrimaryButton>
+            {hasActiveFilters ? (
+              <AdminLinkButton href="/admin/servicos" className="h-11 px-4">
+                Limpar
+              </AdminLinkButton>
+            ) : null}
+          </AdminFilterBar>
+
           <div className="mt-6 space-y-4">
-            {sections?.length ? (
-              sections.map((item) => {
+            {filteredSections.length ? (
+              filteredSections.map((item) => {
                 const availableLanguages = getAvailableTranslationLanguages(
                   translationsBySectionId.get(item.id) || []
                 );
@@ -302,8 +354,16 @@ export default async function AdminServicesPage({
               })
             ) : (
               <AdminEmptyState
-                title="Nenhum serviço cadastrado ainda"
-                description="Crie o primeiro card para começar a montar o diretório digital do hóspede."
+                title={
+                  hasActiveFilters
+                    ? 'Nenhum serviço encontrado com os filtros atuais'
+                    : 'Nenhum serviço cadastrado ainda'
+                }
+                description={
+                  hasActiveFilters
+                    ? 'Tente ajustar a busca ou trocar o filtro de status para localizar o item desejado.'
+                    : 'Crie o primeiro card para começar a montar o diretório digital do hóspede.'
+                }
               />
             )}
           </div>

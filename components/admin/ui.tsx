@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Search } from 'lucide-react';
 
 export function AdminPageHero({
   eyebrow,
@@ -163,6 +163,75 @@ export function AdminTranslationStatusPill({
     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
       Apenas português
     </span>
+  );
+}
+
+export function AdminFilterBar({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <form
+      className={cn(
+        'mt-6 flex flex-col gap-3 rounded-[24px] border border-slate-200 bg-slate-50/80 p-4 md:flex-row md:items-center',
+        className
+      )}
+    >
+      {children}
+    </form>
+  );
+}
+
+export function AdminSearchInput({
+  className,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div className={cn('relative min-w-0 flex-1', className)}>
+      <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <input
+        {...props}
+        className={cn(
+          'h-11 w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-4 text-sm outline-none transition focus:border-slate-300 focus-visible:ring-2 focus-visible:ring-slate-200',
+          className
+        )}
+      />
+    </div>
+  );
+}
+
+export function AdminSelect({
+  className,
+  children,
+  ...props
+}: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select
+      {...props}
+      className={cn(
+        'h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus-visible:ring-2 focus-visible:ring-slate-200',
+        className
+      )}
+    >
+      {children}
+    </select>
+  );
+}
+
+export function AdminListSummary({
+  total,
+  label,
+}: {
+  total: number;
+  label: string;
+}) {
+  return (
+    <div className="inline-flex items-center rounded-full bg-white px-4 py-2 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
+      {total} {label}
+    </div>
   );
 }
 
