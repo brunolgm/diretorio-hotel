@@ -81,6 +81,14 @@ export async function deleteDepartmentAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
+  if (!id) {
+    redirect(
+      buildFeedbackRedirect('/admin/departamentos', {
+        error: 'Departamento inválido para exclusão.',
+      })
+    );
+  }
+
   const { error } = await supabase
     .from('hotel_departments')
     .delete()
@@ -111,6 +119,14 @@ export async function toggleDepartmentAction(formData: FormData) {
   const id = readTrimmedString(formData, 'id');
   const enabled = String(formData.get('enabled') || '') === 'true';
 
+  if (!id) {
+    redirect(
+      buildFeedbackRedirect('/admin/departamentos', {
+        error: 'Departamento inválido para atualização de status.',
+      })
+    );
+  }
+
   const { error } = await supabase
     .from('hotel_departments')
     .update({ enabled })
@@ -139,6 +155,14 @@ export async function retranslateDepartmentAction(formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
+
+  if (!id) {
+    redirect(
+      buildFeedbackRedirect('/admin/departamentos', {
+        error: 'Departamento inválido para retradução.',
+      })
+    );
+  }
 
   const { data: department, error } = await supabase
     .from('hotel_departments')

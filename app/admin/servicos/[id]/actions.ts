@@ -19,6 +19,10 @@ import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 
 export async function updateSectionAction(id: string, formData: FormData) {
+  if (!id.trim()) {
+    redirect('/admin/servicos?error=Servi%C3%A7o%20inv%C3%A1lido');
+  }
+
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const title = readTrimmedString(formData, 'title');

@@ -18,6 +18,10 @@ import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 
 export async function updateDepartmentAction(id: string, formData: FormData) {
+  if (!id.trim()) {
+    redirect('/admin/departamentos?error=Departamento%20inv%C3%A1lido');
+  }
+
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const name = readTrimmedString(formData, 'name');

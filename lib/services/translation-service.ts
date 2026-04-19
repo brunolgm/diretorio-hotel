@@ -1,4 +1,5 @@
 import 'server-only';
+import { getRequiredEnvVar, logWarningOnce } from '@/lib/env';
 
 export type SupportedTranslationLanguage = 'en' | 'es';
 
@@ -25,9 +26,18 @@ async function translateTextBatch(
   values: string[],
   targetLanguage: SupportedTranslationLanguage
 ) {
-  const apiKey = process.env.GOOGLE_CLOUD_TRANSLATION_API_KEY;
+  if (values.length === 0) {
+    return null;
+  }
 
-  if (!apiKey || values.length === 0) {
+  let apiKey: string;
+
+  try {
+    apiKey = getRequiredEnvVar('GOOGLE_CLOUD_TRANSLATION_API_KEY');
+  } catch {
+    logWarningOnce(
+      'Google Cloud Translation is disabled because GOOGLE_CLOUD_TRANSLATION_API_KEY is missing.'
+    );
     return null;
   }
 

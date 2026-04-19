@@ -66,6 +66,14 @@ export async function deletePolicyAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
+  if (!id) {
+    redirect(
+      buildFeedbackRedirect('/admin/politicas', {
+        error: 'Política inválida para exclusão.',
+      })
+    );
+  }
+
   const { error } = await supabase
     .from('hotel_policies')
     .delete()
@@ -96,6 +104,14 @@ export async function togglePolicyAction(formData: FormData) {
   const id = readTrimmedString(formData, 'id');
   const enabled = String(formData.get('enabled') || '') === 'true';
 
+  if (!id) {
+    redirect(
+      buildFeedbackRedirect('/admin/politicas', {
+        error: 'Política inválida para atualização de status.',
+      })
+    );
+  }
+
   const { error } = await supabase
     .from('hotel_policies')
     .update({ enabled })
@@ -124,6 +140,14 @@ export async function retranslatePolicyAction(formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
+
+  if (!id) {
+    redirect(
+      buildFeedbackRedirect('/admin/politicas', {
+        error: 'Política inválida para retradução.',
+      })
+    );
+  }
 
   const { data: policy, error } = await supabase
     .from('hotel_policies')

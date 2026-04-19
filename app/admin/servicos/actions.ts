@@ -86,6 +86,14 @@ export async function deleteSectionAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
+  if (!id) {
+    redirect(
+      buildFeedbackRedirect('/admin/servicos', {
+        error: 'Serviço inválido para exclusão.',
+      })
+    );
+  }
+
   const { error } = await supabase
     .from('hotel_sections')
     .delete()
@@ -116,6 +124,14 @@ export async function toggleSectionAction(formData: FormData) {
   const id = readTrimmedString(formData, 'id');
   const enabled = String(formData.get('enabled') || '') === 'true';
 
+  if (!id) {
+    redirect(
+      buildFeedbackRedirect('/admin/servicos', {
+        error: 'Serviço inválido para atualização de status.',
+      })
+    );
+  }
+
   const { error } = await supabase
     .from('hotel_sections')
     .update({ enabled })
@@ -144,6 +160,14 @@ export async function retranslateSectionAction(formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
+
+  if (!id) {
+    redirect(
+      buildFeedbackRedirect('/admin/servicos', {
+        error: 'Serviço inválido para retradução.',
+      })
+    );
+  }
 
   const { data: section, error } = await supabase
     .from('hotel_sections')

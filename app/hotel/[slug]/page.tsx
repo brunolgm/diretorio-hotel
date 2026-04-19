@@ -17,6 +17,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
+import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 
@@ -29,7 +30,6 @@ interface PageProps {
   }>;
 }
 
-type SupportedLanguage = 'pt' | 'en' | 'es';
 type HotelRow = Database['public']['Tables']['hotels']['Row'];
 type HotelSection = Database['public']['Tables']['hotel_sections']['Row'];
 type HotelDepartment = Database['public']['Tables']['hotel_departments']['Row'];
@@ -217,8 +217,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
   const { slug } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const requestedLang = resolvedSearchParams?.lang;
-  const lang: SupportedLanguage =
-    requestedLang === 'en' || requestedLang === 'es' ? requestedLang : 'pt';
+  const lang: SupportedPublicLanguage = normalizePublicLanguage(requestedLang);
   const supabase = await createClient();
 
   const { data: hotel, error: hotelError } = await supabase
@@ -231,7 +230,11 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
     notFound();
   }
 
-  const [{ data: sections }, { data: departments }, { data: policies }] = await Promise.all([
+  const [
+    { data: sections, error: sectionsError },
+    { data: departments, error: departmentsError },
+    { data: policies, error: policiesError },
+  ] = await Promise.all([
     supabase
       .from('hotel_sections')
       .select('*')
@@ -251,6 +254,18 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
       .eq('enabled', true)
       .order('created_at', { ascending: true }),
   ]);
+
+  if (sectionsError) {
+    console.error('Failed to load hotel sections:', sectionsError);
+  }
+
+  if (departmentsError) {
+    console.error('Failed to load hotel departments:', departmentsError);
+  }
+
+  if (policiesError) {
+    console.error('Failed to load hotel policies:', policiesError);
+  }
 
   const typedHotel: HotelRow = hotel;
   const typedSections: HotelSection[] = sections || [];

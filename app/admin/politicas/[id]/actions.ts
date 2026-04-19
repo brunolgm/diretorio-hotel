@@ -13,6 +13,10 @@ import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 
 export async function updatePolicyAction(id: string, formData: FormData) {
+  if (!id.trim()) {
+    redirect('/admin/politicas?error=Pol%C3%ADtica%20inv%C3%A1lida');
+  }
+
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const title = readTrimmedString(formData, 'title');

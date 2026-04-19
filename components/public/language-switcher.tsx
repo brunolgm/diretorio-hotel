@@ -1,9 +1,8 @@
 import { Check, ChevronDown, Languages } from 'lucide-react';
-
-type SupportedLanguage = 'pt' | 'en' | 'es';
+import { type SupportedPublicLanguage } from '@/lib/public-language';
 
 const LANGUAGE_OPTIONS: Array<{
-  code: SupportedLanguage;
+  code: SupportedPublicLanguage;
   label: string;
   shortLabel: string;
   flag: string;
@@ -18,7 +17,7 @@ export function LanguageSwitcher({
   currentLanguage,
 }: {
   slug: string;
-  currentLanguage: SupportedLanguage;
+  currentLanguage: SupportedPublicLanguage;
 }) {
   const activeLanguage =
     LANGUAGE_OPTIONS.find((item) => item.code === currentLanguage) || LANGUAGE_OPTIONS[0];
