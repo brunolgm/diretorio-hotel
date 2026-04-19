@@ -16,6 +16,7 @@ import {
   Sparkles,
   Wifi,
 } from 'lucide-react';
+import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 
@@ -353,41 +354,21 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
     ? `https://wa.me/${String(typedHotel.whatsapp_number).replace(/\D/g, '')}`
     : null;
 
-  const languageLinks: Array<{ code: SupportedLanguage; label: string }> = [
-    { code: 'pt', label: 'PT' },
-    { code: 'en', label: 'EN' },
-    { code: 'es', label: 'ES' },
-  ];
-
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_100%)]">
       <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8">
         <section className="overflow-hidden rounded-[36px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_55%,#1e293b_100%)] p-6 text-white shadow-sm md:p-10">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 backdrop-blur">
-                <Sparkles className="h-3.5 w-3.5" />
-                Diretório digital
-              </div>
+              <div className="flex items-start justify-between gap-4">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 backdrop-blur">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Diretório digital
+                </div>
 
-              <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1 text-xs font-medium text-slate-200">
-                {languageLinks.map((item) => {
-                  const isActive = item.code === lang;
-
-                  return (
-                    <a
-                      key={item.code}
-                      href={`/hotel/${typedHotel.slug}?lang=${item.code}`}
-                      className={`rounded-full px-3 py-1.5 transition ${
-                        isActive
-                          ? 'bg-white text-slate-950'
-                          : 'text-slate-200 hover:bg-white/10 hover:text-white'
-                      }`}
-                    >
-                      {item.label}
-                    </a>
-                  );
-                })}
+                <div className="shrink-0">
+                  <LanguageSwitcher slug={typedHotel.slug} currentLanguage={lang} />
+                </div>
               </div>
 
               <div className="mt-6 flex items-start gap-4">
