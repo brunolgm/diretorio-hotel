@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
-import { Menu, LogOut } from 'lucide-react';
-import { requireAdmin } from '@/lib/auth';
-import { createClient } from '@/lib/supabase/server';
+import { LogOut, Menu } from 'lucide-react';
 import { NavLinks } from '@/components/admin/nav-links';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { requireAdmin } from '@/lib/auth';
+import { createClient } from '@/lib/supabase/server';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -42,10 +42,10 @@ function MobileMenu() {
         <div className="flex h-full flex-col">
           <div className="border-b border-slate-200 px-6 py-5">
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-              Painel administrador
+              GuestDesk
             </p>
             <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">
-              Diretório do Hotel
+              Painel administrativo
             </h2>
           </div>
 
@@ -54,6 +54,9 @@ function MobileMenu() {
           </div>
 
           <div className="border-t border-slate-200 p-4">
+            <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
+              GuestDesk by BLID Tecnologia
+            </p>
             <form action={signOut}>
               <button
                 type="submit"
@@ -79,10 +82,10 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
         <div className="mb-4 flex items-center justify-between rounded-[28px] bg-white px-4 py-4 shadow-sm ring-1 ring-slate-200/70 lg:hidden">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-              Painel administrador
+              GuestDesk
             </p>
             <h1 className="mt-1 text-lg font-semibold tracking-tight text-slate-900">
-              Diretório do Hotel
+              Painel administrativo
             </h1>
           </div>
 
@@ -93,10 +96,10 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
           <aside className="hidden w-72 shrink-0 rounded-[32px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:block">
             <div className="border-b border-slate-200 pb-5">
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-                Painel administrador
+                GuestDesk
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
-                Diretório do Hotel
+                Painel administrativo
               </h2>
             </div>
 
@@ -105,6 +108,9 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
             </div>
 
             <div className="mt-8 border-t border-slate-200 pt-5">
+              <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
+                GuestDesk by BLID Tecnologia
+              </p>
               <form action={signOut}>
                 <button
                   type="submit"

@@ -362,14 +362,14 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_100%)]">
-      <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8">
+      <div className="mx-auto max-w-6xl px-4 py-6 pb-28 md:px-6 md:py-8 md:pb-8">
         <section className="overflow-hidden rounded-[36px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_55%,#1e293b_100%)] p-6 text-white shadow-sm md:p-10">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <div className="flex items-start justify-between gap-4">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 backdrop-blur">
                   <Sparkles className="h-3.5 w-3.5" />
-                  Diretório digital
+                  GuestDesk
                 </div>
 
                 <div className="shrink-0">
@@ -405,15 +405,15 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
 
                     <span className="inline-flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4" />
-                      Informações úteis em um só lugar
+                      Informações essenciais em um só lugar
                     </span>
                   </div>
                 </div>
               </div>
 
               <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-200 md:text-base">
-                Acesse serviços, contatos, orientações e links importantes do hotel com uma
-                experiência mais rápida, bonita e organizada.
+                Acesse serviços, contatos, orientações e links importantes do hotel em uma
+                experiência digital mais elegante, prática e organizada.
               </p>
             </div>
 
@@ -476,7 +476,11 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
             icon={Wifi}
             title="Wi-Fi"
             value={typedHotel.wifi_name || 'Não informado'}
-            helper={typedHotel.wifi_password ? `Senha: ${typedHotel.wifi_password}` : 'Consulte a recepção'}
+            helper={
+              typedHotel.wifi_password
+                ? `Senha: ${typedHotel.wifi_password}`
+                : 'Consulte a recepção'
+            }
           />
           <QuickInfoCard
             icon={Clock3}
@@ -628,6 +632,14 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                 </a>
               ) : null}
             </div>
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-[28px] border border-slate-200/80 bg-white/80 px-6 py-5 text-sm text-slate-500 shadow-sm backdrop-blur">
+          <div className="flex justify-center md:justify-end">
+            <p className="font-medium tracking-[0.01em] text-slate-700">
+              GuestDesk by BLID Tecnologia
+            </p>
           </div>
         </section>
       </div>

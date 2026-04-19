@@ -1,16 +1,14 @@
 import Link from 'next/link';
 import {
-  Hotel,
-  ConciergeBell,
-  Building2,
-  ShieldCheck,
   ArrowRight,
-  Eye,
+  Building2,
   CheckCircle2,
   Clock3,
+  ConciergeBell,
+  Eye,
+  Hotel,
+  ShieldCheck,
 } from 'lucide-react';
-import { requireUser } from '@/lib/auth';
-import { getAdminHotel } from '@/lib/queries';
 import {
   AdminInfoBadge,
   AdminPageHero,
@@ -19,6 +17,8 @@ import {
   AdminStatCard,
   AdminSurface,
 } from '@/components/admin/ui';
+import { requireUser } from '@/lib/auth';
+import { getAdminHotel } from '@/lib/queries';
 
 function QuickLink({
   href,
@@ -56,9 +56,9 @@ export default async function AdminPage() {
   return (
     <main className="space-y-6">
       <AdminPageHero
-        eyebrow="painel administrador"
+        eyebrow="GuestDesk"
         title={hotel.name}
-        description="Gerencie o diretório digital do hotel com uma experiência moderna, organizada e preparada para a operação diária."
+        description="Gerencie o GuestDesk do hotel com uma experiência mais organizada, elegante e preparada para apresentação, operação e atualização diária."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
@@ -93,15 +93,15 @@ export default async function AdminPage() {
         />
         <AdminStatCard
           icon={<Eye className="h-5 w-5" />}
-          title="Diretório público"
+          title="Experiência pública"
           value="Online"
-          description="A versão pública do diretório está publicada e acessível."
+          description="A versão pública do GuestDesk está publicada e acessível."
         />
         <AdminStatCard
           icon={<ShieldCheck className="h-5 w-5" />}
           title="Admin"
           value="Protegido"
-          description="Área administrativa com autenticação e rotas restritas."
+          description="Área administrativa com autenticação e acesso restrito."
         />
       </section>
 
@@ -110,13 +110,13 @@ export default async function AdminPage() {
           href="/admin/hotel"
           icon={Hotel}
           title="Informações do hotel"
-          text="Atualize nome, cidade, horários, Wi-Fi, links institucionais e logo."
+          text="Atualize nome, cidade, horários, Wi-Fi, links institucionais e apresentação da marca."
         />
         <QuickLink
           href="/admin/servicos"
           icon={ConciergeBell}
           title="Serviços"
-          text="Cadastre e organize os cards de serviços e informações do diretório."
+          text="Cadastre e organize os cards de serviços e informações exibidos no GuestDesk."
         />
         <QuickLink
           href="/admin/departamentos"
@@ -140,28 +140,28 @@ export default async function AdminPage() {
             <div className="rounded-[24px] bg-slate-50 p-5">
               <p className="text-sm font-semibold text-slate-900">Revisar conteúdo</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Verifique descrições, textos dos botões, horários e links finais do hotel.
+                Verifique descrições, textos de botões, horários e links finais do hotel.
               </p>
             </div>
 
             <div className="rounded-[24px] bg-slate-50 p-5">
-              <p className="text-sm font-semibold text-slate-900">Validar identidade visual</p>
+              <p className="text-sm font-semibold text-slate-900">Refinar apresentação</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Confira logo oficial, cores, favicon e consistência visual da operação.
+                Confira logo oficial, consistência visual e assinatura comercial do produto.
               </p>
             </div>
 
             <div className="rounded-[24px] bg-slate-50 p-5">
               <p className="text-sm font-semibold text-slate-900">Testar jornada do hóspede</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Navegue pela rota pública e simule o uso do diretório no celular.
+                Navegue pela rota pública e valide a experiência do GuestDesk no celular.
               </p>
             </div>
 
             <div className="rounded-[24px] bg-slate-50 p-5">
-              <p className="text-sm font-semibold text-slate-900">Gerar QR Code</p>
+              <p className="text-sm font-semibold text-slate-900">Preparar demonstração</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Prepare a distribuição do acesso público para quartos, recepção e áreas comuns.
+                Organize o link público para portfolio, QR Code e apresentação comercial.
               </p>
             </div>
           </div>
@@ -181,23 +181,23 @@ export default async function AdminPage() {
 
           <div className="mt-6 space-y-4">
             <div className="rounded-[24px] border border-slate-200 p-5">
-              <p className="text-sm font-semibold text-slate-900">Diretório publicado</p>
+              <p className="text-sm font-semibold text-slate-900">GuestDesk publicado</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                O sistema já está online e o painel administrativo está acessível.
+                A experiência pública já está online e pronta para demonstração.
               </p>
             </div>
 
             <div className="rounded-[24px] border border-slate-200 p-5">
-              <p className="text-sm font-semibold text-slate-900">CRUD operacional</p>
+              <p className="text-sm font-semibold text-slate-900">Operação centralizada</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Serviços, departamentos e políticas podem ser criados, editados e removidos.
+                Serviços, departamentos e políticas podem ser gerenciados em um único painel.
               </p>
             </div>
 
             <div className="rounded-[24px] border border-slate-200 p-5">
-              <p className="text-sm font-semibold text-slate-900">Logo e conteúdo</p>
+              <p className="text-sm font-semibold text-slate-900">Marca e conteúdo</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                O hotel já pode ajustar identidade visual e finalizar os textos do diretório.
+                O hotel já pode ajustar identidade visual e finalizar os textos da apresentação.
               </p>
             </div>
           </div>

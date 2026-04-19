@@ -10,12 +10,13 @@ export default function Home() {
               </div>
 
               <h1 className="mt-6 text-4xl font-semibold tracking-tight md:text-5xl">
-                Diretório digital premium para experiências de hotel mais organizadas.
+                GuestDesk transforma o diretório digital do hotel em uma experiência mais premium,
+                organizada e pronta para encantar o hóspede.
               </h1>
 
               <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-200 md:text-base">
-                Centralize serviços, contatos, políticas e informações essenciais em uma
-                experiência elegante para o hóspede e simples para a operação.
+                Centralize serviços, contatos, políticas e informações essenciais em uma interface
+                elegante para o hóspede e simples para a operação do hotel.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -29,7 +30,7 @@ export default function Home() {
                   href="#como-funciona"
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                 >
-                  Conhecer a plataforma
+                  Conhecer o produto
                 </a>
               </div>
             </div>
@@ -39,15 +40,16 @@ export default function Home() {
                 <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Operação</p>
                 <p className="mt-2 text-lg font-semibold text-white">Painel administrativo</p>
                 <p className="mt-2 text-sm leading-6 text-slate-200">
-                  Atualize logo, serviços, departamentos e políticas com rapidez.
+                  Atualize hotel, serviços, departamentos e políticas com mais clareza e agilidade.
                 </p>
               </div>
 
               <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
                 <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Hóspede</p>
-                <p className="mt-2 text-lg font-semibold text-white">Diretório público</p>
+                <p className="mt-2 text-lg font-semibold text-white">Experiência pública</p>
                 <p className="mt-2 text-sm leading-6 text-slate-200">
-                  Consulte informações úteis, contatos e acessos rápidos em um só lugar.
+                  Reúna informações úteis, contatos e acessos rápidos em uma jornada digital mais
+                  elegante.
                 </p>
               </div>
             </div>
@@ -58,25 +60,32 @@ export default function Home() {
             className="mt-8 grid gap-4 rounded-[32px] bg-white p-6 text-slate-900 ring-1 ring-slate-200/70 md:grid-cols-3 md:p-8"
           >
             <div className="rounded-[24px] bg-slate-50 p-5">
-              <p className="text-sm font-semibold">Configure o hotel</p>
+              <p className="text-sm font-semibold">Estruture a operação</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Ajuste informações institucionais, conectividade, branding e links oficiais.
+                Configure dados do hotel, conectividade, links oficiais e apresentação da marca.
               </p>
             </div>
 
             <div className="rounded-[24px] bg-slate-50 p-5">
-              <p className="text-sm font-semibold">Organize o diretório</p>
+              <p className="text-sm font-semibold">Organize a informação</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Publique serviços, departamentos e políticas com uma linguagem clara e visual consistente.
+                Publique serviços, departamentos e políticas com linguagem clara e consistência
+                visual.
               </p>
             </div>
 
             <div className="rounded-[24px] bg-slate-50 p-5">
-              <p className="text-sm font-semibold">Entregue uma experiência premium</p>
+              <p className="text-sm font-semibold">Eleve a experiência do hóspede</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Ofereça uma jornada móvel mais bonita, direta e alinhada à operação real do hotel.
+                Entregue uma navegação móvel mais bonita, direta e alinhada à operação real do
+                hotel.
               </p>
             </div>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-2 border-t border-white/10 pt-6 text-sm text-slate-300 md:flex-row md:items-center md:justify-between">
+            <p>GuestDesk é a plataforma digital para hotelaria moderna.</p>
+            <p className="font-medium text-slate-200">GuestDesk by BLID Tecnologia</p>
           </div>
         </section>
       </div>

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
@@ -44,27 +44,36 @@ export default function LoginPage() {
             </div>
 
             <h1 className="mt-6 text-4xl font-semibold tracking-tight">
-              Painel premium para operar o diretório digital do hotel.
+              GuestDesk centraliza a operação do diretório digital do hotel em uma experiência
+              premium e profissional.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-200">
-              Gerencie conteúdos, contatos e informações importantes com uma experiência visual mais
-              organizada e preparada para a operação do dia a dia.
+              Gerencie conteúdos, contatos e informações importantes com um painel elegante,
+              consistente e preparado para o ritmo da operação diária.
             </p>
 
             <div className="mt-8 grid gap-4">
               <div className="rounded-[24px] bg-white/10 p-5 backdrop-blur">
                 <p className="text-sm font-semibold text-white">Atualizações rápidas</p>
                 <p className="mt-2 text-sm leading-6 text-slate-200">
-                  Hotel, serviços, departamentos e políticas centralizados em um só fluxo.
+                  Hotel, serviços, departamentos e políticas em um único fluxo de gestão.
                 </p>
               </div>
 
               <div className="rounded-[24px] bg-white/10 p-5 backdrop-blur">
-                <p className="text-sm font-semibold text-white">Experiência consistente</p>
+                <p className="text-sm font-semibold text-white">Apresentação consistente</p>
                 <p className="mt-2 text-sm leading-6 text-slate-200">
-                  O painel e o diretório público seguem a mesma linguagem visual do produto.
+                  Painel administrativo e diretório público alinhados na mesma linguagem visual do
+                  produto.
                 </p>
               </div>
+            </div>
+
+            <div className="mt-10 border-t border-white/10 pt-6">
+              <p className="text-sm text-slate-300">Plataforma para hospitalidade digital.</p>
+              <p className="mt-2 text-sm font-medium text-slate-100">
+                GuestDesk by BLID Tecnologia
+              </p>
             </div>
           </section>
 
@@ -75,10 +84,11 @@ export default function LoginPage() {
             </div>
 
             <h2 className="mt-6 text-3xl font-semibold tracking-tight text-slate-950">
-              Entrar no painel
+              Entrar no GuestDesk
             </h2>
             <p className="mt-3 max-w-md text-sm leading-6 text-slate-600">
-              Acesse a administração do diretório digital do hotel com seu e-mail e senha.
+              Acesse o painel do hotel com seu e-mail e senha para gerenciar a experiência digital
+              do hóspede.
             </p>
 
             <form onSubmit={handleLogin} className="mt-8 space-y-5">
@@ -121,9 +131,13 @@ export default function LoginPage() {
                 disabled={loading}
                 className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2 disabled:opacity-60"
               >
-                {loading ? 'Entrando...' : 'Entrar'}
+                {loading ? 'Entrando...' : 'Entrar no painel'}
               </button>
             </form>
+
+            <div className="mt-8 border-t border-slate-200 pt-5 text-sm text-slate-500 xl:hidden">
+              <p className="font-medium text-slate-700">GuestDesk by BLID Tecnologia</p>
+            </div>
           </section>
         </div>
       </div>
