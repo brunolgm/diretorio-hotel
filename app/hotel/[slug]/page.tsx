@@ -17,6 +17,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
+import { PublicAnalytics } from '@/components/public/public-analytics';
 import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
@@ -177,6 +178,10 @@ function DepartmentCard({ item }: { item: HotelDepartment }) {
             href={item.url}
             target="_blank"
             rel="noreferrer"
+            data-analytics-event="department_click"
+            data-analytics-department-id={item.id}
+            data-analytics-target-url={item.url}
+            data-analytics-label={item.name}
             className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-center text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
             {item.action || `Falar com ${item.name}`}
@@ -377,6 +382,8 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_100%)]">
+      <PublicAnalytics hotelId={typedHotel.id} hotelSlug={typedHotel.slug} language={lang} />
+
       <div className="mx-auto max-w-6xl px-4 py-6 pb-28 md:px-6 md:py-8 md:pb-8">
         <section className="overflow-hidden rounded-[36px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_55%,#1e293b_100%)] p-6 text-white shadow-sm md:p-10">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
@@ -438,6 +445,9 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   href={typedHotel.booking_url}
                   target="_blank"
                   rel="noreferrer"
+                  data-analytics-event="booking_click"
+                  data-analytics-target-url={typedHotel.booking_url}
+                  data-analytics-label="Hero booking button"
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-white px-5 text-sm font-medium text-slate-950 transition hover:bg-slate-100"
                 >
                   Reservar agora
@@ -454,6 +464,9 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   href={typedHotel.website_url}
                   target="_blank"
                   rel="noreferrer"
+                  data-analytics-event="website_click"
+                  data-analytics-target-url={typedHotel.website_url}
+                  data-analytics-label="Hero website button"
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white transition hover:bg-white/20"
                 >
                   Site oficial
@@ -470,6 +483,9 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   href={whatsappHref}
                   target="_blank"
                   rel="noreferrer"
+                  data-analytics-event="whatsapp_click"
+                  data-analytics-target-url={whatsappHref}
+                  data-analytics-label="Hero WhatsApp button"
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white transition hover:bg-white/20 sm:col-span-2"
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
@@ -616,6 +632,9 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   href={typedHotel.website_url}
                   target="_blank"
                   rel="noreferrer"
+                  data-analytics-event="website_click"
+                  data-analytics-target-url={typedHotel.website_url}
+                  data-analytics-label="Footer website button"
                   className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                 >
                   <Globe className="mr-2 h-4 w-4" />
@@ -628,6 +647,9 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   href={typedHotel.booking_url}
                   target="_blank"
                   rel="noreferrer"
+                  data-analytics-event="booking_click"
+                  data-analytics-target-url={typedHotel.booking_url}
+                  data-analytics-label="Footer booking button"
                   className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                 >
                   <ArrowUpRight className="mr-2 h-4 w-4" />
@@ -640,6 +662,9 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   href={whatsappHref}
                   target="_blank"
                   rel="noreferrer"
+                  data-analytics-event="whatsapp_click"
+                  data-analytics-target-url={whatsappHref}
+                  data-analytics-label="Footer WhatsApp button"
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800"
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
@@ -664,6 +689,9 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           href={whatsappHref}
           target="_blank"
           rel="noreferrer"
+          data-analytics-event="whatsapp_click"
+          data-analytics-target-url={whatsappHref}
+          data-analytics-label="Floating WhatsApp button"
           className="fixed bottom-5 right-5 z-50 inline-flex h-14 items-center justify-center rounded-full bg-slate-900 px-5 text-sm font-medium text-white shadow-lg transition hover:bg-slate-800"
         >
           <MessageCircle className="mr-2 h-5 w-5" />

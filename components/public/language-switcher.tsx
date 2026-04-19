@@ -48,6 +48,9 @@ export function LanguageSwitcher({
                 key={item.code}
                 href={`/hotel/${slug}?lang=${item.code}`}
                 aria-current={isActive ? 'page' : undefined}
+                data-analytics-event="language_selected"
+                data-analytics-language={item.code}
+                data-analytics-label={item.label}
                 className={`flex items-center justify-between rounded-[18px] px-3 py-3 text-sm transition focus:outline-none focus:ring-2 focus:ring-white/35 focus:ring-offset-2 focus:ring-offset-slate-950 ${
                   isActive
                     ? 'bg-white text-slate-950 shadow-[0_12px_28px_rgba(255,255,255,0.16)]'

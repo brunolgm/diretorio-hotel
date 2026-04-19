@@ -208,6 +208,58 @@ export interface Database {
         ];
       };
 
+      hotel_analytics_events: {
+        Row: {
+          id: string;
+          hotel_id: string;
+          hotel_slug: string;
+          event_type: string;
+          language: string | null;
+          target_url: string | null;
+          department_id: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          hotel_id: string;
+          hotel_slug: string;
+          event_type: string;
+          language?: string | null;
+          target_url?: string | null;
+          department_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          hotel_id?: string;
+          hotel_slug?: string;
+          event_type?: string;
+          language?: string | null;
+          target_url?: string | null;
+          department_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'hotel_analytics_events_department_id_fkey';
+            columns: ['department_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotel_departments';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'hotel_analytics_events_hotel_id_fkey';
+            columns: ['hotel_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotels';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
       hotel_section_translations: {
         Row: {
           id: string;
