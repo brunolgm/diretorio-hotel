@@ -1,21 +1,29 @@
 import {
-  Hotel,
-  MapPin,
-  Wifi,
+  CheckCircle2,
   Clock3,
   Coffee,
-  ImageIcon,
   Globe,
+  Hotel,
+  ImageIcon,
+  MapPin,
   MessageCircle,
-  CheckCircle2,
   ShieldCheck,
   Sparkles,
   Upload,
+  Wifi,
 } from 'lucide-react';
+import { FeedbackToast } from '@/components/feedback-toast';
+import {
+  AdminGuideCard,
+  AdminHelpList,
+  AdminHelpText,
+  AdminInfoBadge,
+  AdminPrimaryButton,
+  AdminSecondaryButton,
+} from '@/components/admin/ui';
 import { getAdminHotel } from '@/lib/queries';
 import { updateHotelAction, removeHotelLogoAction } from './actions';
 import { uploadHotelLogoAction } from './upload-logo-action';
-import { FeedbackToast } from '@/components/feedback-toast';
 
 interface AdminHotelPageProps {
   searchParams?: Promise<{
@@ -51,9 +59,7 @@ function InfoCard({
   );
 }
 
-export default async function AdminHotelPage({
-  searchParams,
-}: AdminHotelPageProps) {
+export default async function AdminHotelPage({ searchParams }: AdminHotelPageProps) {
   const hotel = await getAdminHotel();
   const params = searchParams ? await searchParams : {};
   const success = params?.success;
@@ -144,6 +150,20 @@ export default async function AdminHotelPage({
             </div>
           </div>
 
+          <AdminGuideCard
+            title="Como revisar este formulário"
+            description="Este bloco concentra as informações que mais impactam a apresentação pública e a rotina operacional."
+            className="mt-8"
+          >
+            <AdminHelpList
+              items={[
+                'Revise primeiro nome, cidade, WhatsApp e links principais para garantir que o hóspede encontre o hotel certo.',
+                'Depois confirme horários, Wi-Fi e café da manhã com base na operação real do dia a dia.',
+                'Sempre teste a rota pública após alterações mais visíveis, como logo, reservas e contatos.',
+              ]}
+            />
+          </AdminGuideCard>
+
           <div className="mt-8 grid gap-5 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
               <label className="block text-sm font-medium text-slate-700">Nome do hotel</label>
@@ -152,6 +172,9 @@ export default async function AdminHotelPage({
                 defaultValue={hotel.name || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
               />
+              <AdminHelpText>
+                Este nome aparece no painel e na experiência pública. Use a forma oficial da marca.
+              </AdminHelpText>
             </div>
 
             <div className="space-y-2">
@@ -161,6 +184,9 @@ export default async function AdminHotelPage({
                 defaultValue={hotel.city || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
               />
+              <AdminHelpText>
+                Ajuda a contextualizar o hotel no painel e no material de demonstração.
+              </AdminHelpText>
             </div>
 
             <div className="space-y-2">
@@ -174,6 +200,9 @@ export default async function AdminHotelPage({
                   placeholder="5571..."
                 />
               </div>
+              <AdminHelpText>
+                Use o número final que deve receber mensagens do hóspede no formato completo.
+              </AdminHelpText>
             </div>
 
             <div className="space-y-2 md:col-span-2">
@@ -187,6 +216,9 @@ export default async function AdminHotelPage({
                   placeholder="https://..."
                 />
               </div>
+              <AdminHelpText>
+                Aponte para a página final de reserva para reduzir abandono e cliques perdidos.
+              </AdminHelpText>
             </div>
 
             <div className="space-y-2 md:col-span-2">
@@ -200,6 +232,9 @@ export default async function AdminHotelPage({
                   placeholder="https://..."
                 />
               </div>
+              <AdminHelpText>
+                Use o site institucional quando ele complementar a jornada do diretório com mais detalhes.
+              </AdminHelpText>
             </div>
 
             <div className="space-y-2 md:col-span-2">
@@ -213,6 +248,9 @@ export default async function AdminHotelPage({
                   placeholder="https://instagram.com/..."
                 />
               </div>
+              <AdminHelpText>
+                Preencha apenas se o perfil estiver ativo e alinhado com a apresentação atual do hotel.
+              </AdminHelpText>
             </div>
 
             <div className="space-y-2">
@@ -225,6 +263,9 @@ export default async function AdminHotelPage({
                   className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-11 pr-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
                 />
               </div>
+              <AdminHelpText>
+                Use o nome de rede mais estável para evitar divergência entre painel e operação.
+              </AdminHelpText>
             </div>
 
             <div className="space-y-2">
@@ -234,6 +275,9 @@ export default async function AdminHotelPage({
                 defaultValue={hotel.wifi_password || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
               />
+              <AdminHelpText>
+                Atualize quando a senha mudar para evitar solicitações recorrentes à recepção.
+              </AdminHelpText>
             </div>
 
             <div className="space-y-2">
@@ -243,6 +287,9 @@ export default async function AdminHotelPage({
                 defaultValue={hotel.breakfast_hours || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
               />
+              <AdminHelpText>
+                Informe o horário real exibido ao hóspede, inclusive quando houver exceções sazonais.
+              </AdminHelpText>
             </div>
 
             <div className="space-y-2">
@@ -253,6 +300,9 @@ export default async function AdminHotelPage({
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
                 placeholder="https://..."
               />
+              <AdminHelpText>
+                Use este campo apenas quando a logo já estiver hospedada em uma URL confiável.
+              </AdminHelpText>
             </div>
 
             <div className="space-y-2">
@@ -262,6 +312,9 @@ export default async function AdminHotelPage({
                 defaultValue={hotel.checkin_time || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
               />
+              <AdminHelpText>
+                Este horário aparece como referência rápida na experiência pública.
+              </AdminHelpText>
             </div>
 
             <div className="space-y-2">
@@ -271,18 +324,19 @@ export default async function AdminHotelPage({
                 defaultValue={hotel.checkout_time || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
               />
+              <AdminHelpText>
+                Confirme este horário sempre que a operação sofrer ajuste em feriados ou eventos.
+              </AdminHelpText>
             </div>
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <button className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2">
-              Salvar alterações
-            </button>
+            <AdminPrimaryButton type="submit">Salvar alterações</AdminPrimaryButton>
 
-            <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-medium text-slate-600">
+            <AdminInfoBadge>
               <ShieldCheck className="h-3.5 w-3.5" />
               As alterações serão refletidas no diretório público
-            </div>
+            </AdminInfoBadge>
           </div>
         </form>
 
@@ -303,6 +357,20 @@ export default async function AdminHotelPage({
                 <ImageIcon className="h-5 w-5" />
               </div>
             </div>
+
+            <AdminGuideCard
+              title="Boas práticas para a logo"
+              description="Use uma imagem limpa e atual para manter a apresentação do GuestDesk consistente com a marca do hotel."
+              className="mt-6"
+            >
+              <AdminHelpList
+                items={[
+                  'Prefira o arquivo oficial mais recente da marca.',
+                  'Se possível, use uma imagem quadrada ou com boa área de respiro.',
+                  'Depois do upload, confira a visualização pública no celular.',
+                ]}
+              />
+            </AdminGuideCard>
 
             <div className="mt-6 rounded-[28px] border border-dashed border-slate-200 bg-slate-50/70 p-6">
               {hotel.logo_url ? (
@@ -328,9 +396,9 @@ export default async function AdminHotelPage({
 
             {hotel.logo_url ? (
               <form action={removeHotelLogoAction} className="mt-4">
-                <button className="inline-flex h-11 items-center justify-center rounded-2xl border border-red-200 bg-white px-4 text-sm font-medium text-red-600 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 focus-visible:ring-offset-2">
+                <AdminSecondaryButton type="submit" className="border-red-200 text-red-600 hover:bg-red-50 focus-visible:ring-red-200">
                   Remover logo
-                </button>
+                </AdminSecondaryButton>
               </form>
             ) : null}
 
@@ -346,12 +414,15 @@ export default async function AdminHotelPage({
                   required
                   className="block w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm outline-none transition focus:border-slate-300 focus:bg-white focus-visible:ring-2 focus-visible:ring-slate-200"
                 />
+                <AdminHelpText className="mt-2">
+                  Após enviar, revise a visualização pública para confirmar tamanho e leitura da marca.
+                </AdminHelpText>
               </div>
 
-              <button className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2">
+              <AdminPrimaryButton type="submit">
                 <Upload className="mr-2 h-4 w-4" />
                 Enviar logo
-              </button>
+              </AdminPrimaryButton>
             </form>
           </div>
 
@@ -360,6 +431,20 @@ export default async function AdminHotelPage({
             <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
               Estado atual do hotel
             </h2>
+
+            <AdminGuideCard
+              title="Checklist rápido antes de publicar"
+              description="Use este resumo para uma última conferência rápida depois de salvar mudanças mais visíveis."
+              className="mt-6"
+            >
+              <AdminHelpList
+                items={[
+                  'Confirme se o nome e os contatos estão corretos.',
+                  'Verifique se a logo atual corresponde à marca em uso.',
+                  'Teste a rota pública para validar horários, links e botões principais.',
+                ]}
+              />
+            </AdminGuideCard>
 
             <div className="mt-6 grid gap-4">
               <div className="rounded-[24px] bg-slate-50 p-5">

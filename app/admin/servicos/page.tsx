@@ -20,6 +20,9 @@ import {
   AdminField,
   AdminFilterBar,
   AdminFormGrid,
+  AdminGuideCard,
+  AdminHelpList,
+  AdminHelpText,
   AdminInfoBadge,
   AdminLanguageBadge,
   AdminLinkButton,
@@ -195,14 +198,34 @@ export default async function AdminServicesPage({
             action={<AdminInfoBadge>Publicação direta no diretório</AdminInfoBadge>}
           />
 
+          <AdminGuideCard
+            title="Como cadastrar um bom serviço"
+            description="Use cards curtos, objetivos e orientados à ação para facilitar a leitura do hóspede no celular."
+            className="mt-8"
+          >
+            <AdminHelpList
+              items={[
+                'Prefira títulos curtos e categorias fáceis de reconhecer.',
+                'Use a descrição para explicar o benefício ou o que o hóspede encontra ao tocar no card.',
+                'Revise o link final sempre que o botão levar para uma reserva, site ou página externa.',
+              ]}
+            />
+          </AdminGuideCard>
+
           <form action={createSectionAction}>
             <AdminFormGrid>
               <AdminField label="Título" className="md:col-span-2">
                 <AdminTextInput name="title" required />
+                <AdminHelpText>
+                  Este é o texto principal do card. Prefira algo fácil de escanear.
+                </AdminHelpText>
               </AdminField>
 
               <AdminField label="Ícone">
                 <AdminTextInput name="icon" defaultValue="Globe" />
+                <AdminHelpText>
+                  Use um nome simples de ícone para reforçar visualmente o tipo de serviço.
+                </AdminHelpText>
               </AdminField>
 
               <AdminField label="Categoria">
@@ -214,6 +237,9 @@ export default async function AdminServicesPage({
                     placeholder="Ex.: Estrutura"
                   />
                 </div>
+                <AdminHelpText>
+                  A categoria ajuda a organizar visualmente os cards no diretório.
+                </AdminHelpText>
               </AdminField>
 
               <AdminField label="Descrição" className="md:col-span-2">
@@ -221,18 +247,30 @@ export default async function AdminServicesPage({
                   name="content"
                   placeholder="Descreva o serviço que será exibido no diretório."
                 />
+                <AdminHelpText>
+                  Explique em uma ou duas frases o que o hóspede encontra ao abrir este item.
+                </AdminHelpText>
               </AdminField>
 
               <AdminField label="Texto do botão">
                 <AdminTextInput name="cta" placeholder="Ex.: Ver mais" />
+                <AdminHelpText>
+                  O botão deve indicar a próxima ação, como ver detalhes ou abrir um link.
+                </AdminHelpText>
               </AdminField>
 
               <AdminField label="Link">
                 <AdminTextInput name="url" placeholder="https://..." />
+                <AdminHelpText>
+                  Preencha somente quando o card realmente precisar abrir uma página externa.
+                </AdminHelpText>
               </AdminField>
 
               <AdminField label="Ordem">
                 <AdminTextInput type="number" name="sort_order" defaultValue="0" />
+                <AdminHelpText>
+                  Números menores aparecem primeiro e ajudam a destacar o que é mais importante.
+                </AdminHelpText>
               </AdminField>
 
               <AdminCheckboxRow className="md:col-span-2">
@@ -261,6 +299,12 @@ export default async function AdminServicesPage({
             title="Lista de serviços"
             description="Busque, filtre, edite, ative, retraduza ou remova cada card do diretório."
             action={<AdminListSummary total={filteredSections.length} label="resultado(s)" />}
+          />
+
+          <AdminGuideCard
+            title="Como acompanhar esta lista"
+            description="Os badges de idioma mostram rapidamente o que já está disponível em PT, EN e ES. Use retradução quando um item for atualizado."
+            className="mt-8"
           />
 
           <AdminFilterBar>
@@ -361,7 +405,7 @@ export default async function AdminServicesPage({
                 }
                 description={
                   hasActiveFilters
-                    ? 'Tente ajustar a busca ou trocar o filtro de status para localizar o item desejado.'
+                    ? 'Ajuste o termo buscado ou revise o filtro de status para encontrar o card que deseja operar.'
                     : 'Crie o primeiro card para começar a montar o diretório digital do hóspede.'
                 }
               />

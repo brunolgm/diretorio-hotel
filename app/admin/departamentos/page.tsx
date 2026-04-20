@@ -21,6 +21,9 @@ import {
   AdminField,
   AdminFilterBar,
   AdminFormGrid,
+  AdminGuideCard,
+  AdminHelpList,
+  AdminHelpText,
   AdminInfoBadge,
   AdminLanguageBadge,
   AdminLinkButton,
@@ -196,10 +199,27 @@ export default async function AdminDepartmentsPage({
             action={<AdminInfoBadge>Canal disponível no diretório</AdminInfoBadge>}
           />
 
+          <AdminGuideCard
+            title="Como organizar os canais de atendimento"
+            description="Cada departamento deve deixar claro quem atende, quando atende e qual ação o hóspede pode realizar."
+            className="mt-8"
+          >
+            <AdminHelpList
+              items={[
+                'Use nomes familiares como Recepção, Reservas, Governança ou Eventos.',
+                'Informe horário sempre que o canal não funcionar 24 horas.',
+                'Revise o link final para garantir que o hóspede caia no atendimento correto.',
+              ]}
+            />
+          </AdminGuideCard>
+
           <form action={createDepartmentAction}>
             <AdminFormGrid>
               <AdminField label="Nome" className="md:col-span-2">
                 <AdminTextInput name="name" required placeholder="Ex.: Recepção" />
+                <AdminHelpText>
+                  Este nome aparece no diretório público e deve ser fácil de reconhecer.
+                </AdminHelpText>
               </AdminField>
 
               <AdminField label="Descrição" className="md:col-span-2">
@@ -207,21 +227,26 @@ export default async function AdminDepartmentsPage({
                   name="description"
                   placeholder="Descreva como esse departamento atende o hóspede."
                 />
+                <AdminHelpText>
+                  Explique rapidamente quando este canal deve ser usado pelo hóspede.
+                </AdminHelpText>
               </AdminField>
 
               <AdminField label="Horário">
                 <div className="relative">
                   <Clock3 className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <AdminTextInput
-                    name="hours"
-                    className="pl-11"
-                    placeholder="Ex.: 24 horas"
-                  />
+                  <AdminTextInput name="hours" className="pl-11" placeholder="Ex.: 24 horas" />
                 </div>
+                <AdminHelpText>
+                  Se o atendimento tiver janela específica, informe isso para evitar frustração.
+                </AdminHelpText>
               </AdminField>
 
               <AdminField label="Texto do botão">
                 <AdminTextInput name="action" placeholder="Ex.: Falar com a Recepção" />
+                <AdminHelpText>
+                  O texto do botão deve indicar claramente o próximo passo.
+                </AdminHelpText>
               </AdminField>
 
               <AdminField label="Link" className="md:col-span-2">
@@ -233,6 +258,9 @@ export default async function AdminDepartmentsPage({
                     placeholder="https://... ou link do WhatsApp"
                   />
                 </div>
+                <AdminHelpText>
+                  Você pode usar links de WhatsApp, páginas externas ou outro canal direto do hotel.
+                </AdminHelpText>
               </AdminField>
 
               <AdminCheckboxRow className="md:col-span-2">
@@ -261,6 +289,12 @@ export default async function AdminDepartmentsPage({
             title="Lista de departamentos"
             description="Busque, filtre, edite, ative, retraduza ou remova os canais de atendimento disponíveis."
             action={<AdminListSummary total={filteredDepartments.length} label="resultado(s)" />}
+          />
+
+          <AdminGuideCard
+            title="Como acompanhar esta lista"
+            description="Use o status para ver o que já está publicado e os badges de idioma para identificar rapidamente quais versões estão disponíveis."
+            className="mt-8"
           />
 
           <AdminFilterBar>
@@ -360,8 +394,8 @@ export default async function AdminDepartmentsPage({
                 }
                 description={
                   hasActiveFilters
-                    ? 'Tente ajustar a busca ou trocar o filtro de status para localizar o canal desejado.'
-                    : 'Crie o primeiro setor de atendimento para exibir canais de contato ao hóspede.'
+                    ? 'Ajuste a busca ou revise o filtro de status para localizar o canal desejado.'
+                    : 'Crie o primeiro setor de atendimento para mostrar ao hóspede quem deve ser acionado em cada situação.'
                 }
               />
             )}

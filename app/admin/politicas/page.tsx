@@ -19,6 +19,9 @@ import {
   AdminEmptyState,
   AdminField,
   AdminFilterBar,
+  AdminGuideCard,
+  AdminHelpList,
+  AdminHelpText,
   AdminInfoBadge,
   AdminLanguageBadge,
   AdminLinkButton,
@@ -194,10 +197,27 @@ export default async function AdminPoliciesPage({
             action={<AdminInfoBadge>Regras visíveis ao hóspede</AdminInfoBadge>}
           />
 
+          <AdminGuideCard
+            title="Como escrever políticas claras"
+            description="Políticas bem escritas reduzem dúvidas operacionais e deixam a experiência do hóspede mais previsível."
+            className="mt-8"
+          >
+            <AdminHelpList
+              items={[
+                'Use títulos diretos, como Não fumar, Horário de silêncio ou Política pet.',
+                'Explique a regra em linguagem simples, evitando termos internos da operação.',
+                'Se a orientação for muito importante, mantenha o item ativo e revise as traduções após alterações.',
+              ]}
+            />
+          </AdminGuideCard>
+
           <form action={createPolicyAction}>
             <div className="mt-8 grid gap-5">
               <AdminField label="Título">
                 <AdminTextInput name="title" required placeholder="Ex.: Não fumar" />
+                <AdminHelpText>
+                  O título deve deixar a regra evidente logo na primeira leitura.
+                </AdminHelpText>
               </AdminField>
 
               <AdminField label="Descrição">
@@ -206,6 +226,9 @@ export default async function AdminPoliciesPage({
                   className="min-h-36"
                   placeholder="Descreva claramente a política para o hóspede."
                 />
+                <AdminHelpText>
+                  Explique o que é permitido, o que não é e qualquer condição importante.
+                </AdminHelpText>
               </AdminField>
 
               <AdminCheckboxRow>
@@ -234,6 +257,12 @@ export default async function AdminPoliciesPage({
             title="Lista de políticas"
             description="Busque, filtre, edite, ative, retraduza ou remova as regras exibidas para o hóspede."
             action={<AdminListSummary total={filteredPolicies.length} label="resultado(s)" />}
+          />
+
+          <AdminGuideCard
+            title="Como acompanhar esta lista"
+            description="Priorize políticas ativas e com tradução completa para garantir consistência entre o painel e a experiência pública."
+            className="mt-8"
           />
 
           <AdminFilterBar>
@@ -339,8 +368,8 @@ export default async function AdminPoliciesPage({
                 }
                 description={
                   hasActiveFilters
-                    ? 'Tente ajustar a busca ou trocar o filtro de status para localizar a regra desejada.'
-                    : 'Cadastre a primeira política para orientar o hóspede com mais clareza.'
+                    ? 'Ajuste a busca ou revise o filtro de status para localizar a regra desejada.'
+                    : 'Cadastre a primeira política para orientar o hóspede com mais clareza e reduzir dúvidas operacionais.'
                 }
               />
             )}

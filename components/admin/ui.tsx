@@ -419,6 +419,57 @@ export function AdminField({
   );
 }
 
+export function AdminHelpText({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <p className={cn('text-xs leading-5 text-slate-500', className)}>{children}</p>;
+}
+
+export function AdminGuideCard({
+  title,
+  description,
+  children,
+  className,
+}: {
+  title: string;
+  description?: string;
+  children?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn('rounded-[24px] border border-slate-200 bg-slate-50/80 p-5', className)}>
+      <p className="text-sm font-semibold text-slate-900">{title}</p>
+      {description ? (
+        <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+      ) : null}
+      {children ? <div className="mt-4">{children}</div> : null}
+    </div>
+  );
+}
+
+export function AdminHelpList({
+  items,
+  className,
+}: {
+  items: string[];
+  className?: string;
+}) {
+  return (
+    <ul className={cn('space-y-2 text-sm leading-6 text-slate-600', className)}>
+      {items.map((item) => (
+        <li key={item} className="flex gap-2">
+          <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function AdminTextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input

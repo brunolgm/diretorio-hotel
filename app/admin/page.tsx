@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import {
   AdminFilterBar,
+  AdminGuideCard,
+  AdminHelpList,
   AdminInfoBadge,
   AdminLinkButton,
   AdminPageHero,
@@ -278,6 +280,20 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         <AdminSurface>
           <AdminSectionTitle eyebrow="Acesso rápido" title="Próximas ações recomendadas" />
 
+          <AdminGuideCard
+            title="Primeiros passos para operar o painel"
+            description="Se esta for a primeira revisão do hotel, siga esta ordem para atualizar o GuestDesk com mais segurança e clareza."
+            className="mt-6"
+          >
+            <AdminHelpList
+              items={[
+                'Revise as informações do hotel para confirmar nome, links, Wi-Fi, horários e identidade visual.',
+                'Depois organize serviços, departamentos e políticas para publicar apenas conteúdos já prontos para o hóspede.',
+                'Finalize testando a rota pública no celular e validando idiomas, contatos e links principais.',
+              ]}
+            />
+          </AdminGuideCard>
+
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div className="rounded-[24px] bg-slate-50 p-5">
               <p className="text-sm font-semibold text-slate-900">Revisar conteúdo</p>
@@ -319,6 +335,12 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 Gestão ativa
               </AdminInfoBadge>
             }
+          />
+
+          <AdminGuideCard
+            title="Como ler este painel"
+            description="Os cards superiores mostram o estado operacional do hotel e o bloco de analytics resume o uso da experiência pública no período selecionado."
+            className="mt-6"
           />
 
           <div className="mt-6 space-y-4">
