@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { PublicAnalytics } from '@/components/public/public-analytics';
+import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
@@ -91,7 +92,7 @@ function QuickInfoCard({
           {helper ? <p className="mt-1 text-xs text-slate-500">{helper}</p> : null}
         </div>
 
-        <div className="rounded-[20px] bg-slate-100 p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+        <div className="rounded-[20px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
           <Icon className="h-4 w-4" />
         </div>
       </div>
@@ -103,7 +104,7 @@ function SectionCard({ item }: { item: HotelSection }) {
   return (
     <div className="rounded-[30px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80 transition hover:-translate-y-0.5 hover:shadow-[0_26px_55px_-36px_rgba(15,23,42,0.32)]">
       <div className="flex items-start gap-4">
-        <div className="rounded-[20px] bg-slate-100 p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+        <div className="rounded-[20px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
           <SectionIcon iconName={item.icon} className="h-5 w-5" />
         </div>
 
@@ -114,7 +115,7 @@ function SectionCard({ item }: { item: HotelSection }) {
             </h3>
 
             {item.category ? (
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+              <span className="rounded-full border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] px-3 py-1 text-xs font-medium text-slate-700">
                 {item.category}
               </span>
             ) : null}
@@ -130,7 +131,7 @@ function SectionCard({ item }: { item: HotelSection }) {
                 href={item.url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-900 px-4 text-center text-sm font-medium text-white shadow-[0_14px_30px_-18px_rgba(15,23,42,0.75)] transition hover:-translate-y-0.5 hover:bg-slate-800"
+                className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 text-center text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
               >
                 {item.cta || 'Acessar'}
                 <ArrowUpRight className="ml-2 h-4 w-4" />
@@ -167,7 +168,7 @@ function DepartmentCard({ item }: { item: HotelDepartment }) {
           ) : null}
         </div>
 
-        <div className="rounded-[20px] bg-slate-100 p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+        <div className="rounded-[20px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
           <Phone className="h-5 w-5" />
         </div>
       </div>
@@ -182,7 +183,7 @@ function DepartmentCard({ item }: { item: HotelDepartment }) {
             data-analytics-department-id={item.id}
             data-analytics-target-url={item.url}
             data-analytics-label={item.name}
-            className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-center text-sm font-medium text-slate-700 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.35)] transition hover:-translate-y-0.5 hover:bg-slate-50"
+            className="inline-flex h-11 items-center justify-center rounded-2xl border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] px-4 text-center text-sm font-medium text-slate-800 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.2)] transition hover:-translate-y-0.5 hover:bg-[var(--hotel-accent-soft-strong)]"
           >
             {item.action || `Falar com ${item.name}`}
             <ChevronRight className="ml-2 h-4 w-4" />
@@ -201,7 +202,7 @@ function PolicyCard({ item }: { item: HotelPolicy }) {
   return (
     <div className="rounded-[26px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.25)] ring-1 ring-slate-200/80">
       <div className="flex items-start gap-3">
-        <div className="rounded-[18px] bg-slate-100 p-2.5 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+        <div className="rounded-[18px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-2.5 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
           <ShieldCheck className="h-4 w-4" />
         </div>
 
@@ -379,19 +380,22 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
   const whatsappHref = typedHotel.whatsapp_number
     ? `https://wa.me/${String(typedHotel.whatsapp_number).replace(/\D/g, '')}`
     : null;
+  const theme = resolveHotelTheme(typedHotel.theme_preset, typedHotel.theme_primary_color);
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_45%,#f8fafc_100%)]">
       <PublicAnalytics hotelId={typedHotel.id} hotelSlug={typedHotel.slug} language={lang} />
 
-      <div className="mx-auto max-w-6xl px-4 py-6 pb-28 md:px-6 md:py-8 md:pb-8">
-        <section className="relative overflow-hidden rounded-[40px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_52%,#1e293b_100%)] p-6 text-white shadow-[0_30px_90px_-48px_rgba(15,23,42,0.85)] ring-1 ring-slate-900/10 md:p-10">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.16),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(148,163,184,0.14),transparent_30%)]" />
+      <div className="mx-auto max-w-6xl px-4 py-6 pb-28 md:px-6 md:py-8 md:pb-8" style={theme.cssVars}>
+        <section
+          className={`relative overflow-hidden rounded-[40px] p-6 text-white shadow-[0_30px_90px_-48px_rgba(15,23,42,0.85)] ring-1 ring-slate-900/10 md:p-10 ${theme.heroClassName}`}
+        >
+          <div className={`pointer-events-none absolute inset-0 ${theme.heroOverlayClassName}`} />
 
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <div className="flex items-start justify-between gap-4">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-badge-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
                   <Sparkles className="h-3.5 w-3.5" />
                   GuestDesk
                 </div>
@@ -450,7 +454,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   data-analytics-event="booking_click"
                   data-analytics-target-url={typedHotel.booking_url}
                   data-analytics-label="Hero booking button"
-                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-white px-5 text-sm font-medium text-slate-950 shadow-[0_14px_30px_-18px_rgba(255,255,255,0.35)] transition hover:-translate-y-0.5 hover:bg-slate-100"
+                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-5 text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
                 >
                   Reservar agora
                   <ArrowUpRight className="ml-2 h-4 w-4" />
@@ -673,7 +677,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   data-analytics-event="whatsapp_click"
                   data-analytics-target-url={whatsappHref}
                   data-analytics-label="Footer WhatsApp button"
-                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white shadow-[0_14px_30px_-18px_rgba(15,23,42,0.75)] transition hover:-translate-y-0.5 hover:bg-slate-800"
+                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-5 text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
                   WhatsApp
@@ -683,9 +687,9 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           </div>
         </section>
 
-        <section className="mt-6 rounded-[30px] border border-slate-200/80 bg-white/85 px-6 py-5 text-sm text-slate-500 shadow-[0_18px_45px_-36px_rgba(15,23,42,0.25)] backdrop-blur">
+        <section className="mt-6 rounded-[30px] border border-[color:var(--hotel-footer-border)] bg-[var(--hotel-footer-bg)] px-6 py-5 text-sm text-slate-500 shadow-[0_18px_45px_-36px_rgba(15,23,42,0.25)] backdrop-blur">
           <div className="flex justify-center md:justify-end">
-            <p className="font-medium tracking-[0.01em] text-slate-700">
+            <p className="font-medium tracking-[0.01em] text-[color:var(--hotel-footer-text)]">
               GuestDesk by BLID Tecnologia
             </p>
           </div>
@@ -700,7 +704,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           data-analytics-event="whatsapp_click"
           data-analytics-target-url={whatsappHref}
           data-analytics-label="Floating WhatsApp button"
-          className="fixed bottom-5 right-5 z-50 inline-flex h-14 items-center justify-center rounded-full bg-slate-900 px-5 text-sm font-medium text-white shadow-[0_20px_45px_-24px_rgba(15,23,42,0.8)] transition hover:-translate-y-0.5 hover:bg-slate-800"
+          className="fixed bottom-5 right-5 z-50 inline-flex h-14 items-center justify-center rounded-full bg-[var(--hotel-accent)] px-5 text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_20px_45px_-24px_rgba(15,23,42,0.6)] transition hover:-translate-y-0.5 hover:brightness-95"
         >
           <MessageCircle className="mr-2 h-5 w-5" />
           WhatsApp

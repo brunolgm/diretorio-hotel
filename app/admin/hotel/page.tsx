@@ -1,4 +1,4 @@
-import {
+﻿import {
   CheckCircle2,
   Clock3,
   Coffee,
@@ -12,6 +12,7 @@ import {
   Upload,
   Wifi,
 } from 'lucide-react';
+import { ThemeColorField } from '@/components/admin/theme-color-field';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminGuideCard,
@@ -21,6 +22,11 @@ import {
   AdminPrimaryButton,
   AdminSecondaryButton,
 } from '@/components/admin/ui';
+import {
+  DEFAULT_HOTEL_THEME_PRESET,
+  HOTEL_THEME_PRESETS,
+  resolveHotelTheme,
+} from '@/lib/hotel-theme';
 import { getAdminHotel } from '@/lib/queries';
 import { updateHotelAction, removeHotelLogoAction } from './actions';
 import { uploadHotelLogoAction } from './upload-logo-action';
@@ -64,6 +70,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
   const params = searchParams ? await searchParams : {};
   const success = params?.success;
   const error = params?.error;
+  const currentTheme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
 
   return (
     <main className="space-y-6">
@@ -305,6 +312,42 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               </AdminHelpText>
             </div>
 
+            <div className="space-y-2 md:col-span-2">
+              <label className="block text-sm font-medium text-slate-700">
+                Preset visual do diretório
+              </label>
+              <select
+                name="theme_preset"
+                defaultValue={hotel.theme_preset || DEFAULT_HOTEL_THEME_PRESET}
+                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
+              >
+                {HOTEL_THEME_PRESETS.map((preset) => (
+                  <option key={preset.value} value={preset.value}>
+                    {preset.label}
+                  </option>
+                ))}
+              </select>
+              <AdminHelpText>
+                Escolha uma base visual premium e controlada. O preset define os fundos, a
+                atmosfera e os acabamentos principais do diretório.
+              </AdminHelpText>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="block text-sm font-medium text-slate-700">
+                Cor primária opcional
+              </label>
+              <ThemeColorField
+                name="theme_primary_color"
+                defaultValue={hotel.theme_primary_color || ''}
+                preset={hotel.theme_preset || DEFAULT_HOTEL_THEME_PRESET}
+              />
+              <AdminHelpText>
+                Esta cor afeta apenas acentos seguros, como o CTA principal e pequenos destaques.
+                Se estiver vazia ou inválida, o GuestDesk usa a cor padrão do preset.
+              </AdminHelpText>
+            </div>
+
             <div className="space-y-2">
               <label className="block text-sm font-medium text-slate-700">Check-in</label>
               <input
@@ -465,6 +508,15 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   WhatsApp: {hotel.whatsapp_number || 'Não informado'}
                 </p>
               </div>
+
+              <div className="rounded-[24px] bg-slate-50 p-5">
+                <p className="text-sm font-semibold text-slate-900">Tema público</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{currentTheme.label}</p>
+                <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
+                  Cor primária:{' '}
+                  {currentTheme.usesPrimaryOverride ? currentTheme.accentColor : 'preset padrão'}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -472,3 +524,4 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
     </main>
   );
 }
+

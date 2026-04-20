@@ -25,6 +25,8 @@ export interface Database {
           checkin_time: string | null;
           checkout_time: string | null;
           logo_url: string | null;
+          theme_preset: string | null;
+          theme_primary_color: string | null;
           created_at: string | null;
           updated_at: string | null;
         };
@@ -43,6 +45,8 @@ export interface Database {
           checkin_time?: string | null;
           checkout_time?: string | null;
           logo_url?: string | null;
+          theme_preset?: string | null;
+          theme_primary_color?: string | null;
           created_at?: string | null;
           updated_at?: string | null;
         };
@@ -61,6 +65,8 @@ export interface Database {
           checkin_time?: string | null;
           checkout_time?: string | null;
           logo_url?: string | null;
+          theme_preset?: string | null;
+          theme_primary_color?: string | null;
           created_at?: string | null;
           updated_at?: string | null;
         };

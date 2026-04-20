@@ -5,6 +5,10 @@ import { getAdminHotel } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 import { isValidOptionalUrl, readNullableString, readOptionalUrl, readTrimmedString } from '@/lib/form-utils';
+import {
+  sanitizeHotelThemePreset,
+  sanitizeHotelThemePrimaryColor,
+} from '@/lib/hotel-theme';
 
 export async function updateHotelAction(formData: FormData) {
   const supabase = await createClient();
@@ -14,6 +18,8 @@ export async function updateHotelAction(formData: FormData) {
   const websiteUrlInput = readNullableString(formData, 'website_url');
   const instagramUrlInput = readNullableString(formData, 'instagram_url');
   const logoUrlInput = readNullableString(formData, 'logo_url');
+  const themePresetInput = readNullableString(formData, 'theme_preset');
+  const themePrimaryColorInput = readNullableString(formData, 'theme_primary_color');
 
   if (!name) {
     redirect('/admin/hotel?error=Nome%20do%20hotel%20%C3%A9%20obrigat%C3%B3rio');
@@ -48,6 +54,8 @@ export async function updateHotelAction(formData: FormData) {
     checkin_time: readNullableString(formData, 'checkin_time'),
     checkout_time: readNullableString(formData, 'checkout_time'),
     logo_url: readOptionalUrl(formData, 'logo_url'),
+    theme_preset: sanitizeHotelThemePreset(themePresetInput),
+    theme_primary_color: sanitizeHotelThemePrimaryColor(themePrimaryColorInput),
   };
 
   const { error } = await supabase
