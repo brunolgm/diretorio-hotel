@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import {
+  ArrowDownRight,
   ArrowRight,
+  ArrowUpRight,
   Building2,
   CheckCircle2,
   Clock3,
@@ -9,6 +11,7 @@ import {
   Hotel,
   Languages,
   MessageCircle,
+  Minus,
   MousePointerClick,
   ShieldCheck,
 } from 'lucide-react';
@@ -70,11 +73,52 @@ function getRangeLabel(range: 'today' | '7d' | '30d') {
   return 'Últimos 7 dias';
 }
 
+function getComparisonLabel(range: 'today' | '7d' | '30d') {
+  if (range === 'today') return 'ontem';
+  if (range === '30d') return '30 dias anteriores';
+  return '7 dias anteriores';
+}
+
+function ComparisonPill({
+  delta,
+  previous,
+}: {
+  delta: number;
+  previous: number;
+}) {
+  const isUp = delta > 0;
+  const isDown = delta < 0;
+
+  return (
+    <span
+      className={[
+        'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium',
+        isUp
+          ? 'bg-emerald-100 text-emerald-700'
+          : isDown
+            ? 'bg-amber-100 text-amber-700'
+            : 'bg-slate-100 text-slate-600',
+      ].join(' ')}
+    >
+      {isUp ? (
+        <ArrowUpRight className="h-3.5 w-3.5" />
+      ) : isDown ? (
+        <ArrowDownRight className="h-3.5 w-3.5" />
+      ) : (
+        <Minus className="h-3.5 w-3.5" />
+      )}
+      {delta === 0 ? 'Estável' : `${delta > 0 ? '+' : ''}${delta}`}
+      <span className="text-[11px] opacity-80">vs {previous}</span>
+    </span>
+  );
+}
+
 export default async function AdminPage({ searchParams }: AdminPageProps) {
   await requireUser();
   const hotel = await getAdminHotel();
   const params = searchParams ? await searchParams : {};
   const analytics = await getHotelAnalyticsSummary(hotel.id, params?.range);
+  const comparisonLabel = getComparisonLabel(analytics.range);
 
   return (
     <main className="space-y-6">
@@ -132,7 +176,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         <AdminSectionTitle
           eyebrow="Analytics público"
           title="Uso da experiência pública"
-          description="Acompanhe visualizações e interações principais do GuestDesk para entender o que mais gera interesse e contato do hóspede."
+          description="Acompanhe visualizações e interações principais do GuestDesk para entender o que mais gera interesse, contato e leitura útil para gestão."
           action={
             <AdminInfoBadge>
               <AdminQuickArrow />
@@ -157,12 +201,18 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           ) : null}
         </AdminFilterBar>
 
+        <AdminGuideCard
+          title="Como ler este bloco"
+          description={`Os números abaixo mostram o período atual e, logo depois, uma comparação rápida com ${comparisonLabel}.`}
+          className="mt-6"
+        />
+
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <AdminStatCard
             icon={<Eye className="h-5 w-5" />}
             title="Page views"
             value={String(analytics.pageViews)}
-            description="Visualizações registradas na página pública do hotel."
+            description="Visualizações registradas na página pública do hotel no período atual."
           />
           <AdminStatCard
             icon={<MessageCircle className="h-5 w-5" />}
@@ -173,7 +223,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           <AdminStatCard
             icon={<MousePointerClick className="h-5 w-5" />}
             title="Reservas e site"
-            value={String(analytics.bookingClicks + analytics.websiteClicks)}
+            value={String(analytics.bookingAndWebsiteClicks)}
             description="Soma dos cliques em reservas e no site oficial do hotel."
           />
           <AdminStatCard
@@ -184,65 +234,142 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           />
         </div>
 
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <ComparisonPill
+            delta={analytics.comparison.pageViews.delta}
+            previous={analytics.comparison.pageViews.previous}
+          />
+          <ComparisonPill
+            delta={analytics.comparison.whatsappClicks.delta}
+            previous={analytics.comparison.whatsappClicks.previous}
+          />
+          <ComparisonPill
+            delta={analytics.comparison.bookingAndWebsiteClicks.delta}
+            previous={analytics.comparison.bookingAndWebsiteClicks.previous}
+          />
+          <ComparisonPill
+            delta={analytics.comparison.languageSelections.delta}
+            previous={analytics.comparison.languageSelections.previous}
+          />
+        </div>
+
         <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr,1.1fr]">
           <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
-            <p className="text-sm font-semibold text-slate-900">Resumo de interações</p>
-            <div className="mt-4 space-y-3 text-sm text-slate-600">
-              <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
-                <span>Cliques em reservas</span>
-                <span className="font-semibold text-slate-950">{analytics.bookingClicks}</span>
+            <p className="text-sm font-semibold text-slate-900">Leitura gerencial do período</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              {analytics.totalEvents > 0
+                ? `Foram registrados ${analytics.totalEvents} eventos no período atual. O comparativo usa ${comparisonLabel} como base de leitura.`
+                : 'Ainda não há eventos suficientes neste período para gerar uma leitura operacional consistente.'}
+            </p>
+
+            {analytics.totalEvents > 0 ? (
+              <div className="mt-4 space-y-3 text-sm text-slate-600">
+                <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
+                  <span>Cliques em reservas</span>
+                  <span className="font-semibold text-slate-950">{analytics.bookingClicks}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
+                  <span>Cliques no site oficial</span>
+                  <span className="font-semibold text-slate-950">{analytics.websiteClicks}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
+                  <span>Cliques em departamentos</span>
+                  <span className="font-semibold text-slate-950">{analytics.departmentClicks}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
+                  <span>Total de eventos registrados</span>
+                  <span className="font-semibold text-slate-950">{analytics.totalEvents}</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
-                <span>Cliques no site oficial</span>
-                <span className="font-semibold text-slate-950">{analytics.websiteClicks}</span>
+            ) : (
+              <div className="mt-4 rounded-2xl bg-white px-4 py-6 text-sm text-slate-500 ring-1 ring-slate-200/70">
+                Assim que a rota pública receber acessos e cliques principais, este bloco vai
+                mostrar um resumo de uso mais útil para gestão.
               </div>
-              <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
-                <span>Cliques em departamentos</span>
-                <span className="font-semibold text-slate-950">{analytics.departmentClicks}</span>
-              </div>
-              <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
-                <span>Total de eventos registrados</span>
-                <span className="font-semibold text-slate-950">{analytics.totalEvents}</span>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
             <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
               <p className="text-sm font-semibold text-slate-900">Idiomas mais usados</p>
               <div className="mt-4 space-y-3">
-                {analytics.languageUsage.map((item) => (
-                  <div
-                    key={item.language}
-                    className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-slate-200/70"
-                  >
-                    <span className="font-medium uppercase tracking-[0.12em] text-slate-500">
-                      {item.language}
-                    </span>
-                    <span className="font-semibold text-slate-950">{item.count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
-              <p className="text-sm font-semibold text-slate-900">Departamentos mais clicados</p>
-              <div className="mt-4 space-y-3">
-                {analytics.departmentUsage.length ? (
-                  analytics.departmentUsage.map((item) => (
+                {analytics.languageUsage.some((item) => item.count > 0) ? (
+                  analytics.languageUsage.map((item) => (
                     <div
-                      key={item.departmentId}
+                      key={item.language}
                       className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-slate-200/70"
                     >
-                      <span className="font-medium text-slate-700">{item.name}</span>
+                      <span className="font-medium uppercase tracking-[0.12em] text-slate-500">
+                        {item.language}
+                      </span>
                       <span className="font-semibold text-slate-950">{item.count}</span>
                     </div>
                   ))
                 ) : (
                   <div className="rounded-2xl bg-white px-4 py-6 text-sm text-slate-500 ring-1 ring-slate-200/70">
-                    Nenhum clique em departamento foi registrado no período selecionado.
+                    Ainda não há visualizações suficientes por idioma no período selecionado.
                   </div>
                 )}
+              </div>
+            </div>
+
+            <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
+              <p className="text-sm font-semibold text-slate-900">Ações com mais engajamento</p>
+              <div className="mt-4 space-y-3">
+                {analytics.topActions.some((item) => item.count > 0) ? (
+                  analytics.topActions.map((item) => (
+                    <div
+                      key={item.eventType}
+                      className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-slate-200/70"
+                    >
+                      <span className="font-medium text-slate-700">{item.label}</span>
+                      <span className="font-semibold text-slate-950">{item.count}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl bg-white px-4 py-6 text-sm text-slate-500 ring-1 ring-slate-200/70">
+                    Ainda não há cliques suficientes para ranquear as ações principais.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr,1.1fr]">
+          <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
+            <p className="text-sm font-semibold text-slate-900">Departamentos mais clicados</p>
+            <div className="mt-4 space-y-3">
+              {analytics.departmentUsage.length ? (
+                analytics.departmentUsage.map((item) => (
+                  <div
+                    key={item.departmentId}
+                    className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-slate-200/70"
+                  >
+                    <span className="font-medium text-slate-700">{item.name}</span>
+                    <span className="font-semibold text-slate-950">{item.count}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-2xl bg-white px-4 py-6 text-sm text-slate-500 ring-1 ring-slate-200/70">
+                  Nenhum clique em departamento foi registrado no período selecionado.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
+            <p className="text-sm font-semibold text-slate-900">Como interpretar estes dados</p>
+            <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
+              <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70">
+                Page views mostram o volume de uso real da experiência pública no período.
+              </div>
+              <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70">
+                Reservas, site e WhatsApp indicam interesse mais próximo de conversão ou contato.
+              </div>
+              <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70">
+                Idioma e departamentos ajudam a entender quais partes da jornada merecem revisão
+                ou destaque.
               </div>
             </div>
           </div>

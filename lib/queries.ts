@@ -87,6 +87,8 @@ export type AnalyticsRange = 'today' | '7d' | '30d';
 export interface HotelAnalyticsSummary {
   range: AnalyticsRange;
   since: string;
+  previousSince: string;
+  previousUntil: string;
   totalEvents: number;
   pageViews: number;
   languageSelections: number;
@@ -94,6 +96,7 @@ export interface HotelAnalyticsSummary {
   websiteClicks: number;
   bookingClicks: number;
   departmentClicks: number;
+  bookingAndWebsiteClicks: number;
   languageUsage: Array<{
     language: 'pt' | 'en' | 'es';
     count: number;
@@ -103,6 +106,30 @@ export interface HotelAnalyticsSummary {
     name: string;
     count: number;
   }>;
+  topActions: Array<{
+    eventType:
+      | 'whatsapp_click'
+      | 'booking_click'
+      | 'website_click'
+      | 'department_click'
+      | 'language_selected';
+    label: string;
+    count: number;
+  }>;
+  comparison: {
+    pageViews: AnalyticsMetricComparison;
+    whatsappClicks: AnalyticsMetricComparison;
+    bookingAndWebsiteClicks: AnalyticsMetricComparison;
+    languageSelections: AnalyticsMetricComparison;
+    totalEvents: AnalyticsMetricComparison;
+  };
+}
+
+export interface AnalyticsMetricComparison {
+  current: number;
+  previous: number;
+  delta: number;
+  direction: 'up' | 'down' | 'flat';
 }
 
 function normalizeAnalyticsRange(range?: string | null): AnalyticsRange {
@@ -127,18 +154,53 @@ function getAnalyticsRangeStart(range: AnalyticsRange) {
   return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
 }
 
+function getPreviousAnalyticsRangeWindow(range: AnalyticsRange) {
+  const now = new Date();
+
+  if (range === 'today') {
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+
+    return {
+      previousSince: yesterdayStart.toISOString(),
+      previousUntil: todayStart.toISOString(),
+    };
+  }
+
+  const days = range === '30d' ? 30 : 7;
+  const currentStart = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+  const previousStart = new Date(currentStart.getTime() - days * 24 * 60 * 60 * 1000);
+
+  return {
+    previousSince: previousStart.toISOString(),
+    previousUntil: currentStart.toISOString(),
+  };
+}
+
+function buildMetricComparison(current: number, previous: number): AnalyticsMetricComparison {
+  const delta = current - previous;
+
+  return {
+    current,
+    previous,
+    delta,
+    direction: delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat',
+  };
+}
+
 export async function getHotelAnalyticsSummary(hotelId: string, range?: string | null) {
   const supabase = await createClient();
   const normalizedRange = normalizeAnalyticsRange(range);
   const since = getAnalyticsRangeStart(normalizedRange);
+  const { previousSince, previousUntil } = getPreviousAnalyticsRangeWindow(normalizedRange);
 
   const [{ data: events, error: eventsError }, { data: departments, error: departmentsError }] =
     await Promise.all([
       supabase
         .from('hotel_analytics_events')
-        .select('event_type, language, department_id')
+        .select('event_type, language, department_id, created_at')
         .eq('hotel_id', hotelId)
-        .gte('created_at', since),
+        .gte('created_at', previousSince),
       supabase.from('hotel_departments').select('id, name').eq('hotel_id', hotelId),
     ]);
 
@@ -153,11 +215,22 @@ export async function getHotelAnalyticsSummary(hotelId: string, range?: string |
   const typedEvents = events || [];
   const typedDepartments = departments || [];
   const departmentNameById = new Map(typedDepartments.map((item) => [item.id, item.name]));
+  const currentEvents = typedEvents.filter((event) => event.created_at >= since);
+  const previousEvents = typedEvents.filter(
+    (event) => event.created_at >= previousSince && event.created_at < previousUntil
+  );
 
   const languageCounts = new Map<'pt' | 'en' | 'es', number>();
   const departmentCounts = new Map<string, number>();
+  const topActionDefinitions = [
+    { eventType: 'whatsapp_click' as const, label: 'WhatsApp' },
+    { eventType: 'booking_click' as const, label: 'Reservas' },
+    { eventType: 'website_click' as const, label: 'Site oficial' },
+    { eventType: 'department_click' as const, label: 'Departamentos' },
+    { eventType: 'language_selected' as const, label: 'Trocas de idioma' },
+  ];
 
-  typedEvents.forEach((event) => {
+  currentEvents.forEach((event) => {
     if (
       event.event_type === 'page_view' &&
       (event.language === 'pt' || event.language === 'en' || event.language === 'es')
@@ -176,7 +249,8 @@ export async function getHotelAnalyticsSummary(hotelId: string, range?: string |
   const languageUsage = (['pt', 'en', 'es'] as const).map((language) => ({
     language,
     count: languageCounts.get(language) || 0,
-  }));
+  }))
+    .sort((a, b) => b.count - a.count);
 
   const departmentUsage = Array.from(departmentCounts.entries())
     .map(([departmentId, count]) => ({
@@ -187,19 +261,59 @@ export async function getHotelAnalyticsSummary(hotelId: string, range?: string |
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
+  const countByEventType = (
+    list: typeof currentEvents,
+    eventType: (typeof topActionDefinitions)[number]['eventType']
+  ) => list.filter((event) => event.event_type === eventType).length;
+
+  const pageViews = currentEvents.filter((event) => event.event_type === 'page_view').length;
+  const whatsappClicks = countByEventType(currentEvents, 'whatsapp_click');
+  const websiteClicks = countByEventType(currentEvents, 'website_click');
+  const bookingClicks = countByEventType(currentEvents, 'booking_click');
+  const departmentClicks = countByEventType(currentEvents, 'department_click');
+  const languageSelections = countByEventType(currentEvents, 'language_selected');
+  const bookingAndWebsiteClicks = bookingClicks + websiteClicks;
+
+  const previousPageViews = previousEvents.filter((event) => event.event_type === 'page_view')
+    .length;
+  const previousWhatsappClicks = countByEventType(previousEvents, 'whatsapp_click');
+  const previousWebsiteClicks = countByEventType(previousEvents, 'website_click');
+  const previousBookingClicks = countByEventType(previousEvents, 'booking_click');
+  const previousLanguageSelections = countByEventType(previousEvents, 'language_selected');
+  const previousBookingAndWebsiteClicks = previousBookingClicks + previousWebsiteClicks;
+
+  const topActions = topActionDefinitions
+    .map((item) => ({
+      ...item,
+      count: countByEventType(currentEvents, item.eventType),
+    }))
+    .sort((a, b) => b.count - a.count);
+
   return {
     range: normalizedRange,
     since,
-    totalEvents: typedEvents.length,
-    pageViews: typedEvents.filter((event) => event.event_type === 'page_view').length,
-    languageSelections: typedEvents.filter((event) => event.event_type === 'language_selected')
-      .length,
-    whatsappClicks: typedEvents.filter((event) => event.event_type === 'whatsapp_click').length,
-    websiteClicks: typedEvents.filter((event) => event.event_type === 'website_click').length,
-    bookingClicks: typedEvents.filter((event) => event.event_type === 'booking_click').length,
-    departmentClicks: typedEvents.filter((event) => event.event_type === 'department_click')
-      .length,
+    previousSince,
+    previousUntil,
+    totalEvents: currentEvents.length,
+    pageViews,
+    languageSelections,
+    whatsappClicks,
+    websiteClicks,
+    bookingClicks,
+    departmentClicks,
+    bookingAndWebsiteClicks,
     languageUsage,
     departmentUsage,
+    topActions,
+    comparison: {
+      pageViews: buildMetricComparison(pageViews, previousPageViews),
+      whatsappClicks: buildMetricComparison(whatsappClicks, previousWhatsappClicks),
+      bookingAndWebsiteClicks: buildMetricComparison(
+        bookingAndWebsiteClicks,
+        previousBookingAndWebsiteClicks
+      ),
+      languageSelections: buildMetricComparison(languageSelections, previousLanguageSelections),
+      totalEvents: buildMetricComparison(currentEvents.length, previousEvents.length),
+    },
   } satisfies HotelAnalyticsSummary;
 }
