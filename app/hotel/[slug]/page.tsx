@@ -405,7 +405,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                 </div>
               </div>
 
-              <div className="mt-6 flex items-start gap-4">
+              <div className="mt-7 flex items-start gap-4">
                 {typedHotel.logo_url ? (
                   <img
                     src={typedHotel.logo_url}
@@ -413,8 +413,8 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                     className="h-16 w-16 rounded-[22px] bg-white object-cover p-1 shadow-[0_16px_32px_-22px_rgba(15,23,42,0.55)]"
                   />
                 ) : (
-                  <div className="rounded-[22px] bg-white/10 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-                    <Hotel className="h-6 w-6" />
+                  <div className="rounded-[22px] border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                    <Hotel className="h-6 w-6 text-[color:var(--hotel-badge-text)]" />
                   </div>
                 )}
 
@@ -423,7 +423,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                     {typedHotel.name}
                   </h1>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-slate-200">
+                  <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-[color:var(--hotel-hero-muted)]">
                     {typedHotel.city ? (
                       <span className="inline-flex items-center gap-2">
                         <MapPin className="h-4 w-4" />
@@ -439,7 +439,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                 </div>
               </div>
 
-              <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-200 md:text-base">
+              <p className="mt-7 max-w-2xl text-sm leading-7 text-[color:var(--hotel-hero-muted)] md:text-base">
                 Acesse serviços, contatos, orientações e links importantes do hotel em uma
                 experiência digital mais elegante, prática e organizada.
               </p>
@@ -454,13 +454,13 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   data-analytics-event="booking_click"
                   data-analytics-target-url={typedHotel.booking_url}
                   data-analytics-label="Hero booking button"
-                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-5 text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
+                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-5 text-sm font-semibold text-[color:var(--hotel-accent-foreground)] shadow-[0_18px_35px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/55 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                 >
                   Reservar agora
                   <ArrowUpRight className="ml-2 h-4 w-4" />
                 </a>
               ) : (
-                <div className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white/80">
+                <div className="inline-flex h-12 items-center justify-center rounded-2xl border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-disabled-bg)] px-5 text-sm font-medium text-[color:var(--hotel-hero-disabled-text)]">
                   Reservas indisponíveis
                 </div>
               )}
@@ -473,13 +473,13 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   data-analytics-event="website_click"
                   data-analytics-target-url={typedHotel.website_url}
                   data-analytics-label="Hero website button"
-                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-white/20"
+                  className="inline-flex h-12 items-center justify-center rounded-2xl border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-secondary-bg)] px-5 text-sm font-medium text-[color:var(--hotel-hero-secondary-text)] transition hover:-translate-y-0.5 hover:bg-[var(--hotel-hero-secondary-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                 >
                   Site oficial
                   <ArrowUpRight className="ml-2 h-4 w-4" />
                 </a>
               ) : (
-                <div className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white/80">
+                <div className="inline-flex h-12 items-center justify-center rounded-2xl border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-disabled-bg)] px-5 text-sm font-medium text-[color:var(--hotel-hero-disabled-text)]">
                   Site indisponível
                 </div>
               )}
@@ -492,7 +492,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   data-analytics-event="whatsapp_click"
                   data-analytics-target-url={whatsappHref}
                   data-analytics-label="Hero WhatsApp button"
-                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-white/20 sm:col-span-2"
+                  className="inline-flex h-12 items-center justify-center rounded-2xl border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-secondary-bg)] px-5 text-sm font-medium text-[color:var(--hotel-hero-secondary-text)] transition hover:-translate-y-0.5 hover:bg-[var(--hotel-hero-secondary-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:col-span-2"
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
                   Atendimento via WhatsApp
@@ -536,7 +536,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
         <section className="mt-8">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
                 Explorar
               </p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
@@ -544,7 +544,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
               </h2>
             </div>
 
-            <div className="hidden rounded-full bg-white px-4 py-2 text-xs font-medium text-slate-600 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.3)] ring-1 ring-slate-200/70 md:inline-flex">
+            <div className="hidden rounded-full bg-[var(--hotel-accent-soft)] px-4 py-2 text-xs font-medium text-slate-700 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.22)] ring-1 ring-[color:var(--hotel-accent-border)] md:inline-flex">
               {displaySections.length} itens disponíveis
             </div>
           </div>
@@ -570,7 +570,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
         <section className="mt-10 grid gap-6 xl:grid-cols-[1fr,1fr]">
           <div>
             <div className="mb-5">
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
                 Atendimento
               </p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
@@ -598,7 +598,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
 
           <div>
             <div className="mb-5">
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
                 Informações importantes
               </p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
@@ -623,10 +623,10 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           </div>
         </section>
 
-        <section className="mt-10 rounded-[34px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.35)] ring-1 ring-slate-200/80 md:p-8">
+        <section className="mt-10 rounded-[34px] border border-[color:var(--hotel-footer-border)] bg-[var(--hotel-footer-bg)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-2xl">
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
                 Links úteis
               </p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
@@ -677,7 +677,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   data-analytics-event="whatsapp_click"
                   data-analytics-target-url={whatsappHref}
                   data-analytics-label="Footer WhatsApp button"
-                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-5 text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
+                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-5 text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_12px_28px_-20px_rgba(15,23,42,0.5)] transition hover:-translate-y-0.5 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2"
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
                   WhatsApp
@@ -687,7 +687,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           </div>
         </section>
 
-        <section className="mt-6 rounded-[30px] border border-[color:var(--hotel-footer-border)] bg-[var(--hotel-footer-bg)] px-6 py-5 text-sm text-slate-500 shadow-[0_18px_45px_-36px_rgba(15,23,42,0.25)] backdrop-blur">
+        <section className="mt-7 rounded-[30px] border border-[color:var(--hotel-footer-border)] bg-[var(--hotel-footer-bg)] px-6 py-5 text-sm shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)] backdrop-blur md:mt-8">
           <div className="flex justify-center md:justify-end">
             <p className="font-medium tracking-[0.01em] text-[color:var(--hotel-footer-text)]">
               GuestDesk by BLID Tecnologia
@@ -704,7 +704,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           data-analytics-event="whatsapp_click"
           data-analytics-target-url={whatsappHref}
           data-analytics-label="Floating WhatsApp button"
-          className="fixed bottom-5 right-5 z-50 inline-flex h-14 items-center justify-center rounded-full bg-[var(--hotel-accent)] px-5 text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_20px_45px_-24px_rgba(15,23,42,0.6)] transition hover:-translate-y-0.5 hover:brightness-95"
+          className="fixed bottom-5 right-5 z-50 inline-flex h-14 items-center justify-center rounded-full bg-[var(--hotel-accent)] px-5 text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_18px_40px_-22px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2"
         >
           <MessageCircle className="mr-2 h-5 w-5" />
           WhatsApp

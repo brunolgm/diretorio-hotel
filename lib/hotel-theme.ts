@@ -50,6 +50,14 @@ type ThemeCssVariables = CSSProperties & {
   '--hotel-footer-bg': string;
   '--hotel-footer-border': string;
   '--hotel-footer-text': string;
+  '--hotel-hero-muted': string;
+  '--hotel-hero-secondary-bg': string;
+  '--hotel-hero-secondary-border': string;
+  '--hotel-hero-secondary-text': string;
+  '--hotel-hero-secondary-hover-bg': string;
+  '--hotel-hero-disabled-bg': string;
+  '--hotel-hero-disabled-text': string;
+  '--hotel-section-label': string;
 };
 
 type HotelThemeConfig = {
@@ -63,6 +71,14 @@ type HotelThemeConfig = {
   footerBackground: string;
   footerBorder: string;
   footerText: string;
+  heroMutedText: string;
+  heroSecondaryBg: string;
+  heroSecondaryBorder: string;
+  heroSecondaryText: string;
+  heroSecondaryHoverBg: string;
+  heroDisabledBg: string;
+  heroDisabledText: string;
+  sectionLabelText: string;
 };
 
 const DEFAULT_HOTEL_THEME_PRESET: HotelThemePreset = 'midnight-slate';
@@ -82,6 +98,14 @@ const HOTEL_THEME_CONFIGS: Record<HotelThemePreset, HotelThemeConfig> = {
     footerBackground: 'rgba(255,255,255,0.88)',
     footerBorder: 'rgba(148,163,184,0.26)',
     footerText: '#334155',
+    heroMutedText: '#CBD5E1',
+    heroSecondaryBg: 'rgba(255,255,255,0.06)',
+    heroSecondaryBorder: 'rgba(255,255,255,0.12)',
+    heroSecondaryText: '#F1F5F9',
+    heroSecondaryHoverBg: 'rgba(255,255,255,0.10)',
+    heroDisabledBg: 'rgba(255,255,255,0.05)',
+    heroDisabledText: 'rgba(255,255,255,0.48)',
+    sectionLabelText: '#64748B',
   },
   'ivory-noir': {
     label: 'Ivory Noir',
@@ -96,6 +120,14 @@ const HOTEL_THEME_CONFIGS: Record<HotelThemePreset, HotelThemeConfig> = {
     footerBackground: 'rgba(255,250,245,0.92)',
     footerBorder: 'rgba(192,138,84,0.22)',
     footerText: '#4A3426',
+    heroMutedText: '#E7D4C4',
+    heroSecondaryBg: 'rgba(255,244,230,0.07)',
+    heroSecondaryBorder: 'rgba(255,244,230,0.16)',
+    heroSecondaryText: '#F8E7D4',
+    heroSecondaryHoverBg: 'rgba(255,244,230,0.13)',
+    heroDisabledBg: 'rgba(255,244,230,0.06)',
+    heroDisabledText: 'rgba(248,231,212,0.48)',
+    sectionLabelText: '#78716C',
   },
   'deep-ocean': {
     label: 'Deep Ocean',
@@ -110,6 +142,14 @@ const HOTEL_THEME_CONFIGS: Record<HotelThemePreset, HotelThemeConfig> = {
     footerBackground: 'rgba(240,249,255,0.92)',
     footerBorder: 'rgba(14,165,233,0.22)',
     footerText: '#0F3A4F',
+    heroMutedText: '#BAE6FD',
+    heroSecondaryBg: 'rgba(125,211,252,0.08)',
+    heroSecondaryBorder: 'rgba(125,211,252,0.18)',
+    heroSecondaryText: '#E0F2FE',
+    heroSecondaryHoverBg: 'rgba(125,211,252,0.14)',
+    heroDisabledBg: 'rgba(125,211,252,0.06)',
+    heroDisabledText: 'rgba(224,242,254,0.48)',
+    sectionLabelText: '#64748B',
   },
   'graphite-gold': {
     label: 'Graphite Gold',
@@ -124,6 +164,14 @@ const HOTEL_THEME_CONFIGS: Record<HotelThemePreset, HotelThemeConfig> = {
     footerBackground: 'rgba(255,251,235,0.92)',
     footerBorder: 'rgba(212,160,23,0.24)',
     footerText: '#5B4513',
+    heroMutedText: '#FDE68A',
+    heroSecondaryBg: 'rgba(253,230,138,0.07)',
+    heroSecondaryBorder: 'rgba(253,230,138,0.16)',
+    heroSecondaryText: '#FEF3C7',
+    heroSecondaryHoverBg: 'rgba(253,230,138,0.13)',
+    heroDisabledBg: 'rgba(253,230,138,0.06)',
+    heroDisabledText: 'rgba(254,243,199,0.48)',
+    sectionLabelText: '#78716C',
   },
   'forest-ember': {
     label: 'Forest Ember',
@@ -138,6 +186,14 @@ const HOTEL_THEME_CONFIGS: Record<HotelThemePreset, HotelThemeConfig> = {
     footerBackground: 'rgba(247,254,231,0.92)',
     footerBorder: 'rgba(217,119,6,0.22)',
     footerText: '#3F3A20',
+    heroMutedText: '#D9F99D',
+    heroSecondaryBg: 'rgba(187,247,208,0.07)',
+    heroSecondaryBorder: 'rgba(187,247,208,0.16)',
+    heroSecondaryText: '#ECFCCB',
+    heroSecondaryHoverBg: 'rgba(187,247,208,0.13)',
+    heroDisabledBg: 'rgba(187,247,208,0.06)',
+    heroDisabledText: 'rgba(220,252,231,0.48)',
+    sectionLabelText: '#57534E',
   },
 };
 
@@ -225,6 +281,14 @@ export function resolveHotelTheme(
     '--hotel-footer-bg': config.footerBackground,
     '--hotel-footer-border': config.footerBorder,
     '--hotel-footer-text': config.footerText,
+    '--hotel-hero-muted': config.heroMutedText,
+    '--hotel-hero-secondary-bg': config.heroSecondaryBg,
+    '--hotel-hero-secondary-border': config.heroSecondaryBorder,
+    '--hotel-hero-secondary-text': config.heroSecondaryText,
+    '--hotel-hero-secondary-hover-bg': config.heroSecondaryHoverBg,
+    '--hotel-hero-disabled-bg': config.heroDisabledBg,
+    '--hotel-hero-disabled-text': config.heroDisabledText,
+    '--hotel-section-label': config.sectionLabelText,
   };
 
   return {
