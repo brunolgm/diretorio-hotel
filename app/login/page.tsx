@@ -35,50 +35,56 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_100%)] p-6">
+    <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_45%,#f8fafc_100%)] p-6">
       <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center">
-        <div className="grid w-full gap-6 xl:grid-cols-[1.05fr,0.95fr]">
-          <section className="hidden overflow-hidden rounded-[36px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_55%,#1e293b_100%)] p-10 text-white shadow-sm xl:block">
-            <div className="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 backdrop-blur">
-              GuestDesk
-            </div>
+        <div className="grid w-full gap-6 xl:grid-cols-[1.08fr,0.92fr]">
+          <section className="relative hidden overflow-hidden rounded-[38px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_52%,#1e293b_100%)] p-10 text-white shadow-[0_30px_90px_-48px_rgba(15,23,42,0.85)] ring-1 ring-slate-900/10 xl:block">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.16),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(148,163,184,0.14),transparent_30%)]" />
 
-            <h1 className="mt-6 text-4xl font-semibold tracking-tight">
-              GuestDesk centraliza a operação do diretório digital do hotel em uma experiência
-              premium e profissional.
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-200">
-              Gerencie conteúdos, contatos e informações importantes com um painel elegante,
-              consistente e preparado para o ritmo da operação diária.
-            </p>
-
-            <div className="mt-8 grid gap-4">
-              <div className="rounded-[24px] bg-white/10 p-5 backdrop-blur">
-                <p className="text-sm font-semibold text-white">Atualizações rápidas</p>
-                <p className="mt-2 text-sm leading-6 text-slate-200">
-                  Hotel, serviços, departamentos e políticas em um único fluxo de gestão.
-                </p>
+            <div className="relative">
+              <div className="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
+                GuestDesk
               </div>
 
-              <div className="rounded-[24px] bg-white/10 p-5 backdrop-blur">
-                <p className="text-sm font-semibold text-white">Apresentação consistente</p>
-                <p className="mt-2 text-sm leading-6 text-slate-200">
-                  Painel administrativo e diretório público alinhados na mesma linguagem visual do
-                  produto.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-10 border-t border-white/10 pt-6">
-              <p className="text-sm text-slate-300">Plataforma para hospitalidade digital.</p>
-              <p className="mt-2 text-sm font-medium text-slate-100">
-                GuestDesk by BLID Tecnologia
+              <h1 className="mt-7 text-4xl font-semibold tracking-tight leading-[1.04]">
+                Controle a operação do diretório digital com um painel mais elegante e pronto para
+                o dia a dia do hotel.
+              </h1>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-200">
+                Gerencie conteúdos, contatos e informações importantes com uma experiência
+                consistente, organizada e preparada para apresentação comercial e operação real.
               </p>
+
+              <div className="mt-8 grid gap-4">
+                <div className="rounded-[26px] border border-white/10 bg-white/10 p-5 backdrop-blur">
+                  <p className="text-sm font-semibold text-white">Atualizações rápidas</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-200">
+                    Hotel, serviços, departamentos e políticas em um único fluxo de gestão.
+                  </p>
+                </div>
+
+                <div className="rounded-[26px] border border-white/10 bg-white/10 p-5 backdrop-blur">
+                  <p className="text-sm font-semibold text-white">Leitura consistente</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-200">
+                    Painel administrativo e experiência pública alinhados na mesma linguagem visual
+                    do produto.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-10 border-t border-white/10 pt-6">
+                <p className="text-sm text-slate-300">
+                  Plataforma para hospitalidade digital com apresentação premium.
+                </p>
+                <p className="mt-2 text-sm font-medium text-slate-100">
+                  GuestDesk by BLID Tecnologia
+                </p>
+              </div>
             </div>
           </section>
 
-          <section className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70 md:p-10">
-            <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-medium uppercase tracking-[0.16em] text-slate-600">
+          <section className="rounded-[34px] bg-white p-8 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.35)] ring-1 ring-slate-200/80 md:p-10">
+            <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-medium uppercase tracking-[0.16em] text-slate-600 ring-1 ring-slate-200/70">
               <ShieldCheck className="h-3.5 w-3.5" />
               Acesso administrativo
             </div>
@@ -129,14 +135,17 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2 disabled:opacity-60"
+                className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-slate-900 px-4 text-sm font-medium text-white shadow-[0_14px_30px_-18px_rgba(15,23,42,0.75)] transition hover:-translate-y-0.5 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2 disabled:opacity-60"
               >
                 {loading ? 'Entrando...' : 'Entrar no painel'}
               </button>
             </form>
 
-            <div className="mt-8 border-t border-slate-200 pt-5 text-sm text-slate-500 xl:hidden">
-              <p className="font-medium text-slate-700">GuestDesk by BLID Tecnologia</p>
+            <div className="mt-8 rounded-[24px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 ring-1 ring-slate-200/70 xl:hidden">
+              <p className="text-sm text-slate-500">Assinatura institucional</p>
+              <p className="mt-2 text-sm font-medium text-slate-800">
+                GuestDesk by BLID Tecnologia
+              </p>
             </div>
           </section>
         </div>

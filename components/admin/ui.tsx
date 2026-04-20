@@ -15,14 +15,18 @@ export function AdminPageHero({
   rightSlot?: ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-[32px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_55%,#1e293b_100%)] p-8 text-white shadow-sm md:p-10">
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+    <section className="relative overflow-hidden rounded-[34px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_50%,#1e293b_100%)] p-8 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,0.75)] ring-1 ring-slate-900/10 md:p-10">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.14),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(148,163,184,0.14),transparent_30%)]" />
+
+      <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-3xl">
-          <div className="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 backdrop-blur">
+          <div className="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
             {eyebrow}
           </div>
 
-          <h1 className="mt-6 text-3xl font-semibold tracking-tight md:text-4xl">{title}</h1>
+          <h1 className="mt-6 text-3xl font-semibold tracking-tight text-white md:text-4xl">
+            {title}
+          </h1>
 
           {description ? (
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200 md:text-base">
@@ -47,7 +51,7 @@ export function AdminSurface({
   return (
     <div
       className={cn(
-        'rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70',
+        'rounded-[32px] bg-white p-8 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] ring-1 ring-slate-200/80',
         className
       )}
     >
@@ -70,8 +74,12 @@ export function AdminSectionTitle({
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        {eyebrow ? <p className="text-sm text-slate-500">{eyebrow}</p> : null}
-        <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">{title}</h2>
+        {eyebrow ? (
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+            {eyebrow}
+          </p>
+        ) : null}
+        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{title}</h2>
         {description ? (
           <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
         ) : null}
@@ -94,14 +102,16 @@ export function AdminStatCard({
   description: string;
 }) {
   return (
-    <div className="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70">
+    <div className="rounded-[28px] bg-white p-6 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm text-slate-500">{title}</p>
-          <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">{value}</p>
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">{title}</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
         </div>
 
-        <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">{icon}</div>
+        <div className="rounded-[20px] bg-slate-100 p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+          {icon}
+        </div>
       </div>
 
       <p className="mt-4 text-sm leading-6 text-slate-600">{description}</p>
@@ -111,7 +121,7 @@ export function AdminStatCard({
 
 export function AdminInfoBadge({ children }: { children: ReactNode }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-medium text-slate-600">
+    <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-medium text-slate-600 ring-1 ring-slate-200/70">
       {children}
     </div>
   );
@@ -176,7 +186,7 @@ export function AdminFilterBar({
   return (
     <form
       className={cn(
-        'mt-6 flex flex-col gap-3 rounded-[24px] border border-slate-200 bg-slate-50/80 p-4 md:flex-row md:items-center',
+        'mt-6 flex flex-col gap-3 rounded-[26px] border border-slate-200 bg-slate-50/80 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] md:flex-row md:items-center',
         className
       )}
     >
@@ -243,7 +253,7 @@ export function AdminEmptyState({
   description: string;
 }) {
   return (
-    <div className="rounded-[28px] border border-dashed border-slate-200 bg-slate-50 p-10 text-center">
+    <div className="rounded-[28px] border border-dashed border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-10 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
       <p className="text-base font-semibold text-slate-900">{title}</p>
       <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
     </div>
@@ -264,7 +274,7 @@ export function AdminListItem({
   actions?: ReactNode;
 }) {
   return (
-    <div className="rounded-[28px] border border-slate-200 bg-slate-50/60 p-5 transition hover:bg-white">
+    <div className="rounded-[28px] border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.9)_0%,rgba(255,255,255,0.95)_100%)] p-5 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)]">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -312,7 +322,7 @@ export function AdminPrimaryButton({
     <button
       type={type}
       className={cn(
-        'inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2',
+        'inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white shadow-[0_14px_30px_-18px_rgba(15,23,42,0.75)] transition hover:-translate-y-0.5 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2',
         className
       )}
     >
@@ -334,7 +344,7 @@ export function AdminSecondaryButton({
     <button
       type={type}
       className={cn(
-        'inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2',
+        'inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.35)] transition hover:-translate-y-0.5 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2',
         className
       )}
     >
@@ -356,7 +366,7 @@ export function AdminDangerButton({
     <button
       type={type}
       className={cn(
-        'inline-flex h-11 items-center justify-center rounded-2xl border border-red-200 bg-white px-4 text-sm font-medium text-red-600 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 focus-visible:ring-offset-2',
+        'inline-flex h-11 items-center justify-center rounded-2xl border border-red-200 bg-white px-4 text-sm font-medium text-red-600 shadow-[0_10px_20px_-18px_rgba(127,29,29,0.3)] transition hover:-translate-y-0.5 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200 focus-visible:ring-offset-2',
         className
       )}
     >
@@ -382,8 +392,8 @@ export function AdminLinkButton({
       className={cn(
         'inline-flex items-center justify-center rounded-2xl text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         variant === 'secondary'
-          ? 'h-11 border border-slate-200 bg-white px-4 text-slate-700 hover:bg-slate-50 focus-visible:ring-slate-300'
-          : 'h-11 border border-red-200 bg-white px-4 text-red-600 hover:bg-red-50 focus-visible:ring-red-200',
+          ? 'h-11 border border-slate-200 bg-white px-4 text-slate-700 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.35)] hover:-translate-y-0.5 hover:bg-slate-50 focus-visible:ring-slate-300'
+          : 'h-11 border border-red-200 bg-white px-4 text-red-600 shadow-[0_10px_20px_-18px_rgba(127,29,29,0.3)] hover:-translate-y-0.5 hover:bg-red-50 focus-visible:ring-red-200',
         className
       )}
     >
@@ -441,7 +451,12 @@ export function AdminGuideCard({
   className?: string;
 }) {
   return (
-    <div className={cn('rounded-[24px] border border-slate-200 bg-slate-50/80 p-5', className)}>
+    <div
+      className={cn(
+        'rounded-[24px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]',
+        className
+      )}
+    >
       <p className="text-sm font-semibold text-slate-900">{title}</p>
       {description ? (
         <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>

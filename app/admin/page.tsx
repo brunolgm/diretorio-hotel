@@ -46,10 +46,10 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="group rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-md"
+      className="group rounded-[30px] bg-white p-6 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80 transition hover:-translate-y-0.5 hover:shadow-[0_24px_55px_-34px_rgba(15,23,42,0.32)]"
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="rounded-2xl bg-slate-100 p-3 text-slate-700 transition group-hover:bg-slate-900 group-hover:text-white">
+        <div className="rounded-[22px] bg-slate-100 p-3 text-slate-700 transition group-hover:bg-slate-900 group-hover:text-white">
           <Icon className="h-5 w-5" />
         </div>
         <ArrowRight className="h-5 w-5 text-slate-400 transition group-hover:text-slate-700" />
@@ -128,13 +128,13 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         description="Gerencie o GuestDesk do hotel com uma experiência mais organizada, elegante e preparada para apresentação, operação e atualização diária."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
+            <div className="rounded-[30px] border border-white/10 bg-white/10 p-5 backdrop-blur">
               <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Cidade</p>
               <p className="mt-2 text-lg font-semibold text-white">
                 {hotel.city || 'Não informada'}
               </p>
             </div>
-            <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
+            <div className="rounded-[30px] border border-white/10 bg-white/10 p-5 backdrop-blur">
               <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Status</p>
               <p className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
                 <CheckCircle2 className="h-4 w-4" />
@@ -254,7 +254,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr,1.1fr]">
-          <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
+          <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
             <p className="text-sm font-semibold text-slate-900">Leitura gerencial do período</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               {analytics.totalEvents > 0
@@ -290,7 +290,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
+            <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
               <p className="text-sm font-semibold text-slate-900">Idiomas mais usados</p>
               <div className="mt-4 space-y-3">
                 {analytics.languageUsage.some((item) => item.count > 0) ? (
@@ -313,7 +313,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
+            <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
               <p className="text-sm font-semibold text-slate-900">Ações com mais engajamento</p>
               <div className="mt-4 space-y-3">
                 {analytics.topActions.some((item) => item.count > 0) ? (
@@ -337,7 +337,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </div>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr,1.1fr]">
-          <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
+          <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
             <p className="text-sm font-semibold text-slate-900">Departamentos mais clicados</p>
             <div className="mt-4 space-y-3">
               {analytics.departmentUsage.length ? (
@@ -358,7 +358,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             </div>
           </div>
 
-          <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6">
+          <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
             <p className="text-sm font-semibold text-slate-900">Como interpretar estes dados</p>
             <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
               <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70">
@@ -422,28 +422,28 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </AdminGuideCard>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <div className="rounded-[24px] bg-slate-50 p-5">
+            <div className="rounded-[26px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 ring-1 ring-slate-200/70">
               <p className="text-sm font-semibold text-slate-900">Revisar conteúdo</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Verifique descrições, textos de botões, horários e links finais do hotel.
               </p>
             </div>
 
-            <div className="rounded-[24px] bg-slate-50 p-5">
+            <div className="rounded-[26px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 ring-1 ring-slate-200/70">
               <p className="text-sm font-semibold text-slate-900">Refinar apresentação</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Confira logo oficial, consistência visual e assinatura comercial do produto.
               </p>
             </div>
 
-            <div className="rounded-[24px] bg-slate-50 p-5">
+            <div className="rounded-[26px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 ring-1 ring-slate-200/70">
               <p className="text-sm font-semibold text-slate-900">Testar jornada do hóspede</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Navegue pela rota pública e valide a experiência do GuestDesk no celular.
               </p>
             </div>
 
-            <div className="rounded-[24px] bg-slate-50 p-5">
+            <div className="rounded-[26px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 ring-1 ring-slate-200/70">
               <p className="text-sm font-semibold text-slate-900">Preparar demonstração</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Organize o link público para portfólio, QR Code e apresentação comercial.
@@ -471,21 +471,21 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           />
 
           <div className="mt-6 space-y-4">
-            <div className="rounded-[24px] border border-slate-200 p-5">
+            <div className="rounded-[26px] border border-slate-200 p-5">
               <p className="text-sm font-semibold text-slate-900">GuestDesk publicado</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 A experiência pública já está online e pronta para demonstração.
               </p>
             </div>
 
-            <div className="rounded-[24px] border border-slate-200 p-5">
+            <div className="rounded-[26px] border border-slate-200 p-5">
               <p className="text-sm font-semibold text-slate-900">Operação centralizada</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Serviços, departamentos e políticas podem ser gerenciados em um único painel.
               </p>
             </div>
 
-            <div className="rounded-[24px] border border-slate-200 p-5">
+            <div className="rounded-[26px] border border-slate-200 p-5">
               <p className="text-sm font-semibold text-slate-900">Marca e conteúdo</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 O hotel já pode ajustar identidade visual e finalizar os textos da apresentação.
