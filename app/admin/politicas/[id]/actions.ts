@@ -1,7 +1,8 @@
-'use server';
+﻿'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { requireAdminAccess } from '@/lib/auth';
 import { readCheckboxBoolean, readNullableString, readTrimmedString } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
 import {
@@ -13,6 +14,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 
 export async function updatePolicyAction(id: string, formData: FormData) {
+  await requireAdminAccess('operador');
   if (!id.trim()) {
     redirect('/admin/politicas?error=Pol%C3%ADtica%20inv%C3%A1lida');
   }
@@ -40,7 +42,7 @@ export async function updatePolicyAction(id: string, formData: FormData) {
   if (error) {
     redirect(
       buildFeedbackRedirect(`/admin/politicas/${id}`, {
-        error: `Não foi possível atualizar a política: ${error.message}`,
+        error: `NÃ£o foi possÃ­vel atualizar a polÃ­tica: ${error.message}`,
       })
     );
   }
@@ -60,8 +62,9 @@ export async function updatePolicyAction(id: string, formData: FormData) {
 
   redirect(
     buildFeedbackRedirect(`/admin/politicas/${id}`, {
-      success: 'Política atualizada com sucesso',
+      success: 'PolÃ­tica atualizada com sucesso',
       warning: formatTranslationWarning(translationResult),
     })
   );
 }
+

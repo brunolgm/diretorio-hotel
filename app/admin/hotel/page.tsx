@@ -22,6 +22,7 @@ import {
   AdminPrimaryButton,
   AdminSecondaryButton,
 } from '@/components/admin/ui';
+import { requireAdminAccess } from '@/lib/auth';
 import {
   DEFAULT_HOTEL_THEME_PRESET,
   HOTEL_THEME_PRESETS,
@@ -66,6 +67,7 @@ function InfoCard({
 }
 
 export default async function AdminHotelPage({ searchParams }: AdminHotelPageProps) {
+  await requireAdminAccess('editor');
   const hotel = await getAdminHotel();
   const params = searchParams ? await searchParams : {};
   const success = params?.success;
@@ -524,4 +526,5 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
     </main>
   );
 }
+
 

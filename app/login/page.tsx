@@ -3,6 +3,7 @@
 import { LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { normalizeAppRole } from '@/lib/app-roles';
 import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
@@ -18,7 +19,7 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -30,8 +31,33 @@ export default function LoginPage() {
       return;
     }
 
-    router.push('/admin');
-    router.refresh();
+    const signedInUser = data.user;
+
+    if (!signedInUser) {
+      setError('Não foi possível validar o acesso do usuário.');
+      return;
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role, hotel_id, is_active')
+      .eq('id', signedInUser.id)
+      .single();
+
+    const normalizedRole = normalizeAppRole(profile?.role);
+
+    if (
+      profileError ||
+      !profile?.hotel_id ||
+      !profile.is_active ||
+      !normalizedRole
+    ) {
+      await supabase.auth.signOut();
+      setError('Seu acesso administrativo não está disponível no momento.');
+      return;
+    }
+
+    router.replace('/admin');
   }
 
   return (

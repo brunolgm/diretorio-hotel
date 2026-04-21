@@ -1,7 +1,8 @@
-'use server';
+﻿'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { requireAdminAccess } from '@/lib/auth';
 import {
   readCheckboxBoolean,
   readNullableString,
@@ -17,6 +18,7 @@ import {
 import { createClient } from '@/lib/supabase/server';
 
 export async function createDepartmentAction(formData: FormData) {
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const name = readTrimmedString(formData, 'name');
@@ -50,7 +52,7 @@ export async function createDepartmentAction(formData: FormData) {
   if (error) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: `Não foi possível criar o departamento: ${error.message}`,
+        error: `NÃ£o foi possÃ­vel criar o departamento: ${error.message}`,
       })
     );
   }
@@ -77,6 +79,7 @@ export async function createDepartmentAction(formData: FormData) {
 }
 
 export async function deleteDepartmentAction(formData: FormData) {
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -84,7 +87,7 @@ export async function deleteDepartmentAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: 'Departamento inválido para exclusão.',
+        error: 'Departamento invÃ¡lido para exclusÃ£o.',
       })
     );
   }
@@ -98,7 +101,7 @@ export async function deleteDepartmentAction(formData: FormData) {
   if (error) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: `Não foi possível excluir o departamento: ${error.message}`,
+        error: `NÃ£o foi possÃ­vel excluir o departamento: ${error.message}`,
       })
     );
   }
@@ -108,12 +111,13 @@ export async function deleteDepartmentAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/departamentos', {
-      success: 'Departamento excluído com sucesso',
+      success: 'Departamento excluÃ­do com sucesso',
     })
   );
 }
 
 export async function toggleDepartmentAction(formData: FormData) {
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -122,7 +126,7 @@ export async function toggleDepartmentAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: 'Departamento inválido para atualização de status.',
+        error: 'Departamento invÃ¡lido para atualizaÃ§Ã£o de status.',
       })
     );
   }
@@ -136,7 +140,7 @@ export async function toggleDepartmentAction(formData: FormData) {
   if (error) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: `Não foi possível atualizar o status do departamento: ${error.message}`,
+        error: `NÃ£o foi possÃ­vel atualizar o status do departamento: ${error.message}`,
       })
     );
   }
@@ -152,6 +156,7 @@ export async function toggleDepartmentAction(formData: FormData) {
 }
 
 export async function retranslateDepartmentAction(formData: FormData) {
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -159,7 +164,7 @@ export async function retranslateDepartmentAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: 'Departamento inválido para retradução.',
+        error: 'Departamento invÃ¡lido para retraduÃ§Ã£o.',
       })
     );
   }
@@ -174,7 +179,7 @@ export async function retranslateDepartmentAction(formData: FormData) {
   if (error || !department) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: 'Não foi possível carregar o departamento para retradução.',
+        error: 'NÃ£o foi possÃ­vel carregar o departamento para retraduÃ§Ã£o.',
       })
     );
   }
@@ -194,8 +199,9 @@ export async function retranslateDepartmentAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/departamentos', {
-      success: 'Retradução do departamento concluída',
+      success: 'RetraduÃ§Ã£o do departamento concluÃ­da',
       warning: formatTranslationWarning(translationResult),
     })
   );
 }
+

@@ -29,7 +29,7 @@ import {
   AdminStatCard,
   AdminSurface,
 } from '@/components/admin/ui';
-import { requireUser } from '@/lib/auth';
+import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel, getHotelAnalyticsSummary } from '@/lib/queries';
 
 function QuickLink({
@@ -114,11 +114,13 @@ function ComparisonPill({
 }
 
 export default async function AdminPage({ searchParams }: AdminPageProps) {
-  await requireUser();
+  const { profile } = await requireAdminAccess('visualizador');
   const hotel = await getAdminHotel();
   const params = searchParams ? await searchParams : {};
   const analytics = await getHotelAnalyticsSummary(hotel.id, params?.range);
   const comparisonLabel = getComparisonLabel(analytics.range);
+  const canManageHotel = hasMinimumRole(profile.normalizedRole, 'editor');
+  const canManageUsers = hasMinimumRole(profile.normalizedRole, 'administrador');
 
   return (
     <main className="space-y-6">
@@ -377,12 +379,14 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       </AdminSurface>
 
       <section className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-4">
-        <QuickLink
-          href="/admin/hotel"
-          icon={Hotel}
-          title="Informações do hotel"
-          text="Atualize nome, cidade, horários, Wi-Fi, links institucionais e apresentação da marca."
-        />
+        {canManageHotel ? (
+          <QuickLink
+            href="/admin/hotel"
+            icon={Hotel}
+            title="Informações do hotel"
+            text="Atualize nome, cidade, horários, Wi-Fi, links institucionais e apresentação da marca."
+          />
+        ) : null}
         <QuickLink
           href="/admin/servicos"
           icon={ConciergeBell}
@@ -401,6 +405,14 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           title="Políticas"
           text="Mantenha regras, orientações e políticas sempre atualizadas."
         />
+        {canManageUsers ? (
+          <QuickLink
+            href="/admin/usuarios"
+            icon={ShieldCheck}
+            title="Usuários"
+            text="Gerencie acessos e distribua papéis simples para a equipe do hotel."
+          />
+        ) : null}
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">

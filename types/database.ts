@@ -402,6 +402,7 @@ export interface Database {
           full_name: string | null;
           role: string | null;
           hotel_id: string | null;
+          is_active: boolean;
           created_at: string | null;
           updated_at: string | null;
         };
@@ -411,6 +412,7 @@ export interface Database {
           full_name?: string | null;
           role?: string | null;
           hotel_id?: string | null;
+          is_active?: boolean;
           created_at?: string | null;
           updated_at?: string | null;
         };
@@ -420,6 +422,7 @@ export interface Database {
           full_name?: string | null;
           role?: string | null;
           hotel_id?: string | null;
+          is_active?: boolean;
           created_at?: string | null;
           updated_at?: string | null;
         };

@@ -42,6 +42,7 @@ import {
   AdminTextarea,
   AdminTranslationStatusPill,
 } from '@/components/admin/ui';
+import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
 import {
   getAvailableTranslationLanguages,
@@ -71,8 +72,10 @@ type DepartmentTranslation = Database['public']['Tables']['hotel_department_tran
 export default async function AdminDepartmentsPage({
   searchParams,
 }: AdminDepartmentsPageProps) {
+  const { profile } = await requireAdminAccess('visualizador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
+  const canManageDepartments = hasMinimumRole(profile.normalizedRole, 'operador');
   const params = searchParams ? await searchParams : {};
   const success = params?.success;
   const errorMessage = params?.error;
@@ -191,6 +194,7 @@ export default async function AdminDepartmentsPage({
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
+        {canManageDepartments ? (
         <AdminSurface>
           <AdminSectionTitle
             eyebrow="Cadastro rápido"
@@ -282,6 +286,22 @@ export default async function AdminDepartmentsPage({
             </div>
           </form>
         </AdminSurface>
+        ) : (
+          <AdminSurface>
+            <AdminSectionTitle
+              eyebrow="Acesso em leitura"
+              title="Visualização de departamentos"
+              description="Seu papel permite acompanhar os canais de atendimento já cadastrados, sem alterar conteúdo ou status."
+              action={<AdminInfoBadge>Modo leitura</AdminInfoBadge>}
+            />
+
+            <AdminGuideCard
+              title="Como usar esta área"
+              description="Revise descrição, horários, status e idiomas para apoiar a operação do hotel sem modificar o diretório."
+              className="mt-8"
+            />
+          </AdminSurface>
+        )}
 
         <AdminSurface>
           <AdminSectionTitle
@@ -350,37 +370,39 @@ export default async function AdminDepartmentsPage({
                       </>
                     }
                     actions={
-                      <AdminActionGroup>
-                        <AdminLinkButton href={`/admin/departamentos/${item.id}`}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Editar
-                        </AdminLinkButton>
+                      canManageDepartments ? (
+                        <AdminActionGroup>
+                          <AdminLinkButton href={`/admin/departamentos/${item.id}`}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Editar
+                          </AdminLinkButton>
 
-                        <form action={retranslateDepartmentAction}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <AdminSecondaryButton type="submit">
-                            <RefreshCw className="mr-2 h-4 w-4" />
-                            Retraduzir
-                          </AdminSecondaryButton>
-                        </form>
+                          <form action={retranslateDepartmentAction}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <AdminSecondaryButton type="submit">
+                              <RefreshCw className="mr-2 h-4 w-4" />
+                              Retraduzir
+                            </AdminSecondaryButton>
+                          </form>
 
-                        <form action={toggleDepartmentAction}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <input type="hidden" name="enabled" value={String(!item.enabled)} />
-                          <AdminSecondaryButton type="submit">
-                            <Power className="mr-2 h-4 w-4" />
-                            {item.enabled ? 'Desativar' : 'Ativar'}
-                          </AdminSecondaryButton>
-                        </form>
+                          <form action={toggleDepartmentAction}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <input type="hidden" name="enabled" value={String(!item.enabled)} />
+                            <AdminSecondaryButton type="submit">
+                              <Power className="mr-2 h-4 w-4" />
+                              {item.enabled ? 'Desativar' : 'Ativar'}
+                            </AdminSecondaryButton>
+                          </form>
 
-                        <form action={deleteDepartmentAction}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <AdminDangerButton type="submit">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Excluir
-                          </AdminDangerButton>
-                        </form>
-                      </AdminActionGroup>
+                          <form action={deleteDepartmentAction}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <AdminDangerButton type="submit">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Excluir
+                            </AdminDangerButton>
+                          </form>
+                        </AdminActionGroup>
+                      ) : null
                     }
                   />
                 );

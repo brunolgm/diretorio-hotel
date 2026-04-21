@@ -41,6 +41,7 @@ import {
   AdminTextarea,
   AdminTranslationStatusPill,
 } from '@/components/admin/ui';
+import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
 import {
   getAvailableTranslationLanguages,
@@ -70,8 +71,10 @@ type SectionTranslation = Database['public']['Tables']['hotel_section_translatio
 export default async function AdminServicesPage({
   searchParams,
 }: AdminServicesPageProps) {
+  const { profile } = await requireAdminAccess('visualizador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
+  const canManageServices = hasMinimumRole(profile.normalizedRole, 'operador');
   const params = searchParams ? await searchParams : {};
   const success = params?.success;
   const errorMessage = params?.error;
@@ -190,6 +193,7 @@ export default async function AdminServicesPage({
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
+        {canManageServices ? (
         <AdminSurface>
           <AdminSectionTitle
             eyebrow="Cadastro rápido"
@@ -292,6 +296,22 @@ export default async function AdminServicesPage({
             </div>
           </form>
         </AdminSurface>
+        ) : (
+          <AdminSurface>
+            <AdminSectionTitle
+              eyebrow="Acesso em leitura"
+              title="Visualização de serviços"
+              description="Seu papel permite acompanhar os itens do diretório, mas sem criar, editar ou publicar alterações."
+              action={<AdminInfoBadge>Modo leitura</AdminInfoBadge>}
+            />
+
+            <AdminGuideCard
+              title="Como usar esta área"
+              description="Você pode revisar títulos, categorias, status e idiomas disponíveis para apoiar a operação e validação do conteúdo."
+              className="mt-8"
+            />
+          </AdminSurface>
+        )}
 
         <AdminSurface>
           <AdminSectionTitle
@@ -361,37 +381,39 @@ export default async function AdminServicesPage({
                       </>
                     }
                     actions={
-                      <AdminActionGroup>
-                        <AdminLinkButton href={`/admin/servicos/${item.id}`}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Editar
-                        </AdminLinkButton>
+                      canManageServices ? (
+                        <AdminActionGroup>
+                          <AdminLinkButton href={`/admin/servicos/${item.id}`}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Editar
+                          </AdminLinkButton>
 
-                        <form action={retranslateSectionAction}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <AdminSecondaryButton type="submit">
-                            <RefreshCw className="mr-2 h-4 w-4" />
-                            Retraduzir
-                          </AdminSecondaryButton>
-                        </form>
+                          <form action={retranslateSectionAction}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <AdminSecondaryButton type="submit">
+                              <RefreshCw className="mr-2 h-4 w-4" />
+                              Retraduzir
+                            </AdminSecondaryButton>
+                          </form>
 
-                        <form action={toggleSectionAction}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <input type="hidden" name="enabled" value={String(!item.enabled)} />
-                          <AdminSecondaryButton type="submit">
-                            <Power className="mr-2 h-4 w-4" />
-                            {item.enabled ? 'Desativar' : 'Ativar'}
-                          </AdminSecondaryButton>
-                        </form>
+                          <form action={toggleSectionAction}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <input type="hidden" name="enabled" value={String(!item.enabled)} />
+                            <AdminSecondaryButton type="submit">
+                              <Power className="mr-2 h-4 w-4" />
+                              {item.enabled ? 'Desativar' : 'Ativar'}
+                            </AdminSecondaryButton>
+                          </form>
 
-                        <form action={deleteSectionAction}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <AdminDangerButton type="submit">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Excluir
-                          </AdminDangerButton>
-                        </form>
-                      </AdminActionGroup>
+                          <form action={deleteSectionAction}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <AdminDangerButton type="submit">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Excluir
+                            </AdminDangerButton>
+                          </form>
+                        </AdminActionGroup>
+                      ) : null
                     }
                   />
                 );

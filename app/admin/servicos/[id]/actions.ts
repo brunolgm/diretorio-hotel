@@ -1,7 +1,8 @@
-'use server';
+﻿'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { requireAdminAccess } from '@/lib/auth';
 import {
   readCheckboxBoolean,
   readNullableString,
@@ -19,6 +20,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 
 export async function updateSectionAction(id: string, formData: FormData) {
+  await requireAdminAccess('operador');
   if (!id.trim()) {
     redirect('/admin/servicos?error=Servi%C3%A7o%20inv%C3%A1lido');
   }
@@ -58,7 +60,7 @@ export async function updateSectionAction(id: string, formData: FormData) {
   if (error) {
     redirect(
       buildFeedbackRedirect(`/admin/servicos/${id}`, {
-        error: `Não foi possível atualizar o serviço: ${error.message}`,
+        error: `NÃ£o foi possÃ­vel atualizar o serviÃ§o: ${error.message}`,
       })
     );
   }
@@ -80,8 +82,9 @@ export async function updateSectionAction(id: string, formData: FormData) {
 
   redirect(
     buildFeedbackRedirect(`/admin/servicos/${id}`, {
-      success: 'Serviço atualizado com sucesso',
+      success: 'ServiÃ§o atualizado com sucesso',
       warning: formatTranslationWarning(translationResult),
     })
   );
 }
+

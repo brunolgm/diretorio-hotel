@@ -1,4 +1,4 @@
-import { Building2, Clock3, Link as LinkIcon, MessageCircle } from 'lucide-react';
+﻿import { Building2, Clock3, Link as LinkIcon, MessageCircle } from 'lucide-react';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminField,
@@ -11,6 +11,7 @@ import {
   AdminTextInput,
   AdminTextarea,
 } from '@/components/admin/ui';
+import { requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
 import { updateDepartmentAction } from './actions';
@@ -25,6 +26,7 @@ interface PageProps {
 }
 
 export default async function EditDepartmentPage({ params, searchParams }: PageProps) {
+  await requireAdminAccess('operador');
   const { id } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const success = resolvedSearchParams?.success;
@@ -42,7 +44,7 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
     .single();
 
   if (error || !department) {
-    throw new Error('Departamento não encontrado.');
+    throw new Error('Departamento nÃ£o encontrado.');
   }
 
   const action = updateDepartmentAction.bind(null, id);
@@ -54,7 +56,7 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
       <AdminPageHero
         eyebrow="editar departamento"
         title="Editar canal de atendimento"
-        description="Atualize nome, descrição, horário, ação de contato e status de exibição do departamento."
+        description="Atualize nome, descriÃ§Ã£o, horÃ¡rio, aÃ§Ã£o de contato e status de exibiÃ§Ã£o do departamento."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
@@ -71,10 +73,10 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
 
       <AdminSurface>
         <AdminSectionTitle
-          eyebrow="edição individual"
+          eyebrow="ediÃ§Ã£o individual"
           title={department.name || 'Departamento'}
-          description="As alterações feitas aqui serão refletidas no diretório público do hotel."
-          action={<AdminInfoBadge>Contato do diretório</AdminInfoBadge>}
+          description="As alteraÃ§Ãµes feitas aqui serÃ£o refletidas no diretÃ³rio pÃºblico do hotel."
+          action={<AdminInfoBadge>Contato do diretÃ³rio</AdminInfoBadge>}
         />
 
         <form action={action}>
@@ -87,20 +89,20 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
                   defaultValue={department.name || ''}
                   required
                   className="pl-11"
-                  placeholder="Ex.: Recepção"
+                  placeholder="Ex.: RecepÃ§Ã£o"
                 />
               </div>
             </AdminField>
 
-            <AdminField label="Descrição" className="md:col-span-2">
+            <AdminField label="DescriÃ§Ã£o" className="md:col-span-2">
               <AdminTextarea
                 name="description"
                 defaultValue={department.description || ''}
-                placeholder="Descreva com clareza como esse setor atende o hóspede."
+                placeholder="Descreva com clareza como esse setor atende o hÃ³spede."
               />
             </AdminField>
 
-            <AdminField label="Horário">
+            <AdminField label="HorÃ¡rio">
               <div className="relative">
                 <Clock3 className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <AdminTextInput
@@ -112,14 +114,14 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
               </div>
             </AdminField>
 
-            <AdminField label="Texto do botão">
+            <AdminField label="Texto do botÃ£o">
               <div className="relative">
                 <MessageCircle className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <AdminTextInput
                   name="action"
                   defaultValue={department.action || ''}
                   className="pl-11"
-                  placeholder="Ex.: Falar com a Recepção"
+                  placeholder="Ex.: Falar com a RecepÃ§Ã£o"
                 />
               </div>
             </AdminField>
@@ -144,17 +146,18 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
                   name="enabled"
                   defaultChecked={department.enabled ?? false}
                 />
-                Ativo no diretório
+                Ativo no diretÃ³rio
               </label>
             </div>
           </AdminFormGrid>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <AdminPrimaryButton type="submit">Salvar alterações</AdminPrimaryButton>
-            <AdminInfoBadge>Atualização com feedback visual</AdminInfoBadge>
+            <AdminPrimaryButton type="submit">Salvar alteraÃ§Ãµes</AdminPrimaryButton>
+            <AdminInfoBadge>AtualizaÃ§Ã£o com feedback visual</AdminInfoBadge>
           </div>
         </form>
       </AdminSurface>
     </main>
   );
 }
+

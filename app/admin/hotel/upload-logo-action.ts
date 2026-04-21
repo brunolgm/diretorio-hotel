@@ -1,11 +1,13 @@
-'use server';
+﻿'use server';
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
 
 export async function uploadHotelLogoAction(formData: FormData) {
+  await requireAdminAccess('editor');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
 
@@ -42,7 +44,7 @@ export async function uploadHotelLogoAction(formData: FormData) {
     });
 
   if (uploadError) {
-    redirect(`/admin/hotel?error=${encodeURIComponent(`Não foi possível enviar a logo: ${uploadError.message}`)}`);
+    redirect(`/admin/hotel?error=${encodeURIComponent(`NÃ£o foi possÃ­vel enviar a logo: ${uploadError.message}`)}`);
   }
 
   const { data } = supabase.storage.from('hotel-assets').getPublicUrl(path);
@@ -53,7 +55,7 @@ export async function uploadHotelLogoAction(formData: FormData) {
     .eq('id', hotel.id);
 
   if (updateError) {
-    redirect(`/admin/hotel?error=${encodeURIComponent(`Logo enviada, mas não foi possível atualizar o hotel: ${updateError.message}`)}`);
+    redirect(`/admin/hotel?error=${encodeURIComponent(`Logo enviada, mas nÃ£o foi possÃ­vel atualizar o hotel: ${updateError.message}`)}`);
   }
 
   revalidatePath('/admin/hotel');
@@ -61,3 +63,4 @@ export async function uploadHotelLogoAction(formData: FormData) {
 
   redirect('/admin/hotel?success=Logo enviada com sucesso');
 }
+

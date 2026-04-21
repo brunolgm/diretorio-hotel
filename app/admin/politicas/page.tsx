@@ -40,6 +40,7 @@ import {
   AdminTextarea,
   AdminTranslationStatusPill,
 } from '@/components/admin/ui';
+import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
 import {
   getAvailableTranslationLanguages,
@@ -69,8 +70,10 @@ type PolicyTranslation = Database['public']['Tables']['hotel_policy_translations
 export default async function AdminPoliciesPage({
   searchParams,
 }: AdminPoliciesPageProps) {
+  const { profile } = await requireAdminAccess('visualizador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
+  const canManagePolicies = hasMinimumRole(profile.normalizedRole, 'operador');
   const params = searchParams ? await searchParams : {};
   const success = params?.success;
   const errorMessage = params?.error;
@@ -189,6 +192,7 @@ export default async function AdminPoliciesPage({
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
+        {canManagePolicies ? (
         <AdminSurface>
           <AdminSectionTitle
             eyebrow="Cadastro rápido"
@@ -250,6 +254,22 @@ export default async function AdminPoliciesPage({
             </div>
           </form>
         </AdminSurface>
+        ) : (
+          <AdminSurface>
+            <AdminSectionTitle
+              eyebrow="Acesso em leitura"
+              title="Visualização de políticas"
+              description="Seu papel permite revisar as políticas do hotel sem criar, editar ou publicar mudanças."
+              action={<AdminInfoBadge>Modo leitura</AdminInfoBadge>}
+            />
+
+            <AdminGuideCard
+              title="Como usar esta área"
+              description="Acompanhe status, idiomas e clareza das regras exibidas ao hóspede sem alterar o conteúdo."
+              className="mt-8"
+            />
+          </AdminSurface>
+        )}
 
         <AdminSurface>
           <AdminSectionTitle
@@ -324,37 +344,39 @@ export default async function AdminPoliciesPage({
                       </>
                     }
                     actions={
-                      <AdminActionGroup>
-                        <AdminLinkButton href={`/admin/politicas/${item.id}`}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Editar
-                        </AdminLinkButton>
+                      canManagePolicies ? (
+                        <AdminActionGroup>
+                          <AdminLinkButton href={`/admin/politicas/${item.id}`}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Editar
+                          </AdminLinkButton>
 
-                        <form action={retranslatePolicyAction}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <AdminSecondaryButton type="submit">
-                            <RefreshCw className="mr-2 h-4 w-4" />
-                            Retraduzir
-                          </AdminSecondaryButton>
-                        </form>
+                          <form action={retranslatePolicyAction}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <AdminSecondaryButton type="submit">
+                              <RefreshCw className="mr-2 h-4 w-4" />
+                              Retraduzir
+                            </AdminSecondaryButton>
+                          </form>
 
-                        <form action={togglePolicyAction}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <input type="hidden" name="enabled" value={String(!item.enabled)} />
-                          <AdminSecondaryButton type="submit">
-                            <Power className="mr-2 h-4 w-4" />
-                            {item.enabled ? 'Desativar' : 'Ativar'}
-                          </AdminSecondaryButton>
-                        </form>
+                          <form action={togglePolicyAction}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <input type="hidden" name="enabled" value={String(!item.enabled)} />
+                            <AdminSecondaryButton type="submit">
+                              <Power className="mr-2 h-4 w-4" />
+                              {item.enabled ? 'Desativar' : 'Ativar'}
+                            </AdminSecondaryButton>
+                          </form>
 
-                        <form action={deletePolicyAction}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <AdminDangerButton type="submit">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Excluir
-                          </AdminDangerButton>
-                        </form>
-                      </AdminActionGroup>
+                          <form action={deletePolicyAction}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <AdminDangerButton type="submit">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Excluir
+                            </AdminDangerButton>
+                          </form>
+                        </AdminActionGroup>
+                      ) : null
                     }
                   />
                 );

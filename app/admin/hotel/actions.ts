@@ -1,6 +1,7 @@
-'use server';
+﻿'use server';
 
 import { redirect } from 'next/navigation';
+import { requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
@@ -11,6 +12,7 @@ import {
 } from '@/lib/hotel-theme';
 
 export async function updateHotelAction(formData: FormData) {
+  await requireAdminAccess('editor');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const name = readTrimmedString(formData, 'name');
@@ -64,13 +66,14 @@ export async function updateHotelAction(formData: FormData) {
     .eq('id', hotel.id);
 
   if (error) {
-    redirect('/admin/hotel?error=Não foi possível salvar os dados do hotel');
+    redirect('/admin/hotel?error=NÃ£o foi possÃ­vel salvar os dados do hotel');
   }
 
-  redirect('/admin/hotel?success=Alterações salvas com sucesso');
+  redirect('/admin/hotel?success=AlteraÃ§Ãµes salvas com sucesso');
 }
 
 export async function removeHotelLogoAction() {
+  await requireAdminAccess('editor');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
 
@@ -80,8 +83,9 @@ export async function removeHotelLogoAction() {
     .eq('id', hotel.id);
 
   if (error) {
-    redirect('/admin/hotel?error=Não foi possível remover a logo');
+    redirect('/admin/hotel?error=NÃ£o foi possÃ­vel remover a logo');
   }
 
   redirect('/admin/hotel?success=Logo removida com sucesso');
 }
+

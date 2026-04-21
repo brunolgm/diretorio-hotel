@@ -1,7 +1,8 @@
-'use server';
+﻿'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { requireAdminAccess } from '@/lib/auth';
 import {
   readCheckboxBoolean,
   readNullableString,
@@ -18,6 +19,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 
 export async function updateDepartmentAction(id: string, formData: FormData) {
+  await requireAdminAccess('operador');
   if (!id.trim()) {
     redirect('/admin/departamentos?error=Departamento%20inv%C3%A1lido');
   }
@@ -54,7 +56,7 @@ export async function updateDepartmentAction(id: string, formData: FormData) {
   if (error) {
     redirect(
       buildFeedbackRedirect(`/admin/departamentos/${id}`, {
-        error: `Não foi possível atualizar o departamento: ${error.message}`,
+        error: `NÃ£o foi possÃ­vel atualizar o departamento: ${error.message}`,
       })
     );
   }
@@ -80,3 +82,4 @@ export async function updateDepartmentAction(id: string, formData: FormData) {
     })
   );
 }
+

@@ -1,8 +1,8 @@
 import { ReactNode } from 'react';
-import { LogOut, Menu } from 'lucide-react';
-import { NavLinks } from '@/components/admin/nav-links';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { requireAdmin } from '@/lib/auth';
+import { LogOut } from 'lucide-react';
+import { MobileMenu } from '@/components/admin/mobile-menu';
+import { NavLinks, type NavItem } from '@/components/admin/nav-links';
+import { hasMinimumRole, requireAdminAccess, type AppRole } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 
 interface AdminLayoutProps {
@@ -16,65 +16,33 @@ async function signOut() {
   await supabase.auth.signOut();
 }
 
-const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: 'dashboard' as const },
-  { href: '/admin/hotel', label: 'Informações do hotel', icon: 'hotel' as const },
-  { href: '/admin/servicos', label: 'Serviços', icon: 'services' as const },
-  { href: '/admin/departamentos', label: 'Departamentos', icon: 'departments' as const },
-  { href: '/admin/politicas', label: 'Políticas', icon: 'policies' as const },
-];
+function getNavItemsForRole(role: AppRole) {
+  const items: NavItem[] = [{ href: '/admin', label: 'Dashboard', icon: 'dashboard' }];
 
-function MobileMenu() {
-  return (
-    <Sheet>
-      <SheetTrigger
-        render={
-          <button
-            type="button"
-            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 lg:hidden"
-          />
-        }
-      >
-        <Menu className="h-5 w-5" />
-      </SheetTrigger>
+  if (hasMinimumRole(role, 'editor')) {
+    items.push({
+      href: '/admin/hotel',
+      label: 'Informações do hotel',
+      icon: 'hotel' as const,
+    });
+  }
 
-      <SheetContent side="left" className="w-[88%] max-w-[320px] border-0 bg-white p-0">
-        <div className="flex h-full flex-col">
-          <div className="border-b border-slate-200 px-6 py-5">
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-              GuestDesk
-            </p>
-            <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">
-              Painel administrativo
-            </h2>
-          </div>
-
-          <div className="flex-1 px-4 py-4">
-            <NavLinks items={navItems} />
-          </div>
-
-          <div className="border-t border-slate-200 p-4">
-            <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
-              GuestDesk by BLID Tecnologia
-            </p>
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
-              >
-                <LogOut className="h-4 w-4" />
-                Sair
-              </button>
-            </form>
-          </div>
-        </div>
-      </SheetContent>
-    </Sheet>
+  items.push(
+    { href: '/admin/servicos', label: 'Serviços', icon: 'services' as const },
+    { href: '/admin/departamentos', label: 'Departamentos', icon: 'departments' as const },
+    { href: '/admin/politicas', label: 'Políticas', icon: 'policies' as const }
   );
+
+  if (hasMinimumRole(role, 'administrador')) {
+    items.push({ href: '/admin/usuarios', label: 'Usuários', icon: 'users' as const });
+  }
+
+  return items;
 }
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
-  await requireAdmin();
+  const { profile } = await requireAdminAccess('visualizador');
+  const navItems = getNavItemsForRole(profile.normalizedRole);
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -89,7 +57,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
             </h1>
           </div>
 
-          <MobileMenu />
+          <MobileMenu navItems={navItems} signOutAction={signOut} />
         </div>
 
         <div className="flex gap-6">

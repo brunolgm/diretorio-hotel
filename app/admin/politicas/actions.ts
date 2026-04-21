@@ -1,7 +1,8 @@
-'use server';
+﻿'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { requireAdminAccess } from '@/lib/auth';
 import { readCheckboxBoolean, readNullableString, readTrimmedString } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
 import {
@@ -12,6 +13,7 @@ import {
 import { createClient } from '@/lib/supabase/server';
 
 export async function createPolicyAction(formData: FormData) {
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const title = readTrimmedString(formData, 'title');
@@ -36,7 +38,7 @@ export async function createPolicyAction(formData: FormData) {
   if (error) {
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
-        error: `Não foi possível criar a política: ${error.message}`,
+        error: `NÃ£o foi possÃ­vel criar a polÃ­tica: ${error.message}`,
       })
     );
   }
@@ -55,13 +57,14 @@ export async function createPolicyAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/politicas', {
-      success: 'Política criada com sucesso',
+      success: 'PolÃ­tica criada com sucesso',
       warning: formatTranslationWarning(translationResult),
     })
   );
 }
 
 export async function deletePolicyAction(formData: FormData) {
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -69,7 +72,7 @@ export async function deletePolicyAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
-        error: 'Política inválida para exclusão.',
+        error: 'PolÃ­tica invÃ¡lida para exclusÃ£o.',
       })
     );
   }
@@ -83,7 +86,7 @@ export async function deletePolicyAction(formData: FormData) {
   if (error) {
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
-        error: `Não foi possível excluir a política: ${error.message}`,
+        error: `NÃ£o foi possÃ­vel excluir a polÃ­tica: ${error.message}`,
       })
     );
   }
@@ -93,12 +96,13 @@ export async function deletePolicyAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/politicas', {
-      success: 'Política excluída com sucesso',
+      success: 'PolÃ­tica excluÃ­da com sucesso',
     })
   );
 }
 
 export async function togglePolicyAction(formData: FormData) {
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -107,7 +111,7 @@ export async function togglePolicyAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
-        error: 'Política inválida para atualização de status.',
+        error: 'PolÃ­tica invÃ¡lida para atualizaÃ§Ã£o de status.',
       })
     );
   }
@@ -121,7 +125,7 @@ export async function togglePolicyAction(formData: FormData) {
   if (error) {
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
-        error: `Não foi possível atualizar o status da política: ${error.message}`,
+        error: `NÃ£o foi possÃ­vel atualizar o status da polÃ­tica: ${error.message}`,
       })
     );
   }
@@ -131,12 +135,13 @@ export async function togglePolicyAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/politicas', {
-      success: enabled ? 'Política ativada com sucesso' : 'Política desativada com sucesso',
+      success: enabled ? 'PolÃ­tica ativada com sucesso' : 'PolÃ­tica desativada com sucesso',
     })
   );
 }
 
 export async function retranslatePolicyAction(formData: FormData) {
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -144,7 +149,7 @@ export async function retranslatePolicyAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
-        error: 'Política inválida para retradução.',
+        error: 'PolÃ­tica invÃ¡lida para retraduÃ§Ã£o.',
       })
     );
   }
@@ -159,7 +164,7 @@ export async function retranslatePolicyAction(formData: FormData) {
   if (error || !policy) {
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
-        error: 'Não foi possível carregar a política para retradução.',
+        error: 'NÃ£o foi possÃ­vel carregar a polÃ­tica para retraduÃ§Ã£o.',
       })
     );
   }
@@ -178,8 +183,9 @@ export async function retranslatePolicyAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/politicas', {
-      success: 'Retradução da política concluída',
+      success: 'RetraduÃ§Ã£o da polÃ­tica concluÃ­da',
       warning: formatTranslationWarning(translationResult),
     })
   );
 }
+

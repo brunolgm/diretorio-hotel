@@ -8,17 +8,19 @@ import {
   Hotel,
   LayoutDashboard,
   ShieldCheck,
+  Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface NavItem {
+export interface NavItem {
   href: string;
   label: string;
-  icon: 'dashboard' | 'hotel' | 'services' | 'departments' | 'policies';
+  icon: 'dashboard' | 'hotel' | 'services' | 'departments' | 'policies' | 'users';
 }
 
 interface NavLinksProps {
   items: NavItem[];
+  onNavigate?: () => void;
 }
 
 function isActiveRoute(pathname: string, href: string) {
@@ -45,13 +47,15 @@ function NavIcon({
       return <Building2 className={className} />;
     case 'policies':
       return <ShieldCheck className={className} />;
+    case 'users':
+      return <Users className={className} />;
     case 'dashboard':
     default:
       return <LayoutDashboard className={className} />;
   }
 }
 
-export function NavLinks({ items }: NavLinksProps) {
+export function NavLinks({ items, onNavigate }: NavLinksProps) {
   const pathname = usePathname();
 
   return (
@@ -63,6 +67,7 @@ export function NavLinks({ items }: NavLinksProps) {
           <Link
             key={item.href}
             href={item.href}
+            onClick={onNavigate}
             className={cn(
               'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition',
               isActive

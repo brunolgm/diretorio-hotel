@@ -1,7 +1,8 @@
-'use server';
+﻿'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { requireAdminAccess } from '@/lib/auth';
 import {
   readCheckboxBoolean,
   readNullableString,
@@ -18,6 +19,7 @@ import {
 import { createClient } from '@/lib/supabase/server';
 
 export async function createSectionAction(formData: FormData) {
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const title = readTrimmedString(formData, 'title');
@@ -54,7 +56,7 @@ export async function createSectionAction(formData: FormData) {
   if (error) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: `Não foi possível criar o serviço: ${error.message}`,
+        error: `NÃ£o foi possÃ­vel criar o serviÃ§o: ${error.message}`,
       })
     );
   }
@@ -75,13 +77,14 @@ export async function createSectionAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/servicos', {
-      success: 'Serviço criado com sucesso',
+      success: 'ServiÃ§o criado com sucesso',
       warning: formatTranslationWarning(translationResult),
     })
   );
 }
 
 export async function deleteSectionAction(formData: FormData) {
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -89,7 +92,7 @@ export async function deleteSectionAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: 'Serviço inválido para exclusão.',
+        error: 'ServiÃ§o invÃ¡lido para exclusÃ£o.',
       })
     );
   }
@@ -103,7 +106,7 @@ export async function deleteSectionAction(formData: FormData) {
   if (error) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: `Não foi possível excluir o serviço: ${error.message}`,
+        error: `NÃ£o foi possÃ­vel excluir o serviÃ§o: ${error.message}`,
       })
     );
   }
@@ -113,12 +116,13 @@ export async function deleteSectionAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/servicos', {
-      success: 'Serviço excluído com sucesso',
+      success: 'ServiÃ§o excluÃ­do com sucesso',
     })
   );
 }
 
 export async function toggleSectionAction(formData: FormData) {
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -127,7 +131,7 @@ export async function toggleSectionAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: 'Serviço inválido para atualização de status.',
+        error: 'ServiÃ§o invÃ¡lido para atualizaÃ§Ã£o de status.',
       })
     );
   }
@@ -141,7 +145,7 @@ export async function toggleSectionAction(formData: FormData) {
   if (error) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: `Não foi possível atualizar o status do serviço: ${error.message}`,
+        error: `NÃ£o foi possÃ­vel atualizar o status do serviÃ§o: ${error.message}`,
       })
     );
   }
@@ -151,12 +155,13 @@ export async function toggleSectionAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/servicos', {
-      success: enabled ? 'Serviço ativado com sucesso' : 'Serviço desativado com sucesso',
+      success: enabled ? 'ServiÃ§o ativado com sucesso' : 'ServiÃ§o desativado com sucesso',
     })
   );
 }
 
 export async function retranslateSectionAction(formData: FormData) {
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -164,7 +169,7 @@ export async function retranslateSectionAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: 'Serviço inválido para retradução.',
+        error: 'ServiÃ§o invÃ¡lido para retraduÃ§Ã£o.',
       })
     );
   }
@@ -179,7 +184,7 @@ export async function retranslateSectionAction(formData: FormData) {
   if (error || !section) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: 'Não foi possível carregar o serviço para retradução.',
+        error: 'NÃ£o foi possÃ­vel carregar o serviÃ§o para retraduÃ§Ã£o.',
       })
     );
   }
@@ -200,8 +205,9 @@ export async function retranslateSectionAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/servicos', {
-      success: 'Retradução do serviço concluída',
+      success: 'RetraduÃ§Ã£o do serviÃ§o concluÃ­da',
       warning: formatTranslationWarning(translationResult),
     })
   );
 }
+
