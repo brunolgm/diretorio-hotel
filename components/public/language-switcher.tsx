@@ -15,12 +15,15 @@ const LANGUAGE_OPTIONS: Array<{
 export function LanguageSwitcher({
   slug,
   currentLanguage,
+  basePath,
 }: {
   slug: string;
   currentLanguage: SupportedPublicLanguage;
+  basePath?: string;
 }) {
   const activeLanguage =
     LANGUAGE_OPTIONS.find((item) => item.code === currentLanguage) || LANGUAGE_OPTIONS[0];
+  const resolvedBasePath = basePath || `/hotel/${slug}`;
 
   return (
     <details className="group relative">
@@ -46,7 +49,7 @@ export function LanguageSwitcher({
             return (
               <a
                 key={item.code}
-                href={`/hotel/${slug}?lang=${item.code}`}
+                href={`${resolvedBasePath}?lang=${item.code}`}
                 aria-current={isActive ? 'page' : undefined}
                 data-analytics-event="language_selected"
                 data-analytics-language={item.code}

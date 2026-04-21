@@ -122,6 +122,10 @@ export default async function EditServicePage({ params, searchParams }: PageProp
                   placeholder="Ex.: Ver detalhes"
                 />
               </div>
+              <p className="text-xs leading-5 text-slate-500">
+                Se houver link externo, o botão abre esse destino. Sem link, ele só aparece se o
+                conteúdo for suficiente para uma página interna de detalhes.
+              </p>
             </AdminField>
 
             <AdminField label="Link">
@@ -130,6 +134,10 @@ export default async function EditServicePage({ params, searchParams }: PageProp
                 defaultValue={section.url || ''}
                 placeholder="https://..."
               />
+              <p className="text-xs leading-5 text-slate-500">
+                Se este campo ficar vazio, o GuestDesk decide entre página interna de detalhes ou
+                ocultar o botão para evitar CTA sem destino.
+              </p>
             </AdminField>
 
             <AdminField label="Ordem">

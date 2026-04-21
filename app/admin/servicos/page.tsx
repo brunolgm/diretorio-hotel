@@ -244,14 +244,16 @@ export default async function AdminServicesPage({
               <AdminField label="Texto do botão">
                 <AdminTextInput name="cta" placeholder="Ex.: Ver mais" />
                 <AdminHelpText>
-                  O botão deve indicar a próxima ação, como ver detalhes ou abrir um link.
+                  Se houver link externo, o botão abre esse destino. Sem link, ele só aparece se o
+                  conteúdo for suficiente para uma página interna de detalhes.
                 </AdminHelpText>
               </AdminField>
 
               <AdminField label="Link">
                 <AdminTextInput name="url" placeholder="https://..." />
                 <AdminHelpText>
-                  Preencha somente quando o card realmente precisar abrir uma página externa.
+                  Preencha quando o serviço precisar abrir uma página externa. Se ficar vazio, o
+                  GuestDesk decide entre página interna de detalhes ou ocultar o botão.
                 </AdminHelpText>
               </AdminField>
 

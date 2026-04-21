@@ -19,6 +19,7 @@ import { PublicAnalytics } from '@/components/public/public-analytics';
 import { ServiceIcon } from '@/components/service-icon';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
+import { getServiceDestination } from '@/lib/service-destinations';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 
@@ -81,7 +82,17 @@ function QuickInfoCard({
   );
 }
 
-function SectionCard({ item }: { item: HotelSection }) {
+function SectionCard({
+  item,
+  hotelSlug,
+  language,
+}: {
+  item: HotelSection;
+  hotelSlug: string;
+  language: SupportedPublicLanguage;
+}) {
+  const destination = getServiceDestination(item, hotelSlug, language);
+
   return (
     <div className="rounded-[30px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80 transition hover:-translate-y-0.5 hover:shadow-[0_26px_55px_-36px_rgba(15,23,42,0.32)]">
       <div className="flex items-start gap-4">
@@ -102,14 +113,15 @@ function SectionCard({ item }: { item: HotelSection }) {
             ) : null}
           </div>
 
-          <p className="mt-3 break-words text-sm leading-7 text-slate-600">
+          <p className="mt-3 line-clamp-4 break-words [overflow-wrap:anywhere] text-sm leading-7 text-slate-600">
             {item.content || 'Informação não disponível.'}
           </p>
 
-          <div className="mt-4">
-            {item.url ? (
+          {destination ? (
+            <div className="mt-4">
+              {destination.isExternal ? (
               <a
-                href={item.url}
+                href={destination.href}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 text-center text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
@@ -117,12 +129,17 @@ function SectionCard({ item }: { item: HotelSection }) {
                 {item.cta || 'Acessar'}
                 <ArrowUpRight className="ml-2 h-4 w-4" />
               </a>
-            ) : (
-              <div className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-100 px-4 text-sm font-medium text-slate-700">
-                {item.cta || 'Consultar'}
-              </div>
-            )}
-          </div>
+              ) : (
+                <a
+                  href={destination.href}
+                  className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 text-center text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
+                >
+                  {item.cta || 'Ver detalhes'}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </a>
+              )}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -514,7 +531,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           />
         </section>
 
-        <section className="mt-8">
+        <section className="mt-8" id="servicos">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
@@ -533,7 +550,12 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           {displaySections.length ? (
             <div className="grid gap-4 lg:grid-cols-2">
               {displaySections.map((item) => (
-                <SectionCard key={item.id} item={item} />
+                <SectionCard
+                  key={item.id}
+                  item={item}
+                  hotelSlug={typedHotel.slug}
+                  language={lang}
+                />
               ))}
             </div>
           ) : (
