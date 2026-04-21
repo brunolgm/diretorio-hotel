@@ -1,14 +1,12 @@
 import { notFound } from 'next/navigation';
 import {
   ArrowUpRight,
-  Building2,
   CheckCircle2,
   ChevronRight,
   Clock3,
   Coffee,
   Globe,
   Hotel,
-  Info,
   MapPin,
   MessageCircle,
   Phone,
@@ -18,6 +16,7 @@ import {
 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { PublicAnalytics } from '@/components/public/public-analytics';
+import { ServiceIcon } from '@/components/service-icon';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
 import { createClient } from '@/lib/supabase/server';
@@ -49,25 +48,7 @@ function SectionIcon({
   iconName?: string | null;
   className?: string;
 }) {
-  switch (iconName) {
-    case 'Wifi':
-      return <Wifi className={className} />;
-    case 'Coffee':
-      return <Coffee className={className} />;
-    case 'Building2':
-      return <Building2 className={className} />;
-    case 'ShieldCheck':
-      return <ShieldCheck className={className} />;
-    case 'Phone':
-      return <Phone className={className} />;
-    case 'Hotel':
-      return <Hotel className={className} />;
-    case 'Info':
-      return <Info className={className} />;
-    case 'Globe':
-    default:
-      return <Globe className={className} />;
-  }
+  return <ServiceIcon iconName={iconName} className={className} />;
 }
 
 function QuickInfoCard({
