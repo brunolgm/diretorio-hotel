@@ -8,9 +8,9 @@ import {
   Plus,
   Power,
   RefreshCw,
-  Tag,
   Trash2,
 } from 'lucide-react';
+import { ServiceGuidedFields } from '@/components/admin/service-guided-fields';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminActionGroup,
@@ -43,6 +43,7 @@ import {
 } from '@/components/admin/ui';
 import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
+import { buildServiceCategoryOptions } from '@/lib/service-options';
 import {
   getAvailableTranslationLanguages,
   getTranslationAvailabilityStatus,
@@ -119,6 +120,9 @@ export default async function AdminServicesPage({
   const totalServices = sections?.length || 0;
   const activeServices = sections?.filter((item) => item.enabled).length || 0;
   const inactiveServices = totalServices - activeServices;
+  const serviceCategoryOptions = buildServiceCategoryOptions(
+    (sections || []).map((item) => item.category)
+  );
 
   const filteredSections =
     sections?.filter((item) => {
@@ -225,26 +229,7 @@ export default async function AdminServicesPage({
                 </AdminHelpText>
               </AdminField>
 
-              <AdminField label="Ícone">
-                <AdminTextInput name="icon" defaultValue="Globe" />
-                <AdminHelpText>
-                  Use um nome simples de ícone para reforçar visualmente o tipo de serviço.
-                </AdminHelpText>
-              </AdminField>
-
-              <AdminField label="Categoria">
-                <div className="relative">
-                  <Tag className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <AdminTextInput
-                    name="category"
-                    className="pl-11"
-                    placeholder="Ex.: Estrutura"
-                  />
-                </div>
-                <AdminHelpText>
-                  A categoria ajuda a organizar visualmente os cards no diretório.
-                </AdminHelpText>
-              </AdminField>
+              <ServiceGuidedFields categoryOptions={serviceCategoryOptions} />
 
               <AdminField label="Descrição" className="md:col-span-2">
                 <AdminTextarea

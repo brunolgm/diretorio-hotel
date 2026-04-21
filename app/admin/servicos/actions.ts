@@ -11,6 +11,7 @@ import {
   readTrimmedString,
 } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
+import { normalizeServiceCategory, resolveServiceIconName } from '@/lib/service-options';
 import {
   buildFeedbackRedirect,
   formatTranslationWarning,
@@ -23,7 +24,7 @@ export async function createSectionAction(formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const title = readTrimmedString(formData, 'title');
-  const icon = readNullableString(formData, 'icon');
+  const icon = resolveServiceIconName(readNullableString(formData, 'icon'));
   const urlInput = readNullableString(formData, 'url');
   const url = readOptionalUrl(formData, 'url');
 
@@ -42,7 +43,7 @@ export async function createSectionAction(formData: FormData) {
     content: readNullableString(formData, 'content'),
     cta: readNullableString(formData, 'cta'),
     url,
-    category: readNullableString(formData, 'category'),
+    category: normalizeServiceCategory(readNullableString(formData, 'category')),
     enabled: readCheckboxBoolean(formData, 'enabled'),
     sort_order: Math.max(0, readNumber(formData, 'sort_order', 0)),
   };

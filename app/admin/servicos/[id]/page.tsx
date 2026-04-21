@@ -1,4 +1,5 @@
-﻿import { ConciergeBell, FileText, Hash, Pencil } from 'lucide-react';
+import { FileText, Hash } from 'lucide-react';
+import { ServiceGuidedFields } from '@/components/admin/service-guided-fields';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminField,
@@ -13,6 +14,7 @@ import {
 } from '@/components/admin/ui';
 import { requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
+import { buildServiceCategoryOptions } from '@/lib/service-options';
 import { createClient } from '@/lib/supabase/server';
 import { updateSectionAction } from './actions';
 
@@ -36,27 +38,33 @@ export default async function EditServicePage({ params, searchParams }: PageProp
   const supabase = await createClient();
   const hotel = await getAdminHotel();
 
-  const { data: section, error } = await supabase
-    .from('hotel_sections')
-    .select('*')
-    .eq('id', id)
-    .eq('hotel_id', hotel.id)
-    .single();
+  const [{ data: section, error }, { data: hotelSectionCategories, error: categoryError }] =
+    await Promise.all([
+      supabase.from('hotel_sections').select('*').eq('id', id).eq('hotel_id', hotel.id).single(),
+      supabase.from('hotel_sections').select('category').eq('hotel_id', hotel.id),
+    ]);
 
   if (error || !section) {
-    throw new Error('ServiÃ§o nÃ£o encontrado.');
+    throw new Error('Serviço não encontrado.');
+  }
+
+  if (categoryError) {
+    throw new Error('Não foi possível carregar as categorias de serviço do hotel.');
   }
 
   const action = updateSectionAction.bind(null, id);
+  const serviceCategoryOptions = buildServiceCategoryOptions(
+    (hotelSectionCategories || []).map((item) => item.category)
+  );
 
   return (
     <main className="space-y-6">
       <FeedbackToast success={success} error={errorMessage} warning={warning} />
 
       <AdminPageHero
-        eyebrow="editar serviÃ§o"
-        title="Editar item do diretÃ³rio"
-        description="Atualize tÃ­tulo, categoria, descriÃ§Ã£o, link, ordem e status de exibiÃ§Ã£o do serviÃ§o."
+        eyebrow="editar serviço"
+        title="Editar item do diretório"
+        description="Atualize título, categoria, descrição, link, ordem e status de exibição do serviço."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
@@ -73,56 +81,38 @@ export default async function EditServicePage({ params, searchParams }: PageProp
 
       <AdminSurface>
         <AdminSectionTitle
-          eyebrow="ediÃ§Ã£o individual"
-          title={section.title || 'ServiÃ§o'}
-          description="As alteraÃ§Ãµes feitas aqui serÃ£o refletidas no diretÃ³rio pÃºblico do hotel."
-          action={<AdminInfoBadge>ServiÃ§o do diretÃ³rio</AdminInfoBadge>}
+          eyebrow="edição individual"
+          title={section.title || 'Serviço'}
+          description="As alterações feitas aqui serão refletidas no diretório público do hotel."
+          action={<AdminInfoBadge>Serviço do diretório</AdminInfoBadge>}
         />
 
         <form action={action}>
           <AdminFormGrid>
-            <AdminField label="TÃ­tulo" className="md:col-span-2">
+            <AdminField label="Título" className="md:col-span-2">
               <AdminTextInput
                 name="title"
                 defaultValue={section.title || ''}
                 required
-                placeholder="Ex.: CafÃ© da manhÃ£"
+                placeholder="Ex.: Café da manhã"
               />
             </AdminField>
 
-            <AdminField label="Ãcone">
-              <div className="relative">
-                <ConciergeBell className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <AdminTextInput
-                  name="icon"
-                  defaultValue={section.icon || 'Globe'}
-                  className="pl-11"
-                  placeholder="Ex.: Coffee"
-                />
-              </div>
-            </AdminField>
+            <ServiceGuidedFields
+              categoryOptions={serviceCategoryOptions}
+              initialIcon={section.icon}
+              initialCategory={section.category}
+            />
 
-            <AdminField label="Categoria">
-              <div className="relative">
-                <Pencil className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <AdminTextInput
-                  name="category"
-                  defaultValue={section.category || ''}
-                  className="pl-11"
-                  placeholder="Ex.: Estrutura"
-                />
-              </div>
-            </AdminField>
-
-            <AdminField label="DescriÃ§Ã£o" className="md:col-span-2">
+            <AdminField label="Descrição" className="md:col-span-2">
               <AdminTextarea
                 name="content"
                 defaultValue={section.content || ''}
-                placeholder="Descreva com clareza o que serÃ¡ apresentado ao hÃ³spede."
+                placeholder="Descreva com clareza o que será apresentado ao hóspede."
               />
             </AdminField>
 
-            <AdminField label="Texto do botÃ£o">
+            <AdminField label="Texto do botão">
               <div className="relative">
                 <FileText className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <AdminTextInput
@@ -158,18 +148,17 @@ export default async function EditServicePage({ params, searchParams }: PageProp
               <label className="block text-sm font-medium text-slate-700">Status</label>
               <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm font-medium text-slate-700">
                 <input type="checkbox" name="enabled" defaultChecked={section.enabled ?? false} />
-                Ativo no diretÃ³rio
+                Ativo no diretório
               </label>
             </div>
           </AdminFormGrid>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <AdminPrimaryButton type="submit">Salvar alteraÃ§Ãµes</AdminPrimaryButton>
-            <AdminInfoBadge>AtualizaÃ§Ã£o com feedback visual</AdminInfoBadge>
+            <AdminPrimaryButton type="submit">Salvar alterações</AdminPrimaryButton>
+            <AdminInfoBadge>Atualização com feedback visual</AdminInfoBadge>
           </div>
         </form>
       </AdminSurface>
     </main>
   );
 }
-
