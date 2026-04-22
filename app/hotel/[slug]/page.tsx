@@ -17,6 +17,7 @@ import {
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import { ServiceIcon } from '@/components/service-icon';
+import { getRequestDomainContext } from '@/lib/domain-context';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { getPublicCopy } from '@/lib/public-copy';
 import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
@@ -88,13 +89,15 @@ function SectionCard({
   hotelSlug,
   language,
   copy,
+  domainContext,
 }: {
   item: HotelSection;
   hotelSlug: string;
   language: SupportedPublicLanguage;
   copy: ReturnType<typeof getPublicCopy>;
+  domainContext: Awaited<ReturnType<typeof getRequestDomainContext>>;
 }) {
-  const destination = getServiceDestination(item, hotelSlug, language);
+  const destination = getServiceDestination(item, hotelSlug, language, domainContext);
 
   return (
     <div className="rounded-[30px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80 transition hover:-translate-y-0.5 hover:shadow-[0_26px_55px_-36px_rgba(15,23,42,0.32)]">
@@ -242,6 +245,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
   const requestedLang = resolvedSearchParams?.lang;
   const lang: SupportedPublicLanguage = normalizePublicLanguage(requestedLang);
   const copy = getPublicCopy(lang);
+  const domainContext = await getRequestDomainContext();
   const supabase = await createClient();
 
   const { data: hotel, error: hotelError } = await supabase
@@ -594,6 +598,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   hotelSlug={typedHotel.slug}
                   language={lang}
                   copy={copy}
+                  domainContext={domainContext}
                 />
               ))}
             </div>

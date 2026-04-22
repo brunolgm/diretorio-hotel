@@ -1,3 +1,5 @@
+import type { DomainContext } from '@/lib/domain-context';
+import { buildPublicHotelServiceHref } from '@/lib/public-routes';
 import type { Database } from '@/types/database';
 
 type HotelSection = Database['public']['Tables']['hotel_sections']['Row'];
@@ -7,10 +9,6 @@ export const MIN_SERVICE_DETAIL_CONTENT_LENGTH = 60;
 function normalizeText(value: string | null | undefined) {
   const normalized = value?.trim();
   return normalized ? normalized : null;
-}
-
-function buildLanguageQuery(language: string) {
-  return language === 'pt' ? '' : `?lang=${language}`;
 }
 
 export function hasEnoughInternalServiceDetailContent(content: string | null | undefined) {
@@ -27,7 +25,8 @@ export function canOpenInternalServiceDetail(
 export function getServiceDestination(
   section: Pick<HotelSection, 'id' | 'content' | 'url'>,
   hotelSlug: string,
-  language: string
+  language: 'pt' | 'en' | 'es',
+  domainContext?: DomainContext | null
 ) {
   const externalUrl = normalizeText(section.url);
 
@@ -42,7 +41,12 @@ export function getServiceDestination(
   if (canOpenInternalServiceDetail(section)) {
     return {
       kind: 'internal' as const,
-      href: `/hotel/${hotelSlug}/servicos/${section.id}${buildLanguageQuery(language)}`,
+      href: buildPublicHotelServiceHref({
+        slug: hotelSlug,
+        serviceId: section.id,
+        language,
+        domainContext,
+      }),
       isExternal: false,
     };
   }

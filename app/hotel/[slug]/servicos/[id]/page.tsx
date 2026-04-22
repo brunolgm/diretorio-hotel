@@ -3,9 +3,11 @@ import { ArrowLeft, CheckCircle2, Hotel, MapPin, Sparkles } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import { ServiceIcon } from '@/components/service-icon';
+import { getRequestDomainContext } from '@/lib/domain-context';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { getPublicCopy } from '@/lib/public-copy';
 import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
+import { buildPublicHotelHref } from '@/lib/public-routes';
 import {
   canOpenInternalServiceDetail,
   MIN_SERVICE_DETAIL_CONTENT_LENGTH,
@@ -28,8 +30,12 @@ type HotelSection = Database['public']['Tables']['hotel_sections']['Row'];
 type HotelSectionTranslation =
   Database['public']['Tables']['hotel_section_translations']['Row'];
 
-function buildHotelBackHref(slug: string, language: SupportedPublicLanguage) {
-  return `/hotel/${slug}${language === 'pt' ? '' : `?lang=${language}`}#servicos`;
+function buildHotelBackHref(
+  slug: string,
+  language: SupportedPublicLanguage,
+  domainContext: Awaited<ReturnType<typeof getRequestDomainContext>>
+) {
+  return `${buildPublicHotelHref({ slug, language, domainContext })}#servicos`;
 }
 
 export default async function HotelServiceDetailPage({ params, searchParams }: PageProps) {
@@ -37,6 +43,7 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const lang: SupportedPublicLanguage = normalizePublicLanguage(resolvedSearchParams?.lang);
   const copy = getPublicCopy(lang);
+  const domainContext = await getRequestDomainContext();
   const supabase = await createClient();
 
   const { data: hotel, error: hotelError } = await supabase
@@ -100,7 +107,7 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
       !translation.category);
 
   const theme = resolveHotelTheme(typedHotel.theme_preset, typedHotel.theme_primary_color);
-  const backHref = buildHotelBackHref(typedHotel.slug, lang);
+  const backHref = buildHotelBackHref(typedHotel.slug, lang, domainContext);
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_45%,#f8fafc_100%)]">
