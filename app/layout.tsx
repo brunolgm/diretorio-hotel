@@ -3,8 +3,22 @@ import { Toaster } from 'sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Diretório Hotel',
-  description: 'Painel administrativo e diretório digital do hotel',
+  metadataBase: new URL('https://guestdesk.digital'),
+  title: {
+    default: 'GuestDesk',
+    template: '%s | GuestDesk',
+  },
+  description:
+    'GuestDesk é a base digital para hotéis apresentarem serviços, contatos, políticas e informações importantes com mais clareza, presença de marca e operação simples.',
+  openGraph: {
+    title: 'GuestDesk',
+    description:
+      'Presença digital premium para hotéis, com painel administrativo simples e experiência pública elegante para hóspedes.',
+    url: 'https://guestdesk.digital',
+    siteName: 'GuestDesk',
+    locale: 'pt_BR',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
