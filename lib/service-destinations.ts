@@ -26,7 +26,10 @@ export function getServiceDestination(
   section: Pick<HotelSection, 'id' | 'content' | 'url'>,
   hotelSlug: string,
   language: 'pt' | 'en' | 'es',
-  domainContext?: DomainContext | null
+  domainContext?: DomainContext | null,
+  options?: {
+    preferSubdomainRoot?: boolean;
+  }
 ) {
   const externalUrl = normalizeText(section.url);
 
@@ -46,6 +49,7 @@ export function getServiceDestination(
         serviceId: section.id,
         language,
         domainContext,
+        preferSubdomainRoot: options?.preferSubdomainRoot,
       }),
       isExternal: false,
     };

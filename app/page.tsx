@@ -1,3 +1,9 @@
+import { notFound } from 'next/navigation';
+import { HotelPublicPageContent } from '@/components/public/hotel-public-page-content';
+import { getRequestDomainContext } from '@/lib/domain-context';
+import { getPublicHotelPageDataBySubdomain } from '@/lib/public-hotel-data';
+import { normalizePublicLanguage } from '@/lib/public-language';
+
 const HERO_METRICS = [
   { label: 'Experiência', value: 'Diretório digital premium' },
   { label: 'Operação', value: 'Painel simples para a equipe' },
@@ -51,7 +57,7 @@ const USE_CASES = [
   },
 ];
 
-export default function Home() {
+function LandingPageContent() {
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#edf2f7_40%,#f8fafc_100%)]">
       <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
@@ -256,4 +262,39 @@ export default function Home() {
       </div>
     </main>
   );
+}
+
+interface HomePageProps {
+  searchParams?: Promise<{
+    lang?: string;
+  }>;
+}
+
+export default async function Home({ searchParams }: HomePageProps) {
+  const domainContext = await getRequestDomainContext();
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const language = normalizePublicLanguage(resolvedSearchParams?.lang);
+
+  if (domainContext.isPotentialHotelSubdomain && domainContext.subdomain) {
+    const pageData = await getPublicHotelPageDataBySubdomain(domainContext.subdomain, language);
+
+    if (!pageData) {
+      notFound();
+    }
+
+    return (
+      <HotelPublicPageContent
+        hotel={pageData.hotel}
+        sections={pageData.sections}
+        departments={pageData.departments}
+        policies={pageData.policies}
+        language={language}
+        domainContext={domainContext}
+        hasFallbackContent={pageData.hasFallbackContent}
+        preferSubdomainRoot
+      />
+    );
+  }
+
+  return <LandingPageContent />;
 }
