@@ -268,7 +268,7 @@ export function AdminListItem({
   actions,
 }: {
   title: string;
-  description?: string;
+  description?: ReactNode;
   meta?: ReactNode;
   status?: ReactNode;
   actions?: ReactNode;
@@ -282,9 +282,7 @@ export function AdminListItem({
             {status}
           </div>
 
-          {description ? (
-            <p className="mt-3 text-sm leading-6 text-slate-600">{description}</p>
-          ) : null}
+          {description ? <div className="mt-3 text-sm leading-6 text-slate-600">{description}</div> : null}
 
           {meta ? (
             <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500">

@@ -8,7 +8,6 @@ import {
   AdminHelpList,
   AdminInfoBadge,
   AdminPageHero,
-  AdminPrimaryButton,
   AdminSectionTitle,
   AdminSelect,
   AdminSurface,
@@ -18,6 +17,7 @@ import { APP_ROLE_OPTIONS, getRoleLabel, normalizeAppRole, requireAdminAccess } 
 import { getAdminHotel } from '@/lib/queries';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { updateHotelUserAction } from './actions';
+import { EditUserSubmitButton } from './edit-user-submit-button';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -145,7 +145,7 @@ export default async function EditHotelUserPage({ params, searchParams }: PagePr
           </AdminFormGrid>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <AdminPrimaryButton type="submit">Salvar alterações</AdminPrimaryButton>
+            <EditUserSubmitButton />
             <AdminInfoBadge>
               <ShieldCheck className="h-3.5 w-3.5" />
               O papel define a visibilidade e o acesso operacional

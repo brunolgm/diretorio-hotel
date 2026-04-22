@@ -30,6 +30,7 @@ import { getAdminHotel } from '@/lib/queries';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createHotelUserAction, toggleHotelUserStatusAction } from './actions';
 import { CreateUserSubmitButton } from './create-user-submit-button';
+import { UserStatusToggleButton } from './user-status-toggle-button';
 
 interface AdminUsersPageProps {
   searchParams?: Promise<{
@@ -223,7 +224,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                     }
                     meta={
                       <div className="flex flex-wrap items-center gap-2">
-                        <AdminLanguageBadge label="HOTEL" available />
+                        <AdminInfoBadge>Vinculado ao hotel</AdminInfoBadge>
                         <span>
                           Criado em:{' '}
                           {item.created_at
@@ -241,9 +242,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                         <form action={toggleHotelUserStatusAction}>
                           <input type="hidden" name="id" value={item.id} />
                           <input type="hidden" name="is_active" value={String(!item.is_active)} />
-                          <AdminSecondaryButton type="submit">
-                            {item.is_active ? 'Desativar' : 'Ativar'}
-                          </AdminSecondaryButton>
+                          <UserStatusToggleButton isActive={item.is_active} />
                         </form>
                       </AdminActionGroup>
                     }

@@ -19,7 +19,6 @@ import {
   AdminEmptyState,
   AdminField,
   AdminFilterBar,
-  AdminFormGrid,
   AdminGuideCard,
   AdminHelpList,
   AdminHelpText,
@@ -196,93 +195,96 @@ export default async function AdminServicesPage({
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
+      <section className="space-y-6">
         {canManageServices ? (
-        <AdminSurface>
-          <AdminSectionTitle
-            eyebrow="Cadastro rápido"
-            title="Novo serviço"
-            description="Adicione um novo card com título, categoria, descrição, botão e link."
-            action={<AdminInfoBadge>Publicação direta no diretório</AdminInfoBadge>}
-          />
-
-          <AdminGuideCard
-            title="Como cadastrar um bom serviço"
-            description="Use cards curtos, objetivos e orientados à ação para facilitar a leitura do hóspede no celular."
-            className="mt-8"
-          >
-            <AdminHelpList
-              items={[
-                'Prefira títulos curtos e categorias fáceis de reconhecer.',
-                'Use a descrição para explicar o benefício ou o que o hóspede encontra ao tocar no card.',
-                'Revise o link final sempre que o botão levar para uma reserva, site ou página externa.',
-              ]}
+          <AdminSurface className="min-w-0">
+            <AdminSectionTitle
+              eyebrow="Cadastro rápido"
+              title="Novo serviço"
+              description="Cadastre cards claros e operacionais para orientar o hóspede no diretório digital."
+              action={<AdminInfoBadge>Publicação direta no diretório</AdminInfoBadge>}
             />
-          </AdminGuideCard>
 
-          <form action={createSectionAction}>
-            <AdminFormGrid>
-              <AdminField label="Título" className="md:col-span-2">
-                <AdminTextInput name="title" required />
-                <AdminHelpText>
-                  Este é o texto principal do card. Prefira algo fácil de escanear.
-                </AdminHelpText>
-              </AdminField>
+            <AdminGuideCard
+              title="Como cadastrar um bom serviço"
+              description="Use cards curtos, objetivos e orientados à ação para facilitar a leitura do hóspede no celular."
+              className="mt-8"
+            >
+              <AdminHelpList
+                items={[
+                  'Prefira títulos curtos e categorias fáceis de reconhecer.',
+                  'Use a descrição para explicar o benefício ou o que o hóspede encontra ao tocar no card.',
+                  'Revise o link final sempre que o botão levar para uma reserva, site ou página externa.',
+                ]}
+              />
+            </AdminGuideCard>
 
-              <ServiceGuidedFields categoryOptions={serviceCategoryOptions} />
+            <form action={createSectionAction}>
+              <div className="mt-8 grid gap-5">
+                <AdminField label="Título">
+                  <AdminTextInput name="title" required placeholder="Ex.: Room service" />
+                  <AdminHelpText>
+                    Este é o texto principal do card. Prefira algo fácil de escanear.
+                  </AdminHelpText>
+                </AdminField>
 
-              <AdminField label="Descrição" className="md:col-span-2">
-                <AdminTextarea
-                  name="content"
-                  placeholder="Descreva o serviço que será exibido no diretório."
-                />
-                <AdminHelpText>
-                  Explique em uma ou duas frases o que o hóspede encontra ao abrir este item.
-                </AdminHelpText>
-              </AdminField>
+                <ServiceGuidedFields categoryOptions={serviceCategoryOptions} />
 
-              <AdminField label="Texto do botão">
-                <AdminTextInput name="cta" placeholder="Ex.: Ver mais" />
-                <AdminHelpText>
-                  Se houver link externo, o botão abre esse destino. Sem link, ele só aparece se o
-                  conteúdo for suficiente para uma página interna de detalhes.
-                </AdminHelpText>
-              </AdminField>
+                <AdminField label="Descrição">
+                  <AdminTextarea
+                    name="content"
+                    className="min-h-36"
+                    placeholder="Descreva o serviço que será exibido no diretório."
+                  />
+                  <AdminHelpText>
+                    Explique em uma ou duas frases o que o hóspede encontra ao abrir este item.
+                  </AdminHelpText>
+                </AdminField>
 
-              <AdminField label="Link">
-                <AdminTextInput name="url" placeholder="https://..." />
-                <AdminHelpText>
-                  Preencha quando o serviço precisar abrir uma página externa. Se ficar vazio, o
-                  GuestDesk decide entre página interna de detalhes ou ocultar o botão.
-                </AdminHelpText>
-              </AdminField>
+                <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                  <AdminField label="Texto do botão">
+                    <AdminTextInput name="cta" placeholder="Ex.: Ver mais" />
+                    <AdminHelpText>
+                      Se houver link externo, o botão abre esse destino. Sem link, ele só aparece
+                      se o conteúdo for suficiente para uma página interna de detalhes.
+                    </AdminHelpText>
+                  </AdminField>
 
-              <AdminField label="Ordem">
-                <AdminTextInput type="number" name="sort_order" defaultValue="0" />
-                <AdminHelpText>
-                  Números menores aparecem primeiro e ajudam a destacar o que é mais importante.
-                </AdminHelpText>
-              </AdminField>
+                  <AdminField label="Link">
+                    <AdminTextInput name="url" placeholder="https://..." />
+                    <AdminHelpText>
+                      Preencha quando o serviço precisar abrir uma página externa. Se ficar vazio, o
+                      GuestDesk decide entre página interna de detalhes ou ocultar o botão.
+                    </AdminHelpText>
+                  </AdminField>
+                </div>
 
-              <AdminCheckboxRow className="md:col-span-2">
-                <input type="checkbox" name="enabled" defaultChecked />
-                Ativo no diretório
-              </AdminCheckboxRow>
-            </AdminFormGrid>
+                <AdminField label="Ordem">
+                  <AdminTextInput type="number" name="sort_order" defaultValue="0" />
+                  <AdminHelpText>
+                    Números menores aparecem primeiro e ajudam a destacar o que é mais importante.
+                  </AdminHelpText>
+                </AdminField>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <AdminPrimaryButton type="submit">
-                <Plus className="mr-2 h-4 w-4" />
-                Criar serviço
-              </AdminPrimaryButton>
+                <AdminCheckboxRow>
+                  <input type="checkbox" name="enabled" defaultChecked />
+                  Ativo no diretório
+                </AdminCheckboxRow>
+              </div>
 
-              <AdminInfoBadge>
-                <FileText className="h-3.5 w-3.5" />
-                Os serviços aparecem automaticamente no diretório público
-              </AdminInfoBadge>
-            </div>
-          </form>
-        </AdminSurface>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <AdminPrimaryButton type="submit">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Criar serviço
+                </AdminPrimaryButton>
+
+                <AdminInfoBadge>
+                  <FileText className="h-3.5 w-3.5" />
+                  Os serviços aparecem automaticamente no diretório público
+                </AdminInfoBadge>
+              </div>
+            </form>
+          </AdminSurface>
         ) : (
           <AdminSurface>
             <AdminSectionTitle
@@ -300,7 +302,7 @@ export default async function AdminServicesPage({
           </AdminSurface>
         )}
 
-        <AdminSurface>
+        <AdminSurface className="min-w-0">
           <AdminSectionTitle
             eyebrow="Itens cadastrados"
             title="Lista de serviços"
@@ -348,7 +350,11 @@ export default async function AdminServicesPage({
                   <AdminListItem
                     key={item.id}
                     title={item.title}
-                    description={item.content || 'Sem descrição cadastrada.'}
+                    description={
+                      <p className="line-clamp-3 break-words [overflow-wrap:anywhere]">
+                        {item.content || 'Sem descrição cadastrada.'}
+                      </p>
+                    }
                     status={
                       <>
                         <AdminInfoBadge>{item.category || 'Sem categoria'}</AdminInfoBadge>

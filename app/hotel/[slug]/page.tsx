@@ -119,6 +119,9 @@ function SectionCard({
 
           {destination ? (
             <div className="mt-4">
+              <p className="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
+                {destination.isExternal ? 'Destino externo' : 'Detalhe interno'}
+              </p>
               {destination.isExternal ? (
               <a
                 href={destination.href}
@@ -126,7 +129,7 @@ function SectionCard({
                 rel="noreferrer"
                 className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 text-center text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
               >
-                {item.cta || 'Acessar'}
+                {item.cta || 'Abrir site'}
                 <ArrowUpRight className="ml-2 h-4 w-4" />
               </a>
               ) : (
@@ -134,7 +137,7 @@ function SectionCard({
                   href={destination.href}
                   className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 text-center text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
                 >
-                  {item.cta || 'Ver detalhes'}
+                  {item.cta || 'Ver serviço'}
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </a>
               )}
