@@ -18,6 +18,7 @@ import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import { ServiceIcon } from '@/components/service-icon';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
+import { getPublicCopy } from '@/lib/public-copy';
 import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
 import { getServiceDestination } from '@/lib/service-destinations';
 import { createClient } from '@/lib/supabase/server';
@@ -86,10 +87,12 @@ function SectionCard({
   item,
   hotelSlug,
   language,
+  copy,
 }: {
   item: HotelSection;
   hotelSlug: string;
   language: SupportedPublicLanguage;
+  copy: ReturnType<typeof getPublicCopy>;
 }) {
   const destination = getServiceDestination(item, hotelSlug, language);
 
@@ -114,30 +117,31 @@ function SectionCard({
           </div>
 
           <p className="mt-3 line-clamp-4 break-words [overflow-wrap:anywhere] text-sm leading-7 text-slate-600">
-            {item.content || 'Informação não disponível.'}
+            {item.content || copy.serviceInfoUnavailable}
           </p>
 
           {destination ? (
             <div className="mt-4">
               <p className="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-                {destination.isExternal ? 'Destino externo' : 'Detalhe interno'}
+                {destination.isExternal ? copy.destinationExternal : copy.destinationInternal}
               </p>
+
               {destination.isExternal ? (
-              <a
-                href={destination.href}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 text-center text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
-              >
-                {item.cta || 'Abrir site'}
-                <ArrowUpRight className="ml-2 h-4 w-4" />
-              </a>
+                <a
+                  href={destination.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 text-center text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
+                >
+                  {item.cta || copy.openSite}
+                  <ArrowUpRight className="ml-2 h-4 w-4" />
+                </a>
               ) : (
                 <a
                   href={destination.href}
                   className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 text-center text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
                 >
-                  {item.cta || 'Ver serviço'}
+                  {item.cta || copy.viewService}
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </a>
               )}
@@ -149,7 +153,13 @@ function SectionCard({
   );
 }
 
-function DepartmentCard({ item }: { item: HotelDepartment }) {
+function DepartmentCard({
+  item,
+  copy,
+}: {
+  item: HotelDepartment;
+  copy: ReturnType<typeof getPublicCopy>;
+}) {
   return (
     <div className="rounded-[30px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80 transition hover:-translate-y-0.5 hover:shadow-[0_26px_55px_-36px_rgba(15,23,42,0.32)]">
       <div className="flex items-start justify-between gap-4">
@@ -158,7 +168,7 @@ function DepartmentCard({ item }: { item: HotelDepartment }) {
             {item.name}
           </h3>
           <p className="mt-2 break-words text-sm leading-7 text-slate-600">
-            {item.description || 'Canal de atendimento do hotel.'}
+            {item.description || copy.departmentDefaultDescription}
           </p>
 
           {item.hours ? (
@@ -186,12 +196,12 @@ function DepartmentCard({ item }: { item: HotelDepartment }) {
             data-analytics-label={item.name}
             className="inline-flex h-11 items-center justify-center rounded-2xl border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] px-4 text-center text-sm font-medium text-slate-800 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.2)] transition hover:-translate-y-0.5 hover:bg-[var(--hotel-accent-soft-strong)]"
           >
-            {item.action || `Falar com ${item.name}`}
+            {item.action || copy.talkToDepartment(item.name)}
             <ChevronRight className="ml-2 h-4 w-4" />
           </a>
         ) : (
           <div className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-500">
-            {item.action || `Contato com ${item.name}`}
+            {item.action || copy.contactDepartment(item.name)}
           </div>
         )}
       </div>
@@ -199,7 +209,13 @@ function DepartmentCard({ item }: { item: HotelDepartment }) {
   );
 }
 
-function PolicyCard({ item }: { item: HotelPolicy }) {
+function PolicyCard({
+  item,
+  copy,
+}: {
+  item: HotelPolicy;
+  copy: ReturnType<typeof getPublicCopy>;
+}) {
   return (
     <div className="rounded-[26px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.25)] ring-1 ring-slate-200/80">
       <div className="flex items-start gap-3">
@@ -212,7 +228,7 @@ function PolicyCard({ item }: { item: HotelPolicy }) {
             {item.title}
           </h3>
           <p className="mt-2 break-words text-sm leading-7 text-slate-600">
-            {item.description || 'Política do hotel.'}
+            {item.description || copy.policyDefaultDescription}
           </p>
         </div>
       </div>
@@ -225,6 +241,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const requestedLang = resolvedSearchParams?.lang;
   const lang: SupportedPublicLanguage = normalizePublicLanguage(requestedLang);
+  const copy = getPublicCopy(lang);
   const supabase = await createClient();
 
   const { data: hotel, error: hotelError } = await supabase
@@ -265,11 +282,9 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
   if (sectionsError) {
     console.error('Failed to load hotel sections:', sectionsError);
   }
-
   if (departmentsError) {
     console.error('Failed to load hotel departments:', departmentsError);
   }
-
   if (policiesError) {
     console.error('Failed to load hotel policies:', policiesError);
   }
@@ -320,10 +335,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
       console.error('Failed to load section translations:', sectionTranslationsResult.error);
     }
     if (departmentTranslationsResult.error) {
-      console.error(
-        'Failed to load department translations:',
-        departmentTranslationsResult.error
-      );
+      console.error('Failed to load department translations:', departmentTranslationsResult.error);
     }
     if (policyTranslationsResult.error) {
       console.error('Failed to load policy translations:', policyTranslationsResult.error);
@@ -378,6 +390,21 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
     };
   });
 
+  const hasFallbackContent =
+    lang !== 'pt' &&
+    (typedSections.some((item) => {
+      const translation = sectionTranslationsById.get(item.id);
+      return !translation || !translation.title || !translation.content || !translation.cta;
+    }) ||
+      typedDepartments.some((item) => {
+        const translation = departmentTranslationsById.get(item.id);
+        return !translation || !translation.name || !translation.description || !translation.action;
+      }) ||
+      typedPolicies.some((item) => {
+        const translation = policyTranslationsById.get(item.id);
+        return !translation || !translation.title || !translation.description;
+      }));
+
   const whatsappHref = typedHotel.whatsapp_number
     ? `https://wa.me/${String(typedHotel.whatsapp_number).replace(/\D/g, '')}`
     : null;
@@ -387,7 +414,10 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_45%,#f8fafc_100%)]">
       <PublicAnalytics hotelId={typedHotel.id} hotelSlug={typedHotel.slug} language={lang} />
 
-      <div className="mx-auto max-w-6xl px-4 py-6 pb-28 md:px-6 md:py-8 md:pb-8" style={theme.cssVars}>
+      <div
+        className="mx-auto max-w-6xl px-4 py-6 pb-28 md:px-6 md:py-8 md:pb-8"
+        style={theme.cssVars}
+      >
         <section
           className={`relative overflow-hidden rounded-[40px] p-6 text-white shadow-[0_30px_90px_-48px_rgba(15,23,42,0.85)] ring-1 ring-slate-900/10 md:p-10 ${theme.heroClassName}`}
         >
@@ -434,15 +464,14 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
 
                     <span className="inline-flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4" />
-                      Informações essenciais em um só lugar
+                      {copy.essentialsSinglePlace}
                     </span>
                   </div>
                 </div>
               </div>
 
               <p className="mt-7 max-w-2xl text-sm leading-7 text-[color:var(--hotel-hero-muted)] md:text-base">
-                Acesse serviços, contatos, orientações e links importantes do hotel em uma
-                experiência digital mais elegante, prática e organizada.
+                {copy.heroDescription}
               </p>
             </div>
 
@@ -457,12 +486,12 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   data-analytics-label="Hero booking button"
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-5 text-sm font-semibold text-[color:var(--hotel-accent-foreground)] shadow-[0_18px_35px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/55 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                 >
-                  Reservar agora
+                  {copy.bookNow}
                   <ArrowUpRight className="ml-2 h-4 w-4" />
                 </a>
               ) : (
                 <div className="inline-flex h-12 items-center justify-center rounded-2xl border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-disabled-bg)] px-5 text-sm font-medium text-[color:var(--hotel-hero-disabled-text)]">
-                  Reservas indisponíveis
+                  {copy.bookingUnavailable}
                 </div>
               )}
 
@@ -476,12 +505,12 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   data-analytics-label="Hero website button"
                   className="inline-flex h-12 items-center justify-center rounded-2xl border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-secondary-bg)] px-5 text-sm font-medium text-[color:var(--hotel-hero-secondary-text)] transition hover:-translate-y-0.5 hover:bg-[var(--hotel-hero-secondary-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                 >
-                  Site oficial
+                  {copy.officialWebsite}
                   <ArrowUpRight className="ml-2 h-4 w-4" />
                 </a>
               ) : (
                 <div className="inline-flex h-12 items-center justify-center rounded-2xl border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-disabled-bg)] px-5 text-sm font-medium text-[color:var(--hotel-hero-disabled-text)]">
-                  Site indisponível
+                  {copy.websiteUnavailable}
                 </div>
               )}
 
@@ -496,41 +525,47 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   className="inline-flex h-12 items-center justify-center rounded-2xl border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-secondary-bg)] px-5 text-sm font-medium text-[color:var(--hotel-hero-secondary-text)] transition hover:-translate-y-0.5 hover:bg-[var(--hotel-hero-secondary-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:col-span-2"
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
-                  Atendimento via WhatsApp
+                  {copy.whatsappSupport}
                 </a>
               ) : null}
             </div>
           </div>
         </section>
 
+        {hasFallbackContent ? (
+          <section className="mt-4 rounded-[24px] border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 shadow-[0_16px_35px_-30px_rgba(120,53,15,0.35)]">
+            {copy.fallbackNotice}
+          </section>
+        ) : null}
+
         <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <QuickInfoCard
             icon={Coffee}
-            title="Café da manhã"
-            value={typedHotel.breakfast_hours || 'Não informado'}
-            helper="Horário de serviço"
+            title={copy.breakfast}
+            value={typedHotel.breakfast_hours || copy.notInformed}
+            helper={copy.serviceHours}
           />
           <QuickInfoCard
             icon={Wifi}
-            title="Wi-Fi"
-            value={typedHotel.wifi_name || 'Não informado'}
+            title={copy.wifi}
+            value={typedHotel.wifi_name || copy.notInformed}
             helper={
               typedHotel.wifi_password
-                ? `Senha: ${typedHotel.wifi_password}`
-                : 'Consulte a recepção'
+                ? copy.passwordLabel(typedHotel.wifi_password)
+                : copy.askFrontDesk
             }
           />
           <QuickInfoCard
             icon={Clock3}
-            title="Check-in"
-            value={typedHotel.checkin_time || 'Não informado'}
-            helper="Entrada padrão"
+            title={copy.checkIn}
+            value={typedHotel.checkin_time || copy.notInformed}
+            helper={copy.standardEntry}
           />
           <QuickInfoCard
             icon={Clock3}
-            title="Check-out"
-            value={typedHotel.checkout_time || 'Não informado'}
-            helper="Saída padrão"
+            title={copy.checkOut}
+            value={typedHotel.checkout_time || copy.notInformed}
+            helper={copy.standardExit}
           />
         </section>
 
@@ -538,15 +573,15 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
-                Explorar
+                {copy.explore}
               </p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                Serviços e informações
+                {copy.servicesAndInfo}
               </h2>
             </div>
 
             <div className="hidden rounded-full bg-[var(--hotel-accent-soft)] px-4 py-2 text-xs font-medium text-slate-700 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.22)] ring-1 ring-[color:var(--hotel-accent-border)] md:inline-flex">
-              {displaySections.length} itens disponíveis
+              {copy.itemsAvailable(displaySections.length)}
             </div>
           </div>
 
@@ -558,16 +593,15 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   item={item}
                   hotelSlug={typedHotel.slug}
                   language={lang}
+                  copy={copy}
                 />
               ))}
             </div>
           ) : (
             <div className="rounded-[30px] border border-dashed border-slate-200 bg-white p-10 text-center shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)]">
-              <p className="text-base font-semibold text-slate-900">
-                Nenhum serviço disponível no momento
-              </p>
+              <p className="text-base font-semibold text-slate-900">{copy.noServicesTitle}</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                As informações do diretório serão atualizadas em breve.
+                {copy.noServicesDescription}
               </p>
             </div>
           )}
@@ -577,26 +611,24 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           <div>
             <div className="mb-5">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
-                Atendimento
+                {copy.support}
               </p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                Fale com o hotel
+                {copy.talkToHotel}
               </h2>
             </div>
 
             {displayDepartments.length ? (
               <div className="space-y-4">
                 {displayDepartments.map((item) => (
-                  <DepartmentCard key={item.id} item={item} />
+                  <DepartmentCard key={item.id} item={item} copy={copy} />
                 ))}
               </div>
             ) : (
               <div className="rounded-[30px] border border-dashed border-slate-200 bg-white p-10 text-center shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)]">
-                <p className="text-base font-semibold text-slate-900">
-                  Nenhum canal disponível no momento
-                </p>
+                <p className="text-base font-semibold text-slate-900">{copy.noChannelsTitle}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Os contatos do hotel serão disponibilizados em breve.
+                  {copy.noChannelsDescription}
                 </p>
               </div>
             )}
@@ -605,24 +637,24 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           <div>
             <div className="mb-5">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
-                Informações importantes
+                {copy.importantInfo}
               </p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                Políticas do hotel
+                {copy.hotelPolicies}
               </h2>
             </div>
 
             {displayPolicies.length ? (
               <div className="space-y-4">
                 {displayPolicies.map((item) => (
-                  <PolicyCard key={item.id} item={item} />
+                  <PolicyCard key={item.id} item={item} copy={copy} />
                 ))}
               </div>
             ) : (
               <div className="rounded-[30px] border border-dashed border-slate-200 bg-white p-10 text-center shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)]">
-                <p className="text-base font-semibold text-slate-900">Nenhuma política publicada</p>
+                <p className="text-base font-semibold text-slate-900">{copy.noPoliciesTitle}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  As orientações do hotel aparecerão aqui quando estiverem disponíveis.
+                  {copy.noPoliciesDescription}
                 </p>
               </div>
             )}
@@ -633,14 +665,13 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-2xl">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
-                Links úteis
+                {copy.usefulLinks}
               </p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                Acesso rápido
+                {copy.quickAccess}
               </h2>
               <p className="mt-2 text-sm leading-7 text-slate-600">
-                Utilize os canais oficiais do hotel para reservas, atendimento e informações
-                institucionais.
+                {copy.usefulLinksDescription}
               </p>
             </div>
 
@@ -656,7 +687,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.35)] transition hover:-translate-y-0.5 hover:bg-slate-50"
                 >
                   <Globe className="mr-2 h-4 w-4" />
-                  Site oficial
+                  {copy.officialWebsite}
                 </a>
               ) : null}
 
@@ -671,7 +702,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
                   className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.35)] transition hover:-translate-y-0.5 hover:bg-slate-50"
                 >
                   <ArrowUpRight className="mr-2 h-4 w-4" />
-                  Reservas
+                  {copy.reservations}
                 </a>
               ) : null}
 

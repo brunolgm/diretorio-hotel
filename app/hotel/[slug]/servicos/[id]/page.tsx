@@ -4,6 +4,7 @@ import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import { ServiceIcon } from '@/components/service-icon';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
+import { getPublicCopy } from '@/lib/public-copy';
 import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
 import {
   canOpenInternalServiceDetail,
@@ -35,6 +36,7 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
   const { slug, id } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const lang: SupportedPublicLanguage = normalizePublicLanguage(resolvedSearchParams?.lang);
+  const copy = getPublicCopy(lang);
   const supabase = await createClient();
 
   const { data: hotel, error: hotelError } = await supabase
@@ -89,6 +91,14 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
     notFound();
   }
 
+  const hasFallbackContent =
+    lang !== 'pt' &&
+    (!translation ||
+      !translation.title ||
+      !translation.content ||
+      !translation.cta ||
+      !translation.category);
+
   const theme = resolveHotelTheme(typedHotel.theme_preset, typedHotel.theme_primary_color);
   const backHref = buildHotelBackHref(typedHotel.slug, lang);
 
@@ -96,10 +106,7 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_45%,#f8fafc_100%)]">
       <PublicAnalytics hotelId={typedHotel.id} hotelSlug={typedHotel.slug} language={lang} />
 
-      <div
-        className="mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8"
-        style={theme.cssVars}
-      >
+      <div className="mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8" style={theme.cssVars}>
         <section
           className={`relative overflow-hidden rounded-[40px] p-6 text-white shadow-[0_30px_90px_-48px_rgba(15,23,42,0.85)] ring-1 ring-slate-900/10 md:p-10 ${theme.heroClassName}`}
         >
@@ -112,7 +119,7 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
                 className="inline-flex items-center gap-2 rounded-full border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-badge-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur transition hover:bg-white/15"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
-                Voltar aos serviços
+                {copy.backToServices}
               </a>
 
               <LanguageSwitcher
@@ -124,7 +131,10 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
 
             <div className="mt-7 flex items-start gap-4">
               <div className="rounded-[22px] border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-                <ServiceIcon iconName={displaySection.icon} className="h-6 w-6 text-[color:var(--hotel-badge-text)]" />
+                <ServiceIcon
+                  iconName={displaySection.icon}
+                  className="h-6 w-6 text-[color:var(--hotel-badge-text)]"
+                />
               </div>
 
               <div>
@@ -158,7 +168,7 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
 
                   <span className="inline-flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4" />
-                    Conteúdo interno detalhado
+                    {copy.internalDetailedContent}
                   </span>
                 </div>
               </div>
@@ -166,13 +176,19 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
           </div>
         </section>
 
+        {hasFallbackContent ? (
+          <section className="mt-4 rounded-[24px] border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 shadow-[0_16px_35px_-30px_rgba(120,53,15,0.35)]">
+            {copy.fallbackNotice}
+          </section>
+        ) : null}
+
         <section className="mt-8 rounded-[34px] bg-white p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80 md:p-8">
           <div className="max-w-3xl">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-              Detalhes do serviço
+              {copy.serviceDetails}
             </p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
-              Informações completas
+              {copy.fullInformation}
             </h2>
             <p className="mt-4 whitespace-pre-line break-words [overflow-wrap:anywhere] text-sm leading-8 text-slate-600 md:text-base">
               {displaySection.content}
@@ -185,14 +201,13 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
               className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.35)] transition hover:-translate-y-0.5 hover:bg-slate-50"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Voltar
+              {copy.back}
             </a>
           </div>
         </section>
 
         <section className="mt-6 rounded-[28px] border border-dashed border-slate-200 bg-white/80 px-6 py-5 text-sm leading-6 text-slate-500 shadow-[0_18px_45px_-36px_rgba(15,23,42,0.18)]">
-          Esta página interna aparece apenas quando o serviço não tem link externo e possui pelo
-          menos {MIN_SERVICE_DETAIL_CONTENT_LENGTH} caracteres de conteúdo útil para leitura.
+          {copy.internalPageRule(MIN_SERVICE_DETAIL_CONTENT_LENGTH)}
         </section>
       </div>
     </main>

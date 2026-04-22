@@ -1,4 +1,5 @@
 import { Check, ChevronDown, Languages } from 'lucide-react';
+import { getPublicCopy } from '@/lib/public-copy';
 import { type SupportedPublicLanguage } from '@/lib/public-language';
 
 const LANGUAGE_OPTIONS: Array<{
@@ -24,6 +25,7 @@ export function LanguageSwitcher({
   const activeLanguage =
     LANGUAGE_OPTIONS.find((item) => item.code === currentLanguage) || LANGUAGE_OPTIONS[0];
   const resolvedBasePath = basePath || `/hotel/${slug}`;
+  const copy = getPublicCopy(currentLanguage);
 
   return (
     <details className="group relative">
@@ -39,7 +41,7 @@ export function LanguageSwitcher({
 
       <div className="absolute right-0 z-20 mt-3 w-[220px] overflow-hidden rounded-[24px] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.14)_0%,rgba(255,255,255,0.08)_100%)] p-2 shadow-[0_24px_60px_rgba(2,6,23,0.4)] backdrop-blur-2xl">
         <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300/80">
-          Language
+          {copy.languageMenuLabel}
         </div>
 
         <div className="space-y-1">

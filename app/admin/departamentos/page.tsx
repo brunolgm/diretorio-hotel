@@ -317,6 +317,10 @@ export default async function AdminDepartmentsPage({
             className="mt-8"
           />
 
+          <AdminHelpText className="mt-4">
+            Status parcial indica fallback seguro para PT em parte do conteúdo público.
+          </AdminHelpText>
+
           <AdminFilterBar>
             <AdminSearchInput
               type="search"
