@@ -97,31 +97,31 @@ function SectionCard({
   });
 
   return (
-    <div className="rounded-[30px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80 transition hover:-translate-y-0.5 hover:shadow-[0_26px_55px_-36px_rgba(15,23,42,0.32)]">
-      <div className="flex items-start gap-4">
-        <div className="rounded-[20px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+    <div className="min-w-0 overflow-hidden rounded-[30px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80 transition hover:-translate-y-0.5 hover:shadow-[0_26px_55px_-36px_rgba(15,23,42,0.32)]">
+      <div className="flex min-w-0 items-start gap-4">
+        <div className="shrink-0 rounded-[20px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
           <SectionIcon iconName={item.icon} className="h-5 w-5" />
         </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="break-words text-lg font-semibold tracking-tight text-slate-950">
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h3 className="min-w-0 break-words [overflow-wrap:anywhere] text-lg font-semibold tracking-tight text-slate-950">
               {item.title}
             </h3>
 
             {item.category ? (
-              <span className="rounded-full border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] px-3 py-1 text-xs font-medium text-slate-700">
+              <span className="max-w-full break-words rounded-full border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] px-3 py-1 text-xs font-medium text-slate-700 [overflow-wrap:anywhere]">
                 {item.category}
               </span>
             ) : null}
           </div>
 
-          <p className="mt-3 line-clamp-4 break-words [overflow-wrap:anywhere] text-sm leading-7 text-slate-600">
+          <p className="mt-3 min-w-0 line-clamp-2 break-words [overflow-wrap:anywhere] text-sm leading-6 text-slate-600 md:line-clamp-4 md:leading-7">
             {item.content || copy.serviceInfoUnavailable}
           </p>
 
           {destination ? (
-            <div className="mt-4">
+            <div className="mt-4 min-w-0 overflow-hidden">
               <p className="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
                 {destination.isExternal ? copy.destinationExternal : copy.destinationInternal}
               </p>
@@ -131,18 +131,22 @@ function SectionCard({
                   href={destination.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 text-center text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
+                  className="inline-flex max-w-full items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 py-3 text-center text-sm font-medium leading-5 text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
                 >
-                  {item.cta || copy.openSite}
-                  <ArrowUpRight className="ml-2 h-4 w-4" />
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">
+                    {item.cta || copy.openSite}
+                  </span>
+                  <ArrowUpRight className="ml-2 h-4 w-4 shrink-0" />
                 </a>
               ) : (
                 <a
                   href={destination.href}
-                  className="inline-flex h-11 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 text-center text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
+                  className="inline-flex max-w-full items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 py-3 text-center text-sm font-medium leading-5 text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
                 >
-                  {item.cta || copy.viewService}
-                  <ChevronRight className="ml-2 h-4 w-4" />
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">
+                    {item.cta || copy.viewService}
+                  </span>
+                  <ChevronRight className="ml-2 h-4 w-4 shrink-0" />
                 </a>
               )}
             </div>
