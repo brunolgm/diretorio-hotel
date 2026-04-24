@@ -28,6 +28,7 @@ import {
   HOTEL_THEME_PRESETS,
   resolveHotelTheme,
 } from '@/lib/hotel-theme';
+import { buildHotelSubdomainPreviewUrl } from '@/lib/hotel-subdomain';
 import { getAdminHotel } from '@/lib/queries';
 import { updateHotelAction, removeHotelLogoAction } from './actions';
 import { uploadHotelLogoAction } from './upload-logo-action';
@@ -73,6 +74,8 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
   const success = params?.success;
   const error = params?.error;
   const currentTheme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
+  const publicSubdomainPreview =
+    buildHotelSubdomainPreviewUrl(hotel.subdomain) || buildHotelSubdomainPreviewUrl(hotel.slug);
 
   return (
     <main className="space-y-6">
@@ -183,6 +186,43 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               />
               <AdminHelpText>
                 Este nome aparece no painel e na experiência pública. Use a forma oficial da marca.
+              </AdminHelpText>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="block text-sm font-medium text-slate-700">
+                Subdomínio público
+              </label>
+              <div className="rounded-[24px] border border-slate-200 bg-slate-50/70 p-4">
+                <input
+                  name="subdomain"
+                  defaultValue={hotel.subdomain || ''}
+                  className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
+                  placeholder="ex.: novotelrv"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                />
+
+                <div className="mt-3 rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-3">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">
+                    Prévia da URL pública
+                  </p>
+                  <p className="mt-2 break-words text-sm font-semibold text-slate-900">
+                    {publicSubdomainPreview}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    {hotel.subdomain
+                      ? 'Este será o identificador principal do hotel em guestdesk.digital.'
+                      : 'Se ficar vazio, o GuestDesk continua aceitando a rota por slug e usa o comportamento atual como fallback.'}
+                  </p>
+                </div>
+              </div>
+              <AdminHelpText>
+                Use apenas letras minúsculas, números e hífen. Evite nomes genéricos ou
+                institucionais como <span className="font-medium">www</span>,{' '}
+                <span className="font-medium">admin</span> e{' '}
+                <span className="font-medium">guestdesk</span>.
               </AdminHelpText>
             </div>
 
@@ -517,6 +557,16 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
                   Cor primária:{' '}
                   {currentTheme.usesPrimaryOverride ? currentTheme.accentColor : 'preset padrão'}
+                </p>
+              </div>
+
+              <div className="rounded-[24px] bg-slate-50 p-5">
+                <p className="text-sm font-semibold text-slate-900">URL pública principal</p>
+                <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+                  {publicSubdomainPreview}
+                </p>
+                <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
+                  {hotel.subdomain ? 'subdomínio configurado' : 'fallback atual por slug'}
                 </p>
               </div>
             </div>

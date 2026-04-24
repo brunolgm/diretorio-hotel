@@ -10,6 +10,7 @@ import {
   sanitizeHotelThemePreset,
   sanitizeHotelThemePrimaryColor,
 } from '@/lib/hotel-theme';
+import { validateHotelSubdomain } from '@/lib/hotel-subdomain';
 
 export async function updateHotelAction(formData: FormData) {
   await requireAdminAccess('editor');
@@ -20,8 +21,10 @@ export async function updateHotelAction(formData: FormData) {
   const websiteUrlInput = readNullableString(formData, 'website_url');
   const instagramUrlInput = readNullableString(formData, 'instagram_url');
   const logoUrlInput = readNullableString(formData, 'logo_url');
+  const subdomainInput = readNullableString(formData, 'subdomain');
   const themePresetInput = readNullableString(formData, 'theme_preset');
   const themePrimaryColorInput = readNullableString(formData, 'theme_primary_color');
+  const validatedSubdomain = validateHotelSubdomain(subdomainInput);
 
   if (!name) {
     redirect('/admin/hotel?error=Nome%20do%20hotel%20%C3%A9%20obrigat%C3%B3rio');
@@ -43,8 +46,32 @@ export async function updateHotelAction(formData: FormData) {
     redirect('/admin/hotel?error=Logo%20URL%20inv%C3%A1lida');
   }
 
+  if (!validatedSubdomain.isValid) {
+    redirect(
+      `/admin/hotel?error=${encodeURIComponent(validatedSubdomain.error || 'Subdom%C3%ADnio inv%C3%A1lido')}`
+    );
+  }
+
+  if (validatedSubdomain.normalizedValue) {
+    const { data: conflictingHotel, error: subdomainError } = await supabase
+      .from('hotels')
+      .select('id')
+      .eq('subdomain', validatedSubdomain.normalizedValue)
+      .neq('id', hotel.id)
+      .maybeSingle();
+
+    if (subdomainError) {
+      redirect('/admin/hotel?error=N%C3%A3o%20foi%20poss%C3%ADvel%20validar%20o%20subdom%C3%ADnio');
+    }
+
+    if (conflictingHotel) {
+      redirect('/admin/hotel?error=Este%20subdom%C3%ADnio%20j%C3%A1%20est%C3%A1%20em%20uso');
+    }
+  }
+
   const payload: Database['public']['Tables']['hotels']['Update'] = {
     name,
+    subdomain: validatedSubdomain.normalizedValue,
     city: readNullableString(formData, 'city'),
     booking_url: readOptionalUrl(formData, 'booking_url'),
     website_url: readOptionalUrl(formData, 'website_url'),

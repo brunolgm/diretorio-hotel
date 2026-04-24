@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { normalizeHotelSubdomainInput } from '@/lib/hotel-subdomain';
 import { type SupportedPublicLanguage } from '@/lib/public-language';
 import type { Database } from '@/types/database';
 
@@ -29,11 +30,6 @@ export interface PublicHotelServiceDetailData {
   hasFallbackContent: boolean;
 }
 
-function normalizeSubdomainCandidate(subdomain: string) {
-  const normalized = subdomain.trim().toLowerCase();
-  return normalized || null;
-}
-
 async function getHotelBySlugWithClient(supabase: SupabaseClient, slug: string) {
   const normalizedSlug = slug.trim().toLowerCase();
 
@@ -56,10 +52,25 @@ async function getHotelBySlugWithClient(supabase: SupabaseClient, slug: string) 
 }
 
 async function getHotelBySubdomainWithClient(supabase: SupabaseClient, subdomain: string) {
-  const normalizedSubdomain = normalizeSubdomainCandidate(subdomain);
+  const normalizedSubdomain = normalizeHotelSubdomainInput(subdomain);
 
   if (!normalizedSubdomain) {
     return null;
+  }
+
+  const { data: hotelBySubdomain, error: hotelBySubdomainError } = await supabase
+    .from('hotels')
+    .select('*')
+    .eq('subdomain', normalizedSubdomain)
+    .maybeSingle();
+
+  if (hotelBySubdomainError) {
+    console.error('Failed to load hotel by subdomain:', hotelBySubdomainError);
+    return null;
+  }
+
+  if (hotelBySubdomain) {
+    return hotelBySubdomain as PublicHotel;
   }
 
   return getHotelBySlugWithClient(supabase, normalizedSubdomain);

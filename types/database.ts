@@ -14,6 +14,7 @@ export interface Database {
           id: string;
           name: string;
           slug: string;
+          subdomain: string | null;
           city: string | null;
           booking_url: string | null;
           website_url: string | null;
@@ -34,6 +35,7 @@ export interface Database {
           id?: string;
           name: string;
           slug: string;
+          subdomain?: string | null;
           city?: string | null;
           booking_url?: string | null;
           website_url?: string | null;
@@ -54,6 +56,7 @@ export interface Database {
           id?: string;
           name?: string;
           slug?: string;
+          subdomain?: string | null;
           city?: string | null;
           booking_url?: string | null;
           website_url?: string | null;
