@@ -125,9 +125,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   return (
     <main className="space-y-6">
       <AdminPageHero
-        eyebrow="GuestDesk"
+        eyebrow="LibGuest"
         title={hotel.name}
-        description="Gerencie o GuestDesk do hotel com uma experiência mais organizada, elegante e preparada para apresentação, operação e atualização diária."
+        description="Gerencie o LibGuest do hotel com uma experiência mais organizada, elegante e preparada para apresentação, operação e atualização diária."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[30px] border border-white/10 bg-white/10 p-5 backdrop-blur">
@@ -164,7 +164,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           icon={<Eye className="h-5 w-5" />}
           title="Experiência pública"
           value="Online"
-          description="A versão pública do GuestDesk está publicada e acessível."
+          description="A versão pública do LibGuest está publicada e acessível."
         />
         <AdminStatCard
           icon={<ShieldCheck className="h-5 w-5" />}
@@ -178,7 +178,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         <AdminSectionTitle
           eyebrow="Analytics público"
           title="Uso da experiência pública"
-          description="Acompanhe visualizações e interações principais do GuestDesk para entender o que mais gera interesse, contato e leitura útil para gestão."
+          description="Acompanhe visualizações e interações principais do LibGuest para entender o que mais gera interesse, contato e leitura útil para gestão."
           action={
             <AdminInfoBadge>
               <AdminQuickArrow />
@@ -391,7 +391,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           href="/admin/servicos"
           icon={ConciergeBell}
           title="Serviços"
-          text="Cadastre e organize os cards de serviços e informações exibidos no GuestDesk."
+          text="Cadastre e organize os cards de serviços e informações exibidos no LibGuest."
         />
         <QuickLink
           href="/admin/departamentos"
@@ -421,7 +421,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
           <AdminGuideCard
             title="Primeiros passos para operar o painel"
-            description="Se esta for a primeira revisão do hotel, siga esta ordem para atualizar o GuestDesk com mais segurança e clareza."
+            description="Se esta for a primeira revisão do hotel, siga esta ordem para atualizar o LibGuest com mais segurança e clareza."
             className="mt-6"
           >
             <AdminHelpList
@@ -451,7 +451,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <div className="rounded-[26px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 ring-1 ring-slate-200/70">
               <p className="text-sm font-semibold text-slate-900">Testar jornada do hóspede</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Navegue pela rota pública e valide a experiência do GuestDesk no celular.
+                Navegue pela rota pública e valide a experiência do LibGuest no celular.
               </p>
             </div>
 
@@ -484,7 +484,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
           <div className="mt-6 space-y-4">
             <div className="rounded-[26px] border border-slate-200 p-5">
-              <p className="text-sm font-semibold text-slate-900">GuestDesk publicado</p>
+              <p className="text-sm font-semibold text-slate-900">LibGuest publicado</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 A experiência pública já está online e pronta para demonstração.
               </p>

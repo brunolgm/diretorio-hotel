@@ -244,6 +244,11 @@ Importante:
 - Admin management de subdomínio.
 - Resolução pública agora prefere `subdomain` e cai para `slug`.
 
+### Sprint 21.0.1
+- Rebranding controlado para `LibGuest`.
+- Atualização de naming visível em landing, login, admin, metadata e elementos institucionais.
+- `guestdesk.digital` preservado como domínio operacional atual por compatibilidade.
+
 ## 6. Closed hotfixes summary
 
 ### Hotfixes recorrentes já tratados
@@ -326,9 +331,35 @@ Importante:
 
 ### Estado atual de branding
 - landing já orientada a produto comercial
-- login e experiência pública ainda podem carregar elementos do naming legado
+- interface principal já exibe `LibGuest` como nome ativo do produto
 - domínio atual ainda reflete o naming anterior
 - branding está em fase de transição controlada de `GuestDesk` para `LibGuest`
+
+### Registro curto da Sprint 21.0.1
+- Status: concluída
+- Objetivo: atualizar o naming visível do produto para `LibGuest` sem alterar domínio, rotas ou comportamento validado
+- Arquivos alterados:
+  - `app/layout.tsx`
+  - `app/page.tsx`
+  - `app/login/page.tsx`
+  - `app/admin/layout.tsx`
+  - `app/admin/page.tsx`
+  - `app/admin/servicos/page.tsx`
+  - `app/admin/servicos/[id]/page.tsx`
+  - `app/admin/usuarios/page.tsx`
+  - `app/admin/hotel/page.tsx`
+  - `components/admin/mobile-menu.tsx`
+  - `components/public/hotel-public-page-content.tsx`
+  - `components/public/hotel-service-detail-content.tsx`
+  - `lib/hotel-theme.ts`
+  - `docs/PRODUCT_MAP.md`
+- Validação realizada:
+  - `npm run lint`
+  - `npm run build` com falha local recorrente em `spawn EPERM` após compilação
+- Pendências conhecidas:
+  - base documental/comercial legada ainda contém várias referências históricas a `GuestDesk`
+  - domínio operacional continua em `guestdesk.digital`
+- Próximo passo recomendado: `Sprint 21.1`
 
 ## 10. Known pending items
 

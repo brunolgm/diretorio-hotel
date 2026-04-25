@@ -4,7 +4,7 @@ export const HOTEL_THEME_PRESETS = [
   {
     value: 'midnight-slate',
     label: 'Midnight Slate',
-    description: 'Paleta escura e sofisticada, alinhada ao visual principal do GuestDesk.',
+    description: 'Paleta escura e sofisticada, alinhada ao visual principal do LibGuest.',
   },
   {
     value: 'ivory-noir',

@@ -35,7 +35,7 @@ export function MobileMenu({ navItems, signOutAction }: MobileMenuProps) {
         <div className="flex h-full flex-col">
           <div className="border-b border-slate-200 px-6 py-5">
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-              GuestDesk
+              LibGuest
             </p>
             <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">
               Painel administrativo
@@ -48,7 +48,7 @@ export function MobileMenu({ navItems, signOutAction }: MobileMenuProps) {
 
           <div className="border-t border-slate-200 p-4">
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
-              GuestDesk by BLID Tecnologia
+              LibGuest by BLID Tecnologia
             </p>
             <form
               action={async () => {

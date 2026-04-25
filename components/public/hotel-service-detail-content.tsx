@@ -95,7 +95,7 @@ export function HotelServiceDetailContent({
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-badge-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
                   <Sparkles className="h-3.5 w-3.5" />
-                  GuestDesk
+                  LibGuest
                 </div>
 
                 <h1 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">

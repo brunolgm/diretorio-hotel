@@ -214,7 +214,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   <p className="mt-1 text-xs leading-5 text-slate-500">
                     {hotel.subdomain
                       ? 'Este será o identificador principal do hotel em guestdesk.digital.'
-                      : 'Se ficar vazio, o GuestDesk continua aceitando a rota por slug e usa o comportamento atual como fallback.'}
+                      : 'Se ficar vazio, o LibGuest continua aceitando a rota por slug e usa o comportamento atual como fallback.'}
                   </p>
                 </div>
               </div>
@@ -386,7 +386,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               />
               <AdminHelpText>
                 Esta cor afeta apenas acentos seguros, como o CTA principal e pequenos destaques.
-                Se estiver vazia ou inválida, o GuestDesk usa a cor padrão do preset.
+                Se estiver vazia ou inválida, o LibGuest usa a cor padrão do preset.
               </AdminHelpText>
             </div>
 
@@ -445,7 +445,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
 
             <AdminGuideCard
               title="Boas práticas para a logo"
-              description="Use uma imagem limpa e atual para manter a apresentação do GuestDesk consistente com a marca do hotel."
+              description="Use uma imagem limpa e atual para manter a apresentação do LibGuest consistente com a marca do hotel."
               className="mt-6"
             >
               <AdminHelpList

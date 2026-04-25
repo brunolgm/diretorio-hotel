@@ -15,7 +15,7 @@ const PRODUCT_STORIES = [
     eyebrow: 'O que é',
     title: 'Uma base digital elegante para a jornada do hóspede.',
     description:
-      'GuestDesk organiza serviços, contatos, políticas e links importantes em uma experiência pública mais clara, útil e alinhada à operação real do hotel.',
+      'LibGuest organiza serviços, contatos, políticas e links importantes em uma experiência pública mais clara, útil e alinhada à operação real do hotel.',
   },
   {
     eyebrow: 'Como funciona',
@@ -28,7 +28,7 @@ const PRODUCT_STORIES = [
     title:
       'Menos retrabalho operacional, mais clareza para o hóspede e uma apresentação digital mais consistente.',
     description:
-      'GuestDesk reduz a dispersão de informações, facilita o acesso a orientações e serviços importantes e melhora a forma como o hotel se apresenta no dia a dia da hospedagem.',
+      'LibGuest reduz a dispersão de informações, facilita o acesso a orientações e serviços importantes e melhora a forma como o hotel se apresenta no dia a dia da hospedagem.',
   },
 ];
 
@@ -68,7 +68,7 @@ function LandingPageContent() {
             <div className="max-w-4xl">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
-                  GuestDesk
+                  LibGuest
                 </div>
                 <div className="inline-flex items-center rounded-full border border-white/10 bg-white/6 px-4 py-2 text-xs font-medium tracking-[0.14em] text-slate-200 backdrop-blur">
                   guestdesk.digital
@@ -81,7 +81,7 @@ function LandingPageContent() {
               </h1>
 
               <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-200 md:text-base">
-                GuestDesk conecta operação e apresentação em um único produto: painel administrativo
+                LibGuest conecta operação e apresentação em um único produto: painel administrativo
                 para a equipe, diretório digital elegante para o hóspede e uma base pública forte
                 para demos, propostas e evolução comercial da marca.
               </p>
@@ -117,7 +117,7 @@ function LandingPageContent() {
                   Marca, produto e domínio no mesmo discurso
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-200">
-                  GuestDesk agora se apresenta com mais clareza como produto real de hospitalidade
+                  LibGuest agora se apresenta com mais clareza como produto real de hospitalidade
                   digital, sustentado por guestdesk.digital.
                 </p>
               </div>
@@ -151,7 +151,7 @@ function LandingPageContent() {
               Um SaaS orientado à hospitalidade, com valor claro para operação, equipe e hóspede.
             </h2>
             <p className="mt-3 text-sm leading-7 text-slate-600 md:text-base">
-              GuestDesk centraliza serviços, contatos, políticas e informações essenciais em uma
+              LibGuest centraliza serviços, contatos, políticas e informações essenciais em uma
               experiência digital mais clara, elegante e fácil de manter no dia a dia do hotel.
             </p>
           </div>
@@ -228,7 +228,7 @@ function LandingPageContent() {
                 Leve uma experiência digital mais clara, elegante e profissional para o seu hotel.
               </h2>
               <p className="mt-3 text-sm leading-7 text-slate-200">
-                GuestDesk reúne operação e experiência pública em uma base digital simples de
+                LibGuest reúne operação e experiência pública em uma base digital simples de
                 atualizar, organizada para a equipe e mais útil para o hóspede.
               </p>
             </div>
@@ -252,10 +252,10 @@ function LandingPageContent() {
           <div className="mt-8 border-t border-white/10 pt-6 text-sm text-slate-300">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <p className="max-w-2xl">
-                GuestDesk ajuda hotéis a organizar melhor sua presença digital, com mais clareza
+                LibGuest ajuda hotéis a organizar melhor sua presença digital, com mais clareza
                 operacional e uma experiência pública mais consistente.
               </p>
-              <p className="font-medium text-slate-100">GuestDesk by BLID Tecnologia</p>
+              <p className="font-medium text-slate-100">LibGuest by BLID Tecnologia</p>
             </div>
           </div>
         </section>

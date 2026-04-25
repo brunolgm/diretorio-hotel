@@ -50,7 +50,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
         <div className="mb-4 flex items-center justify-between rounded-[28px] bg-white px-4 py-4 shadow-sm ring-1 ring-slate-200/70 lg:hidden">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-              GuestDesk
+              LibGuest
             </p>
             <h1 className="mt-1 text-lg font-semibold tracking-tight text-slate-900">
               Painel administrativo
@@ -64,7 +64,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
           <aside className="hidden w-72 shrink-0 rounded-[32px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:block">
             <div className="border-b border-slate-200 pb-5">
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-                GuestDesk
+                LibGuest
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
                 Painel administrativo
@@ -77,7 +77,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
 
             <div className="mt-8 border-t border-slate-200 pt-5">
               <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
-                GuestDesk by BLID Tecnologia
+                LibGuest by BLID Tecnologia
               </p>
               <form action={signOut}>
                 <button

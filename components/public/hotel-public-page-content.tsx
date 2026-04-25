@@ -285,7 +285,7 @@ export function HotelPublicPageContent({
               <div className="flex items-start justify-between gap-4">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-badge-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
                   <Sparkles className="h-3.5 w-3.5" />
-                  GuestDesk
+                  LibGuest
                 </div>
 
                 <div className="shrink-0">
@@ -580,7 +580,7 @@ export function HotelPublicPageContent({
         <section className="mt-7 rounded-[30px] border border-[color:var(--hotel-footer-border)] bg-[var(--hotel-footer-bg)] px-6 py-5 text-sm shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)] backdrop-blur md:mt-8">
           <div className="flex justify-center md:justify-end">
             <p className="font-medium tracking-[0.01em] text-[color:var(--hotel-footer-text)]">
-              GuestDesk by BLID Tecnologia
+              LibGuest by BLID Tecnologia
             </p>
           </div>
         </section>

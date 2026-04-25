@@ -135,7 +135,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
                 placeholder="https://..."
               />
               <p className="text-xs leading-5 text-slate-500">
-                Se este campo ficar vazio, o GuestDesk decide entre página interna de detalhes ou
+                Se este campo ficar vazio, o LibGuest decide entre página interna de detalhes ou
                 ocultar o botão para evitar CTA sem destino.
               </p>
             </AdminField>

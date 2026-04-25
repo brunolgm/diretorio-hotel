@@ -70,7 +70,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
       <AdminPageHero
         eyebrow="gestão de acesso"
         title="Usuários do hotel"
-        description="Crie acessos, distribua papéis e mantenha a operação do GuestDesk com permissões simples e claras por hotel."
+        description="Crie acessos, distribua papéis e mantenha a operação do LibGuest com permissões simples e claras por hotel."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">

@@ -69,7 +69,7 @@ export default function LoginPage() {
 
             <div className="relative">
               <div className="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
-                GuestDesk
+                LibGuest
               </div>
 
               <h1 className="mt-7 text-4xl font-semibold tracking-tight leading-[1.04]">
@@ -103,7 +103,7 @@ export default function LoginPage() {
                   Plataforma para hospitalidade digital com apresentação premium.
                 </p>
                 <p className="mt-2 text-sm font-medium text-slate-100">
-                  GuestDesk by BLID Tecnologia
+                  LibGuest by BLID Tecnologia
                 </p>
               </div>
             </div>
@@ -116,7 +116,7 @@ export default function LoginPage() {
             </div>
 
             <h2 className="mt-6 text-3xl font-semibold tracking-tight text-slate-950">
-              Entrar no GuestDesk
+              Entrar no LibGuest
             </h2>
             <p className="mt-3 max-w-md text-sm leading-6 text-slate-600">
               Acesse o painel do hotel com seu e-mail e senha para gerenciar a experiência digital
@@ -170,7 +170,7 @@ export default function LoginPage() {
             <div className="mt-8 rounded-[24px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 ring-1 ring-slate-200/70 xl:hidden">
               <p className="text-sm text-slate-500">Assinatura institucional</p>
               <p className="mt-2 text-sm font-medium text-slate-800">
-                GuestDesk by BLID Tecnologia
+                LibGuest by BLID Tecnologia
               </p>
             </div>
           </section>

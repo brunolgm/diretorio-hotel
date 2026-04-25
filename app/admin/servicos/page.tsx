@@ -254,7 +254,7 @@ export default async function AdminServicesPage({
                     <AdminTextInput name="url" placeholder="https://..." />
                     <AdminHelpText>
                       Preencha quando o serviço precisar abrir uma página externa. Se ficar vazio, o
-                      GuestDesk decide entre página interna de detalhes ou ocultar o botão.
+                      LibGuest decide entre página interna de detalhes ou ocultar o botão.
                     </AdminHelpText>
                   </AdminField>
                 </div>
