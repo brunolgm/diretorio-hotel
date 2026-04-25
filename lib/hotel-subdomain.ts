@@ -1,4 +1,4 @@
-import { PRODUCT_ROOT_DOMAIN } from '@/lib/domain-context';
+import { PRODUCT_ROOT_DOMAIN } from '@/lib/product-domain';
 
 export const HOTEL_SUBDOMAIN_RESERVED_NAMES = [
   'admin',
@@ -54,6 +54,40 @@ export function validateHotelSubdomain(value: string | null | undefined) {
     normalizedValue: normalized,
     error: null,
   } as const;
+}
+
+export function getHotelSubdomainFeedback(value: string | null | undefined) {
+  const normalized = normalizeHotelSubdomainInput(value);
+  const validation = validateHotelSubdomain(value);
+
+  if (!normalized) {
+    return {
+      tone: 'neutral' as const,
+      title: 'Subdomínio ainda não definido',
+      description:
+        'Esse campo pode ficar vazio por enquanto. A rota pública por slug continuará funcionando como fallback seguro.',
+      previewUrl: null,
+    };
+  }
+
+  if (!validation.isValid) {
+    return {
+      tone: isReservedHotelSubdomain(normalized) ? ('warning' as const) : ('danger' as const),
+      title: isReservedHotelSubdomain(normalized) ? 'Nome reservado' : 'Subdomínio inválido',
+      description:
+        validation.error ||
+        'Revise o valor informado para usar apenas um subdomínio válido dentro do domínio operacional atual.',
+      previewUrl: buildHotelSubdomainPreviewUrl(normalized),
+    };
+  }
+
+  return {
+    tone: 'success' as const,
+    title: 'Subdomínio válido',
+    description:
+      'Esse será o endereço público principal do hotel dentro do domínio operacional atual, mantendo a rota por slug como fallback seguro.',
+    previewUrl: buildHotelSubdomainPreviewUrl(validation.normalizedValue),
+  };
 }
 
 export function buildHotelSubdomainPreviewUrl(

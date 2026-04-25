@@ -1,6 +1,5 @@
 import { headers } from 'next/headers';
-
-export const PRODUCT_ROOT_DOMAIN = 'guestdesk.digital';
+import { PRODUCT_ROOT_DOMAIN } from '@/lib/product-domain';
 
 export type DomainContextKind =
   | 'localhost'

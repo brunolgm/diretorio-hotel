@@ -12,6 +12,7 @@
   Upload,
   Wifi,
 } from 'lucide-react';
+import { HotelSubdomainField } from '@/components/admin/hotel-subdomain-field';
 import { ThemeColorField } from '@/components/admin/theme-color-field';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
@@ -193,36 +194,15 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               <label className="block text-sm font-medium text-slate-700">
                 Subdomínio público
               </label>
-              <div className="rounded-[24px] border border-slate-200 bg-slate-50/70 p-4">
-                <input
-                  name="subdomain"
-                  defaultValue={hotel.subdomain || ''}
-                  className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
-                  placeholder="ex.: novotelrv"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                />
-
-                <div className="mt-3 rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-3">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">
-                    Prévia da URL pública
-                  </p>
-                  <p className="mt-2 break-words text-sm font-semibold text-slate-900">
-                    {publicSubdomainPreview}
-                  </p>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">
-                    {hotel.subdomain
-                      ? 'Este será o identificador principal do hotel em guestdesk.digital.'
-                      : 'Se ficar vazio, o LibGuest continua aceitando a rota por slug e usa o comportamento atual como fallback.'}
-                  </p>
-                </div>
-              </div>
+              <HotelSubdomainField
+                name="subdomain"
+                defaultValue={hotel.subdomain || ''}
+                slugFallback={hotel.slug}
+              />
               <AdminHelpText>
-                Use apenas letras minúsculas, números e hífen. Evite nomes genéricos ou
-                institucionais como <span className="font-medium">www</span>,{' '}
-                <span className="font-medium">admin</span> e{' '}
-                <span className="font-medium">guestdesk</span>.
+                O endereço público principal continua dentro do domínio operacional atual
+                <span className="font-medium"> guestdesk.digital</span>. Se o campo ficar vazio,
+                a rota por slug seguirá disponível como fallback seguro.
               </AdminHelpText>
             </div>
 
