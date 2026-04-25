@@ -1,0 +1,481 @@
+# PRODUCT MAP
+
+Documento vivo para manter uma fonte única de verdade sobre a evolução do produto, decisões técnicas, branding, domínios, processo de trabalho e próximos ciclos.
+
+Importante:
+- Produto atual: `LibGuest`
+- Nome anterior/legado: `GuestDesk`
+- Domínio operacional atual: `guestdesk.digital`
+- Status do domínio: operacional por enquanto, mas pendente de decisão futura de rebranding/domínio
+- Assinatura atual/futura desejada: `LibGuest by BLID Tecnologia`
+- Assinatura legada: `GuestDesk by BLID Tecnologia`
+
+## 1. Product identity
+
+### Nome do produto
+- Nome principal atual: `LibGuest`
+- Nome anterior/legado: `GuestDesk`
+- Assinatura institucional/comercial em transição: `LibGuest by BLID Tecnologia`
+- Assinatura legada: `GuestDesk by BLID Tecnologia`
+- Domínio operacional atualmente configurado: `guestdesk.digital`
+
+### O que o produto é
+- Plataforma de diretório digital para hotelaria com painel administrativo e experiência pública para hóspedes.
+- Produto orientado a operação hoteleira, apresentação digital e clareza da jornada do hóspede.
+
+### O que o produto entrega hoje
+- Painel administrativo protegido por autenticação.
+- Gestão de dados principais do hotel.
+- Gestão de serviços, departamentos e políticas.
+- Página pública do hotel.
+- Tradução salva em PT -> EN/ES no momento do save.
+- Analytics básicos da experiência pública.
+- Resolução pública por slug e por subdomínio de produto.
+- Theming controlado do hotel na experiência pública.
+
+### Público principal
+- Decisores de hotel.
+- Equipes operacionais.
+- Times de recepção, atendimento e gestão.
+- Uso comercial para demo, portfólio e apresentação.
+
+## 2. Current architecture
+
+### Stack principal
+- Next.js com App Router.
+- Tailwind CSS.
+- Supabase Auth.
+- Supabase Database.
+- Supabase Storage.
+- Google Cloud Translation para save-time translation.
+
+### Estrutura funcional
+- `app/admin/*`: painel administrativo.
+- `app/hotel/[slug]/*`: fallback público por slug.
+- `app/page.tsx`: landing do produto ou raiz pública do hotel quando resolvido por subdomínio de produto.
+- `app/servicos/[id]/page.tsx`: detalhe interno de serviço na experiência por subdomínio.
+
+### Blocos importantes da arquitetura
+- `lib/domain-context.ts`: leitura e classificação de host/domínio.
+- `lib/public-hotel-data.ts`: loaders compartilhados da experiência pública.
+- `lib/public-routes.ts`: geração de links públicos com compatibilidade entre slug e subdomínio.
+- `lib/service-destinations.ts`: lógica de CTA/destino de serviços.
+- `lib/services/translation-service.ts`: integração server-only com tradução.
+- `lib/hotel-theme.ts`: presets visuais e override seguro de acento.
+- `lib/hotel-subdomain.ts`: validação e normalização de subdomínio do hotel.
+
+### Arquitetura pública atual
+- Root domain do produto mostra landing.
+- Subdomínio de produto pode resolver um hotel.
+- Slug continua sendo fallback público seguro.
+- Detalhe interno de serviço funciona tanto em slug quanto em subdomínio.
+
+## 3. Current domains and host behavior
+
+### Estado atual
+- `guestdesk.digital`: domínio operacional atual do produto.
+- `www.guestdesk.digital`: tratado como root do produto.
+- `{subdomain}.guestdesk.digital`: resolve hotel quando houver correspondência.
+- `/hotel/[slug]`: fallback público por slug.
+- `/hotel/[slug]/servicos/[id]`: detalhe de serviço por slug.
+- `/servicos/[id]`: detalhe de serviço quando a experiência está sendo servida no subdomínio do hotel.
+
+### Status de naming e domínio
+- O produto ativo deve ser tratado como `LibGuest`.
+- `GuestDesk` deve ser tratado como naming legado.
+- `guestdesk.digital` permanece operacional por compatibilidade e continuidade.
+- A decisão final de domínio público futuro ainda está em aberto e pode acompanhar o rebranding.
+
+### Regra atual de resolução
+1. Se o host for root do produto, mostrar landing.
+2. Se o host for subdomínio candidato do produto:
+   - tentar resolver por `hotels.subdomain`
+   - se não encontrar, tentar fallback por `hotels.slug`
+3. Se não houver match, retornar `404` no contexto de subdomínio.
+4. As rotas por slug continuam válidas e independentes do subdomínio.
+
+### Limites atuais
+- Ainda não existe custom domain por cliente.
+- Ainda não existe painel de gestão de domínios.
+- Ainda não existe canonical host management completo.
+
+## 4. Working process with ChatGPT, Codex, and Cursor
+
+### Papel de cada ferramenta
+- ChatGPT:
+  - estratégia de produto
+  - definição de sprint
+  - priorização
+  - arquitetura de alto nível
+  - copy e direcionamento comercial
+- Codex:
+  - implementação
+  - hotfixes
+  - documentação
+  - validação local
+  - ajustes incrementais orientados a segurança
+- Cursor:
+  - apoio visual
+  - direção de UI refinada
+  - comparação de densidade/ritmo/layout
+  - ajuda em iterações de interface
+
+### Forma de trabalho recomendada
+1. Definir objetivo e restrições da sprint.
+2. Fazer análise de arquivos exatos antes de editar.
+3. Implementar em branch de preview.
+4. Validar em preview/Vercel.
+5. Só depois considerar merge para `main`.
+
+### Regras que têm funcionado bem
+- mudanças incrementais
+- evitar refatorações amplas
+- preservar comportamento estável validado
+- separar sprint de produto, hotfix de regressão e sprint de documentação
+- usar documentação curta e operacional
+
+## 5. Closed sprints summary
+
+### Sprint 1
+- Hardening inicial.
+- Escopo seguro de ações por `id` + `hotel_id`.
+- Helper mínimo de admin/auth.
+- Primeiros utilitários leves de parsing/normalização.
+
+### Sprint 2
+- Landing inicial do produto.
+- Login com visual mais premium.
+- Active state no admin.
+- Primeira camada de polish visual.
+
+### Sprint 2.1
+- Consolidação visual/admin.
+- Pequenos componentes reutilizáveis de UI admin.
+- Mais consistência de superfícies, listas e empty states.
+
+### Sprint 3
+- Visibilidade de status de tradução no admin.
+- Retranslate manual.
+- Melhor feedback não bloqueante de falha de tradução.
+
+### Sprint 4
+- Acabamento comercial.
+- Naming e branding mais consistentes.
+- Assinatura `GuestDesk by BLID Tecnologia`.
+
+### Sprint 5
+- Documentação operacional em `docs/`.
+- Deploy, ambiente, onboarding, admin guide e workflow.
+
+### Sprint 6
+- Busca/filtro no admin para serviços, departamentos e políticas.
+- Melhorias de usabilidade diária do painel.
+
+### Sprint 7
+- Base comercial em `docs/commercial/`.
+
+### Sprint 8
+- Robustez técnica.
+- Validação e redução de falhas previsíveis.
+- Hardening de envs e fluxos críticos.
+
+### Sprint 9
+- Base de analytics da experiência pública.
+- Eventos importantes salvos em banco.
+
+### Sprint 9.1
+- Analytics visíveis no admin dashboard.
+- Filtro de período e leitura gerencial leve.
+
+### Sprint 9.x refinements
+- Sessão, deduplicação e cooldown mais inteligentes para analytics.
+
+### Sprint 10
+- Onboarding/admin guidance in-product.
+- Help text e empty states mais claros.
+
+### Sprint 11
+- Expansão do kit comercial com materiais mais reutilizáveis.
+
+### Sprint 12
+- Evolução leve de leitura analítica para gestão.
+
+### Sprint 13
+- Refinamento premium de UI.
+
+### Sprint 13.1
+- Theming seguro por hotel com presets premium + override controlado.
+
+### Sprint 14
+- Usuários e permissões básicas por papel.
+- Área de usuários no admin.
+
+### Sprint 14.1
+- Guided service creation.
+- Ícones e categorias guiadas.
+
+### Sprint 15
+- Smart service destinations.
+- Páginas internas de detalhe de serviço.
+
+### Sprint 15.1
+- Reconstrução visual da página `/admin/servicos`.
+
+### Sprint 16
+- Cobertura de tradução pública mais completa.
+- Melhor coerência de fallback PT/EN/ES.
+
+### Sprint 17
+- Fundação de landing/domain presence para `guestdesk.digital`.
+
+### Sprint 18
+- Fundação técnica para host/subdomain behavior.
+
+### Sprint 19
+- Refinamento comercial e narrativo da landing.
+
+### Sprint 20
+- Resolução real de hotel por subdomínio do produto.
+- Root domain preservado.
+- Fallback por slug preservado.
+
+### Sprint 21
+- Campo dedicado de subdomínio por hotel.
+- Admin management de subdomínio.
+- Resolução pública agora prefere `subdomain` e cai para `slug`.
+
+## 6. Closed hotfixes summary
+
+### Hotfixes recorrentes já tratados
+- Correções de texto corrompido/UTF-8 em páginas públicas e admin.
+- Correção de nested button no mobile menu do admin.
+- Correções de hidratação e props server/client em navegação.
+- Ajustes em `next/image` quando um uso específico causava regressão.
+- Correções em overlays/modais presos no fluxo de usuários/admin.
+- Correções de responsividade e overflow em cards e listas.
+- Fixes incrementais em analytics reading e deduplicação.
+- Hotfix pré-Sprint-21 para resiliência visual dos cards de serviço público no mobile.
+
+### Observação
+- O histórico detalhado de cada hotfix pode ser expandido neste arquivo quando necessário, mas a intenção é manter o mapa operacional e enxuto.
+
+## 7. Important technical decisions
+
+### Decisões já tomadas
+- Português é a língua canônica.
+- Tradução acontece no save, não no page visit.
+- EN/ES vivem em translation tables, não nas tabelas principais.
+- Fallback para PT é obrigatório quando tradução estiver ausente.
+- O produto não usa framework pesado de validação neste momento.
+- O produto evita refatorações amplas sem necessidade real.
+- UI pública e admin seguem evolução incremental, não redesign amplo.
+- Theming público é controlado por presets, não por editor visual livre.
+- Slug permanece como fallback seguro.
+- Subdomínio agora é identificador público preferencial quando configurado.
+
+### Decisões deliberadamente adiadas
+- custom domains por cliente
+- editor manual de traduções
+- filas/workers de tradução
+- permission matrix complexa
+- multi-tenant completo por host/custom domain
+- dashboard analítico pesado
+
+## 8. Supabase/security status
+
+### Status geral
+- Auth com Supabase.
+- Profiles vinculados a `hotel_id`.
+- Proteção admin/roles já existente.
+- Save actions críticas endurecidas com scoping por `id` + `hotel_id`.
+
+### Banco atual
+- tabelas principais de hotel, seções, departamentos e políticas
+- translation tables para seções, departamentos e políticas
+- eventos de analytics públicos
+- perfis com papel e status ativo
+- campos de tema do hotel
+- campo dedicado de subdomínio do hotel
+
+### Pontos de segurança já cobertos
+- API keys de tradução mantidas server-only.
+- Tradução não bloqueia publicação em PT.
+- Políticas de leitura de analytics por hotel já adicionadas.
+- Validação de subdomínio e restrição de nomes reservados.
+
+### Pontos a observar
+- revisar periodicamente políticas RLS
+- revisar uso de `service_role`
+- acompanhar warnings de `img`
+- manter validação mínima consistente nas actions
+
+## 9. Branding/naming status
+
+### Naming ativo
+- Produto: `LibGuest`
+- Assinatura alvo: `LibGuest by BLID Tecnologia`
+- Naming legado: `GuestDesk`
+- Assinatura legada: `GuestDesk by BLID Tecnologia`
+
+### Regras atuais
+- `LibGuest` deve ser tratado como nome principal do produto.
+- `GuestDesk` deve ser tratado como nome anterior/legado.
+- `guestdesk.digital` continua válido operacionalmente até decisão futura sobre domínio/rebranding.
+- A assinatura de marca deve evoluir para `LibGuest by BLID Tecnologia`.
+- `GuestDesk by BLID Tecnologia` deve ser tratado como branding legado.
+
+### Estado atual de branding
+- landing já orientada a produto comercial
+- login e experiência pública ainda podem carregar elementos do naming legado
+- domínio atual ainda reflete o naming anterior
+- branding está em fase de transição controlada de `GuestDesk` para `LibGuest`
+
+## 10. Known pending items
+
+### Produto e arquitetura
+- custom domains por cliente
+- canonical host e redirects estratégicos
+- gestão completa de domínios no admin
+- preview reativo do subdomínio no admin
+
+### Tradução
+- tradução de mais superfícies públicas auxiliares quando necessário
+- eventual UI manual de edição de tradução
+- controle mais refinado de status por campo
+
+### Admin
+- refinamentos adicionais de usabilidade em módulos específicos
+- melhoria contínua de densidade/ritmo de páginas sensíveis
+
+### Analytics
+- leitura mais executiva sem virar dashboard pesado
+- possíveis resumos por hotel/período mais sofisticados
+
+### Robustez
+- investigar a causa raiz do `spawn EPERM` no build local
+- revisar warnings pendentes de `img`
+- limpeza de imports não usados em arquivos remanescentes
+
+## 11. Roadmap from Sprint 21.1 to Sprint 35
+
+### Sprint 21.1
+- polish do admin de subdomínio
+- mensagens de ajuda e validação mais refinadas
+- confirmação operacional em preview
+
+### Sprint 22
+- canonical host strategy leve
+- preferência consistente por host principal quando fizer sentido
+
+### Sprint 23
+- melhoria de analytics orientada a leitura por gestão
+- blocos mais claros de interpretação e uso
+
+### Sprint 24
+- refinamento do onboarding de hotel novo com subdomínio e tema
+
+### Sprint 25
+- preparo de foundation para custom domains sem ativação completa
+
+### Sprint 26
+- maior cobertura operacional/documental para handoff de cliente
+
+### Sprint 27
+- refinamento do fluxo de tradução e visibilidade operacional
+
+### Sprint 28
+- melhorias leves de mídia/identidade visual do hotel, se seguras
+
+### Sprint 29
+- expansão controlada de permissões por papel, se houver necessidade real
+
+### Sprint 30
+- camada leve de qualidade/observabilidade para erros e eventos importantes
+
+### Sprint 31
+- melhorias de comercial/demo mode e material de showcase do produto
+
+### Sprint 32
+- primeira fase segura de custom domain management
+
+### Sprint 33
+- canonical redirects e política de host principal
+
+### Sprint 34
+- hardening avançado de operação multi-hotel sem abrir refactor amplo
+
+### Sprint 35
+- consolidação para readiness mais madura de produto/SaaS hotel-tech
+
+### Nota de roadmap
+- Este roadmap é direcional e pode ser repriorizado.
+- Nenhuma sprint futura deve remover fallback por slug sem uma transição explícita e validada.
+
+## 12. Standard branch/deploy workflow
+
+### Fluxo recomendado
+1. `main` permanece estável.
+2. Cada sprint trabalha em branch dedicada.
+3. Implementação e validação ocorrem primeiro em preview.
+4. Hotfixes pequenos continuam preferindo mudanças locais e seguras.
+5. Só depois de validado em preview considerar merge para `main`.
+
+### Convenção prática
+- branch por sprint ou hotfix
+- validação local
+- validação em preview
+- revisão final
+- merge
+
+### Checklist curto por entrega
+- confirmar escopo e restrições
+- listar arquivos a alterar antes de editar
+- implementar incrementalmente
+- validar `lint`, `tsc` e `build` quando possível
+- registrar decisões relevantes em docs
+
+## Como atualizar este arquivo
+
+Atualizar após:
+- fechamento de sprint
+- hotfix importante
+- mudança de domínio/host behavior
+- mudança de branding/naming
+- decisão arquitetural relevante
+- alteração de fluxo operacional
+
+Regra de manutenção:
+- preferir atualização curta e objetiva
+- preservar histórico resumido
+- evitar transformar este arquivo em changelog detalhado de código
+
+## Regra fixa de manutenção desta documentação
+
+Este arquivo deve ser atualizado depois de toda sprint, hotfix ou decisão relevante de produto sempre que a mudança afetar pelo menos um destes pontos:
+
+- estado atual do produto
+- status de sprint
+- roadmap
+- branding/naming
+- domínios e comportamento de host
+- Supabase/segurança
+- arquitetura
+- workflow operacional
+- pendências conhecidas
+
+Mudanças pequenas e estritamente de implementação não precisam atualizar este documento quando:
+
+- não alteram o estado do produto
+- não geram decisão importante
+- não criam observação operacional relevante
+- não mudam prioridades, comportamento público ou arquitetura
+
+Em toda atualização futura deste arquivo, incluir quando aplicável:
+
+- nome da sprint ou hotfix
+- status
+- arquivos alterados, quando for relevante para contexto
+- decisões importantes
+- resultado de validação
+- pendências conhecidas
+- próximo passo recomendado
