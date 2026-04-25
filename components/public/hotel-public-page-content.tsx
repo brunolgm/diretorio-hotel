@@ -27,15 +27,8 @@ import type {
   PublicHotelSection,
 } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
+import { shouldPreferHotelSubdomainRoot } from '@/lib/public-routes';
 import { getServiceDestination } from '@/lib/service-destinations';
-
-function shouldPreferSubdomainRoot(domainContext: DomainContext, hotelSlug: string) {
-  return (
-    domainContext.kind === 'product-subdomain' &&
-    domainContext.isPotentialHotelSubdomain &&
-    domainContext.subdomain === hotelSlug
-  );
-}
 
 function SectionIcon({
   iconName,
@@ -265,7 +258,12 @@ export function HotelPublicPageContent({
     : null;
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const useSubdomainRoot =
-    preferSubdomainRoot ?? shouldPreferSubdomainRoot(domainContext, hotel.slug);
+    preferSubdomainRoot ??
+    shouldPreferHotelSubdomainRoot({
+      domainContext,
+      hotelSlug: hotel.slug,
+      hotelSubdomain: hotel.subdomain,
+    });
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_45%,#f8fafc_100%)]">

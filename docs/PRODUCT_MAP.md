@@ -255,6 +255,11 @@ Importante:
 - Prévia mais clara da URL pública principal em `https://{subdomain}.guestdesk.digital`.
 - Reforço operacional de que `guestdesk.digital` segue como domínio atual e a rota por slug continua como fallback seguro.
 
+### Sprint 21.2
+- Hardening operacional leve do fluxo de subdomínio.
+- Correção da decisão de navegação pública para preferir o subdomínio dedicado do hotel quando configurado.
+- Validação revisada para casos comuns de erro de entrada, sem alterar a arquitetura principal.
+
 ## 6. Closed hotfixes summary
 
 ### Hotfixes recorrentes já tratados
@@ -385,6 +390,29 @@ Importante:
   - custom domains por cliente seguem fora do escopo
 - Próximo passo recomendado: `Sprint 21.2`
 
+### Registro curto da Sprint 21.2
+- Status: concluída
+- Objetivo: validar operacionalmente a base de subdomínio e corrigir pequenos edge cases antes da Sprint 22 de canonical host strategy
+- Arquivos alterados:
+  - `app/admin/hotel/actions.ts`
+  - `components/admin/hotel-subdomain-field.tsx`
+  - `components/public/hotel-public-page-content.tsx`
+  - `components/public/hotel-service-detail-content.tsx`
+  - `lib/hotel-subdomain.ts`
+  - `lib/public-routes.ts`
+  - `docs/PRODUCT_MAP.md`
+- Validação realizada:
+  - `npm run lint`
+  - `npm run build` com falha local recorrente em `spawn EPERM` após compilação
+  - busca por `libguest.digital` sem ocorrência encontrada
+  - confirmação de `guestdesk.digital` preservado nos pontos esperados
+  - revisão orientada por helper para casos de entrada: vazio, válido, reservado, maiúsculas, espaços, acentos, caracteres especiais e hífen nas pontas
+- Pendências conhecidas:
+  - canonical host strategy segue fora do escopo desta sprint
+  - validação manual em preview ainda é recomendada para confirmar host real `{subdomain}.guestdesk.digital`
+  - há textos mojibake remanescentes em áreas antigas do projeto fora do fluxo de subdomínio
+- Próximo passo recomendado: `Sprint 22`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -416,8 +444,7 @@ Importante:
 - concluída: polish do admin de subdomínio com feedback visual e ajuda operacional refinada
 
 ### Sprint 21.2
-- confirmação operacional em preview com validação orientada a host/subdomínio
-- revisão leve de copy e estados de erro do fluxo público por subdomínio, se necessário
+- concluída: validação operacional e hardening leve do fluxo de subdomínio
 
 ### Sprint 22
 - canonical host strategy leve

@@ -7,16 +7,8 @@ import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { getPublicCopy } from '@/lib/public-copy';
 import type { PublicHotel, PublicHotelSection } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
-import { buildPublicHotelHref } from '@/lib/public-routes';
+import { buildPublicHotelHref, shouldPreferHotelSubdomainRoot } from '@/lib/public-routes';
 import { MIN_SERVICE_DETAIL_CONTENT_LENGTH } from '@/lib/service-destinations';
-
-function shouldPreferSubdomainRoot(domainContext: DomainContext, hotelSlug: string) {
-  return (
-    domainContext.kind === 'product-subdomain' &&
-    domainContext.isPotentialHotelSubdomain &&
-    domainContext.subdomain === hotelSlug
-  );
-}
 
 function buildHotelBackHref(
   slug: string,
@@ -50,7 +42,12 @@ export function HotelServiceDetailContent({
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const useSubdomainRoot =
-    preferSubdomainRoot ?? shouldPreferSubdomainRoot(domainContext, hotel.slug);
+    preferSubdomainRoot ??
+    shouldPreferHotelSubdomainRoot({
+      domainContext,
+      hotelSlug: hotel.slug,
+      hotelSubdomain: hotel.subdomain,
+    });
   const backHref = buildHotelBackHref(hotel.slug, language, domainContext, useSubdomainRoot);
 
   return (

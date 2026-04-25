@@ -93,10 +93,10 @@ export async function updateHotelAction(formData: FormData) {
     .eq('id', hotel.id);
 
   if (error) {
-    redirect('/admin/hotel?error=NÃ£o foi possÃ­vel salvar os dados do hotel');
+    redirect('/admin/hotel?error=N%C3%A3o%20foi%20poss%C3%ADvel%20salvar%20os%20dados%20do%20hotel');
   }
 
-  redirect('/admin/hotel?success=AlteraÃ§Ãµes salvas com sucesso');
+  redirect('/admin/hotel?success=Altera%C3%A7%C3%B5es%20salvas%20com%20sucesso');
 }
 
 export async function removeHotelLogoAction() {
@@ -110,9 +110,9 @@ export async function removeHotelLogoAction() {
     .eq('id', hotel.id);
 
   if (error) {
-    redirect('/admin/hotel?error=NÃ£o foi possÃ­vel remover a logo');
+    redirect('/admin/hotel?error=N%C3%A3o%20foi%20poss%C3%ADvel%20remover%20a%20logo');
   }
 
-  redirect('/admin/hotel?success=Logo removida com sucesso');
+  redirect('/admin/hotel?success=Logo%20removida%20com%20sucesso');
 }
 

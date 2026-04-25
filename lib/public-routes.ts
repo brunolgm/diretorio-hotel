@@ -1,4 +1,5 @@
 import type { DomainContext } from '@/lib/domain-context';
+import { normalizeHotelSubdomainInput } from '@/lib/hotel-subdomain';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
 function buildLanguageQuery(language: SupportedPublicLanguage) {
@@ -15,6 +16,29 @@ export function buildHotelServiceSlugHref(
   language: SupportedPublicLanguage
 ) {
   return `/hotel/${slug}/servicos/${serviceId}${buildLanguageQuery(language)}`;
+}
+
+export function shouldPreferHotelSubdomainRoot({
+  domainContext,
+  hotelSlug,
+  hotelSubdomain,
+}: {
+  domainContext?: DomainContext | null;
+  hotelSlug: string;
+  hotelSubdomain?: string | null;
+}) {
+  if (
+    domainContext?.kind !== 'product-subdomain' ||
+    !domainContext.isPotentialHotelSubdomain ||
+    !domainContext.subdomain
+  ) {
+    return false;
+  }
+
+  const preferredSubdomain =
+    normalizeHotelSubdomainInput(hotelSubdomain) || normalizeHotelSubdomainInput(hotelSlug);
+
+  return Boolean(preferredSubdomain && domainContext.subdomain === preferredSubdomain);
 }
 
 export function buildPublicHotelHref({
