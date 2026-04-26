@@ -265,6 +265,11 @@ Importante:
 - Regras de root domain, `www` e subdomínio candidato centralizadas em helpers reutilizáveis.
 - Comportamento público preservado: landing no root, hotel no subdomínio e fallback por slug obrigatório.
 
+### Sprint 23
+- Leitura de analytics orientada à gestão no dashboard admin.
+- Microcopy mais clara para interpretar visualizações, interações e interesse por idioma/departamento.
+- Estados vazios mais úteis e leitura executiva sem transformar a área em dashboard pesado.
+
 ## 6. Closed hotfixes summary
 
 ### Hotfixes recorrentes já tratados
@@ -472,6 +477,22 @@ Importante:
   - validação manual em preview ainda é recomendada para `guestdesk.digital`, `www.guestdesk.digital`, `{subdomain}.guestdesk.digital` e rotas por slug
 - Próximo passo recomendado: `Sprint 23`
 
+### Registro curto da Sprint 23
+- Status: concluída
+- Objetivo: melhorar a leitura gerencial dos analytics no admin com blocos mais claros, explicações operacionais e estados vazios mais úteis, sem alterar a base técnica sensível
+- Arquivos alterados:
+  - `app/admin/page.tsx`
+  - `docs/PRODUCT_MAP.md`
+- Validação realizada:
+  - `npm run lint`
+  - `npm run build` com falha local recorrente em `spawn EPERM` após compilação
+  - busca por `libguest.digital`
+  - confirmação de `guestdesk.digital` preservado
+- Pendências conhecidas:
+  - analytics continuam leves e executivos, sem detalhamento por serviço porque esse evento ainda não existe na base atual
+  - validação manual do dashboard com período e dados reais ainda é recomendada em preview
+- Próximo passo recomendado: `Sprint 24`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -509,8 +530,7 @@ Importante:
 - concluída: canonical host strategy leve com helpers centralizados e sem redirects agressivos
 
 ### Sprint 23
-- melhoria de analytics orientada a leitura por gestão
-- blocos mais claros de interpretação e uso
+- concluída: melhoria de analytics orientada à leitura por gestão com blocos mais claros de interpretação e uso
 
 ### Sprint 24
 - refinamento do onboarding de hotel novo com subdomínio e tema

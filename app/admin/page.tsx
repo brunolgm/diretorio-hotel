@@ -67,16 +67,34 @@ interface AdminPageProps {
   }>;
 }
 
+function formatAnalyticsDate(value: string) {
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+  }).format(new Date(value));
+}
+
 function getRangeLabel(range: 'today' | '7d' | '30d') {
   if (range === 'today') return 'Hoje';
   if (range === '30d') return 'Últimos 30 dias';
   return 'Últimos 7 dias';
 }
 
+function getRangeWindowLabel(range: 'today' | '7d' | '30d', since: string) {
+  if (range === 'today') return 'Eventos registrados desde o início de hoje.';
+  return `Eventos registrados desde ${formatAnalyticsDate(since)}.`;
+}
+
 function getComparisonLabel(range: 'today' | '7d' | '30d') {
   if (range === 'today') return 'ontem';
   if (range === '30d') return '30 dias anteriores';
   return '7 dias anteriores';
+}
+
+function getLanguageLabel(language: 'pt' | 'en' | 'es') {
+  if (language === 'en') return 'English';
+  if (language === 'es') return 'Español';
+  return 'Português';
 }
 
 function ComparisonPill({
@@ -121,6 +139,27 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const comparisonLabel = getComparisonLabel(analytics.range);
   const canManageHotel = hasMinimumRole(profile.normalizedRole, 'editor');
   const canManageUsers = hasMinimumRole(profile.normalizedRole, 'administrador');
+  const topLanguage = analytics.languageUsage.find((item) => item.count > 0) || null;
+  const topAction = analytics.topActions.find((item) => item.count > 0) || null;
+  const topDepartment = analytics.departmentUsage[0] || null;
+  const primaryContactInteractions =
+    analytics.whatsappClicks + analytics.bookingClicks + analytics.websiteClicks;
+  const analyticsReadout =
+    analytics.totalEvents > 0
+      ? [
+          `${analytics.pageViews} visualizações públicas foram registradas no período selecionado.`,
+          primaryContactInteractions > 0
+            ? `${primaryContactInteractions} interações de contato ou reserva indicam interesse mais próximo de ação.`
+            : 'Ainda não houve interações suficientes em contato ou reserva para leitura de intenção.',
+          topDepartment
+            ? `${topDepartment.name} lidera entre os departamentos mais consultados pelos hóspedes neste período.`
+            : 'Ainda não há cliques suficientes em departamentos para destacar uma preferência clara.',
+        ]
+      : [
+          'Ainda não há eventos suficientes neste período para leitura gerencial.',
+          'Assim que a experiência pública receber acessos e cliques, este bloco mostrará sinais mais úteis para gestão.',
+          'Use estes números como indicadores de comportamento do hóspede, não como relatório financeiro.',
+        ];
 
   return (
     <main className="space-y-6">
@@ -178,7 +217,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         <AdminSectionTitle
           eyebrow="Analytics público"
           title="Uso da experiência pública"
-          description="Acompanhe visualizações e interações principais do LibGuest para entender o que mais gera interesse, contato e leitura útil para gestão."
+          description="Os analytics mostram interações registradas na experiência pública do hotel. Use este bloco para leitura gerencial leve, não como dashboard financeiro."
           action={
             <AdminInfoBadge>
               <AdminQuickArrow />
@@ -204,35 +243,35 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </AdminFilterBar>
 
         <AdminGuideCard
-          title="Como ler este bloco"
-          description={`Os números abaixo mostram o período atual e, logo depois, uma comparação rápida com ${comparisonLabel}.`}
+          title="Resumo do período selecionado"
+          description={`${getRangeWindowLabel(analytics.range, analytics.since)} Os números abaixo mostram o período atual e uma comparação rápida com ${comparisonLabel}.`}
           className="mt-6"
         />
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <AdminStatCard
             icon={<Eye className="h-5 w-5" />}
-            title="Page views"
+            title="Visualizações públicas"
             value={String(analytics.pageViews)}
-            description="Visualizações registradas na página pública do hotel no período atual."
+            description="Total de page views registrados na experiência pública do hotel."
           />
           <AdminStatCard
             icon={<MessageCircle className="h-5 w-5" />}
             title="Cliques em WhatsApp"
             value={String(analytics.whatsappClicks)}
-            description="Interações com os botões de WhatsApp do hero, rodapé e CTA flutuante."
+            description="Interações registradas nos pontos de contato via WhatsApp."
           />
           <AdminStatCard
             icon={<MousePointerClick className="h-5 w-5" />}
             title="Reservas e site"
             value={String(analytics.bookingAndWebsiteClicks)}
-            description="Soma dos cliques em reservas e no site oficial do hotel."
+            description="Soma das interações registradas em reservas e site oficial."
           />
           <AdminStatCard
             icon={<Languages className="h-5 w-5" />}
             title="Trocas de idioma"
             value={String(analytics.languageSelections)}
-            description="Seleções manuais de idioma feitas na experiência pública."
+            description="Mudanças manuais de idioma feitas durante a navegação."
           />
         </div>
 
@@ -260,40 +299,35 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <p className="text-sm font-semibold text-slate-900">Leitura gerencial do período</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               {analytics.totalEvents > 0
-                ? `Foram registrados ${analytics.totalEvents} eventos no período atual. O comparativo usa ${comparisonLabel} como base de leitura.`
+                ? `Foram registrados ${analytics.totalEvents} eventos no período atual. O comparativo usa ${comparisonLabel} como base de leitura e ajuda a perceber tendência, não resultado financeiro.`
                 : 'Ainda não há eventos suficientes neste período para gerar uma leitura operacional consistente.'}
             </p>
 
-            {analytics.totalEvents > 0 ? (
-              <div className="mt-4 space-y-3 text-sm text-slate-600">
-                <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
-                  <span>Cliques em reservas</span>
-                  <span className="font-semibold text-slate-950">{analytics.bookingClicks}</span>
+            <div className="mt-4 space-y-3 text-sm text-slate-600">
+              {analyticsReadout.map((item) => (
+                <div
+                  key={item}
+                  className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70"
+                >
+                  {item}
                 </div>
-                <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
-                  <span>Cliques no site oficial</span>
-                  <span className="font-semibold text-slate-950">{analytics.websiteClicks}</span>
-                </div>
-                <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
-                  <span>Cliques em departamentos</span>
-                  <span className="font-semibold text-slate-950">{analytics.departmentClicks}</span>
-                </div>
-                <div className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70">
-                  <span>Total de eventos registrados</span>
-                  <span className="font-semibold text-slate-950">{analytics.totalEvents}</span>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-4 rounded-2xl bg-white px-4 py-6 text-sm text-slate-500 ring-1 ring-slate-200/70">
-                Assim que a rota pública receber acessos e cliques principais, este bloco vai
-                mostrar um resumo de uso mais útil para gestão.
-              </div>
-            )}
+              ))}
+            </div>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
             <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
-              <p className="text-sm font-semibold text-slate-900">Idiomas mais usados</p>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">Idiomas mais usados</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">
+                    Considera as visualizações registradas por idioma no período selecionado.
+                  </p>
+                </div>
+                <AdminInfoBadge>
+                  {topLanguage ? getLanguageLabel(topLanguage.language) : 'Sem destaque'}
+                </AdminInfoBadge>
+              </div>
               <div className="mt-4 space-y-3">
                 {analytics.languageUsage.some((item) => item.count > 0) ? (
                   analytics.languageUsage.map((item) => (
@@ -301,22 +335,30 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                       key={item.language}
                       className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-slate-200/70"
                     >
-                      <span className="font-medium uppercase tracking-[0.12em] text-slate-500">
-                        {item.language}
+                      <span className="font-medium text-slate-700">
+                        {getLanguageLabel(item.language)}
                       </span>
                       <span className="font-semibold text-slate-950">{item.count}</span>
                     </div>
                   ))
                 ) : (
                   <div className="rounded-2xl bg-white px-4 py-6 text-sm text-slate-500 ring-1 ring-slate-200/70">
-                    Ainda não há visualizações suficientes por idioma no período selecionado.
+                    Ainda não há visualizações suficientes por idioma neste período. Quando o hotel receber mais acessos, este bloco ajuda a identificar qual versão da experiência pública é mais usada.
                   </div>
                 )}
               </div>
             </div>
 
             <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
-              <p className="text-sm font-semibold text-slate-900">Ações com mais engajamento</p>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">Ações com mais engajamento</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">
+                    Mostra quais interações principais chamaram mais atenção no período.
+                  </p>
+                </div>
+                <AdminInfoBadge>{topAction ? topAction.label : 'Sem destaque'}</AdminInfoBadge>
+              </div>
               <div className="mt-4 space-y-3">
                 {analytics.topActions.some((item) => item.count > 0) ? (
                   analytics.topActions.map((item) => (
@@ -330,7 +372,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   ))
                 ) : (
                   <div className="rounded-2xl bg-white px-4 py-6 text-sm text-slate-500 ring-1 ring-slate-200/70">
-                    Ainda não há cliques suficientes para ranquear as ações principais.
+                    Ainda não há eventos suficientes para ranquear as ações principais. Assim que surgirem cliques reais, este bloco mostra o que está gerando mais interesse ou contato.
                   </div>
                 )}
               </div>
@@ -340,7 +382,17 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr,1.1fr]">
           <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
-            <p className="text-sm font-semibold text-slate-900">Departamentos mais clicados</p>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">
+                  Departamentos mais consultados
+                </p>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  Útil para entender quais pontos de contato geram mais dúvida ou demanda.
+                </p>
+              </div>
+              <AdminInfoBadge>{topDepartment ? topDepartment.name : 'Sem destaque'}</AdminInfoBadge>
+            </div>
             <div className="mt-4 space-y-3">
               {analytics.departmentUsage.length ? (
                 analytics.departmentUsage.map((item) => (
@@ -354,24 +406,26 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 ))
               ) : (
                 <div className="rounded-2xl bg-white px-4 py-6 text-sm text-slate-500 ring-1 ring-slate-200/70">
-                  Nenhum clique em departamento foi registrado no período selecionado.
+                  Nenhum clique em departamento foi registrado neste período. Isso pode indicar baixo volume de uso ou que os hóspedes ainda não precisaram desses contatos.
                 </div>
               )}
             </div>
           </div>
 
           <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
-            <p className="text-sm font-semibold text-slate-900">Como interpretar estes dados</p>
+            <p className="text-sm font-semibold text-slate-900">Como usar estes dados na operação</p>
             <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
               <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70">
-                Page views mostram o volume de uso real da experiência pública no período.
+                Use as visualizações para medir o alcance da experiência pública no período selecionado.
               </div>
               <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70">
-                Reservas, site e WhatsApp indicam interesse mais próximo de conversão ou contato.
+                Use reservas, site e WhatsApp para identificar pontos de contato mais próximos de intenção prática.
               </div>
               <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70">
-                Idioma e departamentos ajudam a entender quais partes da jornada merecem revisão
-                ou destaque.
+                Use idiomas e departamentos para revisar conteúdo, destacar informações recorrentes e reduzir dúvidas frequentes dos hóspedes.
+              </div>
+              <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70">
+                Estes números mostram interações registradas na experiência pública do hotel. Eles são indicadores de comportamento, não relatório financeiro nem prova isolada de conversão.
               </div>
             </div>
           </div>
