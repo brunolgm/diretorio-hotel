@@ -22,6 +22,11 @@
 3. publicar versão final
 4. rodar checklist pós-deploy
 
+## Handoff
+- este checklist cobre publicação técnica
+- a entrega ao cliente deve seguir `guestdesk-client-handoff.md`
+- a validação pós-publicação deve seguir `guestdesk-post-deploy-validation.md`
+
 ## Observações
 - produto atual: `LibGuest`
 - domínio operacional atual: `guestdesk.digital`

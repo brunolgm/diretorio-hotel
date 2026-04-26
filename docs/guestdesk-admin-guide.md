@@ -47,6 +47,13 @@ Servir como referência curta para a operação diária do painel administrativo
 3. testar botões principais
 4. validar idioma quando necessário
 
+## Rotina após entrega ao cliente
+- revisar ajustes iniciais enviados pelo hotel
+- manter contatos, horários e links atualizados
+- revisar analytics básicos para entender os primeiros acessos
+- usar o handoff como referência quando houver nova revisão operacional
+- evitar publicar conteúdo ainda não aprovado pelo hotel
+
 ## Naming atual
 - produto atual: `LibGuest`
 - domínio operacional atual: `guestdesk.digital`

@@ -38,6 +38,13 @@ Antes de considerar o hotel pronto para revisão, confirme:
 5. idioma padrão em português
 6. traduções EN/ES salvas quando houver conteúdo traduzido
 
+## Passagem para handoff
+Depois que a configuração inicial estiver pronta:
+- usar `guestdesk-client-handoff.md` como checklist central de entrega
+- separar o que já foi validado tecnicamente do que ainda precisa aprovação do cliente/hotel
+- registrar para o cliente o endereço preferencial e o fallback por slug
+- revisar a experiência pública no celular antes de considerar o ambiente pronto para entrega
+
 ## Boas práticas
 - começar com conteúdo simples, correto e consistente
 - revisar contatos, links e horários finais antes de compartilhar

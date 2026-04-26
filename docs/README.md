@@ -11,6 +11,7 @@ Observação importante:
 - [guestdesk-deploy-checklist.md](./guestdesk-deploy-checklist.md): checklist prático para deploy em preview e produção.
 - [guestdesk-environment-variables.md](./guestdesk-environment-variables.md): referência rápida das variáveis de ambiente usadas hoje.
 - [guestdesk-new-hotel-playbook.md](./guestdesk-new-hotel-playbook.md): passo a passo para configurar e validar um novo hotel.
+- [guestdesk-client-handoff.md](./guestdesk-client-handoff.md): checklist central de entrega, revisão do cliente e acompanhamento inicial.
 - [guestdesk-admin-guide.md](./guestdesk-admin-guide.md): guia rápido para operação diária do painel administrativo.
 - [guestdesk-post-deploy-validation.md](./guestdesk-post-deploy-validation.md): checklist de validação depois do deploy.
 - [guestdesk-branch-workflow.md](./guestdesk-branch-workflow.md): fluxo recomendado de branch, preview e `main`.

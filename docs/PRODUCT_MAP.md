@@ -281,6 +281,11 @@ Importante:
 - Classificação de host do produto centralizada para reduzir risco futuro.
 - Documentação técnica curta criada para separar estado atual de preparação futura.
 
+### Sprint 26
+- Cobertura documental mais madura para handoff de cliente.
+- Checklist central de entrega criado para separar validação técnica, revisão do cliente e acompanhamento inicial.
+- Documentação operacional conectada entre onboarding, deploy, pós-deploy e operação diária.
+
 ## 6. Closed hotfixes summary
 
 ### Hotfixes recorrentes já tratados
@@ -547,6 +552,28 @@ Importante:
   - canonical redirects seguem fora do escopo
 - Próximo passo recomendado: `Sprint 26`
 
+### Registro curto da Sprint 26
+- Status: concluída
+- Objetivo: melhorar a documentação operacional e o material de handoff para entrega, revisão e validação de um cliente/hotel sem alterar comportamento do produto
+- Arquivos alterados:
+  - `docs/README.md`
+  - `docs/guestdesk-client-handoff.md`
+  - `docs/guestdesk-new-hotel-playbook.md`
+  - `docs/guestdesk-post-deploy-validation.md`
+  - `docs/guestdesk-admin-guide.md`
+  - `docs/guestdesk-deploy-checklist.md`
+  - `docs/PRODUCT_MAP.md`
+- Validação realizada:
+  - revisão dos arquivos alterados
+  - confirmação de que nenhuma migration foi criada
+  - confirmação de que nenhum arquivo sensível de host/domínio foi alterado
+  - busca por `libguest.digital`
+  - confirmação de `guestdesk.digital` preservado
+- Pendências conhecidas:
+  - o handoff continua assistido e ainda não existe fluxo automatizado de aprovação do cliente
+  - custom domains seguem inativos e fora da entrega operacional atual
+- Próximo passo recomendado: `Sprint 27`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -594,7 +621,7 @@ Importante:
 - concluída: preparo de foundation para custom domains sem ativação completa
 
 ### Sprint 26
-- maior cobertura operacional/documental para handoff de cliente
+- concluída: maior cobertura operacional/documental para handoff de cliente
 
 ### Sprint 27
 - refinamento do fluxo de tradução e visibilidade operacional
