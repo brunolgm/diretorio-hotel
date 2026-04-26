@@ -270,6 +270,11 @@ Importante:
 - Microcopy mais clara para interpretar visualizações, interações e interesse por idioma/departamento.
 - Estados vazios mais úteis e leitura executiva sem transformar a área em dashboard pesado.
 
+### Sprint 24
+- Refinamento do onboarding de hotel novo em `/admin/hotel`.
+- Clareza maior sobre identidade do hotel, slug como fallback, subdomínio preferencial e tema visual público.
+- Checklist operacional leve para preparar a validação da experiência pública.
+
 ## 6. Closed hotfixes summary
 
 ### Hotfixes recorrentes já tratados
@@ -493,6 +498,24 @@ Importante:
   - validação manual do dashboard com período e dados reais ainda é recomendada em preview
 - Próximo passo recomendado: `Sprint 24`
 
+### Registro curto da Sprint 24
+- Status: concluída
+- Objetivo: melhorar a clareza do onboarding/configuração inicial de um hotel no admin, especialmente sobre identidade, slug, subdomínio, domínio operacional e tema visual
+- Arquivos alterados:
+  - `app/admin/hotel/page.tsx`
+  - `components/admin/hotel-subdomain-field.tsx`
+  - `docs/guestdesk-new-hotel-playbook.md`
+  - `docs/PRODUCT_MAP.md`
+- Validação realizada:
+  - `npm run lint`
+  - `npm run build` com falha local recorrente em `spawn EPERM` após compilação
+  - busca por `libguest.digital`
+  - confirmação de `guestdesk.digital` preservado
+- Pendências conhecidas:
+  - ainda não existe wizard estruturado de múltiplas etapas para onboarding, por decisão de escopo
+  - validação manual em preview continua recomendada para `/admin/hotel`, subdomínio, tema e rota pública por slug
+- Próximo passo recomendado: `Sprint 25`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -508,6 +531,7 @@ Importante:
 ### Admin
 - refinamentos adicionais de usabilidade em módulos específicos
 - melhoria contínua de densidade/ritmo de páginas sensíveis
+- onboarding de hotel novo ainda pode evoluir no futuro sem virar wizard pesado
 
 ### Analytics
 - leitura mais executiva sem virar dashboard pesado
@@ -533,7 +557,7 @@ Importante:
 - concluída: melhoria de analytics orientada à leitura por gestão com blocos mais claros de interpretação e uso
 
 ### Sprint 24
-- refinamento do onboarding de hotel novo com subdomínio e tema
+- concluída: refinamento do onboarding de hotel novo com subdomínio, slug fallback e tema visual
 
 ### Sprint 25
 - preparo de foundation para custom domains sem ativação completa

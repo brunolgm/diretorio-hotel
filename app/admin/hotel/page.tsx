@@ -68,6 +68,32 @@ function InfoCard({
   );
 }
 
+function SetupChecklistItem({
+  title,
+  description,
+  completed,
+}: {
+  title: string;
+  description: string;
+  completed: boolean;
+}) {
+  return (
+    <div className="flex items-start gap-3 rounded-[24px] bg-slate-50 p-4">
+      <div
+        className={`mt-0.5 rounded-full p-1 ${
+          completed ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+        }`}
+      >
+        <CheckCircle2 className="h-4 w-4" />
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-slate-900">{title}</p>
+        <p className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
+      </div>
+    </div>
+  );
+}
+
 export default async function AdminHotelPage({ searchParams }: AdminHotelPageProps) {
   await requireAdminAccess('editor');
   const hotel = await getAdminHotel();
@@ -77,6 +103,15 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
   const currentTheme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const publicSubdomainPreview =
     buildHotelSubdomainPreviewUrl(hotel.subdomain) || buildHotelSubdomainPreviewUrl(hotel.slug);
+  const slugFallbackPreview = buildHotelSubdomainPreviewUrl(hotel.slug);
+  const hasIdentityReady = Boolean(hotel.name?.trim() && hotel.city?.trim());
+  const hasPublicAddressReady = Boolean(hotel.subdomain?.trim() || hotel.slug?.trim());
+  const hasThemeReady = Boolean(hotel.theme_preset || DEFAULT_HOTEL_THEME_PRESET);
+  const hasPublicReviewReady = Boolean(
+    hotel.name?.trim() &&
+      (hotel.subdomain?.trim() || hotel.slug?.trim()) &&
+      (hotel.booking_url || hotel.website_url || hotel.whatsapp_number)
+  );
 
   return (
     <main className="space-y-6">
@@ -142,6 +177,74 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
         />
       </section>
 
+      <section className="grid gap-6 xl:grid-cols-[1.1fr,0.9fr]">
+        <AdminGuideCard
+          title="Onboarding rápido de hotel novo"
+          description="Use esta tela para finalizar a identidade básica do hotel, confirmar o endereço público principal e revisar a aparência do diretório antes de validar a experiência pública."
+        >
+          <AdminHelpList
+            items={[
+              'Preencha primeiro nome, cidade, contatos e links principais para o hotel já ficar identificável.',
+              'Depois confirme o subdomínio preferencial e saiba que o slug continua funcionando como fallback seguro.',
+              'Escolha o preset visual e revise a rota pública no celular depois de salvar.',
+            ]}
+          />
+        </AdminGuideCard>
+
+        <div className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm text-slate-500">Checklist inicial</p>
+              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
+                O hotel já está pronto para revisão?
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Este resumo ajuda a entender rapidamente o que já está definido e o que ainda vale revisar antes de compartilhar a experiência pública.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
+              <Sparkles className="h-5 w-5" />
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-3">
+            <SetupChecklistItem
+              title="Identidade do hotel preenchida"
+              description={
+                hasIdentityReady
+                  ? 'Nome e cidade já estão preenchidos para contextualizar o hotel no painel e na experiência pública.'
+                  : 'Preencha pelo menos nome e cidade para deixar a identidade do hotel mais clara.'
+              }
+              completed={hasIdentityReady}
+            />
+            <SetupChecklistItem
+              title="Endereço público definido"
+              description={
+                hotel.subdomain
+                  ? `O subdomínio preferencial já está configurado em ${publicSubdomainPreview}.`
+                  : `O hotel ainda pode ser acessado pelo slug em ${slugFallbackPreview}. Configure o subdomínio quando quiser um endereço principal mais curto.`
+              }
+              completed={hasPublicAddressReady}
+            />
+            <SetupChecklistItem
+              title="Tema visual selecionado"
+              description={`O preset atual é ${currentTheme.label}. Ele define a atmosfera visual base da experiência pública.`}
+              completed={hasThemeReady}
+            />
+            <SetupChecklistItem
+              title="Experiência pública pronta para revisar"
+              description={
+                hasPublicReviewReady
+                  ? 'Já existe base suficiente para testar a jornada pública e validar links, contatos e apresentação.'
+                  : 'Depois de preencher contatos ou links principais, faça um teste rápido na rota pública para revisar a experiência do hóspede.'
+              }
+              completed={hasPublicReviewReady}
+            />
+          </div>
+        </div>
+      </section>
+
       <section className="grid gap-6 xl:grid-cols-[1.15fr,0.85fr]">
         <form
           action={updateHotelAction}
@@ -154,7 +257,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 Dados gerais do hotel
               </h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Edite os dados institucionais, horários, conectividade e links públicos.
+                Edite os dados institucionais, horários, conectividade, endereço público e identidade visual do hotel em um único fluxo.
               </p>
             </div>
 
@@ -165,14 +268,14 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
 
           <AdminGuideCard
             title="Como revisar este formulário"
-            description="Este bloco concentra as informações que mais impactam a apresentação pública e a rotina operacional."
+            description="Este bloco concentra as definições mais importantes para colocar um novo hotel no ar com clareza e consistência."
             className="mt-8"
           >
             <AdminHelpList
               items={[
                 'Revise primeiro nome, cidade, WhatsApp e links principais para garantir que o hóspede encontre o hotel certo.',
-                'Depois confirme horários, Wi-Fi e café da manhã com base na operação real do dia a dia.',
-                'Sempre teste a rota pública após alterações mais visíveis, como logo, reservas e contatos.',
+                'Depois confirme o endereço público preferencial e entenda como o slug continua funcionando como fallback.',
+                'Finalize com tema, logo e um teste rápido da rota pública depois de salvar.',
               ]}
             />
           </AdminGuideCard>
@@ -187,6 +290,20 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               />
               <AdminHelpText>
                 Este nome aparece no painel e na experiência pública. Use a forma oficial da marca.
+              </AdminHelpText>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="block text-sm font-medium text-slate-700">Slug público</label>
+              <div className="rounded-[24px] border border-slate-200 bg-slate-50/70 p-4">
+                <p className="text-sm font-semibold text-slate-900">{hotel.slug}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  O slug continua como fallback público seguro e mantém compatibilidade com a rota
+                  <span className="font-medium"> /hotel/{hotel.slug}</span>.
+                </p>
+              </div>
+              <AdminHelpText>
+                Nesta fase, use o subdomínio como endereço principal quando quiser uma URL mais curta. O slug continua disponível para validação e fallback.
               </AdminHelpText>
             </div>
 
@@ -498,15 +615,15 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </h2>
 
             <AdminGuideCard
-              title="Checklist rápido antes de publicar"
-              description="Use este resumo para uma última conferência rápida depois de salvar mudanças mais visíveis."
+              title="Checklist rápido antes de validar"
+              description="Use este resumo para uma última conferência depois de salvar as definições principais de um hotel novo."
               className="mt-6"
             >
               <AdminHelpList
                 items={[
-                  'Confirme se o nome e os contatos estão corretos.',
-                  'Verifique se a logo atual corresponde à marca em uso.',
-                  'Teste a rota pública para validar horários, links e botões principais.',
+                  'Confirme se a identidade básica do hotel está clara no painel.',
+                  'Revise o endereço público principal e saiba qual rota continua disponível por fallback.',
+                  'Teste a rota pública para validar tema, horários, contatos e links principais.',
                 ]}
               />
             </AdminGuideCard>
@@ -547,6 +664,16 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 </p>
                 <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
                   {hotel.subdomain ? 'subdomínio configurado' : 'fallback atual por slug'}
+                </p>
+              </div>
+
+              <div className="rounded-[24px] bg-slate-50 p-5">
+                <p className="text-sm font-semibold text-slate-900">Slug de fallback</p>
+                <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+                  {slugFallbackPreview}
+                </p>
+                <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
+                  compatibilidade pública preservada
                 </p>
               </div>
             </div>

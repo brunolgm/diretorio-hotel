@@ -53,7 +53,10 @@ export function HotelSubdomainField({
   const feedback = useMemo(() => getHotelSubdomainFeedback(value), [value]);
   const styles = FEEDBACK_STYLES[feedback.tone];
   const FeedbackIcon = styles.icon;
-  const fallbackPreview = useMemo(() => buildHotelSubdomainPreviewUrl(slugFallback), [slugFallback]);
+  const fallbackPreview = useMemo(
+    () => buildHotelSubdomainPreviewUrl(slugFallback),
+    [slugFallback]
+  );
   const normalizedValue = normalizeHotelSubdomainInput(value);
 
   return (
@@ -122,15 +125,14 @@ export function HotelSubdomainField({
         <div className="flex items-start gap-2">
           <Globe className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
           <span>
-            Use letras minúsculas, números e hífen, sem espaços, acentos ou caracteres
-            especiais.
+            Use letras minúsculas, números e hífen, sem espaços, acentos ou caracteres especiais.
           </span>
         </div>
         <div className="flex items-start gap-2">
           <Globe className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
           <span>
-            Mantenha o nome curto, simples e fácil de comunicar em QR Code, recepção ou
-            materiais do hotel.
+            Mantenha o nome curto, simples e fácil de comunicar em QR Code, recepção ou materiais
+            do hotel.
           </span>
         </div>
         <div className="flex items-start gap-2">
@@ -144,8 +146,8 @@ export function HotelSubdomainField({
           <div className="flex items-start gap-2">
             <Globe className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
             <span>
-              Sem subdomínio definido, o hotel continua acessível pelo slug e o comportamento
-              atual permanece seguro.
+              Sem subdomínio definido, o hotel continua acessível pelo slug e o comportamento atual
+              permanece seguro.
             </span>
           </div>
         ) : null}
