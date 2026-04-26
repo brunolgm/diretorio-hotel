@@ -5,7 +5,11 @@ import { redirect } from 'next/navigation';
 import { getRoleLabel, normalizeAppRole, requireAdminAccess } from '@/lib/auth';
 import { readCheckboxBoolean, readTrimmedString } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
-import { buildFeedbackRedirect } from '@/lib/services/translation-admin';
+import {
+  buildFeedbackRedirect,
+  buildOperationalErrorMessage,
+  logOperationalError,
+} from '@/lib/services/translation-admin';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 function isValidEmail(value: string) {
@@ -82,9 +86,20 @@ export async function createHotelUserAction(formData: FormData) {
   });
 
   if (createError || !createdUser.user) {
+    logOperationalError({
+      module: 'users',
+      action: 'createHotelUserAction',
+      operation: 'create auth user',
+      hotelId: hotel.id,
+      error: createError || 'Auth user was not returned',
+    });
     redirect(
       buildFeedbackRedirect('/admin/usuarios', {
-        error: `Não foi possível criar o usuário: ${createError?.message || 'erro desconhecido'}`,
+        error: buildOperationalErrorMessage(
+          'o usuÃ¡rio',
+          'criar',
+          'Revise os dados informados e tente novamente.'
+        ),
       })
     );
   }
@@ -102,11 +117,20 @@ export async function createHotelUserAction(formData: FormData) {
   );
 
   if (profileError) {
+    logOperationalError({
+      module: 'users',
+      action: 'createHotelUserAction',
+      operation: 'persist user profile',
+      hotelId: hotel.id,
+      targetId: createdUser.user.id,
+      error: profileError,
+    });
     await adminClient.auth.admin.deleteUser(createdUser.user.id);
 
     redirect(
       buildFeedbackRedirect('/admin/usuarios', {
-        error: `Usuário criado no Auth, mas não foi possível salvar o perfil: ${profileError.message}`,
+        error:
+          'O acesso foi iniciado, mas nÃ£o foi possÃ­vel concluir o perfil do usuÃ¡rio. Tente novamente.',
       })
     );
   }
@@ -140,6 +164,14 @@ export async function toggleHotelUserStatusAction(formData: FormData) {
     .single();
 
   if (error || !profile) {
+    logOperationalError({
+      module: 'users',
+      action: 'toggleHotelUserStatusAction',
+      operation: 'load user for status update',
+      hotelId: hotel.id,
+      targetId: id,
+      error: error || 'User profile not found for status update',
+    });
     redirect(buildFeedbackRedirect('/admin/usuarios', { error: 'Usuário não encontrado.' }));
   }
 
@@ -174,9 +206,21 @@ export async function toggleHotelUserStatusAction(formData: FormData) {
     .eq('hotel_id', hotel.id);
 
   if (updateError) {
+    logOperationalError({
+      module: 'users',
+      action: 'toggleHotelUserStatusAction',
+      operation: 'update user active status',
+      hotelId: hotel.id,
+      targetId: profile.id,
+      error: updateError,
+    });
     redirect(
       buildFeedbackRedirect('/admin/usuarios', {
-        error: `Não foi possível atualizar o status do usuário: ${updateError.message}`,
+        error: buildOperationalErrorMessage(
+          'o status do usuÃ¡rio',
+          'atualizar',
+          'Tente novamente em instantes.'
+        ),
       })
     );
   }

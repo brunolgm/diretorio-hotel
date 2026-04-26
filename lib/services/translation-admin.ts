@@ -86,6 +86,40 @@ export function buildFeedbackRedirect(
   return queryString ? `${pathname}?${queryString}` : pathname;
 }
 
+export function buildOperationalErrorMessage(
+  subject: string,
+  operation: string,
+  guidance = 'Revise os dados informados e tente novamente.'
+) {
+  return `NÃ£o foi possÃ­vel ${operation} ${subject}. ${guidance}`;
+}
+
+export function logOperationalError({
+  module,
+  action,
+  operation,
+  hotelId,
+  targetId,
+  error,
+}: {
+  module: string;
+  action: string;
+  operation: string;
+  hotelId?: string;
+  targetId?: string;
+  error: unknown;
+}) {
+  const message =
+    error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
+
+  console.error(`[${module}] ${action} failed`, {
+    operation,
+    hotelId,
+    targetId,
+    message,
+  });
+}
+
 export function getAvailableTranslationLanguages(translations: Array<{ language: string }>) {
   const available = new Set<SupportedTranslationLanguage>();
 
@@ -207,13 +241,25 @@ export async function syncSectionTranslations({
       .upsert(translations, { onConflict: 'section_id,language' });
 
     if (error) {
-      console.error('Failed to persist section translations:', error);
+      logOperationalError({
+        module: 'translation',
+        action: 'syncSectionTranslations',
+        operation: 'persist translations',
+        targetId: sectionId,
+        error,
+      });
       return buildSyncResult([], TARGET_LANGUAGES);
     }
 
     return buildSyncResult(successfulLanguages, failedLanguages);
   } catch (error) {
-    console.error('Failed to sync section translations:', error);
+    logOperationalError({
+      module: 'translation',
+      action: 'syncSectionTranslations',
+      operation: 'translate and persist',
+      targetId: sectionId,
+      error,
+    });
     return buildSyncResult([], TARGET_LANGUAGES);
   }
 }
@@ -275,13 +321,25 @@ export async function syncDepartmentTranslations({
       .upsert(translations, { onConflict: 'department_id,language' });
 
     if (error) {
-      console.error('Failed to persist department translations:', error);
+      logOperationalError({
+        module: 'translation',
+        action: 'syncDepartmentTranslations',
+        operation: 'persist translations',
+        targetId: departmentId,
+        error,
+      });
       return buildSyncResult([], TARGET_LANGUAGES);
     }
 
     return buildSyncResult(successfulLanguages, failedLanguages);
   } catch (error) {
-    console.error('Failed to sync department translations:', error);
+    logOperationalError({
+      module: 'translation',
+      action: 'syncDepartmentTranslations',
+      operation: 'translate and persist',
+      targetId: departmentId,
+      error,
+    });
     return buildSyncResult([], TARGET_LANGUAGES);
   }
 }
@@ -342,13 +400,25 @@ export async function syncPolicyTranslations({
       .upsert(translations, { onConflict: 'policy_id,language' });
 
     if (error) {
-      console.error('Failed to persist policy translations:', error);
+      logOperationalError({
+        module: 'translation',
+        action: 'syncPolicyTranslations',
+        operation: 'persist translations',
+        targetId: policyId,
+        error,
+      });
       return buildSyncResult([], TARGET_LANGUAGES);
     }
 
     return buildSyncResult(successfulLanguages, failedLanguages);
   } catch (error) {
-    console.error('Failed to sync policy translations:', error);
+    logOperationalError({
+      module: 'translation',
+      action: 'syncPolicyTranslations',
+      operation: 'translate and persist',
+      targetId: policyId,
+      error,
+    });
     return buildSyncResult([], TARGET_LANGUAGES);
   }
 }

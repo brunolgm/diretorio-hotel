@@ -7,7 +7,9 @@ import { readCheckboxBoolean, readNullableString, readTrimmedString } from '@/li
 import { getAdminHotel } from '@/lib/queries';
 import {
   buildFeedbackRedirect,
+  buildOperationalErrorMessage,
   formatTranslationWarning,
+  logOperationalError,
   syncPolicyTranslations,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
@@ -36,9 +38,20 @@ export async function createPolicyAction(formData: FormData) {
     .single();
 
   if (error) {
+    logOperationalError({
+      module: 'policies',
+      action: 'createPolicyAction',
+      operation: 'create policy',
+      hotelId: hotel.id,
+      error,
+    });
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
-        error: `NÃ£o foi possÃ­vel criar a polÃ­tica: ${error.message}`,
+        error: buildOperationalErrorMessage(
+          'a polÃ­tica',
+          'criar',
+          'Revise os campos e tente novamente.'
+        ),
       })
     );
   }
@@ -84,9 +97,21 @@ export async function deletePolicyAction(formData: FormData) {
     .eq('hotel_id', hotel.id);
 
   if (error) {
+    logOperationalError({
+      module: 'policies',
+      action: 'deletePolicyAction',
+      operation: 'delete policy',
+      hotelId: hotel.id,
+      targetId: id,
+      error,
+    });
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
-        error: `NÃ£o foi possÃ­vel excluir a polÃ­tica: ${error.message}`,
+        error: buildOperationalErrorMessage(
+          'a polÃ­tica',
+          'excluir',
+          'Tente novamente em instantes.'
+        ),
       })
     );
   }
@@ -123,9 +148,21 @@ export async function togglePolicyAction(formData: FormData) {
     .eq('hotel_id', hotel.id);
 
   if (error) {
+    logOperationalError({
+      module: 'policies',
+      action: 'togglePolicyAction',
+      operation: 'update policy status',
+      hotelId: hotel.id,
+      targetId: id,
+      error,
+    });
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
-        error: `NÃ£o foi possÃ­vel atualizar o status da polÃ­tica: ${error.message}`,
+        error: buildOperationalErrorMessage(
+          'o status da polÃ­tica',
+          'atualizar',
+          'Tente novamente em instantes.'
+        ),
       })
     );
   }
@@ -162,9 +199,17 @@ export async function retranslatePolicyAction(formData: FormData) {
     .single();
 
   if (error || !policy) {
+    logOperationalError({
+      module: 'policies',
+      action: 'retranslatePolicyAction',
+      operation: 'load policy for retranslation',
+      hotelId: hotel.id,
+      targetId: id,
+      error: error || 'Policy not found for retranslation',
+    });
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
-        error: 'NÃ£o foi possÃ­vel carregar a polÃ­tica para retraduÃ§Ã£o.',
+        error: 'NÃ£o foi possÃ­vel preparar a polÃ­tica para retraduÃ§Ã£o agora.',
       })
     );
   }

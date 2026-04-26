@@ -646,6 +646,33 @@ Importante:
   - mensagens de acesso negado seguem centralizadas no redirect seguro para `/login`
 - PrÃ³ximo passo recomendado: `Sprint 30`
 
+### Registro curto da Sprint 30
+- Status: concluída
+- Objetivo: padronizar feedback operacional, adicionar logs curtos de servidor e documentar o diagnóstico de falhas importantes sem criar infraestrutura nova
+- Arquivos alterados:
+  - `app/admin/hotel/actions.ts`
+  - `app/admin/hotel/upload-logo-action.ts`
+  - `app/admin/servicos/actions.ts`
+  - `app/admin/departamentos/actions.ts`
+  - `app/admin/politicas/actions.ts`
+  - `app/admin/usuarios/actions.ts`
+  - `app/admin/usuarios/[id]/actions.ts`
+  - `lib/services/translation-admin.ts`
+  - `lib/services/translation-service.ts`
+  - `docs/guestdesk-admin-guide.md`
+  - `docs/guestdesk-post-deploy-validation.md`
+  - `docs/PRODUCT_MAP.md`
+- Validação realizada:
+  - `npm run lint`
+  - `npx tsc --noEmit`
+  - `npm run build` com falha local recorrente em `spawn EPERM` após compilação
+  - busca por `libguest.digital`
+  - confirmação de `guestdesk.digital` preservado
+- Pendências conhecidas:
+  - a observabilidade continua intencionalmente leve, sem dashboard externo, tabela de logs ou ferramenta dedicada
+  - ainda existem mensagens antigas fora deste fluxo que podem ser refinadas em sprints futuras
+- Próximo passo recomendado: `Sprint 31`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -710,6 +737,8 @@ Importante:
 
 ### Sprint 30
 - camada leve de qualidade/observabilidade para erros e eventos importantes
+
+ - concluída: padronização leve de feedback operacional, logs curtos de servidor e documentação de diagnóstico
 
 ### Sprint 31
 - melhorias de comercial/demo mode e material de showcase do produto

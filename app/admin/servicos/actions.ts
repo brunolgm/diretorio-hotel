@@ -14,7 +14,9 @@ import { getAdminHotel } from '@/lib/queries';
 import { normalizeServiceCategory, resolveServiceIconName } from '@/lib/service-options';
 import {
   buildFeedbackRedirect,
+  buildOperationalErrorMessage,
   formatTranslationWarning,
+  logOperationalError,
   syncSectionTranslations,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
@@ -55,9 +57,20 @@ export async function createSectionAction(formData: FormData) {
     .single();
 
   if (error) {
+    logOperationalError({
+      module: 'services',
+      action: 'createSectionAction',
+      operation: 'create service',
+      hotelId: hotel.id,
+      error,
+    });
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: `NÃ£o foi possÃ­vel criar o serviÃ§o: ${error.message}`,
+        error: buildOperationalErrorMessage(
+          'o serviÃ§o',
+          'criar',
+          'Revise os campos e tente novamente.'
+        ),
       })
     );
   }
@@ -105,9 +118,21 @@ export async function deleteSectionAction(formData: FormData) {
     .eq('hotel_id', hotel.id);
 
   if (error) {
+    logOperationalError({
+      module: 'services',
+      action: 'deleteSectionAction',
+      operation: 'delete service',
+      hotelId: hotel.id,
+      targetId: id,
+      error,
+    });
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: `NÃ£o foi possÃ­vel excluir o serviÃ§o: ${error.message}`,
+        error: buildOperationalErrorMessage(
+          'o serviÃ§o',
+          'excluir',
+          'Tente novamente em instantes.'
+        ),
       })
     );
   }
@@ -144,9 +169,21 @@ export async function toggleSectionAction(formData: FormData) {
     .eq('hotel_id', hotel.id);
 
   if (error) {
+    logOperationalError({
+      module: 'services',
+      action: 'toggleSectionAction',
+      operation: 'update service status',
+      hotelId: hotel.id,
+      targetId: id,
+      error,
+    });
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: `NÃ£o foi possÃ­vel atualizar o status do serviÃ§o: ${error.message}`,
+        error: buildOperationalErrorMessage(
+          'o status do serviÃ§o',
+          'atualizar',
+          'Tente novamente em instantes.'
+        ),
       })
     );
   }
@@ -183,9 +220,17 @@ export async function retranslateSectionAction(formData: FormData) {
     .single();
 
   if (error || !section) {
+    logOperationalError({
+      module: 'services',
+      action: 'retranslateSectionAction',
+      operation: 'load service for retranslation',
+      hotelId: hotel.id,
+      targetId: id,
+      error: error || 'Section not found for retranslation',
+    });
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: 'NÃ£o foi possÃ­vel carregar o serviÃ§o para retraduÃ§Ã£o.',
+        error: 'NÃ£o foi possÃ­vel preparar o serviÃ§o para retraduÃ§Ã£o agora.',
       })
     );
   }

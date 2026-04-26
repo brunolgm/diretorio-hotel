@@ -89,3 +89,10 @@ Servir como referência curta para a operação diária do painel administrativo
 - produto atual: `LibGuest`
 - domínio operacional atual: `guestdesk.digital`
 - `GuestDesk` deve ser tratado como naming legado
+
+## Diagnóstico operacional rápido
+- quando um save falhar, revisar primeiro campos obrigatórios, links e contexto do hotel atual
+- quando o upload de logo falhar, revisar formato, tamanho e tentar novamente com arquivo mais leve
+- quando a tradução falhar parcialmente, lembrar que o conteúdo em português continua publicado e usar retraduzir depois do ajuste final
+- olhar primeiro o toast exibido na tela e depois os logs do servidor/preview com contexto de módulo, ação, operação, `hotelId` e `targetId`
+- nunca expor em log: senhas, tokens, secrets, payloads completos ou dados privados desnecessários

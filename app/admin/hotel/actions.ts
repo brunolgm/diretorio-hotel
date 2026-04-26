@@ -11,6 +11,10 @@ import {
   sanitizeHotelThemePrimaryColor,
 } from '@/lib/hotel-theme';
 import { validateHotelSubdomain } from '@/lib/hotel-subdomain';
+import {
+  buildOperationalErrorMessage,
+  logOperationalError,
+} from '@/lib/services/translation-admin';
 
 export async function updateHotelAction(formData: FormData) {
   await requireAdminAccess('editor');
@@ -61,7 +65,14 @@ export async function updateHotelAction(formData: FormData) {
       .maybeSingle();
 
     if (subdomainError) {
-      redirect('/admin/hotel?error=N%C3%A3o%20foi%20poss%C3%ADvel%20validar%20o%20subdom%C3%ADnio');
+      logOperationalError({
+        module: 'hotel',
+        action: 'updateHotelAction',
+        operation: 'validate subdomain uniqueness',
+        hotelId: hotel.id,
+        error: subdomainError,
+      });
+      redirect('/admin/hotel?error=N%C3%A3o%20foi%20poss%C3%ADvel%20validar%20o%20subdom%C3%ADnio%20agora');
     }
 
     if (conflictingHotel) {
@@ -93,7 +104,22 @@ export async function updateHotelAction(formData: FormData) {
     .eq('id', hotel.id);
 
   if (error) {
-    redirect('/admin/hotel?error=N%C3%A3o%20foi%20poss%C3%ADvel%20salvar%20os%20dados%20do%20hotel');
+    logOperationalError({
+      module: 'hotel',
+      action: 'updateHotelAction',
+      operation: 'save hotel settings',
+      hotelId: hotel.id,
+      error,
+    });
+    redirect(
+      `/admin/hotel?error=${encodeURIComponent(
+        buildOperationalErrorMessage(
+          'os dados do hotel',
+          'salvar',
+          'Revise os campos e tente novamente.'
+        )
+      )}`
+    );
   }
 
   redirect('/admin/hotel?success=Altera%C3%A7%C3%B5es%20salvas%20com%20sucesso');
@@ -110,7 +136,22 @@ export async function removeHotelLogoAction() {
     .eq('id', hotel.id);
 
   if (error) {
-    redirect('/admin/hotel?error=N%C3%A3o%20foi%20poss%C3%ADvel%20remover%20a%20logo');
+    logOperationalError({
+      module: 'hotel',
+      action: 'removeHotelLogoAction',
+      operation: 'remove logo',
+      hotelId: hotel.id,
+      error,
+    });
+    redirect(
+      `/admin/hotel?error=${encodeURIComponent(
+        buildOperationalErrorMessage(
+          'a logo atual',
+          'remover',
+          'Tente novamente em instantes.'
+        )
+      )}`
+    );
   }
 
   redirect('/admin/hotel?success=Logo%20removida%20com%20sucesso');

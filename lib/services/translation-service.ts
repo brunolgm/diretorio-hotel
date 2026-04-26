@@ -1,5 +1,6 @@
 import 'server-only';
 import { getRequiredEnvVar, logWarningOnce } from '@/lib/env';
+import { logOperationalError } from '@/lib/services/translation-admin';
 
 export type SupportedTranslationLanguage = 'en' | 'es';
 
@@ -108,7 +109,12 @@ async function tryTranslateTextFields<T extends TranslatableFieldMap>(
 
     return translatedFields;
   } catch (error) {
-    console.error(`Translation failed for language ${targetLanguage}:`, error);
+    logOperationalError({
+      module: 'translation',
+      action: 'tryTranslateTextFields',
+      operation: `translate content to ${targetLanguage}`,
+      error,
+    });
     return null;
   }
 }

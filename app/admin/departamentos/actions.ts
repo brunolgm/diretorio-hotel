@@ -12,7 +12,9 @@ import {
 import { getAdminHotel } from '@/lib/queries';
 import {
   buildFeedbackRedirect,
+  buildOperationalErrorMessage,
   formatTranslationWarning,
+  logOperationalError,
   syncDepartmentTranslations,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
@@ -50,9 +52,20 @@ export async function createDepartmentAction(formData: FormData) {
     .single();
 
   if (error) {
+    logOperationalError({
+      module: 'departments',
+      action: 'createDepartmentAction',
+      operation: 'create department',
+      hotelId: hotel.id,
+      error,
+    });
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: `NÃ£o foi possÃ­vel criar o departamento: ${error.message}`,
+        error: buildOperationalErrorMessage(
+          'o departamento',
+          'criar',
+          'Revise os campos e tente novamente.'
+        ),
       })
     );
   }
@@ -99,9 +112,21 @@ export async function deleteDepartmentAction(formData: FormData) {
     .eq('hotel_id', hotel.id);
 
   if (error) {
+    logOperationalError({
+      module: 'departments',
+      action: 'deleteDepartmentAction',
+      operation: 'delete department',
+      hotelId: hotel.id,
+      targetId: id,
+      error,
+    });
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: `NÃ£o foi possÃ­vel excluir o departamento: ${error.message}`,
+        error: buildOperationalErrorMessage(
+          'o departamento',
+          'excluir',
+          'Tente novamente em instantes.'
+        ),
       })
     );
   }
@@ -138,9 +163,21 @@ export async function toggleDepartmentAction(formData: FormData) {
     .eq('hotel_id', hotel.id);
 
   if (error) {
+    logOperationalError({
+      module: 'departments',
+      action: 'toggleDepartmentAction',
+      operation: 'update department status',
+      hotelId: hotel.id,
+      targetId: id,
+      error,
+    });
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: `NÃ£o foi possÃ­vel atualizar o status do departamento: ${error.message}`,
+        error: buildOperationalErrorMessage(
+          'o status do departamento',
+          'atualizar',
+          'Tente novamente em instantes.'
+        ),
       })
     );
   }
@@ -177,9 +214,17 @@ export async function retranslateDepartmentAction(formData: FormData) {
     .single();
 
   if (error || !department) {
+    logOperationalError({
+      module: 'departments',
+      action: 'retranslateDepartmentAction',
+      operation: 'load department for retranslation',
+      hotelId: hotel.id,
+      targetId: id,
+      error: error || 'Department not found for retranslation',
+    });
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: 'NÃ£o foi possÃ­vel carregar o departamento para retraduÃ§Ã£o.',
+        error: 'NÃ£o foi possÃ­vel preparar o departamento para retraduÃ§Ã£o agora.',
       })
     );
   }

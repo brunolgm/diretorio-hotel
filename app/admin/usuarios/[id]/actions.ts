@@ -9,7 +9,11 @@ import {
 } from '@/lib/auth';
 import { readCheckboxBoolean, readTrimmedString } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
-import { buildFeedbackRedirect } from '@/lib/services/translation-admin';
+import {
+  buildFeedbackRedirect,
+  buildOperationalErrorMessage,
+  logOperationalError,
+} from '@/lib/services/translation-admin';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 function isValidEmail(value: string) {
@@ -90,6 +94,14 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
     .single();
 
   if (currentProfileError || !currentProfile) {
+    logOperationalError({
+      module: 'users',
+      action: 'updateHotelUserAction',
+      operation: 'load user for edit',
+      hotelId: hotel.id,
+      targetId: id,
+      error: currentProfileError || 'User profile not found for edit',
+    });
     redirect(
       buildFeedbackRedirect('/admin/usuarios', {
         error: 'Usuário não encontrado para edição.',
@@ -154,9 +166,21 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
   const { error: authError } = await adminClient.auth.admin.updateUserById(id, authUpdates);
 
   if (authError) {
+    logOperationalError({
+      module: 'users',
+      action: 'updateHotelUserAction',
+      operation: 'update auth user',
+      hotelId: hotel.id,
+      targetId: id,
+      error: authError,
+    });
     redirect(
       buildFeedbackRedirect(`/admin/usuarios/${id}`, {
-        error: `Não foi possível atualizar o usuário no Auth: ${authError.message}`,
+        error: buildOperationalErrorMessage(
+          'o acesso do usuÃ¡rio',
+          'atualizar',
+          'Tente novamente em instantes.'
+        ),
       })
     );
   }
@@ -173,9 +197,21 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
     .eq('hotel_id', hotel.id);
 
   if (profileError) {
+    logOperationalError({
+      module: 'users',
+      action: 'updateHotelUserAction',
+      operation: 'update user profile',
+      hotelId: hotel.id,
+      targetId: id,
+      error: profileError,
+    });
     redirect(
       buildFeedbackRedirect(`/admin/usuarios/${id}`, {
-        error: `Não foi possível atualizar o perfil do usuário: ${profileError.message}`,
+        error: buildOperationalErrorMessage(
+          'o perfil do usuÃ¡rio',
+          'atualizar',
+          'Tente novamente em instantes.'
+        ),
       })
     );
   }
