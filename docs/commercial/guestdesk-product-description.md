@@ -9,7 +9,7 @@ LibGuest ajuda hotéis a substituir materiais dispersos e fluxos manuais por uma
 ## Assinaturas recomendadas
 `LibGuest`
 
-`LibGuest by BLID Tecnologia`
+`LibGuest`
 
 ## Nota operacional
 O domínio operacional atual permanece em `guestdesk.digital`.

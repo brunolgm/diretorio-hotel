@@ -48,7 +48,7 @@ export function MobileMenu({ navItems, signOutAction }: MobileMenuProps) {
 
           <div className="border-t border-slate-200 p-4">
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
-              LibGuest by BLID Tecnologia
+              LibGuest
             </p>
             <form
               action={async () => {

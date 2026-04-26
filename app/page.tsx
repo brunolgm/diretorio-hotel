@@ -255,7 +255,7 @@ function LandingPageContent() {
                 LibGuest ajuda hotéis a organizar melhor sua presença digital, com mais clareza
                 operacional e uma experiência pública mais consistente.
               </p>
-              <p className="font-medium text-slate-100">LibGuest by BLID Tecnologia</p>
+              <p className="font-medium text-slate-100">LibGuest</p>
             </div>
           </div>
         </section>

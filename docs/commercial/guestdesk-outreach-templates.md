@@ -10,7 +10,7 @@ O LibGuest foi criado para organizar a comunicação digital do hotel em um dire
 `LibGuest | diretório digital premium para hotelaria`
 
 ## Versão institucional
-Quero te apresentar o LibGuest by BLID Tecnologia, uma solução digital criada para organizar a comunicação do hotel com mais clareza, sofisticação e praticidade.
+Quero te apresentar o LibGuest, uma solução digital criada para organizar a comunicação do hotel com mais clareza, sofisticação e praticidade.
 
 ## Observação
 Se for necessário citar histórico, mencionar que `GuestDesk` foi o nome anterior do produto.

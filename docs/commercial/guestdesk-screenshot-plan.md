@@ -14,7 +14,7 @@ Organizar uma sequência de screenshots que apresente o LibGuest de forma profis
 8. analytics
 
 ## Fechamento visual
-3. assinatura final `LibGuest by BLID Tecnologia`
+3. assinatura final `LibGuest`
 
 ## Observação
 O domínio operacional atual pode continuar aparecendo como `guestdesk.digital` quando fizer parte da captura real do produto.

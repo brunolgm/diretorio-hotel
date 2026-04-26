@@ -77,7 +77,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
 
             <div className="mt-8 border-t border-slate-200 pt-5">
               <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
-                LibGuest by BLID Tecnologia
+                LibGuest
               </p>
               <form action={signOut}>
                 <button

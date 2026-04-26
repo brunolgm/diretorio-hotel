@@ -103,7 +103,7 @@ export default function LoginPage() {
                   Plataforma para hospitalidade digital com apresentação premium.
                 </p>
                 <p className="mt-2 text-sm font-medium text-slate-100">
-                  LibGuest by BLID Tecnologia
+                  LibGuest
                 </p>
               </div>
             </div>
@@ -170,7 +170,7 @@ export default function LoginPage() {
             <div className="mt-8 rounded-[24px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 ring-1 ring-slate-200/70 xl:hidden">
               <p className="text-sm text-slate-500">Assinatura institucional</p>
               <p className="mt-2 text-sm font-medium text-slate-800">
-                LibGuest by BLID Tecnologia
+                LibGuest
               </p>
             </div>
           </section>

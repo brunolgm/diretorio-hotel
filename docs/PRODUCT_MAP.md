@@ -7,7 +7,7 @@ Importante:
 - Nome anterior/legado: `GuestDesk`
 - Domínio operacional atual: `guestdesk.digital`
 - Status do domínio: operacional por enquanto, mas pendente de decisão futura de rebranding/domínio
-- Assinatura atual/futura desejada: `LibGuest by BLID Tecnologia`
+- Assinatura institucional atual: temporariamente neutralizada
 - Assinatura legada: `GuestDesk by BLID Tecnologia`
 
 ## 1. Product identity
@@ -15,7 +15,7 @@ Importante:
 ### Nome do produto
 - Nome principal atual: `LibGuest`
 - Nome anterior/legado: `GuestDesk`
-- Assinatura institucional/comercial em transição: `LibGuest by BLID Tecnologia`
+- Assinatura institucional/comercial atual: neutralizada temporariamente, com uso preferencial de `LibGuest`
 - Assinatura legada: `GuestDesk by BLID Tecnologia`
 - Domínio operacional atualmente configurado: `guestdesk.digital`
 
@@ -161,7 +161,7 @@ Importante:
 ### Sprint 4
 - Acabamento comercial.
 - Naming e branding mais consistentes.
-- Assinatura `GuestDesk by BLID Tecnologia`.
+- Assinatura legada `GuestDesk by BLID Tecnologia`.
 
 ### Sprint 5
 - Documentação operacional em `docs/`.
@@ -329,7 +329,7 @@ Importante:
 
 ### Naming ativo
 - Produto: `LibGuest`
-- Assinatura alvo: `LibGuest by BLID Tecnologia`
+- Assinatura institucional atual: neutralizada temporariamente
 - Naming legado: `GuestDesk`
 - Assinatura legada: `GuestDesk by BLID Tecnologia`
 
@@ -337,8 +337,13 @@ Importante:
 - `LibGuest` deve ser tratado como nome principal do produto.
 - `GuestDesk` deve ser tratado como nome anterior/legado.
 - `guestdesk.digital` continua válido operacionalmente até decisão futura sobre domínio/rebranding.
-- A assinatura de marca deve evoluir para `LibGuest by BLID Tecnologia`.
+- O produto deve aparecer prioritariamente apenas como `LibGuest` até decisão futura sobre assinatura institucional.
 - `GuestDesk by BLID Tecnologia` deve ser tratado como branding legado.
+
+### Sprint 21.3
+- Neutralização da assinatura institucional visível ligada a `BLID Tecnologia`.
+- `LibGuest` passa a ser a marca principal nas superfícies visíveis e materiais comerciais atuais.
+- `BLID Tecnologia` permanece apenas em contexto legado, histórico ou interno bem explicado.
 
 ### Estado atual de branding
 - landing já orientada a produto comercial
@@ -411,6 +416,34 @@ Importante:
   - canonical host strategy segue fora do escopo desta sprint
   - validação manual em preview ainda é recomendada para confirmar host real `{subdomain}.guestdesk.digital`
   - há textos mojibake remanescentes em áreas antigas do projeto fora do fluxo de subdomínio
+- Próximo passo recomendado: `Sprint 22`
+
+### Registro curto da Sprint 21.3
+- Status: concluída
+- Objetivo: neutralizar a assinatura institucional ativa ligada a `BLID Tecnologia`, mantendo `LibGuest` como marca principal sem alterar comportamento funcional
+- Arquivos alterados:
+  - `app/admin/layout.tsx`
+  - `app/login/page.tsx`
+  - `app/page.tsx`
+  - `components/admin/mobile-menu.tsx`
+  - `components/public/hotel-public-page-content.tsx`
+  - `docs/commercial/guestdesk-commercial-faq.md`
+  - `docs/commercial/guestdesk-commercial-outline.md`
+  - `docs/commercial/guestdesk-demo-script.md`
+  - `docs/commercial/guestdesk-executive-onepager.md`
+  - `docs/commercial/guestdesk-outreach-templates.md`
+  - `docs/commercial/guestdesk-positioning.md`
+  - `docs/commercial/guestdesk-product-description.md`
+  - `docs/commercial/guestdesk-proposal-blocks.md`
+  - `docs/commercial/guestdesk-screenshot-plan.md`
+  - `docs/commercial/guestdesk-value-proposition-variants.md`
+  - `docs/PRODUCT_MAP.md`
+- Validação realizada:
+  - `npm run lint`
+  - `npm run build` com falha local recorrente em `spawn EPERM` após compilação
+- Pendências conhecidas:
+  - definição futura da assinatura institucional/empresa ainda está em aberto
+  - `BLID Tecnologia` permanece apenas como referência legada/interna documentada
 - Próximo passo recomendado: `Sprint 22`
 
 ## 10. Known pending items

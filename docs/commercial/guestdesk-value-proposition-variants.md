@@ -12,4 +12,4 @@ Oferecer versões diferentes da proposta de valor do LibGuest para adaptar o dis
 6. O LibGuest permite publicar o conteúdo principal do hotel em português, inglês e espanhol com traduções salvas.
 
 ## Linha institucional
-`LibGuest by BLID Tecnologia: clareza operacional com apresentação premium.`
+`LibGuest: clareza operacional com apresentação premium.`

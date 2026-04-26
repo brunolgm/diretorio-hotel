@@ -14,8 +14,8 @@ Servir como estrutura-base para apresentação comercial, proposta, PDF, reuniã
 
 ## Naming recomendado
 1. usar `LibGuest` como nome principal
-2. usar `LibGuest by BLID Tecnologia` como assinatura institucional
+2. usar `LibGuest` como marca principal do produto
 3. tratar `GuestDesk` como naming legado apenas quando necessário
 
 ## Frase institucional sugerida
-`LibGuest by BLID Tecnologia une apresentação premium, organização operacional e experiência digital pronta para hotelaria.`
+`LibGuest` une apresentação premium, organização operacional e experiência digital pronta para hotelaria.

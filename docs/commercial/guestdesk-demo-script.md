@@ -16,4 +16,4 @@ Mostrar o LibGuest como um produto pronto para uso comercial, destacando clareza
 7. mostrar idiomas e analytics
 
 ## Fechamento sugerido
-`O LibGuest by BLID Tecnologia combina apresentação premium com operação simples. Ele funciona bem como produto de demonstração, entrega comercial e base real para uso em hotelaria.`
+`O LibGuest combina apresentação premium com operação simples. Ele funciona bem como produto de demonstração, entrega comercial e base real para uso em hotelaria.`

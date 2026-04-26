@@ -1,7 +1,7 @@
 # LibGuest: blocos prontos para proposta
 
 ## Bloco institucional
-O LibGuest by BLID Tecnologia é uma solução digital criada para organizar a comunicação do hotel com mais clareza, sofisticação e praticidade.
+O LibGuest é uma solução digital criada para organizar a comunicação do hotel com mais clareza, sofisticação e praticidade.
 
 ## Bloco de valor
 O LibGuest organiza serviços, contatos, políticas e informações essenciais do hotel em uma experiência digital elegante para o hóspede, com gestão simplificada por meio de um painel administrativo.

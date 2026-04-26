@@ -18,7 +18,7 @@ Sim. O conteúdo é gerenciado em português e pode ter versões salvas em ingl�
 ## Como apresentar a assinatura da marca?
 Use `LibGuest` como nome principal do produto.
 
-Use `LibGuest by BLID Tecnologia` em materiais institucionais, propostas, PDFs, demos e apresentações comerciais.
+Use `LibGuest` em materiais institucionais, propostas, PDFs, demos e apresentações comerciais.
 
 ## Observação de legado
 `GuestDesk` deve ser tratado como naming anterior/legado. O domínio operacional atual continua sendo `guestdesk.digital`.
