@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { HotelServiceDetailContent } from '@/components/public/hotel-service-detail-content';
-import { getRequestDomainContext } from '@/lib/domain-context';
+import { getRequestDomainContext, isHotelSubdomainContext } from '@/lib/domain-context';
 import { getPublicHotelServiceDetailDataBySubdomain } from '@/lib/public-hotel-data';
 import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
 import { canOpenInternalServiceDetail } from '@/lib/service-destinations';
@@ -23,7 +23,7 @@ export default async function SubdomainHotelServiceDetailPage({
   const language: SupportedPublicLanguage = normalizePublicLanguage(resolvedSearchParams?.lang);
   const domainContext = await getRequestDomainContext();
 
-  if (!domainContext.isPotentialHotelSubdomain || !domainContext.subdomain) {
+  if (!isHotelSubdomainContext(domainContext)) {
     notFound();
   }
 

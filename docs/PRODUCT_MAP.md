@@ -260,6 +260,11 @@ Importante:
 - Correção da decisão de navegação pública para preferir o subdomínio dedicado do hotel quando configurado.
 - Validação revisada para casos comuns de erro de entrada, sem alterar a arquitetura principal.
 
+### Sprint 22
+- Canonical host strategy leve sem redirects agressivos.
+- Regras de root domain, `www` e subdomínio candidato centralizadas em helpers reutilizáveis.
+- Comportamento público preservado: landing no root, hotel no subdomínio e fallback por slug obrigatório.
+
 ## 6. Closed hotfixes summary
 
 ### Hotfixes recorrentes já tratados
@@ -446,6 +451,27 @@ Importante:
   - `BLID Tecnologia` permanece apenas como referência legada/interna documentada
 - Próximo passo recomendado: `Sprint 22`
 
+### Registro curto da Sprint 22
+- Status: concluída
+- Objetivo: organizar a estratégia de host/canonical com helpers leves e seguros, sem alterar o domínio operacional e sem ativar redirects agressivos
+- Arquivos alterados:
+  - `lib/product-domain.ts`
+  - `lib/domain-context.ts`
+  - `lib/public-routes.ts`
+  - `app/page.tsx`
+  - `app/servicos/[id]/page.tsx`
+  - `docs/PRODUCT_MAP.md`
+- Validação realizada:
+  - `npm run lint`
+  - `npm run build` com falha local recorrente em `spawn EPERM` após compilação
+  - busca por `libguest.digital`
+  - confirmação de `guestdesk.digital` preservado
+- Pendências conhecidas:
+  - redirects canônicos continuam deliberadamente desativados
+  - custom domains seguem fora do escopo
+  - validação manual em preview ainda é recomendada para `guestdesk.digital`, `www.guestdesk.digital`, `{subdomain}.guestdesk.digital` e rotas por slug
+- Próximo passo recomendado: `Sprint 23`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -480,8 +506,7 @@ Importante:
 - concluída: validação operacional e hardening leve do fluxo de subdomínio
 
 ### Sprint 22
-- canonical host strategy leve
-- preferência consistente por host principal quando fizer sentido
+- concluída: canonical host strategy leve com helpers centralizados e sem redirects agressivos
 
 ### Sprint 23
 - melhoria de analytics orientada a leitura por gestão

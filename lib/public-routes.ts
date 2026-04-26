@@ -1,4 +1,4 @@
-import type { DomainContext } from '@/lib/domain-context';
+import { isHotelSubdomainContext, type DomainContext } from '@/lib/domain-context';
 import { normalizeHotelSubdomainInput } from '@/lib/hotel-subdomain';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
@@ -28,9 +28,7 @@ export function shouldPreferHotelSubdomainRoot({
   hotelSubdomain?: string | null;
 }) {
   if (
-    domainContext?.kind !== 'product-subdomain' ||
-    !domainContext.isPotentialHotelSubdomain ||
-    !domainContext.subdomain
+    !isHotelSubdomainContext(domainContext)
   ) {
     return false;
   }
@@ -54,8 +52,7 @@ export function buildPublicHotelHref({
 }) {
   if (
     preferSubdomainRoot &&
-    domainContext?.kind === 'product-subdomain' &&
-    domainContext.isPotentialHotelSubdomain
+    isHotelSubdomainContext(domainContext)
   ) {
     return `/${buildLanguageQuery(language)}`;
   }
@@ -78,8 +75,7 @@ export function buildPublicHotelServiceHref({
 }) {
   if (
     preferSubdomainRoot &&
-    domainContext?.kind === 'product-subdomain' &&
-    domainContext.isPotentialHotelSubdomain
+    isHotelSubdomainContext(domainContext)
   ) {
     return `/servicos/${serviceId}${buildLanguageQuery(language)}`;
   }

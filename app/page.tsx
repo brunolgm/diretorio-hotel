@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { HotelPublicPageContent } from '@/components/public/hotel-public-page-content';
-import { getRequestDomainContext } from '@/lib/domain-context';
+import { getRequestDomainContext, isHotelSubdomainContext } from '@/lib/domain-context';
 import { getPublicHotelPageDataBySubdomain } from '@/lib/public-hotel-data';
 import { normalizePublicLanguage } from '@/lib/public-language';
 
@@ -275,7 +275,7 @@ export default async function Home({ searchParams }: HomePageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const language = normalizePublicLanguage(resolvedSearchParams?.lang);
 
-  if (domainContext.isPotentialHotelSubdomain && domainContext.subdomain) {
+  if (isHotelSubdomainContext(domainContext)) {
     const pageData = await getPublicHotelPageDataBySubdomain(domainContext.subdomain, language);
 
     if (!pageData) {

@@ -1,5 +1,9 @@
 import { headers } from 'next/headers';
-import { PRODUCT_ROOT_DOMAIN } from '@/lib/product-domain';
+import {
+  getProductSubdomainCandidate,
+  isProductRootHostname,
+  PRODUCT_ROOT_DOMAIN,
+} from '@/lib/product-domain';
 
 export type DomainContextKind =
   | 'localhost'
@@ -19,6 +23,12 @@ export interface DomainContext {
   isPotentialHotelSubdomain: boolean;
   shouldUseSlugFallback: boolean;
 }
+
+export type HotelSubdomainDomainContext = DomainContext & {
+  kind: 'product-subdomain';
+  subdomain: string;
+  isPotentialHotelSubdomain: true;
+};
 
 function normalizeRawHost(host: string | null | undefined) {
   const normalized = host?.trim().toLowerCase();
@@ -47,6 +57,17 @@ function isLocalHostname(hostname: string | null) {
     hostname === '127.0.0.1' ||
     hostname === '0.0.0.0' ||
     hostname.endsWith('.localhost')
+  );
+}
+
+export function isHotelSubdomainContext(
+  domainContext: DomainContext | null | undefined
+): domainContext is HotelSubdomainDomainContext {
+  return Boolean(
+    domainContext?.kind === 'product-subdomain' &&
+      domainContext.isPotentialHotelSubdomain === true &&
+      typeof domainContext.subdomain === 'string' &&
+      domainContext.subdomain.length > 0
   );
 }
 
@@ -87,7 +108,7 @@ export function resolveDomainContext(
     };
   }
 
-  if (hostname === productRootDomain || hostname === `www.${productRootDomain}`) {
+  if (isProductRootHostname(hostname, productRootDomain)) {
     return {
       rawHost: rawHost ?? null,
       host,
@@ -102,10 +123,9 @@ export function resolveDomainContext(
     };
   }
 
-  if (hostname.endsWith(`.${productRootDomain}`)) {
-    const subdomain = hostname.slice(0, -1 * (`.${productRootDomain}`.length));
-    const isPotentialHotelSubdomain = Boolean(subdomain && subdomain !== 'www');
+  const subdomain = getProductSubdomainCandidate(hostname, productRootDomain);
 
+  if (subdomain) {
     return {
       rawHost: rawHost ?? null,
       host,
@@ -113,9 +133,9 @@ export function resolveDomainContext(
       port,
       kind: 'product-subdomain',
       productRootDomain,
-      subdomain: isPotentialHotelSubdomain ? subdomain : null,
+      subdomain,
       isProductRoot: false,
-      isPotentialHotelSubdomain,
+      isPotentialHotelSubdomain: true,
       shouldUseSlugFallback: true,
     };
   }
