@@ -82,6 +82,7 @@ Importante:
 - nome legado: `GuestDesk`
 - domínio operacional atual: `guestdesk.digital`
 - o domínio continua ativo por compatibilidade e continuidade operacional
+- custom domains ainda não estão ativos nesta fase
 
 ## Uso recomendado desta documentação
 Use os arquivos de `docs/` assim:
@@ -93,3 +94,4 @@ Use os arquivos de `docs/` assim:
 5. para validar entrega: `guestdesk-post-deploy-validation.md`
 6. para fluxo de branches: `guestdesk-branch-workflow.md`
 7. para visão viva do produto: `PRODUCT_MAP.md`
+8. para foundation técnica de domínio/host futuro: `guestdesk-custom-domain-foundation.md`

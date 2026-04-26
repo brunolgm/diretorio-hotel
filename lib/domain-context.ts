@@ -1,7 +1,6 @@
 import { headers } from 'next/headers';
 import {
-  getProductSubdomainCandidate,
-  isProductRootHostname,
+  classifyProductHostname,
   PRODUCT_ROOT_DOMAIN,
 } from '@/lib/product-domain';
 
@@ -22,6 +21,7 @@ export interface DomainContext {
   isProductRoot: boolean;
   isPotentialHotelSubdomain: boolean;
   shouldUseSlugFallback: boolean;
+  isFutureCustomDomainCandidate: boolean;
 }
 
 export type HotelSubdomainDomainContext = DomainContext & {
@@ -90,6 +90,7 @@ export function resolveDomainContext(
       isProductRoot: false,
       isPotentialHotelSubdomain: false,
       shouldUseSlugFallback: true,
+      isFutureCustomDomainCandidate: false,
     };
   }
 
@@ -105,10 +106,13 @@ export function resolveDomainContext(
       isProductRoot: false,
       isPotentialHotelSubdomain: false,
       shouldUseSlugFallback: true,
+      isFutureCustomDomainCandidate: false,
     };
   }
 
-  if (isProductRootHostname(hostname, productRootDomain)) {
+  const productHostname = classifyProductHostname(hostname, productRootDomain);
+
+  if (productHostname.kind === 'product-root') {
     return {
       rawHost: rawHost ?? null,
       host,
@@ -120,12 +124,11 @@ export function resolveDomainContext(
       isProductRoot: true,
       isPotentialHotelSubdomain: false,
       shouldUseSlugFallback: true,
+      isFutureCustomDomainCandidate: false,
     };
   }
 
-  const subdomain = getProductSubdomainCandidate(hostname, productRootDomain);
-
-  if (subdomain) {
+  if (productHostname.kind === 'product-subdomain') {
     return {
       rawHost: rawHost ?? null,
       host,
@@ -133,10 +136,11 @@ export function resolveDomainContext(
       port,
       kind: 'product-subdomain',
       productRootDomain,
-      subdomain,
+      subdomain: productHostname.subdomain,
       isProductRoot: false,
       isPotentialHotelSubdomain: true,
       shouldUseSlugFallback: true,
+      isFutureCustomDomainCandidate: false,
     };
   }
 
@@ -151,6 +155,7 @@ export function resolveDomainContext(
     isProductRoot: false,
     isPotentialHotelSubdomain: false,
     shouldUseSlugFallback: true,
+    isFutureCustomDomainCandidate: true,
   };
 }
 

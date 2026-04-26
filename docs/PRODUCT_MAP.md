@@ -98,6 +98,7 @@ Importante:
 - Ainda não existe custom domain por cliente.
 - Ainda não existe painel de gestão de domínios.
 - Ainda não existe canonical host management completo.
+- A foundation para custom domains agora está documentada, mas segue deliberadamente inativa.
 
 ## 4. Working process with ChatGPT, Codex, and Cursor
 
@@ -274,6 +275,11 @@ Importante:
 - Refinamento do onboarding de hotel novo em `/admin/hotel`.
 - Clareza maior sobre identidade do hotel, slug como fallback, subdomínio preferencial e tema visual público.
 - Checklist operacional leve para preparar a validação da experiência pública.
+
+### Sprint 25
+- Foundation leve para custom domains sem ativação.
+- Classificação de host do produto centralizada para reduzir risco futuro.
+- Documentação técnica curta criada para separar estado atual de preparação futura.
 
 ## 6. Closed hotfixes summary
 
@@ -516,6 +522,31 @@ Importante:
   - validação manual em preview continua recomendada para `/admin/hotel`, subdomínio, tema e rota pública por slug
 - Próximo passo recomendado: `Sprint 25`
 
+### Registro curto da Sprint 25
+- Status: concluída
+- Objetivo: preparar a base técnica e documental para custom domains no futuro sem ativar custom domains agora e sem alterar o comportamento público já validado
+- Arquivos alterados:
+  - `lib/product-domain.ts`
+  - `lib/domain-context.ts`
+  - `docs/guestdesk-custom-domain-foundation.md`
+  - `docs/guestdesk-overview.md`
+  - `docs/PRODUCT_MAP.md`
+- Decisões importantes:
+  - `guestdesk.digital` continua sendo o domínio operacional atual
+  - `www.guestdesk.digital` continua tratado como root do produto
+  - hosts externos continuam classificados como desconhecidos/não suportados, sem ativação de custom domain
+  - nenhuma estratégia de redirect foi ativada nesta sprint
+- Validação realizada:
+  - `npm run lint`
+  - `npm run build` com falha local recorrente em `spawn EPERM` após compilação
+  - busca por `libguest.digital`
+  - confirmação de `guestdesk.digital` preservado
+- Pendências conhecidas:
+  - custom domains seguem inativos
+  - ainda não existe associação explícita de host externo a hotel
+  - canonical redirects seguem fora do escopo
+- Próximo passo recomendado: `Sprint 26`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -560,7 +591,7 @@ Importante:
 - concluída: refinamento do onboarding de hotel novo com subdomínio, slug fallback e tema visual
 
 ### Sprint 25
-- preparo de foundation para custom domains sem ativação completa
+- concluída: preparo de foundation para custom domains sem ativação completa
 
 ### Sprint 26
 - maior cobertura operacional/documental para handoff de cliente
