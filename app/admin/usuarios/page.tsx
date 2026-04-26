@@ -8,11 +8,9 @@ import {
   AdminGuideCard,
   AdminHelpList,
   AdminInfoBadge,
-  AdminLanguageBadge,
   AdminLinkButton,
   AdminListItem,
   AdminPageHero,
-  AdminSecondaryButton,
   AdminSectionTitle,
   AdminSelect,
   AdminStatCard,
@@ -120,21 +118,35 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
           <AdminSectionTitle
             eyebrow="Novo acesso"
             title="Criar usuário"
-            description="Cadastre um novo acesso para o hotel com papel, e-mail e senha inicial."
+            description="Cadastre um novo acesso para este hotel com papel, e-mail e senha inicial."
             action={<AdminInfoBadge>Convite operacional simplificado</AdminInfoBadge>}
           />
 
           <AdminGuideCard
             title="Como distribuir papéis"
-            description="Mantenha a hierarquia simples para reduzir risco operacional e facilitar a gestão do hotel."
+            description="Cada acesso vale apenas para o hotel vinculado ao usuário. Mantenha a hierarquia simples para reduzir risco operacional e facilitar a gestão."
             className="mt-8"
           >
             <AdminHelpList
               items={[
-                'Administrador: gerencia usuários, papéis e todos os módulos do hotel.',
-                'Editor: edita hotel, serviços, departamentos e políticas.',
-                'Operador: atua nos conteúdos operacionais do diretório.',
-                'Visualizador: consulta o painel sem alterar dados.',
+                'Administrador: gerencia usuários, papéis e todos os módulos do hotel atual.',
+                'Editor: atualiza informações do hotel, identidade visual e conteúdos estruturais.',
+                'Operador: cria e mantém serviços, departamentos e políticas do diretório.',
+                'Visualizador: acompanha o painel em modo leitura, sem alterar dados.',
+              ]}
+            />
+          </AdminGuideCard>
+
+          <AdminGuideCard
+            title="Proteções já aplicadas nesta área"
+            description="O LibGuest mantém salvaguardas simples para evitar perda acidental de acesso administrativo."
+            className="mt-4"
+          >
+            <AdminHelpList
+              items={[
+                'Usuário inativo não acessa o painel administrativo.',
+                'Não é possível desativar o próprio acesso por esta área.',
+                'O hotel sempre precisa manter pelo menos um administrador ativo.',
               ]}
             />
           </AdminGuideCard>
@@ -188,7 +200,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
 
               <AdminInfoBadge>
                 <ShieldCheck className="h-3.5 w-3.5" />
-                Um papel por usuário nesta V1
+                Um papel por usuário nesta V1, sempre dentro do hotel atual
               </AdminInfoBadge>
             </div>
           </form>
@@ -198,7 +210,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
           <AdminSectionTitle
             eyebrow="Equipe vinculada"
             title="Lista de usuários"
-            description="Edite dados, ajuste papéis e ative ou desative acessos já vinculados ao hotel."
+            description="Edite dados, ajuste papéis e ative ou desative acessos já vinculados a este hotel."
           />
 
           <div className="mt-8 space-y-4">

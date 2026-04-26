@@ -60,7 +60,7 @@ export default async function EditHotelUserPage({ params, searchParams }: PagePr
       <AdminPageHero
         eyebrow="editar usuário"
         title="Editar acesso do hotel"
-        description="Atualize nome, e-mail, senha opcional, papel e status de acesso deste usuário."
+        description="Atualize nome, e-mail, senha opcional, papel e status de acesso deste usuário dentro do hotel atual."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
@@ -79,18 +79,20 @@ export default async function EditHotelUserPage({ params, searchParams }: PagePr
         <AdminSectionTitle
           eyebrow="edição individual"
           title={userProfile.full_name || userProfile.email || 'Usuário'}
-          description="As alterações feitas aqui afetam o acesso administrativo deste hotel."
+          description="As alterações feitas aqui afetam imediatamente o acesso administrativo deste hotel."
           action={<AdminInfoBadge>Permissão aplicada por hotel</AdminInfoBadge>}
         />
 
         <AdminGuideCard
           title="Cuidados nesta edição"
-          description="Trocas de papel e status alteram imediatamente a disponibilidade do usuário no painel."
+          description="Trocas de papel e status alteram imediatamente a disponibilidade do usuário no painel e continuam limitadas ao hotel vinculado."
           className="mt-8"
         >
           <AdminHelpList
             items={[
               'Use senha nova apenas quando precisar redefinir o acesso.',
+              'Usuário inativo deixa de acessar o admin até ser reativado.',
+              'Você não pode remover o próprio papel de administrador nesta área.',
               'Mantenha pelo menos um administrador ativo no hotel.',
               'Desative acessos antigos em vez de apagar histórico nesta V1.',
             ]}
@@ -148,7 +150,7 @@ export default async function EditHotelUserPage({ params, searchParams }: PagePr
             <EditUserSubmitButton />
             <AdminInfoBadge>
               <ShieldCheck className="h-3.5 w-3.5" />
-              O papel define a visibilidade e o acesso operacional
+              O papel define a visibilidade e o acesso operacional neste hotel
             </AdminInfoBadge>
           </div>
         </form>

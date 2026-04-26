@@ -628,6 +628,24 @@ Importante:
   - validação manual em preview continua recomendada para estado com logo, sem logo e revisão mobile
 - Próximo passo recomendado: `Sprint 29`
 
+### Registro curto da Sprint 29
+- Status: concluÃ­da
+- Objetivo: melhorar a clareza operacional da Ã¡rea de usuÃ¡rios e documentar melhor o modelo atual de papÃ©is e proteÃ§Ãµes, sem alterar auth, schema ou RLS
+- Arquivos alterados:
+  - `app/admin/usuarios/page.tsx`
+  - `app/admin/usuarios/[id]/page.tsx`
+  - `docs/guestdesk-admin-guide.md`
+  - `docs/PRODUCT_MAP.md`
+- ValidaÃ§Ã£o realizada:
+  - `npm run lint`
+  - `npm run build` com falha local recorrente em `spawn EPERM` apÃ³s compilaÃ§Ã£o
+  - busca por `libguest.digital`
+  - confirmaÃ§Ã£o de `guestdesk.digital` preservado
+- PendÃªncias conhecidas:
+  - o modelo de permissÃµes continua intencionalmente simples, sem super-admin, multi-hotel ou matriz avanÃ§ada
+  - mensagens de acesso negado seguem centralizadas no redirect seguro para `/login`
+- PrÃ³ximo passo recomendado: `Sprint 30`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -644,6 +662,8 @@ Importante:
 - refinamentos adicionais de usabilidade em módulos específicos
 - melhoria contínua de densidade/ritmo de páginas sensíveis
 - onboarding de hotel novo ainda pode evoluir no futuro sem virar wizard pesado
+
+ - maior clareza futura de estados de acesso negado sem alterar a lÃ³gica central de auth
 
 ### Analytics
 - leitura mais executiva sem virar dashboard pesado
@@ -685,6 +705,8 @@ Importante:
 
 ### Sprint 29
 - expansão controlada de permissões por papel, se houver necessidade real
+
+ - concluÃ­da: hardening leve de UX e documentaÃ§Ã£o das permissÃµes atuais, sem ampliar a matriz de papÃ©is
 
 ### Sprint 30
 - camada leve de qualidade/observabilidade para erros e eventos importantes

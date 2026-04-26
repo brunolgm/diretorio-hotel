@@ -35,6 +35,37 @@ Servir como referência curta para a operação diária do painel administrativo
 - distribuir papéis mínimos necessários
 - desativar acessos antigos
 - evitar uso excessivo de papel administrativo
+- lembrar que todo acesso administrativo vale apenas para o hotel vinculado ao perfil
+
+## Permissões atuais por papel
+
+### Administrador
+- acessa todos os módulos do hotel
+- gerencia usuários, papéis e status de acesso
+- pode revisar e editar hotel, serviços, departamentos e políticas
+
+### Editor
+- acessa o painel do hotel
+- pode editar informações do hotel, identidade visual e configurações operacionais do cadastro principal
+- não gerencia usuários
+
+### Operador
+- acessa o painel do hotel
+- pode criar e manter serviços, departamentos e políticas
+- não gerencia usuários nem configuração principal do hotel
+
+### Visualizador
+- acessa o painel em modo leitura
+- acompanha dashboard, listas e status operacionais
+- não publica nem altera conteúdo
+
+## Regras operacionais de acesso
+- usuário inativo não acessa o painel administrativo
+- o acesso continua sempre limitado ao `hotel_id` vinculado ao perfil
+- a área de usuários é restrita a administradores
+- o sistema impede desativar o próprio acesso
+- o sistema impede remover o próprio papel de administrador
+- o hotel deve manter pelo menos um administrador ativo
 
 ## Tradução
 - português continua sendo a base canônica
