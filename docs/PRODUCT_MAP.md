@@ -291,6 +291,11 @@ Importante:
 - Leitura mais clara sobre PT como conteúdo fonte, EN/ES gerados no save e fallback em português.
 - Badges, status e microcopy alinhados entre serviços, departamentos e políticas.
 
+### Sprint 28
+- Refinamento leve da identidade visual/mídia do hotel no admin e na experiência pública.
+- Explicação mais clara sobre logo, preset visual, cor de acento e fallback seguro sem mídia.
+- Boas práticas documentadas para revisão visual em celular e desktop.
+
 ## 6. Closed hotfixes summary
 
 ### Hotfixes recorrentes já tratados
@@ -603,6 +608,26 @@ Importante:
   - a falha de tradução continua não bloqueante e depende de retradução manual quando necessário
 - Próximo passo recomendado: `Sprint 28`
 
+### Registro curto da Sprint 28
+- Status: concluída
+- Objetivo: melhorar a clareza e a consistência da identidade visual/mídia do hotel sem criar editor visual complexo e sem alterar a arquitetura sensível
+- Arquivos alterados:
+  - `app/admin/hotel/page.tsx`
+  - `components/public/hotel-public-page-content.tsx`
+  - `components/public/hotel-service-detail-content.tsx`
+  - `docs/guestdesk-new-hotel-playbook.md`
+  - `docs/guestdesk-client-handoff.md`
+  - `docs/PRODUCT_MAP.md`
+- Validação realizada:
+  - `npm run lint`
+  - `npm run build` com falha local recorrente em `spawn EPERM` após compilação
+  - busca por `libguest.digital`
+  - confirmação de `guestdesk.digital` preservado
+- Pendências conhecidas:
+  - a experiência continua usando apenas logo e tema já existentes, sem editor visual mais avançado
+  - validação manual em preview continua recomendada para estado com logo, sem logo e revisão mobile
+- Próximo passo recomendado: `Sprint 29`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -656,7 +681,7 @@ Importante:
 - concluída: refinamento do fluxo de tradução e visibilidade operacional
 
 ### Sprint 28
-- melhorias leves de mídia/identidade visual do hotel, se seguras
+- concluída: melhorias leves de mídia/identidade visual do hotel, se seguras
 
 ### Sprint 29
 - expansão controlada de permissões por papel, se houver necessidade real

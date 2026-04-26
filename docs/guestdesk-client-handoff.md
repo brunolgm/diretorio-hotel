@@ -65,6 +65,8 @@ Use este handoff depois que:
 - revisar preset visual
 - revisar cor de destaque, se usada
 - revisar leitura geral da página pública no celular
+- confirmar se a ausência de logo ainda mantém uma apresentação aceitável e profissional
+- evitar aprovar imagem com baixa resolução, excesso de texto ou poluição visual
 
 ### Endereço e navegação
 - confirmar qual é o endereço público principal
@@ -78,6 +80,7 @@ Use este handoff depois que:
 
 ## Validação pública antes de considerar pronto
 - abrir a página pública no celular
+- revisar o hero com e sem destaque de marca, quando aplicável
 - testar links principais
 - revisar serviços, departamentos e políticas
 - testar troca de idioma

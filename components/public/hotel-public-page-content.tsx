@@ -300,10 +300,10 @@ export function HotelPublicPageContent({
                   <img
                     src={hotel.logo_url}
                     alt={hotel.name}
-                    className="h-16 w-16 rounded-[22px] bg-white object-cover p-1 shadow-[0_16px_32px_-22px_rgba(15,23,42,0.55)]"
+                    className="h-16 w-16 rounded-[22px] border border-white/15 bg-white object-cover p-1 shadow-[0_16px_32px_-22px_rgba(15,23,42,0.55)]"
                   />
                 ) : (
-                  <div className="rounded-[22px] border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-[22px] border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
                     <Hotel className="h-6 w-6 text-[color:var(--hotel-badge-text)]" />
                   </div>
                 )}
@@ -326,6 +326,12 @@ export function HotelPublicPageContent({
                       {copy.essentialsSinglePlace}
                     </span>
                   </div>
+
+                  <p className="mt-3 text-xs uppercase tracking-[0.16em] text-[color:var(--hotel-hero-muted)]/85">
+                    {hotel.logo_url
+                      ? 'Identidade visual do hotel aplicada na experiência pública.'
+                      : 'Apresentação visual padrão ativa até que a logo do hotel seja configurada.'}
+                  </p>
                 </div>
               </div>
 

@@ -28,7 +28,15 @@ Antes de considerar o hotel pronto para revisão, confirme:
 ## Tema visual
 - o preset visual define a base da experiência pública
 - a cor primária opcional afeta apenas acentos seguros
+- a logo ajuda a reforçar a identidade do hotel, mas não é obrigatória para publicar
+- sem logo, o LibGuest mantém uma apresentação visual padrão segura
 - depois de salvar, revisar a experiência pública no celular
+
+## Boas práticas de identidade visual
+- prefira logo nítida, limpa e atual
+- evite imagem com texto pequeno, fundo poluído ou baixa resolução
+- use o preset visual para aproximar a experiência pública da identidade do hotel
+- depois de alterar tema, cor ou logo, revise a página pública em celular e desktop
 
 ## Validação mínima
 1. rota por slug funcionando

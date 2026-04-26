@@ -186,7 +186,8 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             items={[
               'Preencha primeiro nome, cidade, contatos e links principais para o hotel já ficar identificável.',
               'Depois confirme o subdomínio preferencial e saiba que o slug continua funcionando como fallback seguro.',
-              'Escolha o preset visual e revise a rota pública no celular depois de salvar.',
+              'Escolha o preset visual, revise a logo e confirme como o hotel aparece na página pública.',
+              'Depois de salvar, teste a rota pública no celular para validar leitura, contraste e presença visual.',
             ]}
           />
         </AdminGuideCard>
@@ -233,6 +234,15 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               completed={hasThemeReady}
             />
             <SetupChecklistItem
+              title="Identidade visual revisada"
+              description={
+                hotel.logo_url
+                  ? 'A logo já está configurada e pronta para reforçar a identidade do hotel na experiência pública.'
+                  : 'Sem logo, o LibGuest mantém uma apresentação visual padrão e segura até que a marca do hotel seja enviada.'
+              }
+              completed={Boolean(hotel.logo_url)}
+            />
+            <SetupChecklistItem
               title="Experiência pública pronta para revisar"
               description={
                 hasPublicReviewReady
@@ -266,16 +276,16 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
           </div>
 
-          <AdminGuideCard
-            title="Como revisar este formulário"
-            description="Este bloco concentra as definições mais importantes para colocar um novo hotel no ar com clareza e consistência."
-            className="mt-8"
-          >
+            <AdminGuideCard
+              title="Como revisar este formulário"
+              description="Este bloco concentra as definições mais importantes para colocar um novo hotel no ar com clareza e consistência."
+              className="mt-8"
+            >
             <AdminHelpList
               items={[
                 'Revise primeiro nome, cidade, WhatsApp e links principais para garantir que o hóspede encontre o hotel certo.',
                 'Depois confirme o endereço público preferencial e entenda como o slug continua funcionando como fallback.',
-                'Finalize com tema, logo e um teste rápido da rota pública depois de salvar.',
+                'Finalize com tema, logo e um teste rápido da rota pública em celular e desktop depois de salvar.',
               ]}
             />
           </AdminGuideCard>
@@ -447,7 +457,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 placeholder="https://..."
               />
               <AdminHelpText>
-                Use este campo apenas quando a logo já estiver hospedada em uma URL confiável.
+                Use este campo apenas quando a logo já estiver hospedada em uma URL confiável. Se ficar vazio, o LibGuest mantém um fallback visual seguro na página pública.
               </AdminHelpText>
             </div>
 
@@ -468,7 +478,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               </select>
               <AdminHelpText>
                 Escolha uma base visual premium e controlada. O preset define os fundos, a
-                atmosfera e os acabamentos principais do diretório.
+                atmosfera e os acabamentos principais do diretório. Mesmo sem ajustes extras, o preset padrão mantém a apresentação pública estável.
               </AdminHelpText>
             </div>
 
@@ -483,7 +493,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               />
               <AdminHelpText>
                 Esta cor afeta apenas acentos seguros, como o CTA principal e pequenos destaques.
-                Se estiver vazia ou inválida, o LibGuest usa a cor padrão do preset.
+                Se estiver vazia ou inválida, o LibGuest usa a cor padrão do preset para preservar contraste e consistência.
               </AdminHelpText>
             </div>
 
@@ -548,8 +558,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               <AdminHelpList
                 items={[
                   'Prefira o arquivo oficial mais recente da marca.',
-                  'Se possível, use uma imagem quadrada ou com boa área de respiro.',
-                  'Depois do upload, confira a visualização pública no celular.',
+                  'Se possível, use uma imagem nítida, quadrada ou com boa área de respiro.',
+                  'Evite arquivos com baixa resolução, fundo poluído ou texto pequeno demais.',
+                  'Depois do upload, confira a visualização pública no celular e no desktop.',
                 ]}
               />
             </AdminGuideCard>
@@ -565,13 +576,18 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   <div>
                     <p className="text-sm font-semibold text-slate-900">Logo atual carregada</p>
                     <p className="mt-1 text-sm leading-6 text-slate-600">
-                      A imagem atual já está associada ao diretório do hotel.
+                      A imagem atual já está associada ao diretório do hotel e ajuda a reforçar a marca no hero público.
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="text-sm leading-6 text-slate-600">
-                  Nenhuma logo enviada até o momento.
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-slate-900">
+                    Nenhuma logo enviada até o momento
+                  </p>
+                  <p className="text-sm leading-6 text-slate-600">
+                    Sem logo, o LibGuest mantém uma apresentação visual padrão segura com ícone e tema do hotel até que a marca oficial seja adicionada.
+                  </p>
                 </div>
               )}
             </div>
@@ -597,7 +613,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   className="block w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm outline-none transition focus:border-slate-300 focus:bg-white focus-visible:ring-2 focus-visible:ring-slate-200"
                 />
                 <AdminHelpText className="mt-2">
-                  Após enviar, revise a visualização pública para confirmar tamanho e leitura da marca.
+                  Após enviar, revise a visualização pública para confirmar tamanho, leitura e contraste da marca.
                 </AdminHelpText>
               </div>
 
@@ -623,7 +639,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 items={[
                   'Confirme se a identidade básica do hotel está clara no painel.',
                   'Revise o endereço público principal e saiba qual rota continua disponível por fallback.',
-                  'Teste a rota pública para validar tema, horários, contatos e links principais.',
+                  'Teste a rota pública para validar tema, logo, horários, contatos e links principais.',
                 ]}
               />
             </AdminGuideCard>
@@ -649,11 +665,30 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               </div>
 
               <div className="rounded-[24px] bg-slate-50 p-5">
+                <p className="text-sm font-semibold text-slate-900">Logo pública</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  {hotel.logo_url
+                    ? 'Logo configurada e pronta para aparecer no hero do diretório.'
+                    : 'Sem logo enviada. A experiência pública usa fallback visual seguro.'}
+                </p>
+              </div>
+
+              <div className="rounded-[24px] bg-slate-50 p-5">
                 <p className="text-sm font-semibold text-slate-900">Tema público</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{currentTheme.label}</p>
+                <div className="mt-2 flex items-center gap-3">
+                  <span
+                    className="h-4 w-4 rounded-full ring-1 ring-slate-200"
+                    style={{ backgroundColor: currentTheme.accentColor }}
+                  />
+                  <p className="text-sm leading-6 text-slate-600">{currentTheme.label}</p>
+                </div>
                 <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
-                  Cor primária:{' '}
-                  {currentTheme.usesPrimaryOverride ? currentTheme.accentColor : 'preset padrão'}
+                  {currentTheme.usesPrimaryOverride
+                    ? `acento personalizado ${currentTheme.accentColor}`
+                    : 'preset padrão sem override de acento'}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  O preset mantém a base visual estável mesmo quando nenhuma cor adicional é definida.
                 </p>
               </div>
 

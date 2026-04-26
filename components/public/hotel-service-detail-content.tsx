@@ -82,11 +82,26 @@ export function HotelServiceDetailContent({
             </div>
 
             <div className="mt-7 flex items-start gap-4">
-              <div className="rounded-[22px] border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-                <ServiceIcon
-                  iconName={section.icon}
-                  className="h-6 w-6 text-[color:var(--hotel-badge-text)]"
-                />
+              <div className="flex flex-col items-center gap-3">
+                {hotel.logo_url ? (
+                  <div
+                    aria-label={hotel.name}
+                    role="img"
+                    className="h-16 w-16 rounded-[22px] border border-white/15 bg-white bg-cover bg-center p-1 shadow-[0_16px_32px_-22px_rgba(15,23,42,0.55)]"
+                    style={{ backgroundImage: `url(${hotel.logo_url})` }}
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-[22px] border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                    <Hotel className="h-6 w-6 text-[color:var(--hotel-badge-text)]" />
+                  </div>
+                )}
+
+                <div className="rounded-[22px] border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                  <ServiceIcon
+                    iconName={section.icon}
+                    className="h-6 w-6 text-[color:var(--hotel-badge-text)]"
+                  />
+                </div>
               </div>
 
               <div>
@@ -123,6 +138,12 @@ export function HotelServiceDetailContent({
                     {copy.internalDetailedContent}
                   </span>
                 </div>
+
+                <p className="mt-3 text-xs uppercase tracking-[0.16em] text-[color:var(--hotel-hero-muted)]/85">
+                  {hotel.logo_url
+                    ? 'Identidade visual do hotel mantida nesta página de detalhe.'
+                    : 'Sem logo configurada, a página usa uma apresentação visual padrão e segura.'}
+                </p>
               </div>
             </div>
           </div>
