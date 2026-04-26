@@ -46,7 +46,10 @@ import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
 import {
   getAvailableTranslationLanguages,
+  getRetranslationHelpText,
+  getTranslationAvailabilityDescription,
   getTranslationAvailabilityStatus,
+  getTranslationWorkflowHelpItems,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
@@ -312,13 +315,15 @@ export default async function AdminDepartmentsPage({
           />
 
           <AdminGuideCard
-            title="Como acompanhar esta lista"
-            description="Use o status para ver o que já está publicado e os badges de idioma para identificar rapidamente quais versões estão disponíveis."
+            title="Como acompanhar o status de tradução"
+            description="Os badges mostram a disponibilidade por idioma e o status geral indica quando a experiência pública ainda depende de fallback em português."
             className="mt-8"
-          />
+          >
+            <AdminHelpList items={getTranslationWorkflowHelpItems()} />
+          </AdminGuideCard>
 
           <AdminHelpText className="mt-4">
-            Status parcial indica fallback seguro para PT em parte do conteúdo público.
+            {getRetranslationHelpText()}
           </AdminHelpText>
 
           <AdminFilterBar>
@@ -366,8 +371,9 @@ export default async function AdminDepartmentsPage({
                       <>
                         <span>Horário: {item.hours || 'Não informado'}</span>
                         <span>Botão: {item.action || '—'}</span>
+                        <span>{getTranslationAvailabilityDescription(translationStatus)}</span>
                         <div className="flex flex-wrap items-center gap-2">
-                          <AdminLanguageBadge label="PT" available />
+                          <AdminLanguageBadge label="PT" available source />
                           <AdminLanguageBadge label="EN" available={availableLanguages.has('en')} />
                           <AdminLanguageBadge label="ES" available={availableLanguages.has('es')} />
                         </div>

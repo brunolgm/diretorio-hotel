@@ -3,6 +3,8 @@ import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminField,
   AdminFormGrid,
+  AdminGuideCard,
+  AdminHelpList,
   AdminInfoBadge,
   AdminPageHero,
   AdminPrimaryButton,
@@ -13,6 +15,10 @@ import {
 } from '@/components/admin/ui';
 import { requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
+import {
+  getRetranslationHelpText,
+  getTranslationWorkflowHelpItems,
+} from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
 import { updatePolicyAction } from './actions';
 
@@ -75,9 +81,17 @@ export default async function EditPolicyPage({ params, searchParams }: PageProps
         <AdminSectionTitle
           eyebrow="ediÃ§Ã£o individual"
           title={policy.title || 'PolÃ­tica'}
-          description="As alteraÃ§Ãµes feitas aqui serÃ£o refletidas no diretÃ³rio pÃºblico do hotel."
+          description="PortuguÃªs continua como conteÃºdo fonte deste cadastro. EN e ES sÃ£o atualizados a partir do texto salvo em PT."
           action={<AdminInfoBadge>Regra exibida ao hÃ³spede</AdminInfoBadge>}
         />
+
+        <AdminGuideCard
+          title="Como a traduÃ§Ã£o funciona neste cadastro"
+          description={getRetranslationHelpText()}
+          className="mt-8"
+        >
+          <AdminHelpList items={getTranslationWorkflowHelpItems()} />
+        </AdminGuideCard>
 
         <form action={action}>
           <AdminFormGrid className="md:grid-cols-1">

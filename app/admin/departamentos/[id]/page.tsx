@@ -3,6 +3,8 @@ import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminField,
   AdminFormGrid,
+  AdminGuideCard,
+  AdminHelpList,
   AdminInfoBadge,
   AdminPageHero,
   AdminPrimaryButton,
@@ -13,6 +15,10 @@ import {
 } from '@/components/admin/ui';
 import { requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
+import {
+  getRetranslationHelpText,
+  getTranslationWorkflowHelpItems,
+} from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
 import { updateDepartmentAction } from './actions';
 
@@ -75,9 +81,17 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
         <AdminSectionTitle
           eyebrow="ediÃ§Ã£o individual"
           title={department.name || 'Departamento'}
-          description="As alteraÃ§Ãµes feitas aqui serÃ£o refletidas no diretÃ³rio pÃºblico do hotel."
+          description="PortuguÃªs continua como conteÃºdo fonte deste cadastro. EN e ES sÃ£o atualizados a partir do conteÃºdo salvo em PT."
           action={<AdminInfoBadge>Contato do diretÃ³rio</AdminInfoBadge>}
         />
+
+        <AdminGuideCard
+          title="Como a traduÃ§Ã£o funciona neste cadastro"
+          description={getRetranslationHelpText()}
+          className="mt-8"
+        >
+          <AdminHelpList items={getTranslationWorkflowHelpItems()} />
+        </AdminGuideCard>
 
         <form action={action}>
           <AdminFormGrid>

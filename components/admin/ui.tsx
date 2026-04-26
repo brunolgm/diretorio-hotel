@@ -3,6 +3,20 @@ import { cn } from '@/lib/utils';
 import { ReactNode } from 'react';
 import { ArrowRight, Search } from 'lucide-react';
 
+type TranslationAvailabilityStatus = 'complete' | 'partial' | 'missing';
+
+function getTranslationAvailabilityLabel(status: TranslationAvailabilityStatus) {
+  if (status === 'complete') {
+    return 'EN e ES disponíveis';
+  }
+
+  if (status === 'partial') {
+    return 'Fallback parcial em PT';
+  }
+
+  return 'Fallback em PT';
+}
+
 export function AdminPageHero({
   eyebrow,
   title,
@@ -130,20 +144,24 @@ export function AdminInfoBadge({ children }: { children: ReactNode }) {
 export function AdminLanguageBadge({
   label,
   available,
+  source = false,
 }: {
   label: string;
   available: boolean;
+  source?: boolean;
 }) {
   return (
     <span
       className={cn(
         'inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]',
-        available
+        source && available
+          ? 'bg-sky-100 text-sky-700 ring-1 ring-inset ring-sky-200'
+          : available
           ? 'bg-slate-900 text-white'
           : 'bg-slate-100 text-slate-400 ring-1 ring-inset ring-slate-200'
       )}
     >
-      {label}
+      {source ? `${label} fonte` : label}
     </span>
   );
 }
@@ -151,12 +169,12 @@ export function AdminLanguageBadge({
 export function AdminTranslationStatusPill({
   status,
 }: {
-  status: 'complete' | 'partial' | 'missing';
+  status: TranslationAvailabilityStatus;
 }) {
   if (status === 'complete') {
     return (
       <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
-        Tradução completa
+        {getTranslationAvailabilityLabel(status)}
       </span>
     );
   }
@@ -164,14 +182,14 @@ export function AdminTranslationStatusPill({
   if (status === 'partial') {
     return (
       <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">
-        Tradução parcial
+        {getTranslationAvailabilityLabel(status)}
       </span>
     );
   }
 
   return (
     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-      Apenas português
+      {getTranslationAvailabilityLabel(status)}
     </span>
   );
 }

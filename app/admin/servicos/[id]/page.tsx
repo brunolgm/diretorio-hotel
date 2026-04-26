@@ -4,6 +4,8 @@ import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminField,
   AdminFormGrid,
+  AdminGuideCard,
+  AdminHelpList,
   AdminInfoBadge,
   AdminPageHero,
   AdminPrimaryButton,
@@ -15,6 +17,10 @@ import {
 import { requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
 import { buildServiceCategoryOptions } from '@/lib/service-options';
+import {
+  getRetranslationHelpText,
+  getTranslationWorkflowHelpItems,
+} from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
 import { updateSectionAction } from './actions';
 
@@ -83,9 +89,17 @@ export default async function EditServicePage({ params, searchParams }: PageProp
         <AdminSectionTitle
           eyebrow="edição individual"
           title={section.title || 'Serviço'}
-          description="As alterações feitas aqui serão refletidas no diretório público do hotel."
+          description="Português continua como conteúdo fonte deste cadastro. EN e ES são atualizados a partir do texto salvo em PT."
           action={<AdminInfoBadge>Serviço do diretório</AdminInfoBadge>}
         />
+
+        <AdminGuideCard
+          title="Como a tradução funciona neste cadastro"
+          description={getRetranslationHelpText()}
+          className="mt-8"
+        >
+          <AdminHelpList items={getTranslationWorkflowHelpItems()} />
+        </AdminGuideCard>
 
         <form action={action}>
           <AdminFormGrid>

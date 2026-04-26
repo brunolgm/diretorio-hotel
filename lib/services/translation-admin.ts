@@ -18,7 +18,7 @@ export interface TranslationSyncResult {
   failedLanguages: SupportedTranslationLanguage[];
 }
 
-type TranslationAvailabilityStatus = 'complete' | 'partial' | 'missing';
+export type TranslationAvailabilityStatus = 'complete' | 'partial' | 'missing';
 
 function getSyncStatus(successfulLanguages: SupportedTranslationLanguage[]): TranslationSyncState {
   if (successfulLanguages.length === TARGET_LANGUAGES.length) {
@@ -54,10 +54,10 @@ export function formatTranslationWarning(result: TranslationSyncResult) {
 
   if (result.status === 'partial') {
     const missingLanguages = result.failedLanguages.map(formatLanguageLabel).join(' e ');
-    return `Conteúdo salvo em português, mas a tradução ${missingLanguages} não pôde ser atualizada.`;
+    return `Conteúdo salvo em português. A tradução ${missingLanguages} não pôde ser atualizada, então parte da experiência pública pode usar fallback em PT até a próxima retradução.`;
   }
 
-  return 'Conteúdo salvo em português, mas as traduções EN e ES não puderam ser atualizadas.';
+  return 'Conteúdo salvo em português, mas as traduções EN e ES não puderam ser atualizadas. A publicação em PT continua disponível e o fallback em português pode ser usado na experiência pública.';
 }
 
 export function buildFeedbackRedirect(
@@ -110,6 +110,43 @@ export function getTranslationAvailabilityStatus(
   }
 
   return 'missing';
+}
+
+export function getTranslationAvailabilityLabel(status: TranslationAvailabilityStatus) {
+  if (status === 'complete') {
+    return 'EN e ES disponíveis';
+  }
+
+  if (status === 'partial') {
+    return 'Fallback parcial em PT';
+  }
+
+  return 'Fallback em PT';
+}
+
+export function getTranslationAvailabilityDescription(status: TranslationAvailabilityStatus) {
+  if (status === 'complete') {
+    return 'O conteúdo em inglês e espanhol já está disponível para a experiência pública.';
+  }
+
+  if (status === 'partial') {
+    return 'Parte do conteúdo público ainda pode aparecer em português quando EN ou ES estiverem ausentes.';
+  }
+
+  return 'Inglês e espanhol ainda não estão disponíveis. A experiência pública usa o conteúdo em português como fallback.';
+}
+
+export function getTranslationWorkflowHelpItems() {
+  return [
+    'Português é o conteúdo fonte deste cadastro.',
+    'As versões em inglês e espanhol são geradas ao salvar.',
+    'Se a tradução não estiver disponível, a experiência pública usa o texto em português como fallback.',
+    'Falhas de tradução não impedem a publicação do conteúdo em português.',
+  ];
+}
+
+export function getRetranslationHelpText() {
+  return 'Use retraduzir quando alterar o texto em português e quiser atualizar EN/ES a partir da versão fonte.';
 }
 
 export async function syncSectionTranslations({

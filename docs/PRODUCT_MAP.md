@@ -286,6 +286,11 @@ Importante:
 - Checklist central de entrega criado para separar validação técnica, revisão do cliente e acompanhamento inicial.
 - Documentação operacional conectada entre onboarding, deploy, pós-deploy e operação diária.
 
+### Sprint 27
+- Refinamento da visibilidade operacional de tradução no admin.
+- Leitura mais clara sobre PT como conteúdo fonte, EN/ES gerados no save e fallback em português.
+- Badges, status e microcopy alinhados entre serviços, departamentos e políticas.
+
 ## 6. Closed hotfixes summary
 
 ### Hotfixes recorrentes já tratados
@@ -574,6 +579,30 @@ Importante:
   - custom domains seguem inativos e fora da entrega operacional atual
 - Próximo passo recomendado: `Sprint 27`
 
+### Registro curto da Sprint 27
+- Status: concluída
+- Objetivo: melhorar a visibilidade operacional do fluxo de tradução no admin sem alterar a arquitetura principal de tradução
+- Arquivos alterados:
+  - `components/admin/ui.tsx`
+  - `lib/services/translation-admin.ts`
+  - `app/admin/servicos/page.tsx`
+  - `app/admin/servicos/[id]/page.tsx`
+  - `app/admin/departamentos/page.tsx`
+  - `app/admin/departamentos/[id]/page.tsx`
+  - `app/admin/politicas/page.tsx`
+  - `app/admin/politicas/[id]/page.tsx`
+  - `docs/PRODUCT_MAP.md`
+- Validação realizada:
+  - `npm run lint`
+  - `npx tsc --noEmit`
+  - `npm run build` com falha local recorrente em `spawn EPERM` após compilação
+  - busca por `libguest.digital`
+  - confirmação de `guestdesk.digital` preservado
+- Pendências conhecidas:
+  - a arquitetura de tradução continua intencionalmente simples, sem editor manual e sem filas
+  - a falha de tradução continua não bloqueante e depende de retradução manual quando necessário
+- Próximo passo recomendado: `Sprint 28`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -624,7 +653,7 @@ Importante:
 - concluída: maior cobertura operacional/documental para handoff de cliente
 
 ### Sprint 27
-- refinamento do fluxo de tradução e visibilidade operacional
+- concluída: refinamento do fluxo de tradução e visibilidade operacional
 
 ### Sprint 28
 - melhorias leves de mídia/identidade visual do hotel, se seguras
