@@ -265,6 +265,63 @@ export interface Database {
         ];
       };
 
+      hotel_promotional_banners: {
+        Row: {
+          id: string;
+          hotel_id: string;
+          title: string;
+          subtitle: string | null;
+          image_url: string | null;
+          cta_label: string | null;
+          cta_url: string | null;
+          starts_at: string | null;
+          ends_at: string | null;
+          is_active: boolean;
+          display_order: number;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          hotel_id: string;
+          title: string;
+          subtitle?: string | null;
+          image_url?: string | null;
+          cta_label?: string | null;
+          cta_url?: string | null;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          is_active?: boolean;
+          display_order?: number;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          hotel_id?: string;
+          title?: string;
+          subtitle?: string | null;
+          image_url?: string | null;
+          cta_label?: string | null;
+          cta_url?: string | null;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          is_active?: boolean;
+          display_order?: number;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'hotel_promotional_banners_hotel_id_fkey';
+            columns: ['hotel_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotels';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
       hotel_analytics_events: {
         Row: {
           id: string;
@@ -480,6 +537,48 @@ export interface Database {
             columns: ['announcement_id'];
             isOneToOne: false;
             referencedRelation: 'hotel_announcements';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
+      hotel_promotional_banner_translations: {
+        Row: {
+          id: string;
+          banner_id: string;
+          language: string;
+          title: string | null;
+          subtitle: string | null;
+          cta_label: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          banner_id: string;
+          language: string;
+          title?: string | null;
+          subtitle?: string | null;
+          cta_label?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          banner_id?: string;
+          language?: string;
+          title?: string | null;
+          subtitle?: string | null;
+          cta_label?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'hotel_promotional_banner_translations_banner_id_fkey';
+            columns: ['banner_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotel_promotional_banners';
             referencedColumns: ['id'];
           }
         ];

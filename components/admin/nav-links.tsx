@@ -6,6 +6,7 @@ import {
   Building2,
   ConciergeBell,
   Hotel,
+  Images,
   LayoutDashboard,
   Megaphone,
   ShieldCheck,
@@ -23,6 +24,7 @@ export interface NavItem {
     | 'departments'
     | 'policies'
     | 'announcements'
+    | 'banners'
     | 'users';
 }
 
@@ -57,6 +59,8 @@ function NavIcon({
       return <ShieldCheck className={className} />;
     case 'announcements':
       return <Megaphone className={className} />;
+    case 'banners':
+      return <Images className={className} />;
     case 'users':
       return <Users className={className} />;
     case 'dashboard':

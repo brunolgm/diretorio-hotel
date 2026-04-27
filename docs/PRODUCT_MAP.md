@@ -713,6 +713,48 @@ Importante:
   - custom domains, host e analytics pÃºblico continuam fora do escopo desta sprint
 - PrÃ³ximo passo recomendado: `Sprint 32`
 
+### Registro curto da Sprint 31.1
+- Status: concluÃ­da
+- Objetivo: criar um mÃ³dulo separado de banners promocionais do hotel com imagem, CTA, traduÃ§Ã£o no save e carrossel pÃºblico limitado a 3 itens
+- Arquivos alterados:
+  - `supabase/migrations/20260426_add_hotel_promotional_banners.sql`
+  - `types/database.ts`
+  - `lib/services/translation-service.ts`
+  - `lib/services/translation-admin.ts`
+  - `lib/public-hotel-data.ts`
+  - `app/page.tsx`
+  - `app/hotel/[slug]/page.tsx`
+  - `app/admin/layout.tsx`
+  - `components/admin/nav-links.tsx`
+  - `components/public/hotel-public-page-content.tsx`
+  - `components/public/promotional-banner-carousel.tsx`
+  - `app/admin/banners/actions.ts`
+  - `app/admin/banners/page.tsx`
+  - `app/admin/banners/[id]/actions.ts`
+  - `app/admin/banners/[id]/page.tsx`
+  - `app/admin/banners/upload-image-action.ts`
+  - `docs/PRODUCT_MAP.md`
+- Migration criada:
+  - `hotel_promotional_banners`
+  - `hotel_promotional_banner_translations`
+- DecisÃµes importantes:
+  - bucket reutilizado: `hotel-assets`
+  - path de upload: `promotional-banners/{hotel_id}/{banner_id}.{ext}`
+  - sem crop automÃ¡tico real nesta sprint; orientaÃ§Ã£o e object-cover foram adotados
+  - carrossel pÃºblico sem biblioteca externa e sem autoplay agressivo
+  - a experiÃªncia pÃºblica limita a exibiÃ§Ã£o a no mÃ¡ximo 3 banners elegÃ­veis
+- ValidaÃ§Ã£o realizada:
+  - `npm run lint`
+  - `npx tsc --noEmit`
+  - `npm run build` com falha local recorrente em `spawn EPERM` apÃ³s compilaÃ§Ã£o
+  - busca por `libguest.digital`
+  - confirmaÃ§Ã£o de `guestdesk.digital` preservado
+- PendÃªncias conhecidas:
+  - nÃ£o existe crop/conversÃ£o automÃ¡tica de imagem
+  - nÃ£o existe autoplay ou animaÃ§Ã£o mais elaborada no carrossel
+  - custom domains, host e dados de hÃ³spedes seguem fora do escopo
+- PrÃ³ximo passo recomendado: `Sprint 32`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura

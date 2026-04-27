@@ -15,6 +15,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
+import { PromotionalBannerCarousel } from '@/components/public/promotional-banner-carousel';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import { ServiceIcon } from '@/components/service-icon';
 import type { DomainContext } from '@/lib/domain-context';
@@ -25,6 +26,7 @@ import type {
   PublicHotel,
   PublicHotelDepartment,
   PublicHotelPolicy,
+  PublicHotelPromotionalBanner,
   PublicHotelSection,
 } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
@@ -284,6 +286,7 @@ function PolicyCard({
 
 export function HotelPublicPageContent({
   hotel,
+  banners,
   announcements,
   sections,
   departments,
@@ -294,6 +297,7 @@ export function HotelPublicPageContent({
   preferSubdomainRoot,
 }: {
   hotel: PublicHotel;
+  banners: PublicHotelPromotionalBanner[];
   announcements: PublicHotelAnnouncement[];
   sections: PublicHotelSection[];
   departments: PublicHotelDepartment[];
@@ -451,6 +455,12 @@ export function HotelPublicPageContent({
         {hasFallbackContent ? (
           <section className="mt-4 rounded-[24px] border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 shadow-[0_16px_35px_-30px_rgba(120,53,15,0.35)]">
             {copy.fallbackNotice}
+          </section>
+        ) : null}
+
+        {banners.length ? (
+          <section className="mt-8">
+            <PromotionalBannerCarousel banners={banners} language={language} />
           </section>
         ) : null}
 

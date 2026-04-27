@@ -161,3 +161,14 @@ export async function translateAnnouncementFields(
 ) {
   return tryTranslateTextFields(fields, targetLanguage);
 }
+
+export async function translatePromotionalBannerFields(
+  fields: {
+    title: string;
+    subtitle: string | null;
+    cta_label: string | null;
+  },
+  targetLanguage: SupportedTranslationLanguage
+) {
+  return tryTranslateTextFields(fields, targetLanguage);
+}

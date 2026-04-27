@@ -10,6 +10,8 @@ export type PublicHotelSection = Database['public']['Tables']['hotel_sections'][
 export type PublicHotelDepartment = Database['public']['Tables']['hotel_departments']['Row'];
 export type PublicHotelPolicy = Database['public']['Tables']['hotel_policies']['Row'];
 export type PublicHotelAnnouncement = Database['public']['Tables']['hotel_announcements']['Row'];
+export type PublicHotelPromotionalBanner =
+  Database['public']['Tables']['hotel_promotional_banners']['Row'];
 type PublicHotelSectionTranslation =
   Database['public']['Tables']['hotel_section_translations']['Row'];
 type PublicHotelDepartmentTranslation =
@@ -18,9 +20,12 @@ type PublicHotelPolicyTranslation =
   Database['public']['Tables']['hotel_policy_translations']['Row'];
 type PublicHotelAnnouncementTranslation =
   Database['public']['Tables']['hotel_announcement_translations']['Row'];
+type PublicHotelPromotionalBannerTranslation =
+  Database['public']['Tables']['hotel_promotional_banner_translations']['Row'];
 
 export interface PublicHotelPageData {
   hotel: PublicHotel;
+  banners: PublicHotelPromotionalBanner[];
   announcements: PublicHotelAnnouncement[];
   sections: PublicHotelSection[];
   departments: PublicHotelDepartment[];
@@ -87,11 +92,20 @@ async function getPublicHotelPageDataForHotel(
 ) {
   const now = new Date().toISOString();
   const [
+    { data: banners, error: bannersError },
     { data: announcements, error: announcementsError },
     { data: sections, error: sectionsError },
     { data: departments, error: departmentsError },
     { data: policies, error: policiesError },
   ] = await Promise.all([
+    supabase
+      .from('hotel_promotional_banners')
+      .select('*')
+      .eq('hotel_id', hotel.id)
+      .eq('is_active', true)
+      .order('display_order', { ascending: true })
+      .order('starts_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false }),
     supabase
       .from('hotel_announcements')
       .select('*')
@@ -119,6 +133,9 @@ async function getPublicHotelPageDataForHotel(
       .order('created_at', { ascending: true }),
   ]);
 
+  if (bannersError) {
+    console.error('Failed to load hotel promotional banners:', bannersError);
+  }
   if (announcementsError) {
     console.error('Failed to load hotel announcements:', announcementsError);
   }
@@ -132,6 +149,13 @@ async function getPublicHotelPageDataForHotel(
     console.error('Failed to load hotel policies:', policiesError);
   }
 
+  const typedBanners = ((banners || []) as PublicHotelPromotionalBanner[])
+    .filter((item) => {
+      const startsAtValid = !item.starts_at || item.starts_at <= now;
+      const endsAtValid = !item.ends_at || item.ends_at >= now;
+      return startsAtValid && endsAtValid;
+    })
+    .slice(0, 3);
   const typedAnnouncements = ((announcements || []) as PublicHotelAnnouncement[]).filter((item) => {
     const startsAtValid = !item.starts_at || item.starts_at <= now;
     const endsAtValid = !item.ends_at || item.ends_at >= now;
@@ -142,14 +166,25 @@ async function getPublicHotelPageDataForHotel(
   const typedPolicies = (policies || []) as PublicHotelPolicy[];
 
   const [
+    bannerTranslationsResult,
     announcementTranslationsResult,
     sectionTranslationsResult,
     departmentTranslationsResult,
     policyTranslationsResult,
   ] =
     language === 'pt'
-      ? [{ data: [] }, { data: [] }, { data: [] }, { data: [] }]
+      ? [{ data: [] }, { data: [] }, { data: [] }, { data: [] }, { data: [] }]
       : await Promise.all([
+          typedBanners.length
+            ? supabase
+                .from('hotel_promotional_banner_translations')
+                .select('*')
+                .in(
+                  'banner_id',
+                  typedBanners.map((item) => item.id)
+                )
+                .eq('language', language)
+            : Promise.resolve({ data: [], error: null }),
           typedAnnouncements.length
             ? supabase
                 .from('hotel_announcement_translations')
@@ -193,6 +228,9 @@ async function getPublicHotelPageDataForHotel(
         ]);
 
   if (language !== 'pt') {
+    if (bannerTranslationsResult.error) {
+      console.error('Failed to load banner translations:', bannerTranslationsResult.error);
+    }
     if (announcementTranslationsResult.error) {
       console.error(
         'Failed to load announcement translations:',
@@ -213,6 +251,8 @@ async function getPublicHotelPageDataForHotel(
     }
   }
 
+  const bannerTranslations =
+    (bannerTranslationsResult.data || []) as PublicHotelPromotionalBannerTranslation[];
   const announcementTranslations =
     (announcementTranslationsResult.data || []) as PublicHotelAnnouncementTranslation[];
   const sectionTranslations = (sectionTranslationsResult.data || []) as PublicHotelSectionTranslation[];
@@ -220,6 +260,9 @@ async function getPublicHotelPageDataForHotel(
     (departmentTranslationsResult.data || []) as PublicHotelDepartmentTranslation[];
   const policyTranslations = (policyTranslationsResult.data || []) as PublicHotelPolicyTranslation[];
 
+  const bannerTranslationsById = new Map(
+    bannerTranslations.map((translation) => [translation.banner_id, translation])
+  );
   const announcementTranslationsById = new Map(
     announcementTranslations.map((translation) => [translation.announcement_id, translation])
   );
@@ -232,6 +275,17 @@ async function getPublicHotelPageDataForHotel(
   const policyTranslationsById = new Map(
     policyTranslations.map((translation) => [translation.policy_id, translation])
   );
+
+  const displayBanners = typedBanners.map((item) => {
+    const translation = bannerTranslationsById.get(item.id);
+
+    return {
+      ...item,
+      title: translation?.title ?? item.title,
+      subtitle: translation?.subtitle ?? item.subtitle,
+      cta_label: translation?.cta_label ?? item.cta_label,
+    };
+  });
 
   const displayAnnouncements = typedAnnouncements.map((item) => {
     const translation = announcementTranslationsById.get(item.id);
@@ -278,7 +332,11 @@ async function getPublicHotelPageDataForHotel(
 
   const hasFallbackContent =
     language !== 'pt' &&
-    (typedAnnouncements.some((item) => {
+    (typedBanners.some((item) => {
+      const translation = bannerTranslationsById.get(item.id);
+      return !translation || !translation.title || !translation.subtitle || !translation.cta_label;
+    }) ||
+      typedAnnouncements.some((item) => {
       const translation = announcementTranslationsById.get(item.id);
       return !translation || !translation.title || !translation.body;
     }) ||
@@ -297,6 +355,7 @@ async function getPublicHotelPageDataForHotel(
 
   return {
     hotel,
+    banners: displayBanners,
     announcements: displayAnnouncements,
     sections: displaySections,
     departments: displayDepartments,
