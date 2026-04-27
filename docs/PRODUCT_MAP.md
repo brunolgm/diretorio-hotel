@@ -673,6 +673,46 @@ Importante:
   - ainda existem mensagens antigas fora deste fluxo que podem ser refinadas em sprints futuras
 - Próximo passo recomendado: `Sprint 31`
 
+### Registro curto da Sprint 31
+- Status: concluÃ­da
+- Objetivo: criar comunicados gerais pÃºblicos do hotel com gestÃ£o simples no admin, sem entrar em chat, login de hÃ³spede ou mensagens individuais
+- Arquivos alterados:
+  - `supabase/migrations/20260426_add_hotel_announcements.sql`
+  - `types/database.ts`
+  - `lib/services/translation-service.ts`
+  - `lib/services/translation-admin.ts`
+  - `lib/public-hotel-data.ts`
+  - `lib/public-copy.ts`
+  - `app/page.tsx`
+  - `app/hotel/[slug]/page.tsx`
+  - `app/admin/layout.tsx`
+  - `components/admin/nav-links.tsx`
+  - `components/public/hotel-public-page-content.tsx`
+  - `app/admin/comunicados/actions.ts`
+  - `app/admin/comunicados/page.tsx`
+  - `app/admin/comunicados/[id]/actions.ts`
+  - `app/admin/comunicados/[id]/page.tsx`
+  - `docs/PRODUCT_MAP.md`
+- Migration criada:
+  - `hotel_announcements`
+  - `hotel_announcement_translations`
+- DecisÃµes importantes:
+  - PT continua como conteÃºdo fonte/canÃ´nico
+  - EN/ES sÃ£o gerados no save e continuam nÃ£o bloqueantes
+  - comunicados pÃºblicos sÃ£o sempre filtrados por `hotel_id`, `is_active`, `starts_at` e `ends_at`
+  - nÃ£o hÃ¡ mensagem individual, chat, push, login de hÃ³spede ou dados pessoais de hÃ³spedes
+- ValidaÃ§Ã£o realizada:
+  - `npm run lint`
+  - `npx tsc --noEmit`
+  - `npm run build` com falha local recorrente em `spawn EPERM` apÃ³s compilaÃ§Ã£o
+  - busca por `libguest.digital`
+  - confirmaÃ§Ã£o de `guestdesk.digital` preservado
+- PendÃªncias conhecidas:
+  - nÃ£o existe editor manual de traduÃ§Ã£o para comunicados
+  - nÃ£o existe confirmaÃ§Ã£o de leitura individual
+  - custom domains, host e analytics pÃºblico continuam fora do escopo desta sprint
+- PrÃ³ximo passo recomendado: `Sprint 32`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -741,7 +781,7 @@ Importante:
  - concluída: padronização leve de feedback operacional, logs curtos de servidor e documentação de diagnóstico
 
 ### Sprint 31
-- melhorias de comercial/demo mode e material de showcase do produto
+- concluÃ­da: comunicados gerais pÃºblicos do hotel com CRUD admin simples, traduÃ§Ã£o no save e fallback em PT
 
 ### Sprint 32
 - primeira fase segura de custom domain management

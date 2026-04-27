@@ -27,6 +27,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
   return (
     <HotelPublicPageContent
       hotel={pageData.hotel}
+      announcements={pageData.announcements}
       sections={pageData.sections}
       departments={pageData.departments}
       policies={pageData.policies}

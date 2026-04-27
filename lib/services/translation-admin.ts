@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import {
   type SupportedTranslationLanguage,
+  translateAnnouncementFields,
   translateDepartmentFields,
   translatePolicyFields,
   translateSectionFields,
@@ -417,6 +418,85 @@ export async function syncPolicyTranslations({
       action: 'syncPolicyTranslations',
       operation: 'translate and persist',
       targetId: policyId,
+      error,
+    });
+    return buildSyncResult([], TARGET_LANGUAGES);
+  }
+}
+
+export async function syncAnnouncementTranslations({
+  supabase,
+  announcementId,
+  fields,
+}: {
+  supabase: AppSupabaseClient;
+  announcementId: string;
+  fields: {
+    title: string;
+    body: string | null;
+  };
+}): Promise<TranslationSyncResult> {
+  try {
+    const timestamp = new Date().toISOString();
+    const [englishTranslation, spanishTranslation] = await Promise.all([
+      translateAnnouncementFields(fields, 'en'),
+      translateAnnouncementFields(fields, 'es'),
+    ]);
+
+    const successfulLanguages: SupportedTranslationLanguage[] = [];
+    const failedLanguages: SupportedTranslationLanguage[] = [];
+    const translations = [];
+
+    if (englishTranslation) {
+      successfulLanguages.push('en');
+      translations.push({
+        announcement_id: announcementId,
+        language: 'en' as const,
+        ...englishTranslation,
+        updated_at: timestamp,
+      });
+    } else {
+      failedLanguages.push('en');
+    }
+
+    if (spanishTranslation) {
+      successfulLanguages.push('es');
+      translations.push({
+        announcement_id: announcementId,
+        language: 'es' as const,
+        ...spanishTranslation,
+        updated_at: timestamp,
+      });
+    } else {
+      failedLanguages.push('es');
+    }
+
+    if (!translations.length) {
+      return buildSyncResult(successfulLanguages, failedLanguages);
+    }
+
+    const { error } = await supabase
+      .from('hotel_announcement_translations')
+      .upsert(translations, { onConflict: 'announcement_id,language' });
+
+    if (error) {
+      logOperationalError({
+        module: 'translation',
+        action: 'syncAnnouncementTranslations',
+        operation: 'persist translations',
+        targetId: announcementId,
+        error,
+      });
+      return buildSyncResult([], TARGET_LANGUAGES);
+    }
+
+    return buildSyncResult(successfulLanguages, failedLanguages);
+  } catch (error) {
+    logOperationalError({
+      module: 'translation',
+      action: 'syncAnnouncementTranslations',
+      operation: 'translate and persist',
+      targetId: announcementId,
       error,
     });
     return buildSyncResult([], TARGET_LANGUAGES);

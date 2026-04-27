@@ -151,3 +151,13 @@ export async function translatePolicyFields(
 ) {
   return tryTranslateTextFields(fields, targetLanguage);
 }
+
+export async function translateAnnouncementFields(
+  fields: {
+    title: string;
+    body: string | null;
+  },
+  targetLanguage: SupportedTranslationLanguage
+) {
+  return tryTranslateTextFields(fields, targetLanguage);
+}

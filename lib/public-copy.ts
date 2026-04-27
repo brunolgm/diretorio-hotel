@@ -1,6 +1,13 @@
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
 type PublicCopy = {
+  announcements: string;
+  hotelAnnouncements: string;
+  activeAnnouncementsCount: (count: number) => string;
+  announcementDefaultDescription: string;
+  announcementCategoryLabel: (category: string) => string;
+  activeDuringPeriod: string;
+  activeUntil: (date: string) => string;
   languageMenuLabel: string;
   destinationExternal: string;
   destinationInternal: string;
@@ -56,6 +63,18 @@ type PublicCopy = {
 
 const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
   pt: {
+    announcements: 'Comunicados',
+    hotelAnnouncements: 'Avisos do hotel',
+    activeAnnouncementsCount: (count) => `${count} aviso(s) ativo(s)`,
+    announcementDefaultDescription: 'Comunicado geral do hotel.',
+    announcementCategoryLabel: (category) => {
+      if (category === 'alerta') return 'Alerta';
+      if (category === 'manutencao') return 'Manutenção';
+      if (category === 'promocao') return 'Promoção';
+      return 'Informativo';
+    },
+    activeDuringPeriod: 'Aviso ativo no período informado',
+    activeUntil: (date) => `Válido até ${date}`,
     languageMenuLabel: 'Idioma',
     destinationExternal: 'Destino externo',
     destinationInternal: 'Detalhe interno',
@@ -113,6 +132,18 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
       `Esta página interna aparece apenas quando o serviço não tem link externo e possui pelo menos ${minLength} caracteres de conteúdo útil para leitura.`,
   },
   en: {
+    announcements: 'Announcements',
+    hotelAnnouncements: 'Hotel announcements',
+    activeAnnouncementsCount: (count) => `${count} active announcement(s)`,
+    announcementDefaultDescription: 'General hotel announcement.',
+    announcementCategoryLabel: (category) => {
+      if (category === 'alerta') return 'Alert';
+      if (category === 'manutencao') return 'Maintenance';
+      if (category === 'promocao') return 'Promotion';
+      return 'Information';
+    },
+    activeDuringPeriod: 'Announcement active during the selected period',
+    activeUntil: (date) => `Active until ${date}`,
     languageMenuLabel: 'Language',
     destinationExternal: 'External destination',
     destinationInternal: 'Internal detail',
@@ -170,6 +201,18 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
       `This internal page appears only when the service has no external link and includes at least ${minLength} characters of useful reading content.`,
   },
   es: {
+    announcements: 'Comunicados',
+    hotelAnnouncements: 'Avisos del hotel',
+    activeAnnouncementsCount: (count) => `${count} aviso(s) activo(s)`,
+    announcementDefaultDescription: 'Comunicado general del hotel.',
+    announcementCategoryLabel: (category) => {
+      if (category === 'alerta') return 'Alerta';
+      if (category === 'manutencao') return 'Mantenimiento';
+      if (category === 'promocao') return 'Promoción';
+      return 'Informativo';
+    },
+    activeDuringPeriod: 'Aviso activo en el período informado',
+    activeUntil: (date) => `Vigente hasta ${date}`,
     languageMenuLabel: 'Idioma',
     destinationExternal: 'Destino externo',
     destinationInternal: 'Detalle interno',

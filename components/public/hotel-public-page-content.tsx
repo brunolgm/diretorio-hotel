@@ -21,6 +21,7 @@ import type { DomainContext } from '@/lib/domain-context';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { getPublicCopy } from '@/lib/public-copy';
 import type {
+  PublicHotelAnnouncement,
   PublicHotel,
   PublicHotelDepartment,
   PublicHotelPolicy,
@@ -64,6 +65,54 @@ function QuickInfoCard({
 
         <div className="rounded-[20px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
           <Icon className="h-4 w-4" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AnnouncementCard({
+  item,
+  copy,
+  language,
+}: {
+  item: PublicHotelAnnouncement;
+  copy: ReturnType<typeof getPublicCopy>;
+  language: SupportedPublicLanguage;
+}) {
+  const endDateLabel = item.ends_at
+    ? new Intl.DateTimeFormat(language === 'pt' ? 'pt-BR' : language === 'es' ? 'es-ES' : 'en-US', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(new Date(item.ends_at))
+    : null;
+
+  return (
+    <div className="rounded-[28px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80">
+      <div className="flex items-start gap-4">
+        <div className="shrink-0 rounded-[20px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+          <Sparkles className="h-5 w-5" />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h3 className="min-w-0 break-words text-lg font-semibold tracking-tight text-slate-950">
+              {item.title}
+            </h3>
+            <span className="rounded-full border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] px-3 py-1 text-xs font-medium text-slate-700">
+              {copy.announcementCategoryLabel(item.category)}
+            </span>
+          </div>
+
+          <p className="mt-3 break-words text-sm leading-7 text-slate-600">
+            {item.body || copy.announcementDefaultDescription}
+          </p>
+
+          <p className="mt-4 text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
+            {endDateLabel ? copy.activeUntil(endDateLabel) : copy.activeDuringPeriod}
+          </p>
         </div>
       </div>
     </div>
@@ -235,6 +284,7 @@ function PolicyCard({
 
 export function HotelPublicPageContent({
   hotel,
+  announcements,
   sections,
   departments,
   policies,
@@ -244,6 +294,7 @@ export function HotelPublicPageContent({
   preferSubdomainRoot,
 }: {
   hotel: PublicHotel;
+  announcements: PublicHotelAnnouncement[];
   sections: PublicHotelSection[];
   departments: PublicHotelDepartment[];
   policies: PublicHotelPolicy[];
@@ -400,6 +451,36 @@ export function HotelPublicPageContent({
         {hasFallbackContent ? (
           <section className="mt-4 rounded-[24px] border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 shadow-[0_16px_35px_-30px_rgba(120,53,15,0.35)]">
             {copy.fallbackNotice}
+          </section>
+        ) : null}
+
+        {announcements.length ? (
+          <section className="mt-8">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
+                  {copy.announcements}
+                </p>
+                <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
+                  {copy.hotelAnnouncements}
+                </h2>
+              </div>
+
+              <div className="hidden rounded-full bg-[var(--hotel-accent-soft)] px-4 py-2 text-xs font-medium text-slate-700 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.22)] ring-1 ring-[color:var(--hotel-accent-border)] md:inline-flex">
+                {copy.activeAnnouncementsCount(announcements.length)}
+              </div>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              {announcements.map((item) => (
+                <AnnouncementCard
+                  key={item.id}
+                  item={item}
+                  copy={copy}
+                  language={language}
+                />
+              ))}
+            </div>
           </section>
         ) : null}
 

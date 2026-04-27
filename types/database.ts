@@ -217,6 +217,54 @@ export interface Database {
         ];
       };
 
+      hotel_announcements: {
+        Row: {
+          id: string;
+          hotel_id: string;
+          title: string;
+          body: string | null;
+          category: string;
+          starts_at: string | null;
+          ends_at: string | null;
+          is_active: boolean;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          hotel_id: string;
+          title: string;
+          body?: string | null;
+          category?: string;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          is_active?: boolean;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          hotel_id?: string;
+          title?: string;
+          body?: string | null;
+          category?: string;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          is_active?: boolean;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'hotel_announcements_hotel_id_fkey';
+            columns: ['hotel_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotels';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
       hotel_analytics_events: {
         Row: {
           id: string;
@@ -393,6 +441,45 @@ export interface Database {
             columns: ['policy_id'];
             isOneToOne: false;
             referencedRelation: 'hotel_policies';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
+      hotel_announcement_translations: {
+        Row: {
+          id: string;
+          announcement_id: string;
+          language: string;
+          title: string | null;
+          body: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          announcement_id: string;
+          language: string;
+          title?: string | null;
+          body?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          announcement_id?: string;
+          language?: string;
+          title?: string | null;
+          body?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'hotel_announcement_translations_announcement_id_fkey';
+            columns: ['announcement_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotel_announcements';
             referencedColumns: ['id'];
           }
         ];

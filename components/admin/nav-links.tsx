@@ -7,6 +7,7 @@ import {
   ConciergeBell,
   Hotel,
   LayoutDashboard,
+  Megaphone,
   ShieldCheck,
   Users,
 } from 'lucide-react';
@@ -15,7 +16,14 @@ import { cn } from '@/lib/utils';
 export interface NavItem {
   href: string;
   label: string;
-  icon: 'dashboard' | 'hotel' | 'services' | 'departments' | 'policies' | 'users';
+  icon:
+    | 'dashboard'
+    | 'hotel'
+    | 'services'
+    | 'departments'
+    | 'policies'
+    | 'announcements'
+    | 'users';
 }
 
 interface NavLinksProps {
@@ -47,6 +55,8 @@ function NavIcon({
       return <Building2 className={className} />;
     case 'policies':
       return <ShieldCheck className={className} />;
+    case 'announcements':
+      return <Megaphone className={className} />;
     case 'users':
       return <Users className={className} />;
     case 'dashboard':

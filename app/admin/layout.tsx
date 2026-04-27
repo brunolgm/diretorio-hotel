@@ -30,7 +30,8 @@ function getNavItemsForRole(role: AppRole) {
   items.push(
     { href: '/admin/servicos', label: 'Serviços', icon: 'services' as const },
     { href: '/admin/departamentos', label: 'Departamentos', icon: 'departments' as const },
-    { href: '/admin/politicas', label: 'Políticas', icon: 'policies' as const }
+    { href: '/admin/politicas', label: 'Políticas', icon: 'policies' as const },
+    { href: '/admin/comunicados', label: 'Comunicados', icon: 'announcements' as const }
   );
 
   if (hasMinimumRole(role, 'administrador')) {
