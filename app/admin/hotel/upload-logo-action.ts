@@ -8,11 +8,13 @@ import {
   buildOperationalErrorMessage,
   logOperationalError,
 } from '@/lib/services/translation-admin';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 
 export async function uploadHotelLogoAction(formData: FormData) {
-  await requireAdminAccess('editor');
+  const { user, profile } = await requireAdminAccess('editor');
   const supabase = await createClient();
+  const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
 
   const fileEntry = formData.get('logo');
@@ -40,20 +42,29 @@ export async function uploadHotelLogoAction(formData: FormData) {
 
   const path = `${hotel.id}/logo.${ext}`;
 
-  const { error: uploadError } = await supabase.storage
-    .from('hotel-assets')
-    .upload(path, file, {
-      upsert: true,
-      contentType: file.type,
-    });
+  console.info('[hotel] uploadHotelLogoAction storage upload starting', {
+    operation: 'upload logo to storage',
+    bucket: 'hotel-assets',
+    storagePath: path,
+    hotelId: hotel.id,
+    userId: user.id,
+    profileHotelId: profile.hotel_id,
+  });
+
+  const { error: uploadError } = await adminSupabase.storage.from('hotel-assets').upload(path, file, {
+    upsert: true,
+    contentType: file.type,
+  });
 
   if (uploadError) {
-    logOperationalError({
-      module: 'hotel',
-      action: 'uploadHotelLogoAction',
+    console.error('[hotel] uploadHotelLogoAction storage upload failed', {
       operation: 'upload logo to storage',
+      bucket: 'hotel-assets',
+      storagePath: path,
       hotelId: hotel.id,
-      error: uploadError,
+      userId: user.id,
+      profileHotelId: profile.hotel_id,
+      message: uploadError.message,
     });
     redirect(
       `/admin/hotel?error=${encodeURIComponent(
@@ -83,7 +94,7 @@ export async function uploadHotelLogoAction(formData: FormData) {
     });
     redirect(
       `/admin/hotel?error=${encodeURIComponent(
-        'A logo foi enviada, mas nÃ£o foi possÃ­vel concluir a atualizaÃ§Ã£o do hotel. Revise a tela e tente novamente.'
+        'A logo foi enviada, mas não foi possível concluir a atualização do hotel. Revise a tela e tente novamente.'
       )}`
     );
   }
