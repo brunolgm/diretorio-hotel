@@ -11,9 +11,11 @@ type PublicCopy = {
   languageMenuLabel: string;
   destinationExternal: string;
   destinationInternal: string;
+  destinationRoomMenu: string;
   serviceInfoUnavailable: string;
   openSite: string;
   viewService: string;
+  openRoomMenu: string;
   departmentDefaultDescription: string;
   talkToDepartment: (name: string) => string;
   contactDepartment: (name: string) => string;
@@ -59,6 +61,14 @@ type PublicCopy = {
   fullInformation: string;
   back: string;
   internalPageRule: (minLength: number) => string;
+  roomMenuMissingContextTitle: string;
+  roomMenuMissingContextDescription: string;
+  roomMenuMissingMenuTitle: string;
+  roomMenuMissingMenuDescription: (roomNumber?: string | null) => string;
+  roomMenuInvalidContextTitle: string;
+  roomMenuInvalidContextDescription: string;
+  activeRoomAccessLabel: (roomNumber?: string | null, label?: string | null) => string;
+  clearRoomAccess: string;
 };
 
 const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
@@ -78,9 +88,11 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     languageMenuLabel: 'Idioma',
     destinationExternal: 'Destino externo',
     destinationInternal: 'Detalhe interno',
+    destinationRoomMenu: 'Cardápio por apartamento',
     serviceInfoUnavailable: 'Informação não disponível.',
     openSite: 'Abrir site',
     viewService: 'Ver serviço',
+    openRoomMenu: 'Abrir cardápio',
     departmentDefaultDescription: 'Canal de atendimento do hotel.',
     talkToDepartment: (name) => `Falar com ${name}`,
     contactDepartment: (name) => `Contato com ${name}`,
@@ -130,6 +142,24 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     back: 'Voltar',
     internalPageRule: (minLength) =>
       `Esta página interna aparece apenas quando o serviço não tem link externo e possui pelo menos ${minLength} caracteres de conteúdo útil para leitura.`,
+    roomMenuMissingContextTitle: 'Use o QR do seu apartamento',
+    roomMenuMissingContextDescription:
+      'Para fazer pedidos pelo cardápio digital, acesse o LibGuest pelo QR Code do seu apartamento.',
+    roomMenuMissingMenuTitle: 'Cardápio digital ainda não configurado',
+    roomMenuMissingMenuDescription: (roomNumber) =>
+      roomNumber
+        ? `O cardápio digital ainda não está configurado para o apartamento ${roomNumber}.`
+        : 'O cardápio digital ainda não está configurado para este apartamento.',
+    roomMenuInvalidContextTitle: 'QR do apartamento indisponível',
+    roomMenuInvalidContextDescription:
+      'O contexto deste apartamento não está mais ativo. Leia novamente o QR Code do quarto ou fale com a recepção.',
+    activeRoomAccessLabel: (roomNumber, label) =>
+      label?.trim()
+        ? label
+        : roomNumber
+          ? `Apartamento ${roomNumber}`
+          : 'Acesso de apartamento ativo',
+    clearRoomAccess: 'Trocar apartamento',
   },
   en: {
     announcements: 'Announcements',
@@ -147,9 +177,11 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     languageMenuLabel: 'Language',
     destinationExternal: 'External destination',
     destinationInternal: 'Internal detail',
+    destinationRoomMenu: 'Room menu',
     serviceInfoUnavailable: 'Information not available.',
     openSite: 'Open website',
     viewService: 'View service',
+    openRoomMenu: 'Open menu',
     departmentDefaultDescription: 'Hotel support channel.',
     talkToDepartment: (name) => `Talk to ${name}`,
     contactDepartment: (name) => `Contact ${name}`,
@@ -188,7 +220,7 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     usefulLinks: 'Useful links',
     quickAccess: 'Quick access',
     usefulLinksDescription:
-      'Use the hotel’s official channels for bookings, support, and institutional information.',
+      'Use the hotel official channels for bookings, support, and institutional information.',
     reservations: 'Reservations',
     fallbackNotice:
       'Some information is still shown in Portuguese while translations for this page are being completed.',
@@ -199,6 +231,24 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     back: 'Back',
     internalPageRule: (minLength) =>
       `This internal page appears only when the service has no external link and includes at least ${minLength} characters of useful reading content.`,
+    roomMenuMissingContextTitle: 'Use your room QR code',
+    roomMenuMissingContextDescription:
+      'To place orders through the digital menu, open LibGuest using the QR code in your room.',
+    roomMenuMissingMenuTitle: 'Digital menu not configured yet',
+    roomMenuMissingMenuDescription: (roomNumber) =>
+      roomNumber
+        ? `The digital menu is not configured yet for room ${roomNumber}.`
+        : 'The digital menu is not configured yet for this room.',
+    roomMenuInvalidContextTitle: 'Room QR currently unavailable',
+    roomMenuInvalidContextDescription:
+      'This room context is no longer active. Scan the updated QR code in your room or contact the front desk.',
+    activeRoomAccessLabel: (roomNumber, label) =>
+      label?.trim()
+        ? label
+        : roomNumber
+          ? `Room ${roomNumber}`
+          : 'Active room access',
+    clearRoomAccess: 'Switch room',
   },
   es: {
     announcements: 'Comunicados',
@@ -216,9 +266,11 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     languageMenuLabel: 'Idioma',
     destinationExternal: 'Destino externo',
     destinationInternal: 'Detalle interno',
+    destinationRoomMenu: 'Menú por habitación',
     serviceInfoUnavailable: 'Información no disponible.',
     openSite: 'Abrir sitio',
     viewService: 'Ver servicio',
+    openRoomMenu: 'Abrir menú',
     departmentDefaultDescription: 'Canal de atención del hotel.',
     talkToDepartment: (name) => `Hablar con ${name}`,
     contactDepartment: (name) => `Contacto con ${name}`,
@@ -268,6 +320,24 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     back: 'Volver',
     internalPageRule: (minLength) =>
       `Esta página interna aparece solo cuando el servicio no tiene enlace externo y contiene al menos ${minLength} caracteres de contenido útil para lectura.`,
+    roomMenuMissingContextTitle: 'Use el QR de su habitación',
+    roomMenuMissingContextDescription:
+      'Para hacer pedidos por el menú digital, acceda a LibGuest usando el QR Code de su habitación.',
+    roomMenuMissingMenuTitle: 'Menú digital aún no configurado',
+    roomMenuMissingMenuDescription: (roomNumber) =>
+      roomNumber
+        ? `El menú digital aún no está configurado para la habitación ${roomNumber}.`
+        : 'El menú digital aún no está configurado para esta habitación.',
+    roomMenuInvalidContextTitle: 'QR de la habitación no disponible',
+    roomMenuInvalidContextDescription:
+      'El contexto de esta habitación ya no está activo. Escanee nuevamente el QR actualizado de la habitación o contacte a recepción.',
+    activeRoomAccessLabel: (roomNumber, label) =>
+      label?.trim()
+        ? label
+        : roomNumber
+          ? `Habitación ${roomNumber}`
+          : 'Acceso de habitación activo',
+    clearRoomAccess: 'Cambiar habitación',
   },
 };
 

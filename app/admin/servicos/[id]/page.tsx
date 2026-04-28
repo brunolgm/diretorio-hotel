@@ -10,12 +10,16 @@ import {
   AdminPageHero,
   AdminPrimaryButton,
   AdminSectionTitle,
+  AdminSelect,
   AdminSurface,
   AdminTextInput,
   AdminTextarea,
 } from '@/components/admin/ui';
 import { requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
+import {
+  SERVICE_ACTION_TYPE_OPTIONS,
+} from '@/lib/service-action-types';
 import { buildServiceCategoryOptions } from '@/lib/service-options';
 import {
   getRetranslationHelpText,
@@ -70,7 +74,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
       <AdminPageHero
         eyebrow="editar serviço"
         title="Editar item do diretório"
-        description="Atualize título, categoria, descrição, link, ordem e status de exibição do serviço."
+        description="Atualize título, tipo de ação, descrição, link, ordem e status de exibição do serviço."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
@@ -118,6 +122,24 @@ export default async function EditServicePage({ params, searchParams }: PageProp
               initialCategory={section.category}
             />
 
+            <AdminField label="Tipo de ação do serviço">
+              <AdminSelect
+                name="service_action_type"
+                defaultValue={section.service_action_type || 'standard'}
+              >
+                {SERVICE_ACTION_TYPE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </AdminSelect>
+              <div className="mt-2 space-y-1 text-xs leading-5 text-slate-500">
+                <p>Padrão: abre a página normal do serviço.</p>
+                <p>Link externo: abre uma URL fixa configurada no serviço.</p>
+                <p>Cardápio por apartamento: usa o QR do apartamento para abrir o cardápio correto.</p>
+              </div>
+            </AdminField>
+
             <AdminField label="Descrição" className="md:col-span-2">
               <AdminTextarea
                 name="content"
@@ -137,8 +159,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
                 />
               </div>
               <p className="text-xs leading-5 text-slate-500">
-                Se houver link externo, o botão abre esse destino. Sem link, ele só aparece se o
-                conteúdo for suficiente para uma página interna de detalhes.
+                O texto acompanha o tipo de ação configurado para o serviço.
               </p>
             </AdminField>
 
@@ -149,8 +170,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
                 placeholder="https://..."
               />
               <p className="text-xs leading-5 text-slate-500">
-                Se este campo ficar vazio, o LibGuest decide entre página interna de detalhes ou
-                ocultar o botão para evitar CTA sem destino.
+                Obrigatório para Link externo. Em Cardápio por apartamento, o destino final é resolvido pelo QR do quarto.
               </p>
             </AdminField>
 

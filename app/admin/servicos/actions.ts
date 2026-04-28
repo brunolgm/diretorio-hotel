@@ -11,6 +11,7 @@ import {
   readTrimmedString,
 } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
+import { normalizeServiceActionType } from '@/lib/service-action-types';
 import { normalizeServiceCategory, resolveServiceIconName } from '@/lib/service-options';
 import {
   buildFeedbackRedirect,
@@ -27,6 +28,9 @@ export async function createSectionAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const title = readTrimmedString(formData, 'title');
   const icon = resolveServiceIconName(readNullableString(formData, 'icon'));
+  const serviceActionType = normalizeServiceActionType(
+    readNullableString(formData, 'service_action_type')
+  );
   const urlInput = readNullableString(formData, 'url');
   const url = readOptionalUrl(formData, 'url');
 
@@ -38,6 +42,10 @@ export async function createSectionAction(formData: FormData) {
     redirect('/admin/servicos?error=Informe%20uma%20URL%20v%C3%A1lida');
   }
 
+  if (serviceActionType === 'external_url' && !url) {
+    redirect('/admin/servicos?error=Informe%20uma%20URL%20fixa%20para%20o%20servi%C3%A7o');
+  }
+
   const payload = {
     hotel_id: hotel.id,
     title,
@@ -46,6 +54,7 @@ export async function createSectionAction(formData: FormData) {
     cta: readNullableString(formData, 'cta'),
     url,
     category: normalizeServiceCategory(readNullableString(formData, 'category')),
+    service_action_type: serviceActionType,
     enabled: readCheckboxBoolean(formData, 'enabled'),
     sort_order: Math.max(0, readNumber(formData, 'sort_order', 0)),
   };

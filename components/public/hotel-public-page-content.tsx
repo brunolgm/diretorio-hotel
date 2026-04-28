@@ -167,7 +167,11 @@ function SectionCard({
           {destination ? (
             <div className="mt-4 min-w-0 overflow-hidden">
               <p className="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-                {destination.isExternal ? copy.destinationExternal : copy.destinationInternal}
+                {destination.kind === 'room-restaurant-menu'
+                  ? copy.destinationRoomMenu
+                  : destination.isExternal
+                    ? copy.destinationExternal
+                    : copy.destinationInternal}
               </p>
 
               {destination.isExternal ? (
@@ -188,7 +192,10 @@ function SectionCard({
                   className="inline-flex max-w-full items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 py-3 text-center text-sm font-medium leading-5 text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
                 >
                   <span className="min-w-0 break-words [overflow-wrap:anywhere]">
-                    {item.cta || copy.viewService}
+                    {item.cta ||
+                      (destination.kind === 'room-restaurant-menu'
+                        ? copy.openRoomMenu
+                        : copy.viewService)}
                   </span>
                   <ChevronRight className="ml-2 h-4 w-4 shrink-0" />
                 </a>
@@ -294,6 +301,7 @@ export function HotelPublicPageContent({
   language,
   domainContext,
   hasFallbackContent,
+  activeRoomContext,
   preferSubdomainRoot,
 }: {
   hotel: PublicHotel;
@@ -305,6 +313,10 @@ export function HotelPublicPageContent({
   language: SupportedPublicLanguage;
   domainContext: DomainContext;
   hasFallbackContent: boolean;
+  activeRoomContext?: {
+    roomNumber: string | null;
+    label: string | null;
+  } | null;
   preferSubdomainRoot?: boolean;
 }) {
   const copy = getPublicCopy(language);
@@ -393,6 +405,25 @@ export function HotelPublicPageContent({
               <p className="mt-7 max-w-2xl text-sm leading-7 text-[color:var(--hotel-hero-muted)] md:text-base">
                 {copy.heroDescription}
               </p>
+
+              {activeRoomContext ? (
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] px-4 py-2 text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--hotel-badge-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    {copy.activeRoomAccessLabel(
+                      activeRoomContext.roomNumber,
+                      activeRoomContext.label
+                    )}
+                  </div>
+
+                  <a
+                    href="/room-context/clear"
+                    className="inline-flex items-center rounded-full border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-secondary-bg)] px-4 py-2 text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--hotel-hero-secondary-text)] transition hover:bg-[var(--hotel-hero-secondary-hover-bg)]"
+                  >
+                    {copy.clearRoomAccess}
+                  </a>
+                </div>
+              ) : null}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 lg:w-[360px]">

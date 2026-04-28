@@ -86,6 +86,7 @@ export interface Database {
           cta: string | null;
           url: string | null;
           category: string | null;
+          service_action_type: 'standard' | 'external_url' | 'room_restaurant_menu';
           enabled: boolean | null;
           sort_order: number | null;
           created_at: string | null;
@@ -100,6 +101,7 @@ export interface Database {
           cta?: string | null;
           url?: string | null;
           category?: string | null;
+          service_action_type?: 'standard' | 'external_url' | 'room_restaurant_menu';
           enabled?: boolean | null;
           sort_order?: number | null;
           created_at?: string | null;
@@ -114,6 +116,7 @@ export interface Database {
           cta?: string | null;
           url?: string | null;
           category?: string | null;
+          service_action_type?: 'standard' | 'external_url' | 'room_restaurant_menu';
           enabled?: boolean | null;
           sort_order?: number | null;
           created_at?: string | null;
@@ -369,6 +372,57 @@ export interface Database {
           },
           {
             foreignKeyName: 'hotel_analytics_events_hotel_id_fkey';
+            columns: ['hotel_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotels';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
+      hotel_room_links: {
+        Row: {
+          id: string;
+          hotel_id: string;
+          room_number: string;
+          label: string | null;
+          room_token: string;
+          restaurant_menu_url: string | null;
+          is_active: boolean;
+          notes: string | null;
+          last_token_rotated_at: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          hotel_id: string;
+          room_number: string;
+          label?: string | null;
+          room_token: string;
+          restaurant_menu_url?: string | null;
+          is_active?: boolean;
+          notes?: string | null;
+          last_token_rotated_at?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          hotel_id?: string;
+          room_number?: string;
+          label?: string | null;
+          room_token?: string;
+          restaurant_menu_url?: string | null;
+          is_active?: boolean;
+          notes?: string | null;
+          last_token_rotated_at?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'hotel_room_links_hotel_id_fkey';
             columns: ['hotel_id'];
             isOneToOne: false;
             referencedRelation: 'hotels';

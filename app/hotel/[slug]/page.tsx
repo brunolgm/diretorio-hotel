@@ -3,6 +3,8 @@ import { HotelPublicPageContent } from '@/components/public/hotel-public-page-co
 import { getRequestDomainContext } from '@/lib/domain-context';
 import { getPublicHotelPageDataBySlug } from '@/lib/public-hotel-data';
 import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
+import { readRoomContext } from '@/lib/room-context';
+import { resolveActiveRoomContextForHotel } from '@/lib/room-links';
 
 interface PageProps {
   params: Promise<{
@@ -24,6 +26,15 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
     notFound();
   }
 
+  const roomContext = await readRoomContext();
+  const activeRoomContext =
+    roomContext?.roomToken && roomContext.hotelId === pageData.hotel.id
+      ? await resolveActiveRoomContextForHotel({
+          hotelId: pageData.hotel.id,
+          roomToken: roomContext.roomToken,
+        })
+      : null;
+
   return (
     <HotelPublicPageContent
       hotel={pageData.hotel}
@@ -35,6 +46,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
       language={language}
       domainContext={domainContext}
       hasFallbackContent={pageData.hasFallbackContent}
+      activeRoomContext={activeRoomContext}
     />
   );
 }

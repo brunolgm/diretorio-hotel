@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  BedDouble,
   Building2,
   ConciergeBell,
   Hotel,
@@ -21,6 +22,7 @@ export interface NavItem {
     | 'dashboard'
     | 'hotel'
     | 'services'
+    | 'rooms'
     | 'departments'
     | 'policies'
     | 'announcements'
@@ -53,6 +55,8 @@ function NavIcon({
       return <Hotel className={className} />;
     case 'services':
       return <ConciergeBell className={className} />;
+    case 'rooms':
+      return <BedDouble className={className} />;
     case 'departments':
       return <Building2 className={className} />;
     case 'policies':

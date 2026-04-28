@@ -23,20 +23,21 @@ function getNavItemsForRole(role: AppRole) {
     items.push({
       href: '/admin/hotel',
       label: 'Informações do hotel',
-      icon: 'hotel' as const,
+      icon: 'hotel',
     });
   }
 
   items.push(
-    { href: '/admin/servicos', label: 'Serviços', icon: 'services' as const },
-    { href: '/admin/departamentos', label: 'Departamentos', icon: 'departments' as const },
-    { href: '/admin/politicas', label: 'Políticas', icon: 'policies' as const },
-    { href: '/admin/comunicados', label: 'Comunicados', icon: 'announcements' as const },
-    { href: '/admin/banners', label: 'Banners', icon: 'banners' as const }
+    { href: '/admin/servicos', label: 'Serviços', icon: 'services' },
+    { href: '/admin/apartamentos', label: 'Apartamentos', icon: 'rooms' },
+    { href: '/admin/departamentos', label: 'Departamentos', icon: 'departments' },
+    { href: '/admin/politicas', label: 'Políticas', icon: 'policies' },
+    { href: '/admin/comunicados', label: 'Comunicados', icon: 'announcements' },
+    { href: '/admin/banners', label: 'Banners', icon: 'banners' }
   );
 
   if (hasMinimumRole(role, 'administrador')) {
-    items.push({ href: '/admin/usuarios', label: 'Usuários', icon: 'users' as const });
+    items.push({ href: '/admin/usuarios', label: 'Usuários', icon: 'users' });
   }
 
   return items;

@@ -755,6 +755,59 @@ Importante:
   - custom domains, host e dados de hÃ³spedes seguem fora do escopo
 - PrÃ³ximo passo recomendado: `Sprint 32`
 
+### Registro curto da Sprint 32
+- Status: concluída
+- Objetivo: criar QR dinâmico por apartamento com `service_action_type` explícito, contexto mínimo de quarto e redirecionamento server-side do cardápio Thex
+- Arquivos alterados:
+  - `package.json`
+  - `package-lock.json`
+  - `supabase/migrations/20260427_add_service_action_type_to_hotel_sections.sql`
+  - `supabase/migrations/20260427_add_hotel_room_links.sql`
+  - `types/database.ts`
+  - `lib/service-action-types.ts`
+  - `lib/service-destinations.ts`
+  - `lib/room-links.ts`
+  - `lib/room-context.ts`
+  - `lib/public-copy.ts`
+  - `app/r/[roomToken]/route.ts`
+  - `app/qr-invalido/page.tsx`
+  - `app/admin/layout.tsx`
+  - `components/admin/nav-links.tsx`
+  - `components/admin/room-qr-card.tsx`
+  - `app/admin/apartamentos/page.tsx`
+  - `app/admin/apartamentos/actions.ts`
+  - `app/admin/servicos/page.tsx`
+  - `app/admin/servicos/actions.ts`
+  - `app/admin/servicos/[id]/page.tsx`
+  - `app/admin/servicos/[id]/actions.ts`
+  - `components/public/hotel-public-page-content.tsx`
+  - `components/public/hotel-service-detail-content.tsx`
+  - `app/servicos/[id]/page.tsx`
+  - `app/hotel/[slug]/servicos/[id]/page.tsx`
+  - `docs/guestdesk-admin-guide.md`
+  - `docs/PRODUCT_MAP.md`
+- Migrations criadas:
+  - `add_service_action_type_to_hotel_sections`
+  - `add_hotel_room_links`
+- Decisões importantes:
+  - `service_action_type` passa a ser a decisão funcional oficial do serviço
+  - serviços existentes permanecem compatíveis com default `standard`
+  - o QR do apartamento aponta para o LibGuest em `/r/[roomToken]`
+  - o navegador salva apenas `roomToken`, `roomNumber` e `hotelId` quando necessário
+  - o `restaurant_menu_url` do apartamento é resolvido no servidor e não fica salvo no navegador
+  - não há dados pessoais de hóspedes, pedido, pagamento, login, chat, push, WhatsApp ou PMS
+- Validação realizada:
+  - `npm run lint`
+  - `npx tsc --noEmit`
+  - `npm run build` com falha local recorrente em `spawn EPERM` após compilação
+  - busca por `libguest.digital`
+  - confirmação de `guestdesk.digital` preservado
+- Pendências conhecidas:
+  - importação em lote de apartamentos continua fora do escopo desta sprint
+  - o fluxo de QR foi entregue com preview, cópia de link e download simples, sem dashboard pesado de quartos
+  - a operação do cardápio por apartamento depende de `restaurant_menu_url` configurado corretamente em cada quarto
+- Próximo passo recomendado: `Sprint 33`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -826,7 +879,7 @@ Importante:
 - concluÃ­da: comunicados gerais pÃºblicos do hotel com CRUD admin simples, traduÃ§Ã£o no save e fallback em PT
 
 ### Sprint 32
-- primeira fase segura de custom domain management
+- concluída: QR dinâmico por apartamento com `service_action_type` explícito e redirecionamento server-side do cardápio por quarto
 
 ### Sprint 33
 - canonical redirects e política de host principal

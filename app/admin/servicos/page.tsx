@@ -42,6 +42,10 @@ import {
 } from '@/components/admin/ui';
 import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
+import {
+  getServiceActionTypeLabel,
+  SERVICE_ACTION_TYPE_OPTIONS,
+} from '@/lib/service-action-types';
 import { buildServiceCategoryOptions } from '@/lib/service-options';
 import {
   getAvailableTranslationLanguages,
@@ -130,7 +134,7 @@ export default async function AdminServicesPage({
     sections?.filter((item) => {
       const matchesSearch = !normalizedQuery
         ? true
-        : [item.title, item.content, item.category, item.cta]
+        : [item.title, item.content, item.category, item.cta, item.url, item.service_action_type]
             .filter(Boolean)
             .some((value) => String(value).toLowerCase().includes(normalizedQuery));
 
@@ -217,7 +221,7 @@ export default async function AdminServicesPage({
                 items={[
                   'Prefira títulos curtos e categorias fáceis de reconhecer.',
                   'Use a descrição para explicar o benefício ou o que o hóspede encontra ao tocar no card.',
-                  'Revise o link final sempre que o botão levar para uma reserva, site ou página externa.',
+                  'Defina o tipo de ação do serviço para evitar comportamento ambiguo entre detalhe interno, link externo e cardápio por apartamento.',
                 ]}
               />
             </AdminGuideCard>
@@ -244,20 +248,35 @@ export default async function AdminServicesPage({
                   </AdminHelpText>
                 </AdminField>
 
+                <AdminField label="Tipo de ação do serviço">
+                  <AdminSelect name="service_action_type" defaultValue="standard">
+                    {SERVICE_ACTION_TYPE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </AdminSelect>
+                  <AdminHelpList
+                    items={[
+                      'Padrão: abre a página normal do serviço.',
+                      'Link externo: abre uma URL fixa configurada no serviço.',
+                      'Cardápio por apartamento: usa o QR do apartamento para abrir o cardápio correto.',
+                    ]}
+                  />
+                </AdminField>
+
                 <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                   <AdminField label="Texto do botão">
                     <AdminTextInput name="cta" placeholder="Ex.: Ver mais" />
                     <AdminHelpText>
-                      Se houver link externo, o botão abre esse destino. Sem link, ele só aparece
-                      se o conteúdo for suficiente para uma página interna de detalhes.
+                      O texto acompanha o comportamento escolhido no tipo de ação.
                     </AdminHelpText>
                   </AdminField>
 
                   <AdminField label="Link">
                     <AdminTextInput name="url" placeholder="https://..." />
                     <AdminHelpText>
-                      Preencha quando o serviço precisar abrir uma página externa. Se ficar vazio, o
-                      LibGuest decide entre página interna de detalhes ou ocultar o botão.
+                      Obrigatório para Link externo. Em Cardápio por apartamento, o destino final vem do QR do quarto e não desta URL.
                     </AdminHelpText>
                   </AdminField>
                 </div>
@@ -299,7 +318,7 @@ export default async function AdminServicesPage({
 
             <AdminGuideCard
               title="Como usar esta área"
-              description="Você pode revisar títulos, categorias, status e idiomas disponíveis para apoiar a operação e validação do conteúdo."
+              description="Você pode revisar títulos, tipos de ação, categorias, status e idiomas disponíveis para apoiar a operação e validação do conteúdo."
               className="mt-8"
             />
           </AdminSurface>
@@ -321,16 +340,14 @@ export default async function AdminServicesPage({
             <AdminHelpList items={getTranslationWorkflowHelpItems()} />
           </AdminGuideCard>
 
-          <AdminHelpText className="mt-4">
-            {getRetranslationHelpText()}
-          </AdminHelpText>
+          <AdminHelpText className="mt-4">{getRetranslationHelpText()}</AdminHelpText>
 
           <AdminFilterBar>
             <AdminSearchInput
               type="search"
               name="q"
               defaultValue={searchQuery}
-              placeholder="Buscar por título, categoria, descrição ou botão"
+              placeholder="Buscar por título, categoria, descrição, ação ou botão"
             />
             <AdminSelect name="status" defaultValue={statusFilter} className="md:w-[190px]">
               <option value="all">Todos os status</option>
@@ -367,6 +384,9 @@ export default async function AdminServicesPage({
                     status={
                       <>
                         <AdminInfoBadge>{item.category || 'Sem categoria'}</AdminInfoBadge>
+                        <AdminInfoBadge>
+                          {getServiceActionTypeLabel(item.service_action_type)}
+                        </AdminInfoBadge>
                         <AdminStatusPill active={Boolean(item.enabled)} />
                         <AdminTranslationStatusPill status={translationStatus} />
                       </>

@@ -10,6 +10,8 @@ import type { SupportedPublicLanguage } from '@/lib/public-language';
 import { buildPublicHotelHref, shouldPreferHotelSubdomainRoot } from '@/lib/public-routes';
 import { MIN_SERVICE_DETAIL_CONTENT_LENGTH } from '@/lib/service-destinations';
 
+type RoomRestaurantState = 'missing-context' | 'missing-menu' | 'invalid-context';
+
 function buildHotelBackHref(
   slug: string,
   language: SupportedPublicLanguage,
@@ -31,6 +33,8 @@ export function HotelServiceDetailContent({
   domainContext,
   hasFallbackContent,
   preferSubdomainRoot,
+  roomRestaurantState,
+  roomNumber,
 }: {
   hotel: PublicHotel;
   section: PublicHotelSection;
@@ -38,6 +42,8 @@ export function HotelServiceDetailContent({
   domainContext: DomainContext;
   hasFallbackContent: boolean;
   preferSubdomainRoot?: boolean;
+  roomRestaurantState?: RoomRestaurantState | null;
+  roomNumber?: string | null;
 }) {
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
@@ -152,6 +158,36 @@ export function HotelServiceDetailContent({
         {hasFallbackContent ? (
           <section className="mt-4 rounded-[24px] border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 shadow-[0_16px_35px_-30px_rgba(120,53,15,0.35)]">
             {copy.fallbackNotice}
+          </section>
+        ) : null}
+
+        {roomRestaurantState ? (
+          <section className="mt-4 rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-[0_18px_45px_-34px_rgba(15,23,42,0.22)]">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+              LibGuest
+            </p>
+            <h2 className="mt-2 text-lg font-semibold tracking-tight text-slate-950">
+              {roomRestaurantState === 'missing-context'
+                ? copy.roomMenuMissingContextTitle
+                : roomRestaurantState === 'missing-menu'
+                  ? copy.roomMenuMissingMenuTitle
+                  : copy.roomMenuInvalidContextTitle}
+            </h2>
+            <p className="mt-2 text-sm leading-7 text-slate-600">
+              {roomRestaurantState === 'missing-context'
+                ? copy.roomMenuMissingContextDescription
+                : roomRestaurantState === 'missing-menu'
+                  ? copy.roomMenuMissingMenuDescription(roomNumber)
+                  : copy.roomMenuInvalidContextDescription}
+            </p>
+            <div className="mt-4">
+              <a
+                href="/room-context/clear"
+                className="inline-flex h-10 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              >
+                {copy.clearRoomAccess}
+              </a>
+            </div>
           </section>
         ) : null}
 
