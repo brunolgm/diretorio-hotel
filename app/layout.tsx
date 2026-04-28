@@ -4,6 +4,10 @@ import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://guestdesk.digital'),
+  icons: {
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    shortcut: ['/icon.svg'],
+  },
   title: {
     default: 'LibGuest',
     template: '%s | LibGuest',
