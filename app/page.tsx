@@ -6,6 +6,8 @@ import { normalizePublicLanguage } from '@/lib/public-language';
 import { readRoomContext } from '@/lib/room-context';
 import { resolveActiveRoomContextForHotel } from '@/lib/room-links';
 
+export const dynamic = 'force-dynamic';
+
 const HERO_METRICS = [
   { label: 'Experiência', value: 'Diretório digital premium' },
   { label: 'Operação', value: 'Painel simples para a equipe' },

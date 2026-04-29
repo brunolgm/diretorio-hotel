@@ -6,6 +6,8 @@ import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/pub
 import { readRoomContext } from '@/lib/room-context';
 import { resolveActiveRoomContextForHotel } from '@/lib/room-links';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{
     slug: string;
