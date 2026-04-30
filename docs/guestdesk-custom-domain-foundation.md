@@ -5,18 +5,21 @@ Registrar, de forma curta e técnica, como a base atual de host/domínio está o
 
 Importante:
 - produto atual: `LibGuest`
-- domínio operacional atual: `guestdesk.digital`
+- domínio principal atual: `libguest.digital`
+- domínio legado/transição: `guestdesk.digital`
 - custom domains ainda **não** estão ativos
 - este documento não muda DNS, Vercel, banco ou rotas públicas
 
 ## Estado atual
 
 ### Root do produto
-- `guestdesk.digital` mostra a landing do produto
-- `www.guestdesk.digital` é tratado como root do produto
+- `libguest.digital` mostra a landing do produto
+- `www.libguest.digital` é tratado como root do produto
+- `guestdesk.digital` e `www.guestdesk.digital` continuam aceitos como legado/transição
 
-### Subdomínio de hotel no domínio operacional
-- `{subdomain}.guestdesk.digital` é o identificador público preferencial quando o hotel possui `subdomain`
+### Subdomínio de hotel no domínio do produto
+- `{subdomain}.libguest.digital` é o identificador público preferencial quando o hotel possui `subdomain`
+- `{subdomain}.guestdesk.digital` continua funcionando durante a transição
 - a resolução pública tenta encontrar o hotel por `hotels.subdomain`
 - se não houver correspondência, a base atual ainda pode cair para `hotels.slug` por compatibilidade controlada
 
@@ -26,7 +29,7 @@ Importante:
 - `/servicos/[id]` funciona no contexto de subdomínio do hotel
 
 ### Host externo ou desconhecido
-- hosts fora de `guestdesk.digital` hoje são tratados como `other-domain`
+- hosts fora de `libguest.digital` e `guestdesk.digital` hoje são tratados como `other-domain`
 - isso **não** ativa custom domain
 - isso **não** cria redirect
 - isso **não** muda a experiência pública validada
@@ -35,7 +38,8 @@ Importante:
 
 ### Helpers principais
 - `lib/product-domain.ts`
-  - domínio operacional raiz do produto
+  - domínio principal do produto
+  - domínios legados aceitos
   - reconhecimento de root
   - reconhecimento de subdomínio de produto
   - classificação leve de host do produto
@@ -79,7 +83,8 @@ A foundation atual foi mantida deliberadamente simples para evitar ativação pr
 
 ## Regra operacional por enquanto
 Enquanto custom domains não existirem de verdade:
-- `guestdesk.digital` continua sendo o domínio operacional atual
-- `www.guestdesk.digital` continua tratado como root
-- `{subdomain}.guestdesk.digital` continua sendo o caminho preferencial dentro do domínio do produto
+- `libguest.digital` é o domínio principal atual
+- `www.libguest.digital` continua tratado como root
+- `{subdomain}.libguest.digital` continua sendo o caminho preferencial dentro do domínio do produto
+- `guestdesk.digital` e `{subdomain}.guestdesk.digital` continuam aceitos como legado/transição
 - `/hotel/[slug]` continua sendo fallback público seguro

@@ -80,8 +80,9 @@ Importante:
 ## Domínio e naming
 - nome atual do produto: `LibGuest`
 - nome legado: `GuestDesk`
-- domínio operacional atual: `guestdesk.digital`
-- o domínio continua ativo por compatibilidade e continuidade operacional
+- domínio principal atual: `libguest.digital`
+- domínio legado/transição: `guestdesk.digital`
+- o domínio legado continua ativo por compatibilidade e continuidade operacional
 - custom domains ainda não estão ativos nesta fase
 
 ## Uso recomendado desta documentação

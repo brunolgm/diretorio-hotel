@@ -1,10 +1,15 @@
-import { PRODUCT_ROOT_DOMAIN } from '@/lib/product-domain';
+import {
+  LEGACY_PRODUCT_ROOT_DOMAINS,
+  PRIMARY_PRODUCT_ROOT_DOMAIN,
+  PRODUCT_ROOT_DOMAIN,
+} from '@/lib/product-domain';
 
 export const HOTEL_SUBDOMAIN_RESERVED_NAMES = [
   'admin',
   'api',
   'app',
   'guestdesk',
+  'libguest',
   'www',
 ] as const;
 
@@ -76,7 +81,7 @@ export function getHotelSubdomainFeedback(value: string | null | undefined) {
       title: isReservedHotelSubdomain(normalized) ? 'Nome reservado' : 'Subdomínio inválido',
       description:
         validation.error ||
-        'Revise o valor informado para usar apenas um subdomínio válido dentro do domínio operacional atual.',
+        'Revise o valor informado para usar apenas um subdomínio válido dentro do domínio principal atual.',
       previewUrl: buildHotelSubdomainPreviewUrl(normalized),
     };
   }
@@ -85,7 +90,7 @@ export function getHotelSubdomainFeedback(value: string | null | undefined) {
     tone: 'success' as const,
     title: 'Subdomínio válido',
     description:
-      'Esse será o endereço público principal do hotel dentro do domínio operacional atual, mantendo a rota por slug como fallback seguro.',
+      'Esse será o endereço público preferencial do hotel em libguest.digital, mantendo guestdesk.digital como legado e a rota por slug como fallback seguro.',
     previewUrl: buildHotelSubdomainPreviewUrl(validation.normalizedValue),
   };
 }
@@ -96,4 +101,16 @@ export function buildHotelSubdomainPreviewUrl(
 ) {
   const normalized = normalizeHotelSubdomainInput(subdomain);
   return normalized ? `${normalized}.${rootDomain}` : null;
+}
+
+export function buildHotelLegacySubdomainPreviewUrl(subdomain: string | null | undefined) {
+  const legacyRootDomain = LEGACY_PRODUCT_ROOT_DOMAINS[0] || PRODUCT_ROOT_DOMAIN;
+  return buildHotelSubdomainPreviewUrl(subdomain, legacyRootDomain);
+}
+
+export function getHotelSubdomainRootDomainSummary() {
+  return {
+    primary: PRIMARY_PRODUCT_ROOT_DOMAIN,
+    legacy: [...LEGACY_PRODUCT_ROOT_DOMAINS],
+  };
 }

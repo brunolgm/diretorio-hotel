@@ -5,8 +5,9 @@ Documento vivo para manter uma fonte única de verdade sobre a evolução do pro
 Importante:
 - Produto atual: `LibGuest`
 - Nome anterior/legado: `GuestDesk`
-- Domínio operacional atual: `guestdesk.digital`
-- Status do domínio: operacional por enquanto, mas pendente de decisão futura de rebranding/domínio
+- Domínio principal atual: `libguest.digital`
+- Domínio legado/transição: `guestdesk.digital`
+- Status de domínio: suporte dual-domain ativo, sem redirect obrigatório nesta fase
 - Assinatura institucional atual: temporariamente neutralizada
 - Assinatura legada: `GuestDesk by BLID Tecnologia`
 
@@ -17,7 +18,8 @@ Importante:
 - Nome anterior/legado: `GuestDesk`
 - Assinatura institucional/comercial atual: neutralizada temporariamente, com uso preferencial de `LibGuest`
 - Assinatura legada: `GuestDesk by BLID Tecnologia`
-- Domínio operacional atualmente configurado: `guestdesk.digital`
+- Domínio principal atualmente configurado: `libguest.digital`
+- Domínio legado/transição: `guestdesk.digital`
 
 ### O que o produto é
 - Plataforma de diretório digital para hotelaria com painel administrativo e experiência pública para hóspedes.
@@ -73,9 +75,12 @@ Importante:
 ## 3. Current domains and host behavior
 
 ### Estado atual
-- `guestdesk.digital`: domínio operacional atual do produto.
-- `www.guestdesk.digital`: tratado como root do produto.
-- `{subdomain}.guestdesk.digital`: resolve hotel quando houver correspondência.
+- `libguest.digital`: domínio principal atual do produto.
+- `www.libguest.digital`: tratado como root do produto.
+- `{subdomain}.libguest.digital`: resolve hotel quando houver correspondência e é o formato preferencial para links novos.
+- `guestdesk.digital`: domínio legado/transição ainda aceito.
+- `www.guestdesk.digital`: tratado como root legado do produto.
+- `{subdomain}.guestdesk.digital`: continua funcionando durante a transição.
 - `/hotel/[slug]`: fallback público por slug.
 - `/hotel/[slug]/servicos/[id]`: detalhe de serviço por slug.
 - `/servicos/[id]`: detalhe de serviço quando a experiência está sendo servida no subdomínio do hotel.
@@ -83,8 +88,9 @@ Importante:
 ### Status de naming e domínio
 - O produto ativo deve ser tratado como `LibGuest`.
 - `GuestDesk` deve ser tratado como naming legado.
+- `libguest.digital` passa a ser o domínio principal/preferencial.
 - `guestdesk.digital` permanece operacional por compatibilidade e continuidade.
-- A decisão final de domínio público futuro ainda está em aberto e pode acompanhar o rebranding.
+- Nesta fase não existem redirects canônicos obrigatórios entre os dois domínios.
 
 ### Regra atual de resolução
 1. Se o host for root do produto, mostrar landing.
@@ -808,6 +814,41 @@ Importante:
   - a operação do cardápio por apartamento depende de `restaurant_menu_url` configurado corretamente em cada quarto
 - Próximo passo recomendado: `Sprint 33`
 
+### Registro curto da Sprint 33
+- Status: concluída
+- Objetivo: habilitar suporte dual-domain com `libguest.digital` como domínio principal/preferencial e `guestdesk.digital` como legado/transição sem redirects obrigatórios
+- Arquivos alterados:
+  - `lib/product-domain.ts`
+  - `lib/domain-context.ts`
+  - `lib/hotel-subdomain.ts`
+  - `lib/room-links.ts`
+  - `app/layout.tsx`
+  - `app/page.tsx`
+  - `app/admin/hotel/page.tsx`
+  - `components/admin/hotel-subdomain-field.tsx`
+  - `docs/guestdesk-custom-domain-foundation.md`
+  - `docs/guestdesk-overview.md`
+  - `docs/PRODUCT_MAP.md`
+- Decisões importantes:
+  - `PRIMARY_PRODUCT_ROOT_DOMAIN` passa a ser `libguest.digital`
+  - `guestdesk.digital` continua aceito como domínio legado/transição
+  - requests recebidos em ambos os domínios continuam funcionando
+  - novos links e previews gerados pelo sistema passam a preferir `libguest.digital`
+  - QRs antigos em `guestdesk.digital/r/[roomToken]` continuam válidos
+  - fallback por slug continua preservado
+  - não existem redirects canônicos obrigatórios nesta fase
+- Validação realizada:
+  - `npm run lint`
+  - `npx tsc --noEmit`
+  - `npm run build`
+  - busca por `guestdesk.digital`
+  - busca por `libguest.digital`
+- Pendências conhecidas:
+  - a infraestrutura de DNS/Vercel precisa permanecer com os dois domínios ativos durante a transição
+  - redirects/canonical host management seguem para fase posterior
+  - custom domains por cliente continuam fora do escopo
+- Próximo passo recomendado: `Sprint 34`
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -882,7 +923,7 @@ Importante:
 - concluída: QR dinâmico por apartamento com `service_action_type` explícito e redirecionamento server-side do cardápio por quarto
 
 ### Sprint 33
-- canonical redirects e política de host principal
+- concluída: suporte dual-domain com `libguest.digital` como principal e `guestdesk.digital` como legado/transição, sem redirect obrigatório
 
 ### Sprint 34
 - hardening avançado de operação multi-hotel sem abrir refactor amplo

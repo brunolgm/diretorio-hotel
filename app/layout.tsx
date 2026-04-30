@@ -3,7 +3,7 @@ import { Toaster } from 'sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://guestdesk.digital'),
+  metadataBase: new URL('https://libguest.digital'),
   icons: {
     icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
     shortcut: ['/icon.svg'],
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     title: 'LibGuest',
     description:
       'Uma plataforma de hospitalidade digital para hotéis com painel administrativo simples e experiência pública premium.',
-    url: 'https://guestdesk.digital',
+    url: 'https://libguest.digital',
     siteName: 'LibGuest',
     locale: 'pt_BR',
     type: 'website',

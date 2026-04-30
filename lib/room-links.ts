@@ -25,7 +25,7 @@ export function buildHotelPublicEntryUrl(
   if (
     hotel.subdomain &&
     requestUrl &&
-    classifyProductHostname(requestUrl.hostname, PRODUCT_ROOT_DOMAIN).kind !==
+    classifyProductHostname(requestUrl.hostname).kind !==
       'external-or-unknown'
   ) {
     return `https://${hotel.subdomain}.${PRODUCT_ROOT_DOMAIN}/`;

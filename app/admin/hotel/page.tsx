@@ -29,7 +29,11 @@ import {
   HOTEL_THEME_PRESETS,
   resolveHotelTheme,
 } from '@/lib/hotel-theme';
-import { buildHotelSubdomainPreviewUrl } from '@/lib/hotel-subdomain';
+import {
+  buildHotelLegacySubdomainPreviewUrl,
+  buildHotelSubdomainPreviewUrl,
+  getHotelSubdomainRootDomainSummary,
+} from '@/lib/hotel-subdomain';
 import { getAdminHotel } from '@/lib/queries';
 import { updateHotelAction, removeHotelLogoAction } from './actions';
 import { uploadHotelLogoAction } from './upload-logo-action';
@@ -101,9 +105,13 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
   const success = params?.success;
   const error = params?.error;
   const currentTheme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
+  const rootDomains = getHotelSubdomainRootDomainSummary();
   const publicSubdomainPreview =
     buildHotelSubdomainPreviewUrl(hotel.subdomain) || buildHotelSubdomainPreviewUrl(hotel.slug);
   const slugFallbackPreview = buildHotelSubdomainPreviewUrl(hotel.slug);
+  const legacySubdomainPreview =
+    buildHotelLegacySubdomainPreviewUrl(hotel.subdomain) ||
+    buildHotelLegacySubdomainPreviewUrl(hotel.slug);
   const hasIdentityReady = Boolean(hotel.name?.trim() && hotel.city?.trim());
   const hasPublicAddressReady = Boolean(hotel.subdomain?.trim() || hotel.slug?.trim());
   const hasThemeReady = Boolean(hotel.theme_preset || DEFAULT_HOTEL_THEME_PRESET);
@@ -224,7 +232,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               description={
                 hotel.subdomain
                   ? `O subdomínio preferencial já está configurado em ${publicSubdomainPreview}.`
-                  : `O hotel ainda pode ser acessado pelo slug em ${slugFallbackPreview}. Configure o subdomínio quando quiser um endereço principal mais curto.`
+                  : `O hotel ainda pode ser acessado pelo slug em ${slugFallbackPreview}. Configure o subdomínio quando quiser um endereço principal mais curto em ${rootDomains.primary}.`
               }
               completed={hasPublicAddressReady}
             />
@@ -327,9 +335,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 slugFallback={hotel.slug}
               />
               <AdminHelpText>
-                O endereço público principal continua dentro do domínio operacional atual
-                <span className="font-medium"> guestdesk.digital</span>. Se o campo ficar vazio,
-                a rota por slug seguirá disponível como fallback seguro.
+                O endereço público principal agora prefere
+                <span className="font-medium"> {rootDomains.primary}</span>. O domínio legado
+                <span className="font-medium"> {rootDomains.legacy[0]}</span> continua aceito na
+                transição. Se o campo ficar vazio, a rota por slug seguirá disponível como fallback
+                seguro.
               </AdminHelpText>
             </div>
 
@@ -698,7 +708,17 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   {publicSubdomainPreview}
                 </p>
                 <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
-                  {hotel.subdomain ? 'subdomínio configurado' : 'fallback atual por slug'}
+                  {hotel.subdomain ? 'subdomínio preferencial configurado' : 'fallback atual por slug'}
+                </p>
+              </div>
+
+              <div className="rounded-[24px] bg-slate-50 p-5">
+                <p className="text-sm font-semibold text-slate-900">Domínio legado aceito</p>
+                <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+                  {legacySubdomainPreview}
+                </p>
+                <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
+                  compatibilidade temporária com guestdesk.digital
                 </p>
               </div>
 

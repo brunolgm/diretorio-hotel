@@ -3,10 +3,12 @@
 import { Globe, Info, Link2, ShieldCheck, TriangleAlert } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import {
+  buildHotelLegacySubdomainPreviewUrl,
   buildHotelSubdomainPreviewUrl,
   getHotelSubdomainFeedback,
-  normalizeHotelSubdomainInput,
+  getHotelSubdomainRootDomainSummary,
   HOTEL_SUBDOMAIN_RESERVED_NAMES,
+  normalizeHotelSubdomainInput,
 } from '@/lib/hotel-subdomain';
 
 const FEEDBACK_STYLES = {
@@ -53,9 +55,11 @@ export function HotelSubdomainField({
   const feedback = useMemo(() => getHotelSubdomainFeedback(value), [value]);
   const styles = FEEDBACK_STYLES[feedback.tone];
   const FeedbackIcon = styles.icon;
-  const fallbackPreview = useMemo(
-    () => buildHotelSubdomainPreviewUrl(slugFallback),
-    [slugFallback]
+  const rootDomains = useMemo(() => getHotelSubdomainRootDomainSummary(), []);
+  const fallbackPreview = useMemo(() => buildHotelSubdomainPreviewUrl(slugFallback), [slugFallback]);
+  const legacyPreview = useMemo(
+    () => buildHotelLegacySubdomainPreviewUrl(normalizeHotelSubdomainInput(value) || slugFallback),
+    [slugFallback, value]
   );
   const normalizedValue = normalizeHotelSubdomainInput(value);
 
@@ -85,17 +89,15 @@ export function HotelSubdomainField({
           </span>
 
           <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">
-            domínio operacional atual
+            domínio principal do produto
           </span>
         </div>
 
         <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">
-          URL pública esperada
+          URL pública preferencial
         </p>
         <p className="mt-2 break-words text-sm font-semibold text-slate-900">
-          {feedback.previewUrl
-            ? `https://${feedback.previewUrl}`
-            : 'https://{subdominio}.guestdesk.digital'}
+          {feedback.previewUrl ? `https://${feedback.previewUrl}` : `https://{subdominio}.${rootDomains.primary}`}
         </p>
 
         <p className="mt-2 text-sm leading-6 text-slate-600">{feedback.description}</p>
@@ -106,7 +108,7 @@ export function HotelSubdomainField({
               O que este campo controla
             </p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Esse será o endereço público principal do hotel dentro do domínio operacional atual.
+              Esse será o endereço público preferencial do hotel em {rootDomains.primary}.
             </p>
           </div>
 
@@ -131,8 +133,7 @@ export function HotelSubdomainField({
         <div className="flex items-start gap-2">
           <Globe className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
           <span>
-            Mantenha o nome curto, simples e fácil de comunicar em QR Code, recepção ou materiais
-            do hotel.
+            Mantenha o nome curto, simples e fácil de comunicar em QR Code, recepção ou materiais do hotel.
           </span>
         </div>
         <div className="flex items-start gap-2">
@@ -146,11 +147,17 @@ export function HotelSubdomainField({
           <div className="flex items-start gap-2">
             <Globe className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
             <span>
-              Sem subdomínio definido, o hotel continua acessível pelo slug e o comportamento atual
-              permanece seguro.
+              Sem subdomínio definido, o hotel continua acessível pelo slug e o comportamento atual permanece seguro.
             </span>
           </div>
         ) : null}
+        <div className="flex items-start gap-2">
+          <Globe className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
+          <span>
+            Domínio legado ainda aceito na transição:{' '}
+            <span className="font-medium text-slate-700">{legacyPreview}</span>
+          </span>
+        </div>
         <div className="flex items-start gap-2">
           <Globe className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
           <span>

@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 const HERO_METRICS = [
   { label: 'Experiência', value: 'Diretório digital premium' },
   { label: 'Operação', value: 'Painel simples para a equipe' },
-  { label: 'Presença', value: 'Base pública em guestdesk.digital' },
+  { label: 'Presença', value: 'Base pública em libguest.digital' },
 ];
 
 const PRODUCT_STORIES = [
@@ -75,7 +75,7 @@ function LandingPageContent() {
                   LibGuest
                 </div>
                 <div className="inline-flex items-center rounded-full border border-white/10 bg-white/6 px-4 py-2 text-xs font-medium tracking-[0.14em] text-slate-200 backdrop-blur">
-                  guestdesk.digital
+                  libguest.digital
                 </div>
               </div>
 
@@ -98,7 +98,7 @@ function LandingPageContent() {
                   Entrar no painel
                 </a>
                 <a
-                  href="mailto:contato@guestdesk.digital"
+                  href="mailto:contato@libguest.digital"
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                 >
                   Solicitar demonstração
@@ -122,7 +122,7 @@ function LandingPageContent() {
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-200">
                   LibGuest agora se apresenta com mais clareza como produto real de hospitalidade
-                  digital, sustentado por guestdesk.digital.
+                  digital, sustentado por libguest.digital.
                 </p>
               </div>
 
@@ -245,7 +245,7 @@ function LandingPageContent() {
                 Entrar no painel
               </a>
               <a
-                href="mailto:contato@guestdesk.digital"
+                href="mailto:contato@libguest.digital"
                 className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/10 px-5 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
               >
                 Solicitar demonstração

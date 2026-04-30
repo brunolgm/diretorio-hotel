@@ -1,7 +1,8 @@
 import { headers } from 'next/headers';
 import {
   classifyProductHostname,
-  PRODUCT_ROOT_DOMAIN,
+  PRIMARY_PRODUCT_ROOT_DOMAIN,
+  SUPPORTED_PRODUCT_ROOT_DOMAINS,
 } from '@/lib/product-domain';
 
 export type DomainContextKind =
@@ -17,11 +18,13 @@ export interface DomainContext {
   port: string | null;
   kind: DomainContextKind;
   productRootDomain: string;
+  matchedProductRootDomain: string | null;
   subdomain: string | null;
   isProductRoot: boolean;
   isPotentialHotelSubdomain: boolean;
   shouldUseSlugFallback: boolean;
   isFutureCustomDomainCandidate: boolean;
+  isLegacyProductDomain: boolean;
 }
 
 export type HotelSubdomainDomainContext = DomainContext & {
@@ -73,7 +76,7 @@ export function isHotelSubdomainContext(
 
 export function resolveDomainContext(
   rawHost: string | null | undefined,
-  productRootDomain = PRODUCT_ROOT_DOMAIN
+  productRootDomains: readonly string[] = SUPPORTED_PRODUCT_ROOT_DOMAINS
 ): DomainContext {
   const host = normalizeRawHost(rawHost);
   const { hostname, port } = splitHostAndPort(host);
@@ -85,12 +88,14 @@ export function resolveDomainContext(
       hostname,
       port,
       kind: 'other-domain',
-      productRootDomain,
+      productRootDomain: PRIMARY_PRODUCT_ROOT_DOMAIN,
+      matchedProductRootDomain: null,
       subdomain: null,
       isProductRoot: false,
       isPotentialHotelSubdomain: false,
       shouldUseSlugFallback: true,
       isFutureCustomDomainCandidate: false,
+      isLegacyProductDomain: false,
     };
   }
 
@@ -101,16 +106,18 @@ export function resolveDomainContext(
       hostname,
       port,
       kind: 'localhost',
-      productRootDomain,
+      productRootDomain: PRIMARY_PRODUCT_ROOT_DOMAIN,
+      matchedProductRootDomain: null,
       subdomain: null,
       isProductRoot: false,
       isPotentialHotelSubdomain: false,
       shouldUseSlugFallback: true,
       isFutureCustomDomainCandidate: false,
+      isLegacyProductDomain: false,
     };
   }
 
-  const productHostname = classifyProductHostname(hostname, productRootDomain);
+  const productHostname = classifyProductHostname(hostname, productRootDomains);
 
   if (productHostname.kind === 'product-root') {
     return {
@@ -119,12 +126,14 @@ export function resolveDomainContext(
       hostname,
       port,
       kind: 'product-root',
-      productRootDomain,
+      productRootDomain: PRIMARY_PRODUCT_ROOT_DOMAIN,
+      matchedProductRootDomain: productHostname.rootDomain,
       subdomain: null,
       isProductRoot: true,
       isPotentialHotelSubdomain: false,
       shouldUseSlugFallback: true,
       isFutureCustomDomainCandidate: false,
+      isLegacyProductDomain: productHostname.isLegacyRootDomain,
     };
   }
 
@@ -135,12 +144,14 @@ export function resolveDomainContext(
       hostname,
       port,
       kind: 'product-subdomain',
-      productRootDomain,
+      productRootDomain: PRIMARY_PRODUCT_ROOT_DOMAIN,
+      matchedProductRootDomain: productHostname.rootDomain,
       subdomain: productHostname.subdomain,
       isProductRoot: false,
       isPotentialHotelSubdomain: true,
       shouldUseSlugFallback: true,
       isFutureCustomDomainCandidate: false,
+      isLegacyProductDomain: productHostname.isLegacyRootDomain,
     };
   }
 
@@ -150,12 +161,14 @@ export function resolveDomainContext(
     hostname,
     port,
     kind: 'other-domain',
-    productRootDomain,
+    productRootDomain: PRIMARY_PRODUCT_ROOT_DOMAIN,
+    matchedProductRootDomain: null,
     subdomain: null,
     isProductRoot: false,
     isPotentialHotelSubdomain: false,
     shouldUseSlugFallback: true,
     isFutureCustomDomainCandidate: true,
+    isLegacyProductDomain: false,
   };
 }
 
