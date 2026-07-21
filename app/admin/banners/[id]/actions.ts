@@ -180,7 +180,7 @@ export async function updatePromotionalBannerAction(id: string, formData: FormDa
 }
 
 export async function removePromotionalBannerImageAction(id: string) {
-  const { user, profile } = await requireAdminAccess('operador');
+  await requireAdminAccess('operador');
 
   if (!id.trim()) {
     redirect('/admin/banners?error=Banner%20inv%C3%A1lido');
@@ -204,7 +204,7 @@ export async function removePromotionalBannerImageAction(id: string) {
       operation: 'load promotional banner image for removal',
       hotelId: hotel.id,
       targetId: id,
-      error: bannerError || 'Promotional banner not found for image removal',
+      error: 'Banner image lookup failed or returned no row',
     });
     redirect(
       buildFeedbackRedirect(`/admin/banners/${id}`, {
@@ -221,30 +221,18 @@ export async function removePromotionalBannerImageAction(id: string) {
   let warning: string | undefined;
 
   if (banner.image_url && storagePath) {
-    console.info('[banners] removePromotionalBannerImageAction storage removal starting', {
-      operation: 'remove promotional banner image from storage',
-      bucket: 'hotel-assets',
-      storagePath,
-      hotelId: hotel.id,
-      bannerId: id,
-      userId: user.id,
-      profileHotelId: profile.hotel_id,
-    });
-
     const { error: removeError } = await adminSupabase.storage
       .from('hotel-assets')
       .remove([storagePath]);
 
     if (removeError) {
-      console.error('[banners] removePromotionalBannerImageAction storage removal failed', {
+      logOperationalError({
+        module: 'banners',
+        action: 'removePromotionalBannerImageAction',
         operation: 'remove promotional banner image from storage',
-        bucket: 'hotel-assets',
-        storagePath,
         hotelId: hotel.id,
-        bannerId: id,
-        userId: user.id,
-        profileHotelId: profile.hotel_id,
-        message: removeError.message,
+        targetId: id,
+        error: 'Storage removal failed',
       });
       redirect(
         buildFeedbackRedirect(`/admin/banners/${id}`, {
@@ -287,7 +275,7 @@ export async function removePromotionalBannerImageAction(id: string) {
       operation: 'clear promotional banner image URL',
       hotelId: hotel.id,
       targetId: id,
-      error: updateError,
+      error: 'Banner image URL update failed',
     });
     redirect(
       buildFeedbackRedirect(`/admin/banners/${id}`, {

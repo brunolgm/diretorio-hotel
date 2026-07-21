@@ -19,45 +19,44 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    setLoading(false);
+      if (error) {
+        setError('Não foi possível entrar. Revise suas credenciais e tente novamente.');
+        return;
+      }
 
-    if (error) {
-      setError(error.message);
-      return;
+      const signedInUser = data.user;
+
+      if (!signedInUser) {
+        setError('Não foi possível validar o acesso do usuário.');
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role, hotel_id, is_active')
+        .eq('id', signedInUser.id)
+        .single();
+
+      const normalizedRole = normalizeAppRole(profile?.role);
+
+      if (profileError || !profile?.hotel_id || !profile.is_active || !normalizedRole) {
+        await supabase.auth.signOut();
+        setError('Seu acesso administrativo não está disponível no momento.');
+        return;
+      }
+
+      router.replace('/admin');
+    } catch {
+      setError('Não foi possível entrar agora. Tente novamente em instantes.');
+    } finally {
+      setLoading(false);
     }
-
-    const signedInUser = data.user;
-
-    if (!signedInUser) {
-      setError('Não foi possível validar o acesso do usuário.');
-      return;
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role, hotel_id, is_active')
-      .eq('id', signedInUser.id)
-      .single();
-
-    const normalizedRole = normalizeAppRole(profile?.role);
-
-    if (
-      profileError ||
-      !profile?.hotel_id ||
-      !profile.is_active ||
-      !normalizedRole
-    ) {
-      await supabase.auth.signOut();
-      setError('Seu acesso administrativo não está disponível no momento.');
-      return;
-    }
-
-    router.replace('/admin');
   }
 
   return (

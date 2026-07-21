@@ -5,6 +5,7 @@ import {
   ArrowUpRight,
   Building2,
   CheckCircle2,
+  CircleAlert,
   Clock3,
   ConciergeBell,
   Eye,
@@ -30,7 +31,11 @@ import {
   AdminSurface,
 } from '@/components/admin/ui';
 import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
-import { getAdminHotel, getHotelAnalyticsSummary } from '@/lib/queries';
+import {
+  getAdminHotel,
+  getAdminOperationalReadiness,
+  getHotelAnalyticsSummary,
+} from '@/lib/queries';
 
 function QuickLink({
   href,
@@ -135,7 +140,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const { profile } = await requireAdminAccess('visualizador');
   const hotel = await getAdminHotel();
   const params = searchParams ? await searchParams : {};
-  const analytics = await getHotelAnalyticsSummary(params?.range);
+  const [analytics, operationalReadiness] = await Promise.all([
+    getHotelAnalyticsSummary(params?.range),
+    getAdminOperationalReadiness(),
+  ]);
   const comparisonLabel = getComparisonLabel(analytics.range);
   const canManageHotel = hasMinimumRole(profile.normalizedRole, 'editor');
   const canManageUsers = hasMinimumRole(profile.normalizedRole, 'administrador');
@@ -178,8 +186,16 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <div className="rounded-[30px] border border-white/10 bg-white/10 p-5 backdrop-blur">
               <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Status</p>
               <p className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
-                <CheckCircle2 className="h-4 w-4" />
-                Operacional
+                {operationalReadiness.pending === 0 ? (
+                  <CheckCircle2 className="h-4 w-4" />
+                ) : (
+                  <CircleAlert className="h-4 w-4" />
+                )}
+                {operationalReadiness.pending === 0
+                  ? 'Base configurada'
+                  : `${operationalReadiness.pending} ${
+                      operationalReadiness.pending === 1 ? 'pendência' : 'pendências'
+                    }`}
               </p>
             </div>
           </div>
@@ -201,9 +217,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         />
         <AdminStatCard
           icon={<Eye className="h-5 w-5" />}
-          title="Experiência pública"
-          value="Online"
-          description="A versão pública do LibGuest está publicada e acessível."
+          title="Configuração essencial"
+          value={`${operationalReadiness.completed}/${operationalReadiness.total}`}
+          description="Itens essenciais confirmados com dados do hotel atual."
         />
         <AdminStatCard
           icon={<ShieldCheck className="h-5 w-5" />}
@@ -212,6 +228,62 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           description="Área administrativa com autenticação e acesso restrito."
         />
       </section>
+
+      <AdminSurface>
+        <AdminSectionTitle
+          eyebrow="Prontidão operacional"
+          title="O que falta configurar"
+          description="Esta lista usa somente dados reais do hotel atual e indica a base mínima recomendada para revisar a experiência pública."
+          action={
+            <AdminInfoBadge>
+              {operationalReadiness.pending === 0
+                ? 'Base completa'
+                : `${operationalReadiness.pending} ${
+                    operationalReadiness.pending === 1 ? 'item pendente' : 'itens pendentes'
+                  }`}
+            </AdminInfoBadge>
+          }
+        />
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          {operationalReadiness.items.map((item) => {
+            const hrefByKey = {
+              hotel: '/admin/hotel',
+              services: '/admin/servicos',
+              departments: '/admin/departamentos',
+              policies: '/admin/politicas',
+            } as const;
+            const canOpenItem = item.key !== 'hotel' || canManageHotel;
+            const content = (
+              <div className="flex items-start gap-3">
+                {item.ready ? (
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                ) : (
+                  <CircleAlert className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+                )}
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">{item.label}</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">{item.description}</p>
+                </div>
+              </div>
+            );
+
+            return canOpenItem ? (
+              <Link
+                key={item.key}
+                href={hrefByKey[item.key]}
+                className="rounded-[24px] border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-sm"
+              >
+                {content}
+              </Link>
+            ) : (
+              <div key={item.key} className="rounded-[24px] border border-slate-200 bg-white p-5">
+                {content}
+              </div>
+            );
+          })}
+        </div>
+      </AdminSurface>
 
       <AdminSurface>
         <AdminSectionTitle
@@ -525,7 +597,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             action={
               <AdminInfoBadge>
                 <AdminQuickArrow />
-                Gestão ativa
+                {operationalReadiness.pending === 0 ? 'Base completa' : 'Revisão pendente'}
               </AdminInfoBadge>
             }
           />
@@ -538,23 +610,25 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
           <div className="mt-6 space-y-4">
             <div className="rounded-[26px] border border-slate-200 p-5">
-              <p className="text-sm font-semibold text-slate-900">LibGuest publicado</p>
+              <p className="text-sm font-semibold text-slate-900">Endereço público</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                A experiência pública já está online e pronta para demonstração.
+                O slug permanece como fallback seguro; valide a rota pública antes de divulgar.
               </p>
             </div>
 
             <div className="rounded-[26px] border border-slate-200 p-5">
-              <p className="text-sm font-semibold text-slate-900">Operação centralizada</p>
+              <p className="text-sm font-semibold text-slate-900">Conteúdo essencial</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Serviços, departamentos e políticas podem ser gerenciados em um único painel.
+                {operationalReadiness.pending === 0
+                  ? 'A base recomendada de hotel, serviços, departamentos e políticas está configurada.'
+                  : 'Use a checklist de prontidão para concluir os itens essenciais que ainda faltam.'}
               </p>
             </div>
 
             <div className="rounded-[26px] border border-slate-200 p-5">
               <p className="text-sm font-semibold text-slate-900">Marca e conteúdo</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                O hotel já pode ajustar identidade visual e finalizar os textos da apresentação.
+                Revise identidade visual, textos e traduções antes da homologação final.
               </p>
             </div>
           </div>

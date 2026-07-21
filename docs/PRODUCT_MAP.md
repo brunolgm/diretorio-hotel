@@ -907,6 +907,43 @@ Importante:
 - Warnings preexistentes de `<img>` permanecem fora do escopo para nao alterar comportamento visual.
 - Validacao multi-hotel com dados reais deve ocorrer em preview controlado, sem usar credenciais ou dados reais no repositorio.
 
+### Registro curto da Sprint 35
+
+- Status: implementação e validação técnica local concluídas.
+- Objetivo: consolidar readiness operacional e comercial sem alterar arquitetura, autenticação, temas, dados ou compatibilidade pública.
+
+#### Diagnóstico e decisões
+
+- As listas administrativas já possuíam estados vazios e feedback de operações; a lacuna principal era a ausência de estados globais de loading, erro recuperável e 404 no segmento admin.
+- O dashboard declarava a experiência como operacional e online sem confirmar conteúdo mínimo. O estado foi substituído por uma checklist derivada do hotel autenticado e de registros ativos escopados por `hotel_id`.
+- A checklist considera somente quatro itens essenciais verificáveis: informações básicas, serviço ativo, departamento ativo e política ativa. Comunicados, banners e apartamentos permanecem opcionais conforme a operação do hotel.
+- A falha de autenticação não repassa mais a mensagem bruta do Supabase para a interface.
+- Logs informativos de início de operações no Storage foram removidos; falhas usam o logger operacional curto sem registrar path, perfil, usuário, payload ou mensagem interna do provedor.
+- Os dois usos de `<img>` foram mantidos: um cobre logo configurável no admin e outro mídia pública dinâmica. Migrá-los para `next/image` exigiria decisões sobre origem, dimensões e comportamento visual fora desta sprint.
+- Slug fallback, dual-domain, roomToken, QRs existentes e isolamento da Sprint 34 foram preservados.
+
+#### Arquivos alterados
+
+- Estados e feedback: `app/admin/loading.tsx`, `app/admin/error.tsx`, `app/admin/not-found.tsx`, `app/login/page.tsx` e `app/admin/usuarios/page.tsx`.
+- Dashboard e consultas: `app/admin/page.tsx` e `lib/queries.ts`.
+- Observabilidade de Storage: `app/admin/banners/upload-image-action.ts` e `app/admin/banners/[id]/actions.ts`.
+- Operação e homologação: `docs/guestdesk-new-hotel-playbook.md`, `docs/guestdesk-deploy-checklist.md`, `docs/guestdesk-post-deploy-validation.md`, `docs/guestdesk-admin-guide.md` e `docs/PRODUCT_MAP.md`.
+
+#### Validações da Sprint 35
+
+- Revisão do diff, escopo multi-hotel e ausência de alterações em migrations, RLS, `.env`, temas e rotas públicas.
+- `npm run lint`: aprovado sem erros; permanecem os dois warnings conhecidos de `<img>`.
+- `npx tsc --noEmit`: aprovado.
+- `npm run build`: aprovado, incluindo geração das rotas públicas por slug, serviço e roomToken.
+- `git diff --check`: aprovado.
+
+#### Pendências e riscos remanescentes
+
+- A homologação dos quatro hotéis depende de preview e credenciais operacionais autorizadas; não é executada por validação local.
+- Analytics público continua sujeito a ruído automatizado, conforme registrado na Sprint 34.
+- A checklist do dashboard confirma presença de configuração mínima, não qualidade editorial, disponibilidade externa de links ou aprovação do hotel.
+- Custom domains, rate limiting, edição manual de traduções, temas por bandeira, IA Concierge e modelo de usuário multi-hotel continuam fora do escopo da v1 atual.
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -984,10 +1021,10 @@ Importante:
 - concluída: suporte dual-domain com `libguest.digital` como principal e `guestdesk.digital` como legado/transição, sem redirect obrigatório
 
 ### Sprint 34
-- hardening avançado de operação multi-hotel sem abrir refactor amplo
+- concluída: hardening avançado de operação multi-hotel sem abrir refactor amplo
 
 ### Sprint 35
-- consolidação para readiness mais madura de produto/SaaS hotel-tech
+- concluída localmente: estados administrativos seguros, checklist operacional real, observabilidade curta e documentação de homologação dos quatro hotéis
 
 ### Nota de roadmap
 - Este roadmap é direcional e pode ser repriorizado.

@@ -13,7 +13,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 
 export async function uploadPromotionalBannerImageAction(formData: FormData) {
-  const { user, profile } = await requireAdminAccess('operador');
+  await requireAdminAccess('operador');
   const supabase = await createClient();
   const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
@@ -58,31 +58,19 @@ export async function uploadPromotionalBannerImageAction(formData: FormData) {
 
   const path = `${hotel.id}/promotional-banners/${banner.id}.${ext}`;
 
-  console.info('[banners] uploadPromotionalBannerImageAction storage upload starting', {
-    operation: 'upload promotional banner image to storage',
-    bucket: 'hotel-assets',
-    storagePath: path,
-    hotelId: hotel.id,
-    bannerId: banner.id,
-    userId: user.id,
-    profileHotelId: profile.hotel_id,
-  });
-
   const { error: uploadError } = await adminSupabase.storage.from('hotel-assets').upload(path, file, {
     upsert: true,
     contentType: file.type,
   });
 
   if (uploadError) {
-    console.error('[banners] uploadPromotionalBannerImageAction storage upload failed', {
+    logOperationalError({
+      module: 'banners',
+      action: 'uploadPromotionalBannerImageAction',
       operation: 'upload promotional banner image to storage',
-      bucket: 'hotel-assets',
-      storagePath: path,
       hotelId: hotel.id,
-      bannerId: banner.id,
-      userId: user.id,
-      profileHotelId: profile.hotel_id,
-      message: uploadError.message,
+      targetId: banner.id,
+      error: 'Storage upload failed',
     });
     redirect(
       `/admin/banners/${bannerId}?error=${encodeURIComponent(
@@ -115,7 +103,7 @@ export async function uploadPromotionalBannerImageAction(formData: FormData) {
       operation: 'save uploaded banner image URL',
       hotelId: hotel.id,
       targetId: banner.id,
-      error: updateError,
+      error: 'Banner image URL update failed',
     });
     redirect(
       `/admin/banners/${bannerId}?error=${encodeURIComponent(
