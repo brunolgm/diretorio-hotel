@@ -101,18 +101,18 @@ function BannerSlide({
 
   if (banner.image_url) {
     return (
-      <article className="overflow-hidden rounded-[34px] border border-slate-200/80 bg-white shadow-[0_28px_65px_-42px_rgba(15,23,42,0.28)]">
+      <article className="hotel-theme-banner overflow-hidden border border-[color:var(--hotel-border)] shadow-[0_28px_65px_-42px_rgba(15,23,42,0.28)]">
         <BannerImage banner={banner} />
 
-        <div className="border-t border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] px-5 py-4 md:px-7 md:py-5">
+        <div className="border-t border-[color:var(--hotel-border)] bg-[image:var(--hotel-surface-muted)] px-5 py-4 md:px-7 md:py-5">
           <div className="max-w-4xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
               {copy.eyebrow}
             </p>
-            <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-slate-950 md:text-[1.8rem]">
+            <h3 className="hotel-theme-heading mt-2 text-xl font-semibold tracking-[-0.02em] md:text-[1.8rem]">
               {banner.title}
             </h3>
-            <p className="mt-2.5 max-w-3xl text-sm leading-6 text-slate-600 md:text-[15px] md:leading-6">
+            <p className="hotel-theme-muted mt-2.5 max-w-3xl text-sm leading-6 md:text-[15px] md:leading-6">
               {banner.subtitle || copy.fallback}
             </p>
           </div>
@@ -127,7 +127,7 @@ function BannerSlide({
                 href={banner.cta_url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-medium text-white shadow-[0_16px_32px_-24px_rgba(15,23,42,0.45)] transition hover:-translate-y-0.5 hover:bg-slate-900"
+                className="hotel-theme-button inline-flex h-11 items-center justify-center bg-[var(--hotel-text)] px-4 text-sm font-medium text-[color:var(--hotel-surface)] shadow-[0_16px_32px_-24px_rgba(15,23,42,0.45)] transition hover:-translate-y-0.5 hover:brightness-95"
               >
                 {ctaLabel}
                 <ExternalLink className="ml-2 h-4 w-4" />
@@ -140,7 +140,7 @@ function BannerSlide({
   }
 
   return (
-    <article className="overflow-hidden rounded-[34px] border border-slate-200/80 bg-slate-950 shadow-[0_28px_65px_-42px_rgba(15,23,42,0.58)]">
+    <article className="hotel-theme-banner overflow-hidden border border-[color:var(--hotel-border)] shadow-[0_28px_65px_-42px_rgba(15,23,42,0.58)]">
       <div className="relative min-h-[240px] overflow-hidden bg-[linear-gradient(135deg,#0f172a_0%,#162033_42%,#24334d_100%)] px-5 py-6 text-white md:px-8 md:py-8">
         <div
           aria-hidden="true"
@@ -216,10 +216,10 @@ export function PromotionalBannerCarousel({
   };
 
   return (
-    <div className="overflow-hidden rounded-[34px] border border-slate-200/80 bg-white shadow-[0_28px_65px_-42px_rgba(15,23,42,0.22)]">
+    <div className="hotel-theme-banner overflow-hidden border border-[color:var(--hotel-border)] shadow-[0_28px_65px_-42px_rgba(15,23,42,0.22)]">
       <BannerSlide banner={banners[activeIndex]} language={language} />
 
-      <div className="flex items-center justify-between gap-4 border-t border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] px-5 py-3 md:px-6">
+      <div className="flex items-center justify-between gap-4 border-t border-[color:var(--hotel-border)] bg-[image:var(--hotel-surface-muted)] px-5 py-3 md:px-6">
         <div className="flex items-center gap-2">
           {banners.map((banner, index) => {
             const isActive = index === activeIndex;
@@ -233,7 +233,7 @@ export function PromotionalBannerCarousel({
                 onClick={() => setActiveIndex(index)}
                 className={
                   isActive
-                    ? 'h-2 w-7 rounded-full bg-slate-900'
+                    ? 'h-2 w-7 rounded-full bg-[var(--hotel-navigation)]'
                     : 'h-2 w-2 rounded-full bg-slate-300 transition hover:bg-slate-400'
                 }
               />

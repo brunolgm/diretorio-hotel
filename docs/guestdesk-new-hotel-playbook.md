@@ -32,6 +32,18 @@ O dashboard apresenta uma checklist leve dos quatro itens essenciais. Comunicado
 - fallback seguro: `/hotel/[slug]`
 - slug e subdomínio são identificadores operacionais; não devem ser alterados durante configuração rotineira
 
+## Bandeira e preset visual
+
+- o preset salvo controla apenas a camada visual; não altera conteúdo, permissões ou rotas
+- os cinco presets legados continuam sendo as únicas opções operacionais no admin
+- `libguest-signature`, `novotel`, `grand-mercure` e `mercure` estão em estado `foundation-only` e não devem ser inseridos manualmente nesta sprint
+- no futuro painel interno de provisionamento, bandeiras homologadas usarão o preset próprio; hotéis independentes, outros segmentos e clientes sem bandeira homologada usarão `libguest-signature`
+- `custom` está reservado para evolução futura e ainda não é um preset operacional
+- até existir esse painel, nenhuma associação de preset foundation deve ser automática ou feita por edição comum no admin
+- nunca inferir bandeira por nome, slug ou subdomínio do hotel
+- consultar `guestdesk-brand-design-system.md` antes de planejar ativação ou troca de preset
+- uma troca futura de preset deve ser deliberada, reversível e validada no celular e desktop
+
 ## Conteúdo mínimo para homologação
 
 - hotel: nome, cidade, check-in, check-out e ao menos um canal principal
