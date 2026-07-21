@@ -55,17 +55,17 @@ function QuickInfoCard({
   helper?: string;
 }) {
   return (
-    <div className="rounded-[30px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80">
+    <div className="hotel-theme-card p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
             {title}
           </p>
-          <p className="mt-2 text-base font-semibold tracking-tight text-slate-950">{value}</p>
-          {helper ? <p className="mt-1 text-xs text-slate-500">{helper}</p> : null}
+          <p className="hotel-theme-heading mt-2 text-base font-semibold tracking-tight">{value}</p>
+          {helper ? <p className="hotel-theme-muted mt-1 text-xs">{helper}</p> : null}
         </div>
 
-        <div className="rounded-[20px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+        <div className="hotel-theme-icon rounded-[20px] border p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
           <Icon className="h-4 w-4" />
         </div>
       </div>
@@ -92,15 +92,15 @@ function AnnouncementCard({
     : null;
 
   return (
-    <div className="rounded-[28px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80">
+    <div className="hotel-theme-card hotel-theme-card-compact p-5">
       <div className="flex items-start gap-4">
-        <div className="shrink-0 rounded-[20px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+        <div className="hotel-theme-icon shrink-0 rounded-[20px] border p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
           <Sparkles className="h-5 w-5" />
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h3 className="min-w-0 break-words text-lg font-semibold tracking-tight text-slate-950">
+            <h3 className="hotel-theme-heading min-w-0 break-words text-lg font-semibold tracking-tight">
               {item.title}
             </h3>
             <span className="rounded-full border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] px-3 py-1 text-xs font-medium text-slate-700">
@@ -108,7 +108,7 @@ function AnnouncementCard({
             </span>
           </div>
 
-          <p className="mt-3 break-words text-sm leading-7 text-slate-600">
+          <p className="hotel-theme-muted mt-3 break-words text-sm leading-7">
             {item.body || copy.announcementDefaultDescription}
           </p>
 
@@ -141,15 +141,15 @@ function SectionCard({
   });
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-[30px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80 transition hover:-translate-y-0.5 hover:shadow-[0_26px_55px_-36px_rgba(15,23,42,0.32)]">
+    <div className="hotel-theme-card min-w-0 overflow-hidden p-5 transition hover:-translate-y-0.5 hover:shadow-[0_26px_55px_-36px_rgba(15,23,42,0.32)]">
       <div className="flex min-w-0 items-start gap-4">
-        <div className="shrink-0 rounded-[20px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+        <div className="hotel-theme-icon shrink-0 rounded-[20px] border p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
           <SectionIcon iconName={item.icon} className="h-5 w-5" />
         </div>
 
         <div className="min-w-0 flex-1 overflow-hidden">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h3 className="min-w-0 break-words [overflow-wrap:anywhere] text-lg font-semibold tracking-tight text-slate-950">
+            <h3 className="hotel-theme-heading min-w-0 break-words [overflow-wrap:anywhere] text-lg font-semibold tracking-tight">
               {item.title}
             </h3>
 
@@ -160,7 +160,7 @@ function SectionCard({
             ) : null}
           </div>
 
-          <p className="mt-3 min-w-0 line-clamp-2 break-words [overflow-wrap:anywhere] text-sm leading-6 text-slate-600 md:line-clamp-4 md:leading-7">
+          <p className="hotel-theme-muted mt-3 min-w-0 line-clamp-2 break-words [overflow-wrap:anywhere] text-sm leading-6 md:line-clamp-4 md:leading-7">
             {item.content || copy.serviceInfoUnavailable}
           </p>
 
@@ -179,7 +179,7 @@ function SectionCard({
                   href={destination.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex max-w-full items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 py-3 text-center text-sm font-medium leading-5 text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
+                  className="hotel-theme-button inline-flex max-w-full items-center justify-center bg-[var(--hotel-accent)] px-4 py-3 text-center text-sm font-medium leading-5 text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
                 >
                   <span className="min-w-0 break-words [overflow-wrap:anywhere]">
                     {item.cta || copy.openSite}
@@ -189,7 +189,7 @@ function SectionCard({
               ) : (
                 <a
                   href={destination.href}
-                  className="inline-flex max-w-full items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-4 py-3 text-center text-sm font-medium leading-5 text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
+                  className="hotel-theme-button inline-flex max-w-full items-center justify-center bg-[var(--hotel-accent)] px-4 py-3 text-center text-sm font-medium leading-5 text-[color:var(--hotel-accent-foreground)] shadow-[0_14px_30px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95"
                 >
                   <span className="min-w-0 break-words [overflow-wrap:anywhere]">
                     {item.cta ||
@@ -216,13 +216,13 @@ function DepartmentCard({
   copy: ReturnType<typeof getPublicCopy>;
 }) {
   return (
-    <div className="rounded-[30px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80 transition hover:-translate-y-0.5 hover:shadow-[0_26px_55px_-36px_rgba(15,23,42,0.32)]">
+    <div className="hotel-theme-card p-5 transition hover:-translate-y-0.5 hover:shadow-[0_26px_55px_-36px_rgba(15,23,42,0.32)]">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h3 className="break-words text-lg font-semibold tracking-tight text-slate-950">
+          <h3 className="hotel-theme-heading break-words text-lg font-semibold tracking-tight">
             {item.name}
           </h3>
-          <p className="mt-2 break-words text-sm leading-7 text-slate-600">
+          <p className="hotel-theme-muted mt-2 break-words text-sm leading-7">
             {item.description || copy.departmentDefaultDescription}
           </p>
 
@@ -234,7 +234,7 @@ function DepartmentCard({
           ) : null}
         </div>
 
-        <div className="rounded-[20px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-3 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+        <div className="hotel-theme-icon rounded-[20px] border p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
           <Phone className="h-5 w-5" />
         </div>
       </div>
@@ -272,17 +272,17 @@ function PolicyCard({
   copy: ReturnType<typeof getPublicCopy>;
 }) {
   return (
-    <div className="rounded-[26px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.25)] ring-1 ring-slate-200/80">
+    <div className="hotel-theme-card hotel-theme-card-small p-5">
       <div className="flex items-start gap-3">
-        <div className="rounded-[18px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-2.5 text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+        <div className="hotel-theme-icon rounded-[18px] border p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
           <ShieldCheck className="h-4 w-4" />
         </div>
 
         <div>
-          <h3 className="break-words text-base font-semibold tracking-tight text-slate-950">
+          <h3 className="hotel-theme-heading break-words text-base font-semibold tracking-tight">
             {item.title}
           </h3>
-          <p className="mt-2 break-words text-sm leading-7 text-slate-600">
+          <p className="hotel-theme-muted mt-2 break-words text-sm leading-7">
             {item.description || copy.policyDefaultDescription}
           </p>
         </div>
@@ -333,17 +333,19 @@ export function HotelPublicPageContent({
     });
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_45%,#f8fafc_100%)]">
+    <main
+      className="hotel-theme-page min-h-screen"
+      style={theme.cssVars}
+      data-hotel-theme={theme.preset}
+      data-hotel-icon-style={theme.iconStyle}
+    >
       <PublicAnalytics hotelId={hotel.id} hotelSlug={hotel.slug} language={language} />
 
-      <div
-        className="mx-auto max-w-6xl px-4 py-6 pb-28 md:px-6 md:py-8 md:pb-8"
-        style={theme.cssVars}
-      >
+      <div className="mx-auto max-w-6xl px-4 py-6 pb-28 md:px-6 md:py-8 md:pb-8">
         <section
-          className={`relative overflow-hidden rounded-[40px] p-6 text-white shadow-[0_30px_90px_-48px_rgba(15,23,42,0.85)] ring-1 ring-slate-900/10 md:p-10 ${theme.heroClassName}`}
+          className="hotel-theme-hero relative overflow-hidden p-6 md:p-10"
         >
-          <div className={`pointer-events-none absolute inset-0 ${theme.heroOverlayClassName}`} />
+          <div className="hotel-theme-hero-overlay pointer-events-none absolute inset-0" />
 
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
@@ -435,7 +437,7 @@ export function HotelPublicPageContent({
                   data-analytics-event="booking_click"
                   data-analytics-target-url={hotel.booking_url}
                   data-analytics-label="Hero booking button"
-                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-5 text-sm font-semibold text-[color:var(--hotel-accent-foreground)] shadow-[0_18px_35px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/55 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                  className="hotel-theme-button inline-flex h-12 items-center justify-center bg-[var(--hotel-accent)] px-5 text-sm font-semibold text-[color:var(--hotel-accent-foreground)] shadow-[0_18px_35px_-18px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/55 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                 >
                   {copy.bookNow}
                   <ArrowUpRight className="ml-2 h-4 w-4" />
@@ -454,7 +456,7 @@ export function HotelPublicPageContent({
                   data-analytics-event="website_click"
                   data-analytics-target-url={hotel.website_url}
                   data-analytics-label="Hero website button"
-                  className="inline-flex h-12 items-center justify-center rounded-2xl border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-secondary-bg)] px-5 text-sm font-medium text-[color:var(--hotel-hero-secondary-text)] transition hover:-translate-y-0.5 hover:bg-[var(--hotel-hero-secondary-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                  className="hotel-theme-button inline-flex h-12 items-center justify-center border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-secondary-bg)] px-5 text-sm font-medium text-[color:var(--hotel-hero-secondary-text)] transition hover:-translate-y-0.5 hover:bg-[var(--hotel-hero-secondary-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                 >
                   {copy.officialWebsite}
                   <ArrowUpRight className="ml-2 h-4 w-4" />
@@ -473,7 +475,7 @@ export function HotelPublicPageContent({
                   data-analytics-event="whatsapp_click"
                   data-analytics-target-url={whatsappHref}
                   data-analytics-label="Hero WhatsApp button"
-                  className="inline-flex h-12 items-center justify-center rounded-2xl border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-secondary-bg)] px-5 text-sm font-medium text-[color:var(--hotel-hero-secondary-text)] transition hover:-translate-y-0.5 hover:bg-[var(--hotel-hero-secondary-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:col-span-2"
+                  className="hotel-theme-button inline-flex h-12 items-center justify-center border border-[color:var(--hotel-hero-secondary-border)] bg-[var(--hotel-hero-secondary-bg)] px-5 text-sm font-medium text-[color:var(--hotel-hero-secondary-text)] transition hover:-translate-y-0.5 hover:bg-[var(--hotel-hero-secondary-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:col-span-2"
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
                   {copy.whatsappSupport}
@@ -502,7 +504,7 @@ export function HotelPublicPageContent({
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
                   {copy.announcements}
                 </p>
-                <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
+                <h2 className="hotel-theme-heading mt-1 text-2xl font-semibold tracking-tight">
                   {copy.hotelAnnouncements}
                 </h2>
               </div>
@@ -558,7 +560,7 @@ export function HotelPublicPageContent({
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
                 {copy.explore}
               </p>
-              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
+              <h2 className="hotel-theme-heading mt-1 text-2xl font-semibold tracking-tight">
                 {copy.servicesAndInfo}
               </h2>
             </div>
@@ -583,9 +585,9 @@ export function HotelPublicPageContent({
               ))}
             </div>
           ) : (
-            <div className="rounded-[30px] border border-dashed border-slate-200 bg-white p-10 text-center shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)]">
-              <p className="text-base font-semibold text-slate-900">{copy.noServicesTitle}</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{copy.noServicesDescription}</p>
+            <div className="hotel-theme-surface rounded-[var(--hotel-card-radius)] border border-dashed border-[color:var(--hotel-border)] p-10 text-center shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)]">
+              <p className="hotel-theme-heading text-base font-semibold">{copy.noServicesTitle}</p>
+              <p className="hotel-theme-muted mt-2 text-sm leading-6">{copy.noServicesDescription}</p>
             </div>
           )}
         </section>
@@ -596,7 +598,7 @@ export function HotelPublicPageContent({
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
                 {copy.support}
               </p>
-              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
+              <h2 className="hotel-theme-heading mt-1 text-2xl font-semibold tracking-tight">
                 {copy.talkToHotel}
               </h2>
             </div>
@@ -608,9 +610,9 @@ export function HotelPublicPageContent({
                 ))}
               </div>
             ) : (
-              <div className="rounded-[30px] border border-dashed border-slate-200 bg-white p-10 text-center shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)]">
-                <p className="text-base font-semibold text-slate-900">{copy.noChannelsTitle}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{copy.noChannelsDescription}</p>
+              <div className="hotel-theme-surface rounded-[var(--hotel-card-radius)] border border-dashed border-[color:var(--hotel-border)] p-10 text-center shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)]">
+                <p className="hotel-theme-heading text-base font-semibold">{copy.noChannelsTitle}</p>
+                <p className="hotel-theme-muted mt-2 text-sm leading-6">{copy.noChannelsDescription}</p>
               </div>
             )}
           </div>
@@ -620,7 +622,7 @@ export function HotelPublicPageContent({
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
                 {copy.importantInfo}
               </p>
-              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
+              <h2 className="hotel-theme-heading mt-1 text-2xl font-semibold tracking-tight">
                 {copy.hotelPolicies}
               </h2>
             </div>
@@ -632,24 +634,24 @@ export function HotelPublicPageContent({
                 ))}
               </div>
             ) : (
-              <div className="rounded-[30px] border border-dashed border-slate-200 bg-white p-10 text-center shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)]">
-                <p className="text-base font-semibold text-slate-900">{copy.noPoliciesTitle}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{copy.noPoliciesDescription}</p>
+              <div className="hotel-theme-surface rounded-[var(--hotel-card-radius)] border border-dashed border-[color:var(--hotel-border)] p-10 text-center shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)]">
+                <p className="hotel-theme-heading text-base font-semibold">{copy.noPoliciesTitle}</p>
+                <p className="hotel-theme-muted mt-2 text-sm leading-6">{copy.noPoliciesDescription}</p>
               </div>
             )}
           </div>
         </section>
 
-        <section className="mt-10 rounded-[34px] border border-[color:var(--hotel-footer-border)] bg-[var(--hotel-footer-bg)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] md:p-8">
+        <section className="hotel-theme-help mt-10 rounded-[var(--hotel-banner-radius)] border border-[color:var(--hotel-footer-border)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-2xl">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
                 {copy.usefulLinks}
               </p>
-              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
+              <h2 className="hotel-theme-heading mt-1 text-2xl font-semibold tracking-tight">
                 {copy.quickAccess}
               </h2>
-              <p className="mt-2 text-sm leading-7 text-slate-600">
+              <p className="hotel-theme-muted mt-2 text-sm leading-7">
                 {copy.usefulLinksDescription}
               </p>
             </div>
@@ -693,7 +695,7 @@ export function HotelPublicPageContent({
                   data-analytics-event="whatsapp_click"
                   data-analytics-target-url={whatsappHref}
                   data-analytics-label="Footer WhatsApp button"
-                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-[var(--hotel-accent)] px-5 text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_12px_28px_-20px_rgba(15,23,42,0.5)] transition hover:-translate-y-0.5 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2"
+                  className="hotel-theme-button inline-flex h-12 items-center justify-center bg-[var(--hotel-accent)] px-5 text-sm font-medium text-[color:var(--hotel-accent-foreground)] shadow-[0_12px_28px_-20px_rgba(15,23,42,0.5)] transition hover:-translate-y-0.5 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2"
                 >
                   <MessageCircle className="mr-2 h-4 w-4" />
                   WhatsApp
@@ -703,9 +705,9 @@ export function HotelPublicPageContent({
           </div>
         </section>
 
-        <section className="mt-7 rounded-[30px] border border-[color:var(--hotel-footer-border)] bg-[var(--hotel-footer-bg)] px-6 py-5 text-sm shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)] backdrop-blur md:mt-8">
+        <section className="hotel-theme-signature mt-7 rounded-[var(--hotel-card-radius)] border border-[color:var(--hotel-footer-border)] px-6 py-5 text-sm shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)] backdrop-blur md:mt-8">
           <div className="flex justify-center md:justify-end">
-            <p className="font-medium tracking-[0.01em] text-[color:var(--hotel-footer-text)]">
+            <p className="font-medium tracking-[0.01em]">
               LibGuest
             </p>
           </div>

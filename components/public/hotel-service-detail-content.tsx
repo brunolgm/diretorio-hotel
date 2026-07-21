@@ -57,14 +57,19 @@ export function HotelServiceDetailContent({
   const backHref = buildHotelBackHref(hotel.slug, language, domainContext, useSubdomainRoot);
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_45%,#f8fafc_100%)]">
+    <main
+      className="hotel-theme-page min-h-screen"
+      style={theme.cssVars}
+      data-hotel-theme={theme.preset}
+      data-hotel-icon-style={theme.iconStyle}
+    >
       <PublicAnalytics hotelId={hotel.id} hotelSlug={hotel.slug} language={language} />
 
-      <div className="mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8" style={theme.cssVars}>
+      <div className="mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8">
         <section
-          className={`relative overflow-hidden rounded-[40px] p-6 text-white shadow-[0_30px_90px_-48px_rgba(15,23,42,0.85)] ring-1 ring-slate-900/10 md:p-10 ${theme.heroClassName}`}
+          className="hotel-theme-hero relative overflow-hidden p-6 md:p-10"
         >
-          <div className={`pointer-events-none absolute inset-0 ${theme.heroOverlayClassName}`} />
+          <div className="hotel-theme-hero-overlay pointer-events-none absolute inset-0" />
 
           <div className="relative">
             <div className="flex items-start justify-between gap-4">
@@ -162,18 +167,18 @@ export function HotelServiceDetailContent({
         ) : null}
 
         {roomRestaurantState ? (
-          <section className="mt-4 rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-[0_18px_45px_-34px_rgba(15,23,42,0.22)]">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+          <section className="hotel-theme-surface mt-4 rounded-[calc(var(--hotel-card-radius)-2px)] border border-[color:var(--hotel-border)] px-5 py-4 shadow-[0_18px_45px_-34px_rgba(15,23,42,0.22)]">
+            <p className="hotel-theme-muted text-xs font-medium uppercase tracking-[0.18em]">
               LibGuest
             </p>
-            <h2 className="mt-2 text-lg font-semibold tracking-tight text-slate-950">
+            <h2 className="hotel-theme-heading mt-2 text-lg font-semibold tracking-tight">
               {roomRestaurantState === 'missing-context'
                 ? copy.roomMenuMissingContextTitle
                 : roomRestaurantState === 'missing-menu'
                   ? copy.roomMenuMissingMenuTitle
                   : copy.roomMenuInvalidContextTitle}
             </h2>
-            <p className="mt-2 text-sm leading-7 text-slate-600">
+            <p className="hotel-theme-muted mt-2 text-sm leading-7">
               {roomRestaurantState === 'missing-context'
                 ? copy.roomMenuMissingContextDescription
                 : roomRestaurantState === 'missing-menu'
@@ -191,15 +196,15 @@ export function HotelServiceDetailContent({
           </section>
         ) : null}
 
-        <section className="mt-8 rounded-[34px] bg-white p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80 md:p-8">
+        <section className="hotel-theme-surface mt-8 rounded-[var(--hotel-banner-radius)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] ring-1 ring-[color:var(--hotel-border)] md:p-8">
           <div className="max-w-3xl">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+            <p className="hotel-theme-muted text-xs font-medium uppercase tracking-[0.18em]">
               {copy.serviceDetails}
             </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+            <h2 className="hotel-theme-heading mt-2 text-2xl font-semibold tracking-tight">
               {copy.fullInformation}
             </h2>
-            <p className="mt-4 whitespace-pre-line break-words [overflow-wrap:anywhere] text-sm leading-8 text-slate-600 md:text-base">
+            <p className="hotel-theme-muted mt-4 whitespace-pre-line break-words [overflow-wrap:anywhere] text-sm leading-8 md:text-base">
               {section.content}
             </p>
           </div>
@@ -215,7 +220,7 @@ export function HotelServiceDetailContent({
           </div>
         </section>
 
-        <section className="mt-6 rounded-[28px] border border-dashed border-slate-200 bg-white/80 px-6 py-5 text-sm leading-6 text-slate-500 shadow-[0_18px_45px_-36px_rgba(15,23,42,0.18)]">
+        <section className="hotel-theme-surface hotel-theme-muted mt-6 rounded-[calc(var(--hotel-card-radius)-2px)] border border-dashed border-[color:var(--hotel-border)] px-6 py-5 text-sm leading-6 opacity-80 shadow-[0_18px_45px_-36px_rgba(15,23,42,0.18)]">
           {copy.internalPageRule(MIN_SERVICE_DETAIL_CONTENT_LENGTH)}
         </section>
       </div>

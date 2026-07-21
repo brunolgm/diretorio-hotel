@@ -29,7 +29,7 @@ export function LanguageSwitcher({
 
   return (
     <details className="group relative">
-      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/12 bg-white/8 px-3.5 py-2.5 text-sm font-medium text-white shadow-[0_12px_32px_rgba(15,23,42,0.28)] backdrop-blur-xl transition hover:bg-white/12 focus:outline-none focus:ring-2 focus:ring-white/35 focus:ring-offset-2 focus:ring-offset-slate-950">
+      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-[color:var(--hotel-header-border)] bg-[var(--hotel-header-bg)] px-3.5 py-2.5 text-sm font-medium text-[color:var(--hotel-header-text)] shadow-[0_12px_32px_rgba(15,23,42,0.28)] backdrop-blur-xl transition hover:bg-white/12 focus:outline-none focus:ring-2 focus:ring-white/35 focus:ring-offset-2 focus:ring-offset-slate-950">
         <Languages className="h-4 w-4 text-slate-200" />
         <span className="text-base leading-none" aria-hidden="true">
           {activeLanguage.flag}

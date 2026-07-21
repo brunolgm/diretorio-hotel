@@ -944,6 +944,53 @@ Importante:
 - A checklist do dashboard confirma presença de configuração mínima, não qualidade editorial, disponibilidade externa de links ou aprovação do hotel.
 - Custom domains, rate limiting, edição manual de traduções, temas por bandeira, IA Concierge e modelo de usuário multi-hotel continuam fora do escopo da v1 atual.
 
+### Registro curto da Sprint 36
+
+- Status: fundação implementada localmente; ativação dos presets oficiais permanece bloqueada no admin.
+- Objetivo: criar design system e arquitetura de tema institucional e presets por bandeira sem aplicar os mockups finais, alterar dados ou duplicar a experiência pública.
+
+#### Arquitetura e decisões
+
+- `theme_preset` continua sendo o campo visual existente; não foi criada coluna `brand` nem migration.
+- `libguest-signature`, `novotel`, `grand-mercure` e `mercure` são identificadores estáveis da fundação oficial.
+- `libguest-signature` é o tema institucional padrão para hotéis independentes, outros segmentos e clientes sem bandeira homologada.
+- `custom` está reservado para evolução futura, sem implementação operacional nesta sprint.
+- A associação futura seguirá a regra: bandeira homologada usa preset próprio; os demais usam `libguest-signature`, somente quando existir o painel interno de provisionamento.
+- Os cinco presets legados permanecem canônicos e são os únicos exibidos e aceitos pelo admin.
+- A camada pública reconhece os presets oficiais, mas nenhum hotel foi associado ou atualizado automaticamente.
+- Tokens semânticos centralizam fundos, superfícies, cores, contraste, tipografia, bordas, raios, sombras, hero, cabeçalho, ícones, botões, banners, ajuda, navegação, estados ativos e assinatura.
+- Componentes funcionais, loaders, slug fallback, dual-domain, analytics e roomToken continuam compartilhados.
+- Não existe navegação inferior pública dedicada nesta sprint; o token foi preparado sem criar UI ou alterar a jornada atual.
+- Mercure possui fundação técnica, mas a direção visual final permanece pendente de consolidação.
+
+#### Arquivos alterados
+
+- Tema e tokens: `lib/hotel-theme.ts` e `app/globals.css`.
+- Componentes públicos compartilhados: `components/public/hotel-public-page-content.tsx`, `components/public/hotel-service-detail-content.tsx`, `components/public/promotional-banner-carousel.tsx` e `components/public/language-switcher.tsx`.
+- Documentação: `docs/guestdesk-brand-design-system.md`, `docs/guestdesk-new-hotel-playbook.md`, `docs/README.md` e `docs/PRODUCT_MAP.md`.
+
+#### Compatibilidade
+
+- Novotel Salvador continua visualmente associado ao preset já salvo; nenhuma troca automática foi introduzida.
+- Valores ausentes ou desconhecidos continuam usando `midnight-slate`.
+- Nenhum registro atual recebe `libguest-signature` automaticamente; o fallback comercial futuro não substitui o fallback técnico legado.
+- `theme_primary_color` continua afetando apenas o acento seguro com contraste calculado.
+- O admin não foi redesenhado e não oferece os presets oficiais antes da homologação.
+
+#### Validações da Sprint 36
+
+- `npm run lint`: aprovado sem erros; permanecem os dois warnings conhecidos de `<img>`.
+- `npx tsc --noEmit`: aprovado.
+- `npm run build`: aprovado com as 18 rotas esperadas, incluindo slug, detalhe de serviço e roomToken.
+- `git diff --check`: aprovado.
+- Revisão do diff confirmou ausência de mudanças em admin, dados, migrations, Supabase, slugs e subdomínios.
+
+#### Próximos passos
+
+- Sprint 37: aplicação e homologação do mockup Novotel Salvador.
+- Sprint 38: aplicação Grand Mercure e consolidação/aplicação Mercure.
+- Permanecem fora do escopo: IA Concierge, editor visual, preset `custom`, painel interno de provisionamento, alteração automática de dados e lógica por hotel.
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -972,7 +1019,7 @@ Importante:
 - revisar warnings pendentes de `img`
 - limpeza de imports não usados em arquivos remanescentes
 
-## 11. Roadmap from Sprint 21.1 to Sprint 35
+## 11. Roadmap from Sprint 21.1 to Sprint 38
 
 ### Sprint 21.1
 - concluída: polish do admin de subdomínio com feedback visual e ajuda operacional refinada
@@ -1025,6 +1072,15 @@ Importante:
 
 ### Sprint 35
 - concluída localmente: estados administrativos seguros, checklist operacional real, observabilidade curta e documentação de homologação dos quatro hotéis
+
+### Sprint 36
+- concluída localmente: fundação de tokens, tema institucional LibGuest Signature e presets oficiais por bandeira, sem ativação de hotel ou mockup final
+
+### Sprint 37
+- prevista: aplicação fiel e homologação do preset Novotel no Novotel Salvador
+
+### Sprint 38
+- prevista: aplicação Grand Mercure e consolidação/aplicação Mercure
 
 ### Nota de roadmap
 - Este roadmap é direcional e pode ser repriorizado.

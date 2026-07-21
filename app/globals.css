@@ -128,3 +128,96 @@
     @apply font-sans;
   }
 }
+
+@layer components {
+  .hotel-theme-page {
+    background: var(--hotel-background);
+    color: var(--hotel-text);
+    font-family: var(--hotel-font-family);
+  }
+
+  .hotel-theme-hero {
+    background: var(--hotel-hero-background);
+    border-radius: var(--hotel-hero-radius);
+    box-shadow:
+      var(--hotel-hero-shadow),
+      0 0 0 1px rgba(15, 23, 42, 0.1);
+    color: var(--hotel-hero-text);
+  }
+
+  .hotel-theme-hero-overlay {
+    background: var(--hotel-hero-overlay);
+  }
+
+  .hotel-theme-card {
+    background: var(--hotel-surface-muted);
+    border-radius: var(--hotel-card-radius);
+    box-shadow:
+      var(--hotel-card-shadow),
+      0 0 0 1px var(--hotel-border);
+  }
+
+  .hotel-theme-card-compact {
+    border-radius: calc(var(--hotel-card-radius) - 2px);
+  }
+
+  .hotel-theme-card-small {
+    border-radius: calc(var(--hotel-card-radius) - 4px);
+  }
+
+  .hotel-theme-surface {
+    background: var(--hotel-surface);
+    color: var(--hotel-text);
+  }
+
+  .hotel-theme-icon {
+    border-color: var(--hotel-icon-border);
+    background: var(--hotel-icon-bg);
+    color: var(--hotel-icon-color);
+  }
+
+  .hotel-theme-page[data-hotel-icon-style="outlined"] .hotel-theme-icon {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .hotel-theme-page[data-hotel-icon-style="solid"] .hotel-theme-icon {
+    border-color: var(--hotel-primary);
+    background: var(--hotel-primary);
+    color: var(--hotel-primary-foreground);
+  }
+
+  .hotel-theme-heading {
+    color: var(--hotel-text);
+  }
+
+  .hotel-theme-muted {
+    color: var(--hotel-text-muted);
+  }
+
+  .hotel-theme-button {
+    border-radius: var(--hotel-button-radius);
+  }
+
+  .hotel-theme-banner {
+    border-radius: var(--hotel-banner-radius);
+    background: var(--hotel-banner-bg);
+  }
+
+  .hotel-theme-help {
+    background: var(--hotel-help-bg);
+  }
+
+  .hotel-theme-navigation {
+    background: var(--hotel-navigation);
+  }
+
+  .hotel-theme-signature {
+    background: var(--hotel-signature-bg);
+    color: var(--hotel-signature-text);
+  }
+
+  .hotel-theme-active {
+    background: var(--hotel-active-bg);
+  }
+}

@@ -4,13 +4,15 @@ Esta pasta reúne a documentação operacional e comercial do LibGuest. O objeti
 
 Observação importante:
 - o produto atual é `LibGuest`
-- o domínio operacional atual continua sendo `guestdesk.digital`
+- o domínio principal atual é `libguest.digital`
+- `guestdesk.digital` continua como domínio legado/transição
 - alguns arquivos ainda mantêm o prefixo `guestdesk` no nome por histórico e compatibilidade de organização, mas o conteúdo deve tratar `LibGuest` como nome oficial atual
 
 - [guestdesk-overview.md](./guestdesk-overview.md): visão geral do produto, escopo atual e arquitetura funcional.
 - [guestdesk-deploy-checklist.md](./guestdesk-deploy-checklist.md): checklist prático para deploy em preview e produção.
 - [guestdesk-environment-variables.md](./guestdesk-environment-variables.md): referência rápida das variáveis de ambiente usadas hoje.
 - [guestdesk-new-hotel-playbook.md](./guestdesk-new-hotel-playbook.md): passo a passo para configurar e validar um novo hotel.
+- [guestdesk-brand-design-system.md](./guestdesk-brand-design-system.md): arquitetura de tokens, tema institucional, presets legados e fundação visual por bandeira.
 - [guestdesk-client-handoff.md](./guestdesk-client-handoff.md): checklist central de entrega, revisão do cliente e acompanhamento inicial.
 - [guestdesk-admin-guide.md](./guestdesk-admin-guide.md): guia rápido para operação diária do painel administrativo.
 - [guestdesk-post-deploy-validation.md](./guestdesk-post-deploy-validation.md): checklist de validação depois do deploy.
