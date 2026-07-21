@@ -6,10 +6,13 @@ Servir como referência curta para a operação diária do painel administrativo
 ## Ordem recomendada de uso
 1. revisar informações do hotel
 2. revisar serviços
-3. revisar apartamentos e QR
-4. revisar departamentos
-5. revisar políticas
-6. validar a rota pública
+3. revisar departamentos
+4. revisar políticas
+5. revisar comunicados e banners, quando aplicáveis
+6. revisar apartamentos e QRs, quando aplicáveis
+7. validar idiomas e a rota pública
+
+O dashboard mostra uma checklist baseada nos dados do hotel autenticado. Ela orienta a configuração inicial sem substituir a homologação manual dos links, idiomas e conteúdo.
 
 ## Rotina recomendada
 
@@ -106,7 +109,8 @@ Servir como referência curta para a operação diária do painel administrativo
 
 ## Naming atual
 - produto atual: `LibGuest`
-- domínio operacional atual: `guestdesk.digital`
+- domínio principal: `libguest.digital`
+- domínio legado/transição: `guestdesk.digital`
 - `GuestDesk` deve ser tratado como naming legado
 
 ## Diagnóstico operacional rápido

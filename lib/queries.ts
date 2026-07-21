@@ -69,6 +69,84 @@ export async function getHotelPolicies(hotelId: string) {
   return data;
 }
 
+export interface AdminOperationalReadinessItem {
+  key: 'hotel' | 'services' | 'departments' | 'policies';
+  label: string;
+  description: string;
+  ready: boolean;
+}
+
+export async function getAdminOperationalReadiness() {
+  const supabase = await createClient();
+  const hotel = await getAdminHotel();
+
+  const [servicesResult, departmentsResult, policiesResult] = await Promise.all([
+    supabase
+      .from('hotel_sections')
+      .select('id', { count: 'exact', head: true })
+      .eq('hotel_id', hotel.id)
+      .eq('enabled', true),
+    supabase
+      .from('hotel_departments')
+      .select('id', { count: 'exact', head: true })
+      .eq('hotel_id', hotel.id)
+      .eq('enabled', true),
+    supabase
+      .from('hotel_policies')
+      .select('id', { count: 'exact', head: true })
+      .eq('hotel_id', hotel.id)
+      .eq('enabled', true),
+  ]);
+
+  if (servicesResult.error || departmentsResult.error || policiesResult.error) {
+    throw new Error('Não foi possível verificar a configuração operacional do hotel.');
+  }
+
+  const hasPrimaryContact = Boolean(
+    hotel.whatsapp_number?.trim() || hotel.booking_url?.trim() || hotel.website_url?.trim()
+  );
+  const items: AdminOperationalReadinessItem[] = [
+    {
+      key: 'hotel',
+      label: 'Informações essenciais',
+      description: 'Nome, cidade, check-in, check-out e ao menos um canal principal.',
+      ready: Boolean(
+        hotel.name?.trim() &&
+          hotel.city?.trim() &&
+          hotel.checkin_time?.trim() &&
+          hotel.checkout_time?.trim() &&
+          hasPrimaryContact
+      ),
+    },
+    {
+      key: 'services',
+      label: 'Serviço publicado',
+      description: 'Ao menos um serviço ativo para a experiência do hóspede.',
+      ready: (servicesResult.count || 0) > 0,
+    },
+    {
+      key: 'departments',
+      label: 'Departamento publicado',
+      description: 'Ao menos um canal operacional ativo para contato.',
+      ready: (departmentsResult.count || 0) > 0,
+    },
+    {
+      key: 'policies',
+      label: 'Política publicada',
+      description: 'Ao menos uma orientação ativa para consulta pública.',
+      ready: (policiesResult.count || 0) > 0,
+    },
+  ];
+  const completed = items.filter((item) => item.ready).length;
+
+  return {
+    items,
+    completed,
+    pending: items.length - completed,
+    total: items.length,
+  };
+}
+
 export type AnalyticsRange = 'today' | '7d' | '30d';
 
 export interface HotelAnalyticsSummary {

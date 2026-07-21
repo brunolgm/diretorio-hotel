@@ -1,64 +1,76 @@
 # LibGuest: playbook de novo hotel
 
 ## Objetivo
-Subir e validar um novo hotel no LibGuest com clareza operacional, baixo risco e uma experiência pública pronta para revisão.
 
-## Ordem recomendada
-1. criar o hotel e vincular o perfil administrativo ao `hotel_id`
-2. confirmar o `slug` público que continuará como fallback seguro
-3. definir o subdomínio quando o hotel já estiver pronto para usar um endereço principal mais curto
-4. preencher identidade básica do hotel
-5. revisar contatos e links principais
-6. escolher o preset visual e, se fizer sentido, a cor de destaque
-7. validar a experiência pública
+Configurar e homologar um hotel no LibGuest com baixo risco, conteúdo mínimo claro e isolamento em relação aos demais hotéis.
 
-## Configuração mínima em `/admin/hotel`
-Antes de considerar o hotel pronto para revisão, confirme:
-- nome do hotel
-- cidade
-- WhatsApp ou link principal de contato
-- endereço público principal
-- preset visual selecionado
+## Premissas de segurança
 
-## Endereço público
-- endereço preferencial: `https://{subdomain}.guestdesk.digital` quando houver subdomínio configurado
+- cada usuário administrativo pertence a um único `hotel_id`
+- não reutilizar perfil, conteúdo, slug, subdomínio ou roomToken entre hotéis
+- nunca usar dados pessoais reais em homologação
+- criação de hotel e administrador inicial ocorre pelo procedimento operacional aprovado, fora do painel atual
+- o painel permite configurar somente o hotel vinculado ao perfil autenticado
+
+## Ordem recomendada no painel
+
+1. revisar informações do hotel, cidade, horários, contatos e identidade visual
+2. cadastrar e ativar ao menos um serviço
+3. cadastrar e ativar ao menos um departamento
+4. cadastrar e ativar ao menos uma política
+5. cadastrar comunicados e banners apenas quando houver conteúdo aprovado
+6. cadastrar apartamentos e validar seus links antes de distribuir novos QRs
+7. revisar traduções PT/EN/ES e o fallback em português
+8. homologar a experiência pública no celular e no desktop
+
+O dashboard apresenta uma checklist leve dos quatro itens essenciais. Comunicados, banners e apartamentos são recursos operacionais importantes, mas não são tratados como obrigatórios para todos os hotéis.
+
+## Endereços públicos
+
+- domínio principal: `https://{subdomain}.libguest.digital`
+- domínio legado compatível: `https://{subdomain}.guestdesk.digital`
 - fallback seguro: `/hotel/[slug]`
-- o `slug` continua importante mesmo quando o subdomínio já estiver definido
+- slug e subdomínio são identificadores operacionais; não devem ser alterados durante configuração rotineira
 
-## Tema visual
-- o preset visual define a base da experiência pública
-- a cor primária opcional afeta apenas acentos seguros
-- a logo ajuda a reforçar a identidade do hotel, mas não é obrigatória para publicar
-- sem logo, o LibGuest mantém uma apresentação visual padrão segura
-- depois de salvar, revisar a experiência pública no celular
+## Conteúdo mínimo para homologação
 
-## Boas práticas de identidade visual
-- prefira logo nítida, limpa e atual
-- evite imagem com texto pequeno, fundo poluído ou baixa resolução
-- use o preset visual para aproximar a experiência pública da identidade do hotel
-- depois de alterar tema, cor ou logo, revise a página pública em celular e desktop
+- hotel: nome, cidade, check-in, check-out e ao menos um canal principal
+- serviços: ao menos um item ativo com ação e destino revisados
+- departamentos: ao menos um canal ativo com horário e link revisados
+- políticas: ao menos uma orientação ativa
+- idiomas: português revisado e EN/ES validados quando houver tradução salva
+- apartamento, quando aplicável: número, roomToken ativo e link de cardápio correto
+- comunicado e banner, quando aplicáveis: janela de publicação, status e conteúdo aprovados
 
-## Validação mínima
-1. rota por slug funcionando
-2. subdomínio funcionando quando configurado
-3. botões principais funcionando
-4. tema visual coerente com a identidade do hotel
-5. idioma padrão em português
-6. traduções EN/ES salvas quando houver conteúdo traduzido
+## Homologação multi-hotel oficial
 
-## Passagem para handoff
-Depois que a configuração inicial estiver pronta:
-- usar `guestdesk-client-handoff.md` como checklist central de entrega
-- separar o que já foi validado tecnicamente do que ainda precisa aprovação do cliente/hotel
-- registrar para o cliente o endereço preferencial e o fallback por slug
-- revisar a experiência pública no celular antes de considerar o ambiente pronto para entrega
+Validar separadamente, sem copiar IDs ou tokens entre os ambientes:
 
-## Boas práticas
-- começar com conteúdo simples, correto e consistente
-- revisar contatos, links e horários finais antes de compartilhar
-- validar a experiência pública no celular
-- confirmar logo, preset e leitura visual antes de considerar o hotel pronto
+| Hotel | Slug fallback | Subdomínio |
+| --- | --- | --- |
+| Novotel Salvador Rio Vermelho | `novotelsalvadorriovermelho` | `novotelsalvador` |
+| Grand Mercure Rio de Janeiro Copacabana | `grandmercureriocopacabana` | `grandmercurecopacabana` |
+| Novotel Rio de Janeiro Leme | `novotelrioleme` | `novotelleme` |
+| Mercure Rio Boutique Copacabana | `mercurerioboutiquecopacabana` | `mercurerioboutique` |
 
-## Naming
-- produto atual: `LibGuest`
-- domínio operacional atual: `guestdesk.digital`
+Para cada hotel:
+
+1. entrar com um perfil vinculado exclusivamente ao hotel esperado
+2. confirmar o nome exibido no dashboard e em `/admin/hotel`
+3. revisar as listas administrativas e garantir que não exibem conteúdo dos outros hotéis
+4. abrir slug, subdomínio principal e, quando necessário, domínio legado
+5. validar conteúdo, idiomas, analytics e links sem gerar dados pessoais reais
+6. testar um QR já distribuído antes de qualquer rotação de roomToken
+
+## QR por apartamento
+
+- atualizar o link de cardápio não exige reimpressão se o roomToken permanecer igual
+- regenerar o token somente para invalidar intencionalmente o QR anterior
+- sempre testar o QR existente, o hotel resolvido e o destino final após alterações
+
+## Fechamento
+
+- registrar pendências específicas do hotel
+- executar `guestdesk-post-deploy-validation.md`
+- usar `guestdesk-client-handoff.md` antes da entrega
+- não considerar o ambiente pronto apenas porque a rota abre; conteúdo, links e isolamento também precisam ser confirmados

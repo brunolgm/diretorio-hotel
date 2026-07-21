@@ -1,58 +1,52 @@
 # LibGuest: validação pós-deploy
 
 ## Objetivo
-Conferir se o ambiente publicado está tecnicamente estável e pronto para a etapa de revisão e entrega do cliente.
+
+Confirmar estabilidade, isolamento multi-hotel e compatibilidade pública depois da publicação.
 
 ## Validação técnica rápida
-1. abrir landing principal
-2. testar login
-3. abrir dashboard admin
-4. revisar serviços, departamentos e políticas
-5. validar rota pública por slug
-6. validar subdomínio quando aplicável
-7. validar idioma e fallback
-8. validar links principais
 
-## Itens sensíveis
-- subdomínio do hotel
-- slug fallback
-- botões de reservas, site e WhatsApp
-- fallback para português
-- analytics básicos
-- branding visível do produto
+1. abrir landing e testar login
+2. validar loading, erro recuperável, acesso negado e recurso não encontrado
+3. abrir dashboard e conferir a checklist operacional sem assumir publicação completa
+4. revisar todos os módulos administrativos do hotel autenticado
+5. validar criar/editar/status/excluir/retraduzir quando a entrega tiver alterado essas operações
+6. validar slug, subdomínio principal e domínio legado
+7. validar PT/EN/ES e fallback em português
+8. testar contatos, reservas, site e analytics básicos
+9. testar QR e cardápio por apartamento sem regenerar roomToken
 
-## Antes de entregar ao cliente
-- confirmar que a página pública abre no celular
-- confirmar que o endereço preferencial está claro
-- confirmar que o fallback por slug foi registrado
-- confirmar que conteúdo essencial já está revisado
-- encaminhar o ambiente para o checklist de `guestdesk-client-handoff.md`
+## Validação dos quatro hotéis
 
-## Diagnóstico rápido de falhas operacionais
+Repetir com um usuário próprio de cada hotel:
 
-### Se um save falhar no admin
-- revisar o toast de erro
-- conferir campos obrigatórios, links e status do item
-- repetir a operação uma vez para descartar falha transitória
+| Hotel | Slug | Subdomínio |
+| --- | --- | --- |
+| Novotel Salvador Rio Vermelho | `novotelsalvadorriovermelho` | `novotelsalvador` |
+| Grand Mercure Rio de Janeiro Copacabana | `grandmercureriocopacabana` | `grandmercurecopacabana` |
+| Novotel Rio de Janeiro Leme | `novotelrioleme` | `novotelleme` |
+| Mercure Rio Boutique Copacabana | `mercurerioboutiquecopacabana` | `mercurerioboutique` |
 
-### Se o upload de logo falhar
-- revisar formato, tamanho e nome do arquivo
-- confirmar se a tela do hotel continua carregando normalmente
+Em cada execução, confirmar que dashboard, listas, páginas por ID, analytics e uploads mostram apenas o hotel esperado. Não usar IDs copiados de outro hotel em operação destrutiva; tentativas controladas devem ocorrer apenas em preview e retornar estado neutro.
 
-### Se a tradução falhar
-- lembrar que PT continua publicado
-- revisar warnings de retradução
-- confirmar em preview se EN ou ES estão usando fallback em português
+## Critérios de interrupção
 
-### Onde olhar primeiro
-- tela do admin com toast de erro ou warning
-- logs do servidor ou preview com contexto de:
-  - módulo
-  - ação
-  - operação
-  - `hotelId`
-  - `targetId`, quando houver
+- conteúdo de outro hotel visível ou mutável
+- slug ou subdomínio resolvendo o hotel errado
+- QR existente deixando de funcionar sem rotação intencional
+- erro técnico ou detalhe do banco exposto ao usuário
+- ação informando sucesso sem a alteração correspondente
 
-## Observação
-- o nome atual do produto deve aparecer como `LibGuest`
-- `guestdesk.digital` continua como domínio operacional atual
+## Diagnóstico seguro
+
+- registrar módulo, ação e momento da falha
+- usar os logs curtos do servidor, que podem conter hotel e alvo para correlação
+- nunca registrar senha, token, secret, arquivo completo, URL privada ou payload integral
+- preservar a mensagem genérica na interface e investigar detalhes somente nos logs autorizados
+
+## Antes do handoff
+
+- confirmar experiência em celular e desktop
+- registrar endereço principal e fallback por slug
+- separar pendências técnicas de pendências de conteúdo
+- encaminhar a validação para `guestdesk-client-handoff.md`

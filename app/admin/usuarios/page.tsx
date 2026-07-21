@@ -3,6 +3,7 @@ import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminActionGroup,
   AdminCheckboxRow,
+  AdminEmptyState,
   AdminField,
   AdminFormGrid,
   AdminGuideCard,
@@ -262,14 +263,10 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                 );
               })
             ) : (
-              <div className="rounded-[28px] border border-dashed border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-10 text-center">
-                <p className="text-base font-semibold text-slate-900">
-                  Nenhum usuário cadastrado ainda
-                </p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Crie o primeiro acesso para começar a distribuir papéis dentro do hotel.
-                </p>
-              </div>
+              <AdminEmptyState
+                title="Nenhum usuário cadastrado ainda"
+                description="Crie o primeiro acesso para começar a distribuir papéis dentro do hotel."
+              />
             )}
           </div>
         </AdminSurface>
