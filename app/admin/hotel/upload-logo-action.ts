@@ -68,12 +68,14 @@ export async function uploadHotelLogoAction(formData: FormData) {
 
   const { data } = supabase.storage.from('hotel-assets').getPublicUrl(path);
 
-  const { error: updateError } = await supabase
+  const { data: updatedHotel, error: updateError } = await supabase
     .from('hotels')
     .update({ logo_url: data.publicUrl })
-    .eq('id', hotel.id);
+    .eq('id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (updateError) {
+  if (updateError || !updatedHotel) {
     logOperationalError({
       module: 'hotel',
       action: 'uploadHotelLogoAction',

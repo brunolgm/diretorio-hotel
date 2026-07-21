@@ -141,13 +141,15 @@ export async function deleteAnnouncementAction(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
+  const { data: deletedAnnouncement, error } = await supabase
     .from('hotel_announcements')
     .delete()
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !deletedAnnouncement) {
     logOperationalError({
       module: 'announcements',
       action: 'deleteAnnouncementAction',
@@ -193,16 +195,18 @@ export async function toggleAnnouncementAction(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
+  const { data: updatedAnnouncement, error } = await supabase
     .from('hotel_announcements')
     .update({
       is_active: isActive,
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedAnnouncement) {
     logOperationalError({
       module: 'announcements',
       action: 'toggleAnnouncementAction',

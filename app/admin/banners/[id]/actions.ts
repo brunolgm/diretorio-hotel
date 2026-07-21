@@ -132,13 +132,15 @@ export async function updatePromotionalBannerAction(id: string, formData: FormDa
     updated_at: new Date().toISOString(),
   };
 
-  const { error } = await supabase
+  const { data: updatedBanner, error } = await supabase
     .from('hotel_promotional_banners')
     .update(payload)
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedBanner) {
     logOperationalError({
       module: 'banners',
       action: 'updatePromotionalBannerAction',
@@ -148,19 +150,15 @@ export async function updatePromotionalBannerAction(id: string, formData: FormDa
       error,
     });
     redirect(
-      buildFeedbackRedirect(`/admin/banners/${id}`, {
-        error: buildOperationalErrorMessage(
-          'o banner promocional',
-          'atualizar',
-          'Revise os campos e tente novamente.'
-        ),
+      buildFeedbackRedirect('/admin/banners', {
+        error: 'Banner n\u00e3o encontrado ou indispon\u00edvel para este hotel.',
       })
     );
   }
 
   const translationResult = await syncPromotionalBannerTranslations({
     supabase,
-    bannerId: id,
+    bannerId: updatedBanner.id,
     fields: {
       title: payload.title || '',
       subtitle: payload.subtitle ?? null,
@@ -271,16 +269,18 @@ export async function removePromotionalBannerImageAction(id: string) {
     });
   }
 
-  const { error: updateError } = await supabase
+  const { data: updatedBanner, error: updateError } = await supabase
     .from('hotel_promotional_banners')
     .update({
       image_url: null,
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (updateError) {
+  if (updateError || !updatedBanner) {
     logOperationalError({
       module: 'banners',
       action: 'removePromotionalBannerImageAction',

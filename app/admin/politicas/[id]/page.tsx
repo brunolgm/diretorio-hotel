@@ -1,4 +1,5 @@
 ﻿import { AlertTriangle, ShieldCheck } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminField,
@@ -47,10 +48,14 @@ export default async function EditPolicyPage({ params, searchParams }: PageProps
     .select('*')
     .eq('id', id)
     .eq('hotel_id', hotel.id)
-    .single();
+    .maybeSingle();
 
-  if (error || !policy) {
-    throw new Error('PolÃ­tica nÃ£o encontrada.');
+  if (error) {
+    throw new Error('Nao foi possivel carregar a politica solicitada.');
+  }
+
+  if (!policy) {
+    notFound();
   }
 
   const action = updatePolicyAction.bind(null, id);

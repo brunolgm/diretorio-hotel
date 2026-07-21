@@ -135,7 +135,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const { profile } = await requireAdminAccess('visualizador');
   const hotel = await getAdminHotel();
   const params = searchParams ? await searchParams : {};
-  const analytics = await getHotelAnalyticsSummary(hotel.id, params?.range);
+  const analytics = await getHotelAnalyticsSummary(params?.range);
   const comparisonLabel = getComparisonLabel(analytics.range);
   const canManageHotel = hasMinimumRole(profile.normalizedRole, 'editor');
   const canManageUsers = hasMinimumRole(profile.normalizedRole, 'administrador');

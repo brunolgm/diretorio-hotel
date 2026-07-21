@@ -1,4 +1,5 @@
 ﻿import { Mail, ShieldCheck, UserCog } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminCheckboxRow,
@@ -40,10 +41,14 @@ export default async function EditHotelUserPage({ params, searchParams }: PagePr
     .select('*')
     .eq('id', id)
     .eq('hotel_id', hotel.id)
-    .single();
+    .maybeSingle();
 
-  if (error || !userProfile) {
-    throw new Error('Usuário não encontrado.');
+  if (error) {
+    throw new Error('Nao foi possivel carregar o usuario solicitado.');
+  }
+
+  if (!userProfile) {
+    notFound();
   }
 
   const action = updateHotelUserAction.bind(null, id);

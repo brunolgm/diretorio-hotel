@@ -185,7 +185,7 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
     );
   }
 
-  const { error: profileError } = await adminClient
+  const { data: updatedProfile, error: profileError } = await adminClient
     .from('profiles')
     .update({
       full_name: fullName,
@@ -194,9 +194,11 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
       is_active: isActive,
     })
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (profileError) {
+  if (profileError || !updatedProfile) {
     logOperationalError({
       module: 'users',
       action: 'updateHotelUserAction',

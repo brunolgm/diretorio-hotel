@@ -61,23 +61,25 @@ export async function updateSectionAction(id: string, formData: FormData) {
     sort_order: Math.max(0, readNumber(formData, 'sort_order', 0)),
   };
 
-  const { error } = await supabase
+  const { data: updatedSection, error } = await supabase
     .from('hotel_sections')
     .update(payload)
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedSection) {
     redirect(
-      buildFeedbackRedirect(`/admin/servicos/${id}`, {
-        error: `NÃ£o foi possÃ­vel atualizar o serviÃ§o: ${error.message}`,
+      buildFeedbackRedirect('/admin/servicos', {
+        error: 'Servi\u00e7o n\u00e3o encontrado ou indispon\u00edvel para este hotel.',
       })
     );
   }
 
   const translationResult = await syncSectionTranslations({
     supabase,
-    sectionId: id,
+    sectionId: updatedSection.id,
     fields: {
       title: payload.title || '',
       content: payload.content ?? null,

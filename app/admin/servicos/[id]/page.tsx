@@ -1,4 +1,5 @@
 import { FileText, Hash } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { ServiceGuidedFields } from '@/components/admin/service-guided-fields';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
@@ -50,12 +51,21 @@ export default async function EditServicePage({ params, searchParams }: PageProp
 
   const [{ data: section, error }, { data: hotelSectionCategories, error: categoryError }] =
     await Promise.all([
-      supabase.from('hotel_sections').select('*').eq('id', id).eq('hotel_id', hotel.id).single(),
+      supabase
+        .from('hotel_sections')
+        .select('*')
+        .eq('id', id)
+        .eq('hotel_id', hotel.id)
+        .maybeSingle(),
       supabase.from('hotel_sections').select('category').eq('hotel_id', hotel.id),
     ]);
 
-  if (error || !section) {
-    throw new Error('Serviço não encontrado.');
+  if (error) {
+    throw new Error('Nao foi possivel carregar o servico solicitado.');
+  }
+
+  if (!section) {
+    notFound();
   }
 
   if (categoryError) {

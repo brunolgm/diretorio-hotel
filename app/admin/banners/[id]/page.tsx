@@ -1,4 +1,5 @@
 import { AlertTriangle, ImageIcon } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminCheckboxRow,
@@ -65,10 +66,14 @@ export default async function EditBannerPage({ params, searchParams }: PageProps
     .select('*')
     .eq('id', id)
     .eq('hotel_id', hotel.id)
-    .single();
+    .maybeSingle();
 
-  if (error || !banner) {
-    throw new Error('Banner promocional não encontrado.');
+  if (error) {
+    throw new Error('Nao foi possivel carregar o banner solicitado.');
+  }
+
+  if (!banner) {
+    notFound();
   }
 
   const action = updatePromotionalBannerAction.bind(null, id);

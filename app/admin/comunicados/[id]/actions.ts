@@ -7,7 +7,6 @@ import { readCheckboxBoolean, readNullableString, readTrimmedString } from '@/li
 import { getAdminHotel } from '@/lib/queries';
 import {
   buildFeedbackRedirect,
-  buildOperationalErrorMessage,
   formatTranslationWarning,
   logOperationalError,
   syncAnnouncementTranslations,
@@ -85,13 +84,15 @@ export async function updateAnnouncementAction(id: string, formData: FormData) {
     updated_at: new Date().toISOString(),
   };
 
-  const { error } = await supabase
+  const { data: updatedAnnouncement, error } = await supabase
     .from('hotel_announcements')
     .update(payload)
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedAnnouncement) {
     logOperationalError({
       module: 'announcements',
       action: 'updateAnnouncementAction',
@@ -101,19 +102,15 @@ export async function updateAnnouncementAction(id: string, formData: FormData) {
       error,
     });
     redirect(
-      buildFeedbackRedirect(`/admin/comunicados/${id}`, {
-        error: buildOperationalErrorMessage(
-          'o comunicado',
-          'atualizar',
-          'Revise os campos e tente novamente.'
-        ),
+      buildFeedbackRedirect('/admin/comunicados', {
+        error: 'Comunicado n\u00e3o encontrado ou indispon\u00edvel para este hotel.',
       })
     );
   }
 
   const translationResult = await syncAnnouncementTranslations({
     supabase,
-    announcementId: id,
+    announcementId: updatedAnnouncement.id,
     fields: {
       title: payload.title || '',
       body: payload.body ?? null,

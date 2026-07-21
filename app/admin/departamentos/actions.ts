@@ -105,13 +105,15 @@ export async function deleteDepartmentAction(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
+  const { data: deletedDepartment, error } = await supabase
     .from('hotel_departments')
     .delete()
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !deletedDepartment) {
     logOperationalError({
       module: 'departments',
       action: 'deleteDepartmentAction',
@@ -156,13 +158,15 @@ export async function toggleDepartmentAction(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
+  const { data: updatedDepartment, error } = await supabase
     .from('hotel_departments')
     .update({ enabled })
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedDepartment) {
     logOperationalError({
       module: 'departments',
       action: 'toggleDepartmentAction',

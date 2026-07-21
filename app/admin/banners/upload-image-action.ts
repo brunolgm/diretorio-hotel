@@ -97,16 +97,18 @@ export async function uploadPromotionalBannerImageAction(formData: FormData) {
 
   const { data } = supabase.storage.from('hotel-assets').getPublicUrl(path);
 
-  const { error: updateError } = await supabase
+  const { data: updatedBanner, error: updateError } = await supabase
     .from('hotel_promotional_banners')
     .update({
       image_url: data.publicUrl,
       updated_at: new Date().toISOString(),
     })
     .eq('id', banner.id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (updateError) {
+  if (updateError || !updatedBanner) {
     logOperationalError({
       module: 'banners',
       action: 'uploadPromotionalBannerImageAction',

@@ -60,20 +60,44 @@ export async function POST(request: NextRequest) {
     const payload = sanitizePayload(rawPayload);
 
     if (!payload) {
-      return NextResponse.json({ error: 'Invalid analytics payload.' }, { status: 400 });
+      return NextResponse.json({ error: 'Evento inv\u00e1lido.' }, { status: 400 });
     }
 
     const supabase = await createClient();
+    const { data: hotel, error: hotelError } = await supabase
+      .from('hotels')
+      .select('id')
+      .eq('id', payload.hotel_id)
+      .eq('slug', payload.hotel_slug)
+      .maybeSingle();
+
+    if (hotelError || !hotel) {
+      return NextResponse.json({ error: 'Evento inv\u00e1lido.' }, { status: 400 });
+    }
+
+    if (payload.department_id) {
+      const { data: department, error: departmentError } = await supabase
+        .from('hotel_departments')
+        .select('id')
+        .eq('id', payload.department_id)
+        .eq('hotel_id', hotel.id)
+        .maybeSingle();
+
+      if (departmentError || !department) {
+        return NextResponse.json({ error: 'Evento inv\u00e1lido.' }, { status: 400 });
+      }
+    }
+
     const { error } = await supabase.from('hotel_analytics_events').insert(payload);
 
     if (error) {
       console.error('Failed to store analytics event:', error);
-      return NextResponse.json({ error: 'Failed to store analytics event.' }, { status: 500 });
+      return NextResponse.json({ error: 'N\u00e3o foi poss\u00edvel registrar o evento.' }, { status: 500 });
     }
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error('Failed to parse analytics request:', error);
-    return NextResponse.json({ error: 'Invalid analytics request.' }, { status: 400 });
+    return NextResponse.json({ error: 'Requisi\u00e7\u00e3o inv\u00e1lida.' }, { status: 400 });
   }
 }

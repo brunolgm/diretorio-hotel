@@ -11,6 +11,8 @@ import type { Database } from '@/types/database';
 type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 
 export type AdminProfile = ProfileRow & {
+  hotel_id: string;
+  is_active: true;
   normalizedRole: AppRole;
 };
 
@@ -41,24 +43,22 @@ export async function requireAdminAccess(requiredRole: AppRole = 'visualizador')
     .single();
 
   const normalizedRole = normalizeAppRole(profile?.role);
-  const isActive = profile?.is_active ?? true;
+  const isActive = profile?.is_active === true;
 
-  if (
-    error ||
-    !profile ||
-    !profile.hotel_id ||
-    !normalizedRole ||
-    !isActive ||
-    !hasMinimumRole(normalizedRole, requiredRole)
-  ) {
-    redirect('/login');
+  if (error || !profile || !profile.hotel_id || !normalizedRole || !isActive) {
+    redirect('/acesso-indisponivel');
+  }
+
+  if (!hasMinimumRole(normalizedRole, requiredRole)) {
+    redirect('/admin/acesso-negado');
   }
 
   return {
     user,
     profile: {
       ...profile,
-      is_active: isActive,
+      hotel_id: profile.hotel_id,
+      is_active: true,
       normalizedRole,
     } satisfies AdminProfile,
   };

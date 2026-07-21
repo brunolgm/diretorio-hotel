@@ -850,7 +850,7 @@ Importante:
 - Próximo passo recomendado: `Sprint 34`
 
 ### Registro curto da Sprint 34
-- Status: em andamento
+- Status: implementacao concluida localmente; validacao tecnica final registrada abaixo
 - Objetivo: endurecer o isolamento e a segurança operacional entre hotéis nas rotas administrativas, ações de servidor, conteúdo público, QR por apartamento e analytics, sem ampliar a matriz de papéis e sem abrir refatoração arquitetural ampla.
 - Restrições:
   - preservar fallback público por slug
@@ -858,6 +858,54 @@ Importante:
   - não criar super-admin ou acesso multi-hotel nesta sprint
   - não alterar a identidade visual pública
   - manter compatibilidade com QRs existentes
+
+#### Inventario tecnico auditado
+- Contexto administrativo: `app/admin/layout.tsx`, `lib/auth.ts`, `lib/queries.ts` e `proxy.ts`.
+- Dashboard e analytics administrativo: `app/admin/page.tsx`, `lib/queries.ts` e `app/api/analytics/route.ts`.
+- Hotel e uploads: `app/admin/hotel/page.tsx`, `app/admin/hotel/actions.ts` e `app/admin/hotel/upload-logo-action.ts`.
+- Usuarios: lista, criacao, status, pagina e edicao em `app/admin/usuarios/**`; os usos do client com service role foram revisados com validacao previa de perfil por `id + hotel_id`.
+- Servicos, departamentos, politicas, comunicados e banners: paginas de lista, paginas `[id]`, server actions, retraducao e tabelas filhas de traducao em `app/admin/**` e `lib/services/translation-admin.ts`.
+- Apartamentos, QRs e links: `app/admin/apartamentos/**`, `app/r/[roomToken]/route.ts`, `lib/room-links.ts` e `lib/room-context.ts`.
+- Loaders publicos e dual-domain: `app/page.tsx`, `app/hotel/[slug]/**`, `app/servicos/[id]/page.tsx`, `lib/public-hotel-data.ts`, `lib/domain-context.ts`, `lib/public-routes.ts` e `lib/product-domain.ts`.
+- Upload de banners: `app/admin/banners/upload-image-action.ts` e remocao de imagem em `app/admin/banners/[id]/actions.ts`, incluindo pasta de storage prefixada pelo hotel.
+
+#### Riscos encontrados e decisoes
+- Updates por ID ja possuiam filtro `hotel_id`, mas nao confirmavam linha afetada. Um ID de outro hotel podia produzir falso sucesso.
+- Nas cinco telas editaveis com traducao, o falso sucesso era mais grave: o fluxo seguia para o upsert da traducao usando o ID recebido, apesar de o registro pai nao ter sido atualizado.
+- O endpoint publico de analytics confiava na combinacao `hotelId`, `hotelSlug` e `departmentId` enviada pelo cliente, permitindo contaminar metricas de outro hotel.
+- Perfil inativo, sem hotel ou invalido podia entrar em ciclo entre `/admin` e `/login`, pois a sessao continuava ativa no proxy.
+- Paginas administrativas `[id]` estavam escopadas por hotel, mas transformavam ausencia em excecao; foi adotado estado 404 neutro.
+- O cookie de contexto do apartamento nao e usado como autorizacao isolada: operacoes sensiveis de cardapio revalidam `hotel_id + room_token + is_active` no servidor. Esse desenho foi preservado.
+- O fallback por slug, o suporte aos dois dominios, os QRs existentes, a identidade visual e a matriz simples de papeis foram preservados.
+- As politicas RLS existentes ja cobrem os recursos adicionados pelas migrations recentes; nenhuma migration foi criada.
+
+#### Correcoes e arquivos alterados
+- `lib/auth.ts`: sessao/perfil invalido segue para estado neutro sem loop; papel insuficiente recebe acesso negado sem detalhes; perfil administrativo passa a carregar `hotel_id` nao nulo.
+- `app/acesso-indisponivel/page.tsx` e `app/admin/acesso-negado/page.tsx`: estados seguros para usuario sem hotel, hotel invalido e permissao insuficiente, com saida explicita da sessao na server action apropriada.
+- `lib/queries.ts` e `app/admin/page.tsx`: hotel atual e confirmado a partir do perfil autenticado; analytics administrativo resolve seu proprio hotel em vez de aceitar ID do chamador.
+- `app/api/analytics/route.ts`: valida `id + slug` do hotel e `departmentId + hotel_id` antes do insert.
+- `app/admin/{servicos,departamentos,politicas,comunicados,banners}/[id]/actions.ts`: update exige retorno do pai escopado antes de sincronizar traducoes e nao mostra erro do banco.
+- `app/admin/{servicos,departamentos,politicas,comunicados,banners}/actions.ts`: delete e toggle confirmam uma linha afetada dentro do hotel.
+- `app/admin/apartamentos/actions.ts`: edit, status e rotacao de roomToken confirmam `id + hotel_id` e linha afetada.
+- `app/admin/{usuarios,servicos,departamentos,politicas,comunicados,banners}/[id]/page.tsx`: recurso ausente ou de outro hotel responde com 404 neutro.
+- `app/admin/hotel/actions.ts`, `app/admin/hotel/upload-logo-action.ts`, `app/admin/banners/upload-image-action.ts`, `app/admin/banners/[id]/actions.ts` e `app/admin/usuarios/**/actions.ts`: segunda passagem passou a confirmar tambem a linha afetada nos updates auxiliares previamente escopados.
+- `docs/PRODUCT_MAP.md`: inventario, decisoes, validacoes, pendencias e status desta sprint.
+
+#### Validacoes da Sprint 34
+- Inventario por busca de todas as chamadas Supabase (`select`, `insert`, `update`, `delete`, `upsert` e storage) em `app`, `lib` e `components`.
+- Revisao das migrations RLS de analytics, comunicados, banners, traducoes, storage e room links.
+- Confirmacao dos loaders publicos: servico por ID sempre combinado com o hotel resolvido por slug/subdominio e `enabled = true`.
+- Confirmacao de roomToken: token ativo resolve o hotel; contexto de cardapio exige novamente token ativo pertencente ao hotel exibido.
+- Segunda passagem: paginas `[id]` usam `maybeSingle`; erro real de consulta gera falha operacional generica e somente ausencia de linha gera 404.
+- `npm run lint`: sem erros; dois warnings preexistentes de `<img>`.
+- `npx tsc --noEmit`: aprovado.
+- `npm run build`: aprovado com compilacao e geracao das rotas de producao.
+
+#### Pendencias e riscos remanescentes
+- O endpoint publico de analytics continua propositalmente anonimo e sujeito a ruido/bots; agora protege consistencia entre hotel, slug e departamento, mas rate limiting fica para infraestrutura/fase futura.
+- O cookie de contexto de quarto e opaco apenas por entropia do roomToken, nao por assinatura; a revalidacao server-side protege os destinos sensiveis. Assinatura pode ser avaliada futuramente sem invalidar QRs.
+- Warnings preexistentes de `<img>` permanecem fora do escopo para nao alterar comportamento visual.
+- Validacao multi-hotel com dados reais deve ocorrer em preview controlado, sem usar credenciais ou dados reais no repositorio.
 
 ## 10. Known pending items
 
