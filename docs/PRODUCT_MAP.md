@@ -849,6 +849,16 @@ Importante:
   - custom domains por cliente continuam fora do escopo
 - Próximo passo recomendado: `Sprint 34`
 
+### Registro curto da Sprint 34
+- Status: em andamento
+- Objetivo: endurecer o isolamento e a segurança operacional entre hotéis nas rotas administrativas, ações de servidor, conteúdo público, QR por apartamento e analytics, sem ampliar a matriz de papéis e sem abrir refatoração arquitetural ampla.
+- Restrições:
+  - preservar fallback público por slug
+  - preservar suporte dual-domain
+  - não criar super-admin ou acesso multi-hotel nesta sprint
+  - não alterar a identidade visual pública
+  - manter compatibilidade com QRs existentes
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
