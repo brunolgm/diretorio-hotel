@@ -47,23 +47,25 @@ export async function updateDepartmentAction(id: string, formData: FormData) {
     enabled: readCheckboxBoolean(formData, 'enabled'),
   };
 
-  const { error } = await supabase
+  const { data: updatedDepartment, error } = await supabase
     .from('hotel_departments')
     .update(payload)
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedDepartment) {
     redirect(
-      buildFeedbackRedirect(`/admin/departamentos/${id}`, {
-        error: `NÃ£o foi possÃ­vel atualizar o departamento: ${error.message}`,
+      buildFeedbackRedirect('/admin/departamentos', {
+        error: 'Departamento n\u00e3o encontrado ou indispon\u00edvel para este hotel.',
       })
     );
   }
 
   const translationResult = await syncDepartmentTranslations({
     supabase,
-    departmentId: id,
+    departmentId: updatedDepartment.id,
     fields: {
       name: payload.name || '',
       description: payload.description ?? null,

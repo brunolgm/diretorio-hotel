@@ -1,4 +1,5 @@
 import { AlertTriangle, CalendarClock, Megaphone } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminCheckboxRow,
@@ -63,10 +64,14 @@ export default async function EditAnnouncementPage({ params, searchParams }: Pag
     .select('*')
     .eq('id', id)
     .eq('hotel_id', hotel.id)
-    .single();
+    .maybeSingle();
 
-  if (error || !announcement) {
-    throw new Error('Comunicado não encontrado.');
+  if (error) {
+    throw new Error('Nao foi possivel carregar o comunicado solicitado.');
+  }
+
+  if (!announcement) {
+    notFound();
   }
 
   const action = updateAnnouncementAction.bind(null, id);

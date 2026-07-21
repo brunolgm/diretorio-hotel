@@ -1,4 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
+import { requireAdminAccess } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 export async function getHotelBySlug(slug: string) {
   const supabase = await createClient();
@@ -38,31 +40,16 @@ export async function getHotelDepartments(hotelId: string) {
 
 export async function getAdminHotel() {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) throw new Error('Usuário não autenticado.');
-
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('hotel_id')
-    .eq('id', user.id)
-    .single();
-
-  if (profileError || !profile?.hotel_id) {
-    throw new Error('Perfil sem hotel vinculado.');
-  }
+  const { profile } = await requireAdminAccess('visualizador');
 
   const { data: hotel, error: hotelError } = await supabase
     .from('hotels')
     .select('*')
     .eq('id', profile.hotel_id)
-    .single();
+    .maybeSingle();
 
-  if (hotelError) {
-    throw new Error('Não foi possível carregar o hotel do administrador.');
+  if (hotelError || !hotel) {
+    redirect('/acesso-indisponivel');
   }
 
   return hotel;
@@ -188,8 +175,9 @@ function buildMetricComparison(current: number, previous: number): AnalyticsMetr
   };
 }
 
-export async function getHotelAnalyticsSummary(hotelId: string, range?: string | null) {
+export async function getHotelAnalyticsSummary(range?: string | null) {
   const supabase = await createClient();
+  const hotel = await getAdminHotel();
   const normalizedRange = normalizeAnalyticsRange(range);
   const since = getAnalyticsRangeStart(normalizedRange);
   const { previousSince, previousUntil } = getPreviousAnalyticsRangeWindow(normalizedRange);
@@ -199,9 +187,9 @@ export async function getHotelAnalyticsSummary(hotelId: string, range?: string |
       supabase
         .from('hotel_analytics_events')
         .select('event_type, language, department_id, created_at')
-        .eq('hotel_id', hotelId)
+        .eq('hotel_id', hotel.id)
         .gte('created_at', previousSince),
-      supabase.from('hotel_departments').select('id, name').eq('hotel_id', hotelId),
+      supabase.from('hotel_departments').select('id, name').eq('hotel_id', hotel.id),
     ]);
 
   if (eventsError) {

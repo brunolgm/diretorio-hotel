@@ -155,13 +155,15 @@ export async function deletePromotionalBannerAction(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
+  const { data: deletedBanner, error } = await supabase
     .from('hotel_promotional_banners')
     .delete()
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !deletedBanner) {
     logOperationalError({
       module: 'banners',
       action: 'deletePromotionalBannerAction',
@@ -207,16 +209,18 @@ export async function togglePromotionalBannerAction(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
+  const { data: updatedBanner, error } = await supabase
     .from('hotel_promotional_banners')
     .update({
       is_active: isActive,
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedBanner) {
     logOperationalError({
       module: 'banners',
       action: 'togglePromotionalBannerAction',

@@ -199,13 +199,15 @@ export async function toggleHotelUserStatusAction(formData: FormData) {
     }
   }
 
-  const { error: updateError } = await adminClient
+  const { data: updatedProfile, error: updateError } = await adminClient
     .from('profiles')
     .update({ is_active: nextStatus })
     .eq('id', profile.id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (updateError) {
+  if (updateError || !updatedProfile) {
     logOperationalError({
       module: 'users',
       action: 'toggleHotelUserStatusAction',

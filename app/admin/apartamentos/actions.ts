@@ -142,7 +142,7 @@ export async function updateRoomLinkAction(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
+  const { data: updatedRoomLink, error } = await supabase
     .from('hotel_room_links')
     .update({
       room_number: roomNumber,
@@ -152,9 +152,11 @@ export async function updateRoomLinkAction(formData: FormData) {
       notes: readNullableString(formData, 'notes'),
     })
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedRoomLink) {
     logOperationalError({
       module: 'room-links',
       action: 'updateRoomLinkAction',
@@ -197,13 +199,15 @@ export async function toggleRoomLinkStatusAction(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
+  const { data: updatedRoomLink, error } = await supabase
     .from('hotel_room_links')
     .update({ is_active: isActive })
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedRoomLink) {
     logOperationalError({
       module: 'room-links',
       action: 'toggleRoomLinkStatusAction',
@@ -247,17 +251,19 @@ export async function regenerateRoomTokenAction(formData: FormData) {
 
   try {
     const roomToken = await createUniqueRoomToken(supabase);
-    const { error } = await supabase
+    const { data: updatedRoomLink, error } = await supabase
       .from('hotel_room_links')
       .update({
         room_token: roomToken,
         last_token_rotated_at: new Date().toISOString(),
       })
       .eq('id', id)
-      .eq('hotel_id', hotel.id);
+      .eq('hotel_id', hotel.id)
+      .select('id')
+      .maybeSingle();
 
-    if (error) {
-      throw error;
+    if (error || !updatedRoomLink) {
+      throw error || new Error('Room link not found for hotel');
     }
   } catch (error) {
     logOperationalError({

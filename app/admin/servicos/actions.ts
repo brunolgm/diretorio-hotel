@@ -120,13 +120,15 @@ export async function deleteSectionAction(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
+  const { data: deletedSection, error } = await supabase
     .from('hotel_sections')
     .delete()
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !deletedSection) {
     logOperationalError({
       module: 'services',
       action: 'deleteSectionAction',
@@ -171,13 +173,15 @@ export async function toggleSectionAction(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
+  const { data: updatedSection, error } = await supabase
     .from('hotel_sections')
     .update({ enabled })
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedSection) {
     logOperationalError({
       module: 'services',
       action: 'toggleSectionAction',

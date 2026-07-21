@@ -98,12 +98,14 @@ export async function updateHotelAction(formData: FormData) {
     theme_primary_color: sanitizeHotelThemePrimaryColor(themePrimaryColorInput),
   };
 
-  const { error } = await supabase
+  const { data: updatedHotel, error } = await supabase
     .from('hotels')
     .update(payload)
-    .eq('id', hotel.id);
+    .eq('id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedHotel) {
     logOperationalError({
       module: 'hotel',
       action: 'updateHotelAction',
@@ -130,12 +132,14 @@ export async function removeHotelLogoAction() {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
 
-  const { error } = await supabase
+  const { data: updatedHotel, error } = await supabase
     .from('hotels')
     .update({ logo_url: null })
-    .eq('id', hotel.id);
+    .eq('id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedHotel) {
     logOperationalError({
       module: 'hotel',
       action: 'removeHotelLogoAction',

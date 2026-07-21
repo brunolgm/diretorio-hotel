@@ -1,4 +1,5 @@
 ﻿import { Building2, Clock3, Link as LinkIcon, MessageCircle } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
   AdminField,
@@ -47,10 +48,14 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
     .select('*')
     .eq('id', id)
     .eq('hotel_id', hotel.id)
-    .single();
+    .maybeSingle();
 
-  if (error || !department) {
-    throw new Error('Departamento nÃ£o encontrado.');
+  if (error) {
+    throw new Error('Nao foi possivel carregar o departamento solicitado.');
+  }
+
+  if (!department) {
+    notFound();
   }
 
   const action = updateDepartmentAction.bind(null, id);

@@ -33,23 +33,25 @@ export async function updatePolicyAction(id: string, formData: FormData) {
     enabled: readCheckboxBoolean(formData, 'enabled'),
   };
 
-  const { error } = await supabase
+  const { data: updatedPolicy, error } = await supabase
     .from('hotel_policies')
     .update(payload)
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedPolicy) {
     redirect(
-      buildFeedbackRedirect(`/admin/politicas/${id}`, {
-        error: `NÃ£o foi possÃ­vel atualizar a polÃ­tica: ${error.message}`,
+      buildFeedbackRedirect('/admin/politicas', {
+        error: 'Pol\u00edtica n\u00e3o encontrada ou indispon\u00edvel para este hotel.',
       })
     );
   }
 
   const translationResult = await syncPolicyTranslations({
     supabase,
-    policyId: id,
+    policyId: updatedPolicy.id,
     fields: {
       title: payload.title || '',
       description: payload.description ?? null,

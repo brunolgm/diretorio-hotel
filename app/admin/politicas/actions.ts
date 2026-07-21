@@ -90,13 +90,15 @@ export async function deletePolicyAction(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
+  const { data: deletedPolicy, error } = await supabase
     .from('hotel_policies')
     .delete()
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !deletedPolicy) {
     logOperationalError({
       module: 'policies',
       action: 'deletePolicyAction',
@@ -141,13 +143,15 @@ export async function togglePolicyAction(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
+  const { data: updatedPolicy, error } = await supabase
     .from('hotel_policies')
     .update({ enabled })
     .eq('id', id)
-    .eq('hotel_id', hotel.id);
+    .eq('hotel_id', hotel.id)
+    .select('id')
+    .maybeSingle();
 
-  if (error) {
+  if (error || !updatedPolicy) {
     logOperationalError({
       module: 'policies',
       action: 'togglePolicyAction',
