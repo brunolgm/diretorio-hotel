@@ -2,6 +2,21 @@ import { isHotelSubdomainContext, type DomainContext } from '@/lib/domain-contex
 import { normalizeHotelSubdomainInput } from '@/lib/hotel-subdomain';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
+export const PUBLIC_HOTEL_AREA_KEYS = [
+  'informacoes',
+  'contato',
+  'cardapio',
+  'turismo',
+  'comunicados',
+  'servicos',
+] as const;
+
+export type PublicHotelAreaKey = (typeof PUBLIC_HOTEL_AREA_KEYS)[number];
+
+export function isPublicHotelAreaKey(value: string): value is PublicHotelAreaKey {
+  return (PUBLIC_HOTEL_AREA_KEYS as readonly string[]).includes(value);
+}
+
 function buildLanguageQuery(language: SupportedPublicLanguage) {
   return language === 'pt' ? '' : `?lang=${language}`;
 }
@@ -81,4 +96,24 @@ export function buildPublicHotelServiceHref({
   }
 
   return buildHotelServiceSlugHref(slug, serviceId, language);
+}
+
+export function buildPublicHotelAreaHref({
+  slug,
+  area,
+  language,
+  domainContext,
+  preferSubdomainRoot = false,
+}: {
+  slug: string;
+  area: PublicHotelAreaKey;
+  language: SupportedPublicLanguage;
+  domainContext?: DomainContext | null;
+  preferSubdomainRoot?: boolean;
+}) {
+  const path = preferSubdomainRoot && isHotelSubdomainContext(domainContext)
+    ? `/explorar/${area}`
+    : `/hotel/${slug}/explorar/${area}`;
+
+  return `${path}${buildLanguageQuery(language)}`;
 }

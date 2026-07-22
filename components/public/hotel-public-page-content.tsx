@@ -15,6 +15,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
+import { NovotelPublicHome } from '@/components/public/novotel/novotel-public-home';
 import { PromotionalBannerCarousel } from '@/components/public/promotional-banner-carousel';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import { ServiceIcon } from '@/components/service-icon';
@@ -324,6 +325,7 @@ export function HotelPublicPageContent({
     ? `https://wa.me/${String(hotel.whatsapp_number).replace(/\D/g, '')}`
     : null;
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
+  const isNovotelExperience = theme.preset === 'novotel';
   const useSubdomainRoot =
     preferSubdomainRoot ??
     shouldPreferHotelSubdomainRoot({
@@ -331,6 +333,25 @@ export function HotelPublicPageContent({
       hotelSlug: hotel.slug,
       hotelSubdomain: hotel.subdomain,
     });
+
+  if (isNovotelExperience) {
+    return (
+      <NovotelPublicHome
+        pageData={{
+          hotel,
+          banners,
+          announcements,
+          sections,
+          departments,
+          policies,
+          hasFallbackContent,
+        }}
+        language={language}
+        domainContext={domainContext}
+        preferSubdomainRoot={useSubdomainRoot}
+      />
+    );
+  }
 
   return (
     <main

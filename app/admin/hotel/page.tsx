@@ -35,7 +35,8 @@ import {
   getHotelSubdomainRootDomainSummary,
 } from '@/lib/hotel-subdomain';
 import { getAdminHotel } from '@/lib/queries';
-import { updateHotelAction, removeHotelLogoAction } from './actions';
+import { removeHotelHeroImageAction, removeHotelLogoAction, updateHotelAction } from './actions';
+import { uploadHotelHeroImageAction } from './upload-hero-image-action';
 import { uploadHotelLogoAction } from './upload-logo-action';
 
 interface AdminHotelPageProps {
@@ -355,6 +356,19 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               </AdminHelpText>
             </div>
 
+            <div className="space-y-2 md:col-span-2">
+              <label className="block text-sm font-medium text-slate-700">Imagem de capa URL</label>
+              <input
+                name="hero_image_url"
+                defaultValue={hotel.hero_image_url || ''}
+                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
+                placeholder="https://..."
+              />
+              <AdminHelpText>
+                Imagem horizontal usada por experiências visuais compatíveis. Se estiver vazia, o tema mantém um fallback completo e seguro.
+              </AdminHelpText>
+            </div>
+
             <div className="space-y-2">
               <label className="block text-sm font-medium text-slate-700">WhatsApp</label>
               <div className="relative">
@@ -630,6 +644,71 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               <AdminPrimaryButton type="submit">
                 <Upload className="mr-2 h-4 w-4" />
                 Enviar logo
+              </AdminPrimaryButton>
+            </form>
+          </div>
+
+          <div className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm text-slate-500">Imagem pública</p>
+                <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
+                  Capa do hotel
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Envie uma imagem horizontal, nítida e aprovada para o hero público.
+                </p>
+              </div>
+              <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
+                <ImageIcon className="h-5 w-5" />
+              </div>
+            </div>
+
+            <div className="mt-6 overflow-hidden rounded-[24px] border border-dashed border-slate-200 bg-slate-50/70">
+              {hotel.hero_image_url ? (
+                <div>
+                  <div
+                    role="img"
+                    aria-label={`Imagem de capa de ${hotel.name}`}
+                    className="aspect-[16/7] bg-cover bg-center"
+                    style={{ backgroundImage: `url(${JSON.stringify(hotel.hero_image_url)})` }}
+                  />
+                  <p className="p-4 text-sm text-slate-600">Imagem de capa configurada.</p>
+                </div>
+              ) : (
+                <p className="p-6 text-sm leading-6 text-slate-600">
+                  Nenhuma imagem de capa configurada. A experiência pública usará o fallback visual do preset.
+                </p>
+              )}
+            </div>
+
+            {hotel.hero_image_url ? (
+              <form action={removeHotelHeroImageAction} className="mt-4">
+                <AdminSecondaryButton type="submit" className="border-red-200 text-red-600 hover:bg-red-50 focus-visible:ring-red-200">
+                  Remover imagem de capa
+                </AdminSecondaryButton>
+              </form>
+            ) : null}
+
+            <form action={uploadHotelHeroImageAction} className="mt-6 space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Selecionar imagem horizontal
+                </label>
+                <input
+                  type="file"
+                  name="hero_image"
+                  accept="image/jpeg,image/png,image/webp"
+                  required
+                  className="block w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm outline-none transition focus:border-slate-300 focus:bg-white focus-visible:ring-2 focus-visible:ring-slate-200"
+                />
+                <AdminHelpText className="mt-2">
+                  JPEG, PNG ou WEBP com até 10 MB. Revise o recorte em celular e desktop após o envio.
+                </AdminHelpText>
+              </div>
+              <AdminPrimaryButton type="submit">
+                <Upload className="mr-2 h-4 w-4" />
+                Enviar imagem de capa
               </AdminPrimaryButton>
             </form>
           </div>

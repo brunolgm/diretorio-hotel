@@ -44,7 +44,7 @@ Esses identificadores permanecem canônicos; não precisam de alias. Valor ausen
 | Identificador | Direção | Status na Sprint 36 | Fallback legado de referência |
 | --- | --- | --- | --- |
 | `libguest-signature` | institucional, hotéis independentes e outros segmentos | foundation-only | `midnight-slate` |
-| `novotel` | Novotel | foundation-only | `deep-ocean` |
+| `novotel` | Novotel | experiência pública implementada; ativação por hotel ainda manual | `deep-ocean` |
 | `grand-mercure` | Grand Mercure | foundation-only | `graphite-gold` |
 | `mercure` | Mercure | foundation-only; direção visual ainda requer consolidação | `ivory-noir` |
 
@@ -86,6 +86,7 @@ Os tokens são convertidos em CSS variables `--hotel-*`. O contraste do acento c
 - nenhum hotel é associado automaticamente a uma bandeira
 - nenhum dado é atualizado pela aplicação desta fundação
 - o seletor do admin continua mostrando somente presets legados
+- ao salvar outros dados do hotel, a action preserva um preset oficial já gravado; o cliente não consegue escolhê-lo ou substituí-lo pelo formulário comum
 - Novotel Salvador mantém o preset já salvo e, portanto, sua identidade antiga
 - o fallback comercial futuro para clientes sem bandeira é `libguest-signature`, enquanto o fallback técnico legado permanece `midnight-slate`
 - ativar um preset oficial exige implementação visual, homologação e alteração de dado deliberada fora deste código
@@ -95,7 +96,11 @@ Os tokens são convertidos em CSS variables `--hotel-*`. O contraste do acento c
 
 Os tokens já alcançam shell, hero, cards, superfícies, ícones, CTAs, banners, seletor de idioma, ajuda, assinatura e detalhe de serviço.
 
-Não existe navegação inferior pública dedicada na Sprint 36. O token `navigation` está pronto para essa composição futura sem criar um componente vazio ou mudar a jornada atual. O WhatsApp flutuante continua funcional e usa o acento seguro atual.
+A Sprint 37 separa a composição da home `novotel` em `NovotelPublicHome`, preservando os loaders, os dados e as regras compartilhadas. A home contém somente hero, seis cards editoriais, banner, ajuda, assinatura e navegação inferior mobile. Os seis cards são sempre Informações, Contato Online, Cardápio, Turismo, Comunicados e Serviços do Hotel; destinos sem conteúdo abrem uma área com estado vazio elegante.
+
+As rotas `/explorar/[area]` e `/hotel/[slug]/explorar/[area]` são genéricas e reutilizam o mesmo loader público. Informações operacionais, políticas, contatos, links institucionais, departamentos, comunicados e serviços completos ficam nessas áreas, não na home Novotel. A apresentação consulta `theme.preset`; a resolução nunca depende de nome, slug ou subdomínio.
+
+A navegação inferior Novotel tem exatamente Início, Serviços, Cardápio, Informações e Contato. Não há item Conta. A barra é mobile-only, fica ancorada ao rodapé, tem altura-base previsível de 60 px, usa `safe-area-inset-bottom`, z-index controlado e reserva estrutural de `7.5rem + safe area` após o conteúdo. Os demais presets conservam a jornada anterior.
 
 ## Acessibilidade
 
@@ -109,10 +114,137 @@ Não existe navegação inferior pública dedicada na Sprint 36. O token `naviga
 
 ### Sprint 37 — Novotel Salvador
 
-- aplicar fielmente o mockup aprovado
-- homologar hero com imagem, azul Novotel, cards, banner turístico, ajuda e navegação inferior
-- validar detalhe de serviço, responsividade, contraste e QRs existentes
-- somente depois considerar ativação deliberada do preset `novotel`
+- composição refinada por comparação direta com `docs/references/novotel-salvador-mockup.png` e `docs/references/novotel-salvador-hero-reference.webp`; a revisão visual final em dispositivos reais permanece obrigatória
+- hero funciona integralmente com o fallback de gradientes e overlays Novotel, sem depender de imagem
+- `hotels.hero_image_url` é a única fonte de imagem do hero; banners não são consumidos, removidos nem reutilizados pelo hero
+- `NovotelHeroBackdrop` centraliza imagem e overlay luminoso para home, seis áreas internas e cabeçalho de detalhe; o gradiente concentra contraste atrás do conteúdo sem apagar piscina, fachada, céu ou mar
+- `NovotelAreaHero` reutiliza essa composição com retorno, idioma, ícone, título e descrição; sem imagem, mantém o fallback azul
+- `NovotelBrandSignature` prioriza um `logo_url` completo sem duplicar texto; quando não há logo, apresenta símbolo institucional, N, NOVOTEL e o subtítulo visual em escala segura
+- `getHotelPublicDisplayName` centraliza overrides institucionais sem usar slug e entrega o mesmo nome em PT, EN e ES
+- o override Novotel Salvador fica isolado da composição visual; o componente não contém condição por hotel
+- a migration de `hero_image_url`, o preset `novotel` e a imagem do hero já estão ativos no ambiente de homologação
+- o admin aceita URL HTTP(S), upload JPEG/PNG/WEBP e remoção; o storage usa somente `hotel-assets/{hotelId}/hero.{ext}` após resolver o hotel autenticado no servidor
+- a ordem é hero, seis cards fixos, banner, ajuda, assinatura e navegação inferior mobile
+- café da manhã, Wi-Fi, check-in, check-out, políticas, contatos, departamentos, links institucionais, comunicados e serviços completos permanecem disponíveis nas áreas públicas próprias
+- o banner com imagem usa composição editorial com contraste localizado à esquerda e zona inferior segura; sem registro ativo, a home mantém um fallback azul neutro e sem promoção fictícia
+- a área Serviços Novotel mantém todo o conteúdo, Room Service, Thex e destinos existentes, adicionando busca local, filtro por categoria, grade responsiva e CTAs alinhados no rodapé dos cards sem repetir rótulos visuais
+- o mockup orientou ordem, primeira dobra, proporção do hero, grade 2x3, densidade, espaçamento, banner e navegação; comparação pixel a pixel não foi declarada
+- o preset já está ativo no ambiente de homologação; nenhuma alteração de dados foi feita nesta revisão
+
+#### Estado visual do ambiente de homologação
+
+- `hotels.hero_image_url` existe e está preenchido para o Novotel Salvador
+- `hotels.theme_preset = 'novotel'`
+- a imagem limpa do hero está ativa na home e é reutilizada por `NovotelAreaHero`
+- `hotels.name = 'Novotel Salvador'`; o complemento institucional é resolvido pelo catálogo de identidade em `lib/hotel-public-identity.ts`, sem migration ou alteração de dados
+
+#### Diagnóstico do banner real
+
+O estado de publicação dos banners é operacional e pode mudar sem alteração de código. No smoke test final desta revisão, o loader público entregou um banner elegível com imagem; portanto, a composição real foi exibida. O fallback continua reservado ao caso em que nenhum registro cumpra simultaneamente:
+
+- `is_active = true`
+- `starts_at` nulo ou anterior/igual ao momento atual
+- `ends_at` nulo ou posterior/igual ao momento atual
+- título e imagem preenchidos; descrição e CTA configurados para atingir a composição final aprovada
+
+Não registrar neste documento uma contagem permanente de banners ativos. A elegibilidade deve ser confirmada no momento da homologação, sem expor conteúdo interno ou alterar dados automaticamente.
+
+Um banner elegível exibe indicador de posição; com mais de um, o carrossel também apresenta controles e indicadores navegáveis. Nenhum banner foi ativado ou editado nesta revisão.
+
+#### SQL controlado para imagem de banner existente — não executado
+
+O painel de banners continua sendo o fluxo recomendado. Se houver necessidade operacional de atualização manual, preencher `target_banner_id` e `target_image_url` com valores aprovados, executar primeiro em preview e guardar o valor anterior para reversão:
+
+```sql
+begin;
+
+do $$
+declare
+  target_hotel_id uuid;
+  target_banner_id uuid := null; -- informar manualmente
+  target_image_url text := null; -- informar manualmente
+  affected_rows integer;
+begin
+  if target_banner_id is null or target_image_url is null then
+    raise exception 'Informe banner e URL aprovados antes de executar.';
+  end if;
+
+  select id into strict target_hotel_id
+  from public.hotels
+  where slug = 'novotelrv'
+    and subdomain = 'novotelsalvador';
+
+  update public.hotel_promotional_banners
+  set image_url = target_image_url,
+      updated_at = now()
+  where id = target_banner_id
+    and hotel_id = target_hotel_id;
+
+  get diagnostics affected_rows = row_count;
+
+  if affected_rows <> 1 then
+    raise exception 'Atualização cancelada: era esperado exatamente um banner, mas % linha(s) foram alteradas.', affected_rows;
+  end if;
+end $$;
+
+commit;
+```
+
+Para reverter, repetir o bloco com o mesmo `target_banner_id` e a URL anterior registrada. O SQL não cria banner, não altera traduções e não interfere no hero.
+
+#### SQL manual de ativação — referência histórica, já aplicada no ambiente de homologação
+
+```sql
+begin;
+
+do $$
+declare
+  affected_rows integer;
+begin
+  update public.hotels
+  set
+    theme_preset = 'novotel',
+    updated_at = now()
+  where slug = 'novotelrv'
+    and subdomain = 'novotelsalvador'
+    and theme_preset = 'deep-ocean';
+
+  get diagnostics affected_rows = row_count;
+
+  if affected_rows <> 1 then
+    raise exception 'Ativação cancelada: era esperado exatamente um hotel, mas % linha(s) foram alteradas.', affected_rows;
+  end if;
+end $$;
+
+commit;
+```
+
+#### SQL manual de reversão — referência operacional, não executada nesta revisão
+
+```sql
+begin;
+
+do $$
+declare
+  affected_rows integer;
+begin
+  update public.hotels
+  set
+    theme_preset = 'deep-ocean',
+    updated_at = now()
+  where slug = 'novotelrv'
+    and subdomain = 'novotelsalvador'
+    and theme_preset = 'novotel';
+
+  get diagnostics affected_rows = row_count;
+
+  if affected_rows <> 1 then
+    raise exception 'Reversão cancelada: era esperado exatamente um hotel, mas % linha(s) foram alteradas.', affected_rows;
+  end if;
+end $$;
+
+commit;
+```
 
 ### Sprint 38 — Grand Mercure e Mercure
 
@@ -122,12 +254,11 @@ Não existe navegação inferior pública dedicada na Sprint 36. O token `naviga
 
 ## Fora do escopo desta fundação
 
-- mockups finais
 - editor visual no admin
 - painel interno de provisionamento
 - implementação do preset `custom`
 - mudança automática de `theme_preset`
-- coluna `brand` ou migration
+- coluna `brand` ou nova migration de branding
 - fontes externas ainda não aprovadas
 - IA Concierge
 - deploy ou alteração de dados

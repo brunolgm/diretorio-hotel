@@ -40,7 +40,7 @@ export const HOTEL_BRAND_PRESETS = [
   {
     value: 'novotel',
     label: 'Novotel',
-    status: 'foundation-only',
+    status: 'experience-implemented',
     legacyFallback: 'deep-ocean',
   },
   {
@@ -58,7 +58,7 @@ export const HOTEL_BRAND_PRESETS = [
 ] as const satisfies ReadonlyArray<{
   value: string;
   label: string;
-  status: 'foundation-only';
+  status: 'foundation-only' | 'experience-implemented';
   legacyFallback: HotelThemePreset;
 }>;
 
@@ -437,7 +437,33 @@ const HOTEL_THEME_CONFIGS: Record<HotelVisualPreset, HotelThemeConfig> = {
     label: 'Novotel', kind: 'brand',
     heroClassName: 'bg-[linear-gradient(145deg,#002B5C_0%,#004A8F_55%,#0877BE_100%)]',
     heroOverlayClassName: 'bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_30%),linear-gradient(180deg,rgba(0,32,71,0.06),rgba(0,32,71,0.28))]',
-    tokens: { background: 'linear-gradient(180deg,#F4F8FC 0%,#EDF4FA 55%,#F7FAFC 100%)', surface: '#FFFFFF', surfaceMuted: 'linear-gradient(180deg,#FFFFFF 0%,#F3F7FB 100%)', primary: '#003B7A', accent: '#0072CE', secondary: '#E6F0F8', text: '#102A43', textMuted: '#52667A', border: 'rgba(0,59,122,0.16)', heroBackground: 'linear-gradient(145deg,#002B5C 0%,#004A8F 55%,#0877BE 100%)', heroOverlay: 'radial-gradient(circle at top right,rgba(255,255,255,0.18),transparent 30%),linear-gradient(180deg,rgba(0,32,71,0.06),rgba(0,32,71,0.28))', heroMuted: '#D8EAF8', navigation: '#003B7A', iconColor: '#005DAA', fontFamily: DEFAULT_FONT_FAMILY },
+    tokens: {
+      background: 'linear-gradient(180deg,#F6FAFD 0%,#EDF5FA 48%,#F8FBFD 100%)',
+      surface: '#FFFFFF',
+      surfaceMuted: '#FFFFFF',
+      primary: '#003B7A',
+      accent: '#0072CE',
+      secondary: '#E6F1F8',
+      text: '#102A43',
+      textMuted: '#526A7E',
+      border: 'rgba(0,59,122,0.14)',
+      cardRadius: '22px',
+      cardShadow: '0 18px 42px -30px rgba(0,59,122,0.32)',
+      heroBackground: 'linear-gradient(145deg,#002B5C 0%,#004A8F 55%,#0877BE 100%)',
+      heroOverlay: 'linear-gradient(90deg,rgba(0,35,82,0.46) 0%,rgba(0,59,122,0.14) 52%,rgba(0,82,154,0.04) 100%),linear-gradient(180deg,rgba(0,32,71,0.05) 0%,rgba(0,32,71,0.08) 48%,rgba(0,32,71,0.58) 100%)',
+      heroMuted: '#E2F2FC',
+      heroRadius: '30px',
+      navigation: '#003B7A',
+      iconStyle: 'outlined',
+      iconColor: '#0068B5',
+      buttonRadius: '14px',
+      bannerBackground: '#FFFFFF',
+      bannerRadius: '24px',
+      helpBackground: '#E9F4FA',
+      signatureBackground: 'rgba(255,255,255,0.78)',
+      signatureText: '#526A7E',
+      fontFamily: DEFAULT_FONT_FAMILY,
+    },
     badgeBackground: 'rgba(255,255,255,0.12)', badgeBorder: 'rgba(255,255,255,0.20)', badgeText: '#FFFFFF', footerBackground: 'rgba(255,255,255,0.94)', footerBorder: 'rgba(0,59,122,0.16)', footerText: '#26445F', heroSecondaryBg: 'rgba(255,255,255,0.10)', heroSecondaryBorder: 'rgba(255,255,255,0.20)', heroSecondaryText: '#FFFFFF', heroSecondaryHoverBg: 'rgba(255,255,255,0.16)', heroDisabledBg: 'rgba(255,255,255,0.07)', heroDisabledText: 'rgba(255,255,255,0.50)', sectionLabelText: '#52667A',
   }),
   'grand-mercure': createThemeConfig({

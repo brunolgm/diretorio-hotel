@@ -1,5 +1,6 @@
 import { ArrowLeft, CheckCircle2, Hotel, MapPin, Sparkles } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
+import { NovotelHeroBackdrop } from '@/components/public/novotel/novotel-hero-backdrop';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import { ServiceIcon } from '@/components/service-icon';
 import type { DomainContext } from '@/lib/domain-context';
@@ -47,6 +48,7 @@ export function HotelServiceDetailContent({
 }) {
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
+  const isNovotelExperience = theme.preset === 'novotel';
   const useSubdomainRoot =
     preferSubdomainRoot ??
     shouldPreferHotelSubdomainRoot({
@@ -65,11 +67,19 @@ export function HotelServiceDetailContent({
     >
       <PublicAnalytics hotelId={hotel.id} hotelSlug={hotel.slug} language={language} />
 
-      <div className="mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8">
+      <div className={`mx-auto px-4 py-6 md:px-6 md:py-8 ${isNovotelExperience ? 'max-w-6xl' : 'max-w-4xl'}`}>
         <section
-          className="hotel-theme-hero relative overflow-hidden p-6 md:p-10"
+          className={
+            isNovotelExperience
+              ? 'hotel-theme-hero relative -mx-4 overflow-hidden rounded-t-none rounded-b-[30px] px-6 py-8 md:mx-0 md:rounded-[30px] md:p-10'
+              : 'hotel-theme-hero relative overflow-hidden p-6 md:p-10'
+          }
         >
-          <div className="hotel-theme-hero-overlay pointer-events-none absolute inset-0" />
+          {isNovotelExperience ? (
+            <NovotelHeroBackdrop imageUrl={hotel.hero_image_url} imageAlt={hotel.name} />
+          ) : (
+            <div className="hotel-theme-hero-overlay pointer-events-none absolute inset-0" />
+          )}
 
           <div className="relative">
             <div className="flex items-start justify-between gap-4">
@@ -98,7 +108,7 @@ export function HotelServiceDetailContent({
                   <div
                     aria-label={hotel.name}
                     role="img"
-                    className="h-16 w-16 rounded-[22px] border border-white/15 bg-white bg-cover bg-center p-1 shadow-[0_16px_32px_-22px_rgba(15,23,42,0.55)]"
+                    className="h-16 w-16 rounded-[22px] border border-white/15 bg-white bg-contain bg-center bg-no-repeat p-1 shadow-[0_16px_32px_-22px_rgba(15,23,42,0.55)]"
                     style={{ backgroundImage: `url(${hotel.logo_url})` }}
                   />
                 ) : (
@@ -118,7 +128,7 @@ export function HotelServiceDetailContent({
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-badge-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
                   <Sparkles className="h-3.5 w-3.5" />
-                  LibGuest
+                  {isNovotelExperience ? theme.label : 'LibGuest'}
                 </div>
 
                 <h1 className="mt-5 text-3xl font-semibold tracking-tight md:text-4xl">
