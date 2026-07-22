@@ -991,6 +991,46 @@ Importante:
 - Sprint 38: aplicação Grand Mercure e consolidação/aplicação Mercure.
 - Permanecem fora do escopo: IA Concierge, editor visual, preset `custom`, painel interno de provisionamento, alteração automática de dados e lógica por hotel.
 
+### Registro curto da Sprint 37
+
+- Status: experiência Novotel ativa e refinada localmente; a homologação visual final em dispositivos reais permanece pendente e esta revisão não alterou dados.
+- Referências visuais obrigatórias: `docs/references/novotel-salvador-mockup.png` e `docs/references/novotel-salvador-hero-reference.webp`.
+- `HotelPublicPageContent` delega somente o preset `novotel` a `NovotelPublicHome`; nenhum componente usa nome, slug ou subdomínio para decidir apresentação.
+- A home Novotel contém somente hero, seis cards fixos, banner, ajuda, assinatura e navegação inferior mobile.
+- Os seis cards sempre existem: Informações, Contato Online, Cardápio, Turismo, Comunicados e Serviços do Hotel. Áreas sem conteúdo exibem estado vazio.
+- Conteúdo operacional foi movido para as rotas genéricas `/explorar/[area]` e `/hotel/[slug]/explorar/[area]`, preservando loaders, traduções e isolamento por hotel.
+- O hero consulta exclusivamente `hotels.hero_image_url`; sem imagem, o gradiente azul Novotel é um estado completo. Banner não é fonte do hero.
+- `NovotelHeroBackdrop` aplica a mesma imagem e overlay luminoso localizado na home, nas seis páginas internas e nos detalhes Novotel, com fallback azul quando a imagem não existe.
+- `NovotelBrandSignature` usa um logo completo configurado sem duplicação; na ausência atual de `logo_url`, entrega o fallback completo com símbolo, N, NOVOTEL e subtítulo institucional.
+- `getHotelPublicDisplayName` separa a assinatura visual do nome operacional por configuração central, sem slug, migration ou condição específica dentro do componente.
+- A migration de `hero_image_url`, o preset `novotel` e a imagem do hero já estão ativos no ambiente de homologação.
+- O admin prepara URL, upload e remoção do hero com hotel autenticado resolvido no servidor, confirmação da linha atualizada e caminhos restritos a `hotel-assets/{hotelId}/hero.{jpg|png|webp}`.
+- A edição comum do hotel preserva no servidor um preset oficial já salvo, evitando que o seletor legado limpe acidentalmente a ativação manual; presets oficiais continuam indisponíveis para escolha no admin.
+- Sem banner ativo, o componente mostra fallback azul neutro, sem promoção fictícia ou mensagem técnica.
+- O estado de publicação dos banners é dinâmico. No smoke test final, o loader entregou um banner elegível com imagem; quando não houver registro elegível, o fallback neutro permanece ativo sem inventar promoção.
+- Serviços ganhou busca local, filtro por categoria, grade de até três colunas e CTAs alinhados no rodapé dos cards, sem alterar conteúdo ou destinos.
+- A navegação tem exatamente Início, Serviços, Cardápio, Informações e Contato; não exibe Conta, fica ancorada ao rodapé com altura-base de 60 px, respeita safe area e reserva `7.5rem + safe area` após o conteúdo.
+- Página de detalhe, PT/EN/ES, slug fallback, dual-domain, analytics, links Thex, QR e roomToken continuam no fluxo compartilhado.
+- O diagnóstico do banner e as referências operacionais permanecem documentados; nenhum SQL foi executado nesta revisão.
+
+#### Arquivos da reestruturação
+
+- Componentes Novotel: `components/public/novotel/novotel-public-home.tsx`, `components/public/novotel/novotel-area-hero.tsx`, `components/public/novotel/novotel-hero-backdrop.tsx`, `components/public/novotel/novotel-brand-signature.tsx`, `components/public/novotel/novotel-mobile-navigation.tsx` e `components/public/novotel/novotel-service-explorer.tsx`.
+- Áreas públicas: `components/public/hotel-public-area-content.tsx`, `app/explorar/[area]/page.tsx`, `app/hotel/[slug]/explorar/[area]/page.tsx`, `lib/public-routes.ts` e `lib/public-hotel-areas.ts`.
+- Hero/admin: `app/admin/hotel/page.tsx`, `app/admin/hotel/actions.ts`, `app/admin/hotel/upload-hero-image-action.ts`, `lib/hotel-hero-storage.ts`, `lib/hotel-public-identity.ts`, `types/database.ts` e `supabase/migrations/20260721_add_hotel_hero_image_url.sql`.
+- Integração visual: `components/public/hotel-public-page-content.tsx`, `components/public/hotel-service-detail-content.tsx`, `components/public/promotional-banner-carousel.tsx`, `components/public/language-switcher.tsx`, `lib/hotel-theme.ts`, `lib/public-copy.ts` e `app/globals.css`.
+- Operação: `docs/guestdesk-brand-design-system.md`, `docs/guestdesk-new-hotel-playbook.md`, `docs/guestdesk-post-deploy-validation.md` e `docs/PRODUCT_MAP.md`.
+
+#### Validação e pendências
+
+- `npm run lint`: aprovado sem erros; permanecem somente os dois warnings legados de `<img>`.
+- `npx tsc --noEmit`: aprovado.
+- `npm run build`: aprovado; as rotas genéricas `/explorar/[area]` e `/hotel/[slug]/explorar/[area]` aparecem no build.
+- `git diff --check`: aprovado.
+- Smoke test local: home e as seis áreas Novotel responderam HTTP 200 usando o loader real configurado.
+- Hero com imagem foi conferido no ambiente atual; o fallback sem imagem permanece coberto pelo componente sem depender de banner.
+- Comparação direta das referências conferiu ordem, primeira dobra, proporções, grade 2x3, densidade, luminosidade do hero, presença da marca, banner, ajuda e navegação. A conferência final do render em 320, 390, 430 px, iPhone 14 Pro Max e desktop permanece no checklist manual.
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -1077,7 +1117,7 @@ Importante:
 - concluída localmente: fundação de tokens, tema institucional LibGuest Signature e presets oficiais por bandeira, sem ativação de hotel ou mockup final
 
 ### Sprint 37
-- prevista: aplicação fiel e homologação do preset Novotel no Novotel Salvador
+- implementada localmente: composição visual Novotel pronta para revisão manual, sem ativação ou alteração de dados
 
 ### Sprint 38
 - prevista: aplicação Grand Mercure e consolidação/aplicação Mercure

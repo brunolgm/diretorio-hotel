@@ -1,6 +1,29 @@
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
 type PublicCopy = {
+  welcome: string;
+  navigationHome: string;
+  navigationServices: string;
+  navigationMenu: string;
+  navigationContact: string;
+  navigationInformation: string;
+  navigationTourism: string;
+  navigationLabel: string;
+  novotelHeroDescription: string;
+  editorialInformationTitle: string;
+  editorialContactTitle: string;
+  editorialMenuTitle: string;
+  editorialTourismTitle: string;
+  editorialAnnouncementsTitle: string;
+  editorialServicesTitle: string;
+  editorialInformationDescription: string;
+  editorialContactDescription: string;
+  editorialMenuDescription: string;
+  editorialTourismDescription: string;
+  editorialAnnouncementsDescription: string;
+  editorialServicesDescription: string;
+  helpTitle: string;
+  helpWhatsappDescription: string;
   announcements: string;
   hotelAnnouncements: string;
   activeAnnouncementsCount: (count: number) => string;
@@ -73,6 +96,29 @@ type PublicCopy = {
 
 const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
   pt: {
+    welcome: 'Bem-vindo!',
+    navigationHome: 'Início',
+    navigationServices: 'Serviços',
+    navigationMenu: 'Cardápio',
+    navigationContact: 'Contato',
+    navigationInformation: 'Informações',
+    navigationTourism: 'Turismo',
+    navigationLabel: 'Navegação principal do hotel',
+    novotelHeroDescription: 'Tudo o que você precisa para aproveitar sua estadia.',
+    editorialInformationTitle: 'Informações',
+    editorialContactTitle: 'Contato Online',
+    editorialMenuTitle: 'Cardápio',
+    editorialTourismTitle: 'Turismo',
+    editorialAnnouncementsTitle: 'Comunicados',
+    editorialServicesTitle: 'Serviços do Hotel',
+    editorialInformationDescription: 'Horários e dados da sua estadia.',
+    editorialContactDescription: 'Fale com nossa equipe.',
+    editorialMenuDescription: 'Peça pelo cardápio do quarto.',
+    editorialTourismDescription: 'Explore experiências do hotel.',
+    editorialAnnouncementsDescription: 'Confira avisos e novidades.',
+    editorialServicesDescription: 'Veja todos os serviços disponíveis.',
+    helpTitle: 'Precisa de ajuda?',
+    helpWhatsappDescription: 'Fale com nossa equipe via WhatsApp.',
     announcements: 'Comunicados',
     hotelAnnouncements: 'Avisos do hotel',
     activeAnnouncementsCount: (count) => `${count} aviso(s) ativo(s)`,
@@ -162,6 +208,29 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     clearRoomAccess: 'Trocar apartamento',
   },
   en: {
+    welcome: 'Welcome!',
+    navigationHome: 'Home',
+    navigationServices: 'Services',
+    navigationMenu: 'Menu',
+    navigationContact: 'Contact',
+    navigationInformation: 'Information',
+    navigationTourism: 'Tourism',
+    navigationLabel: 'Hotel main navigation',
+    novotelHeroDescription: 'Everything you need to make the most of your stay.',
+    editorialInformationTitle: 'Information',
+    editorialContactTitle: 'Online Contact',
+    editorialMenuTitle: 'Menu',
+    editorialTourismTitle: 'Tourism',
+    editorialAnnouncementsTitle: 'Announcements',
+    editorialServicesTitle: 'Hotel Services',
+    editorialInformationDescription: 'Hours and details for your stay.',
+    editorialContactDescription: 'Talk to our team.',
+    editorialMenuDescription: 'Order from your room menu.',
+    editorialTourismDescription: 'Explore hotel experiences.',
+    editorialAnnouncementsDescription: 'Read notices and updates.',
+    editorialServicesDescription: 'Browse all available services.',
+    helpTitle: 'Need help?',
+    helpWhatsappDescription: 'Talk to our team via WhatsApp.',
     announcements: 'Announcements',
     hotelAnnouncements: 'Hotel announcements',
     activeAnnouncementsCount: (count) => `${count} active announcement(s)`,
@@ -251,6 +320,29 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     clearRoomAccess: 'Switch room',
   },
   es: {
+    welcome: '¡Bienvenido!',
+    navigationHome: 'Inicio',
+    navigationServices: 'Servicios',
+    navigationMenu: 'Menú',
+    navigationContact: 'Contacto',
+    navigationInformation: 'Información',
+    navigationTourism: 'Turismo',
+    navigationLabel: 'Navegación principal del hotel',
+    novotelHeroDescription: 'Todo lo que necesita para disfrutar su estadía.',
+    editorialInformationTitle: 'Información',
+    editorialContactTitle: 'Contacto Online',
+    editorialMenuTitle: 'Menú',
+    editorialTourismTitle: 'Turismo',
+    editorialAnnouncementsTitle: 'Comunicados',
+    editorialServicesTitle: 'Servicios del Hotel',
+    editorialInformationDescription: 'Horarios y datos de su estadía.',
+    editorialContactDescription: 'Hable con nuestro equipo.',
+    editorialMenuDescription: 'Pida desde el menú de su habitación.',
+    editorialTourismDescription: 'Explore experiencias del hotel.',
+    editorialAnnouncementsDescription: 'Consulte avisos y novedades.',
+    editorialServicesDescription: 'Consulte todos los servicios.',
+    helpTitle: '¿Necesita ayuda?',
+    helpWhatsappDescription: 'Hable con nuestro equipo por WhatsApp.',
     announcements: 'Comunicados',
     hotelAnnouncements: 'Avisos del hotel',
     activeAnnouncementsCount: (count) => `${count} aviso(s) activo(s)`,

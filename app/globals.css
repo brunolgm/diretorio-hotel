@@ -220,4 +220,111 @@
   .hotel-theme-active {
     background: var(--hotel-active-bg);
   }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] {
+    scroll-behavior: smooth;
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] [id] {
+    scroll-margin-top: 1rem;
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-hero {
+    box-shadow: 0 34px 80px -42px rgba(0, 43, 92, 0.78);
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-card {
+    background: #fff;
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-icon {
+    background: var(--hotel-accent-soft);
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-language-trigger {
+    padding: 0.55rem 0.75rem;
+    box-shadow: 0 12px 28px -18px rgba(0, 32, 71, 0.72);
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-image {
+    background-size: cover !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-slide {
+    min-height: 210px;
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-media {
+    min-height: 210px;
+    aspect-ratio: auto;
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    border: 0;
+    padding-bottom: 1.75rem;
+    background:
+      linear-gradient(90deg, rgba(0, 43, 92, 0.9) 0%, rgba(0, 43, 92, 0.68) 42%, rgba(0, 43, 92, 0.12) 78%),
+      linear-gradient(180deg, rgba(0, 32, 71, 0.04) 38%, rgba(0, 32, 71, 0.48) 100%) !important;
+    color: #fff;
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-title,
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-description,
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-eyebrow,
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-period {
+    color: #fff !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-title {
+    max-width: 32rem;
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
+    line-height: 1.12;
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-description {
+    max-width: 30rem;
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-cta {
+    background: #fff;
+    color: var(--hotel-primary);
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-fallback > div {
+    min-height: 210px !important;
+    background: linear-gradient(145deg, #003b7a 0%, #005da8 58%, #0877be 100%);
+  }
+
+  .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-missing-image {
+    display: none;
+  }
+
+  @media (max-width: 374px) {
+    .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-hero {
+      border-bottom-right-radius: 28px;
+      border-bottom-left-radius: 28px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-slide,
+    .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-media {
+      min-height: 360px;
+    }
+
+    .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-banner-content {
+      padding-bottom: 2rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hotel-theme-page[data-hotel-theme="novotel"] {
+      scroll-behavior: auto;
+    }
+  }
 }

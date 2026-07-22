@@ -15,6 +15,9 @@ Confirmar estabilidade, isolamento multi-hotel e compatibilidade pública depois
 7. validar PT/EN/ES e fallback em português
 8. testar contatos, reservas, site e analytics básicos
 9. testar QR e cardápio por apartamento sem regenerar roomToken
+10. validar nome institucional, hero configurado e fallback sem imagem somente no hotel autenticado
+11. no preset Novotel, abrir as seis áreas via slug e subdomínio e confirmar os estados vazios sem perda da navegação inferior
+12. em 320, 390 e 430 px, rolar até o último card e confirmar que banner, ajuda, CTAs e conteúdo final permanecem acima da navegação fixa
 
 ## Validação dos quatro hotéis
 
@@ -22,7 +25,7 @@ Repetir com um usuário próprio de cada hotel:
 
 | Hotel | Slug | Subdomínio |
 | --- | --- | --- |
-| Novotel Salvador Rio Vermelho | `novotelsalvadorriovermelho` | `novotelsalvador` |
+| Novotel Salvador Rio Vermelho | `novotelrv` | `novotelsalvador` |
 | Grand Mercure Rio de Janeiro Copacabana | `grandmercureriocopacabana` | `grandmercurecopacabana` |
 | Novotel Rio de Janeiro Leme | `novotelrioleme` | `novotelleme` |
 | Mercure Rio Boutique Copacabana | `mercurerioboutiquecopacabana` | `mercurerioboutique` |

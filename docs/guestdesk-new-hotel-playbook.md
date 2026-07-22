@@ -15,6 +15,7 @@ Configurar e homologar um hotel no LibGuest com baixo risco, conteúdo mínimo c
 ## Ordem recomendada no painel
 
 1. revisar informações do hotel, cidade, horários, contatos e identidade visual
+   - quando a assinatura institucional diferir do nome operacional, registrar o override no catálogo de identidade e validar o mesmo texto nos três idiomas
 2. cadastrar e ativar ao menos um serviço
 3. cadastrar e ativar ao menos um departamento
 4. cadastrar e ativar ao menos uma política
@@ -36,7 +37,7 @@ O dashboard apresenta uma checklist leve dos quatro itens essenciais. Comunicado
 
 - o preset salvo controla apenas a camada visual; não altera conteúdo, permissões ou rotas
 - os cinco presets legados continuam sendo as únicas opções operacionais no admin
-- `libguest-signature`, `novotel`, `grand-mercure` e `mercure` estão em estado `foundation-only` e não devem ser inseridos manualmente nesta sprint
+- `novotel` possui experiência pública implementada, mas sua ativação continua manual e homologada por hotel; `libguest-signature`, `grand-mercure` e `mercure` permanecem foundation-only
 - no futuro painel interno de provisionamento, bandeiras homologadas usarão o preset próprio; hotéis independentes, outros segmentos e clientes sem bandeira homologada usarão `libguest-signature`
 - `custom` está reservado para evolução futura e ainda não é um preset operacional
 - até existir esse painel, nenhuma associação de preset foundation deve ser automática ou feita por edição comum no admin
@@ -60,7 +61,7 @@ Validar separadamente, sem copiar IDs ou tokens entre os ambientes:
 
 | Hotel | Slug fallback | Subdomínio |
 | --- | --- | --- |
-| Novotel Salvador Rio Vermelho | `novotelsalvadorriovermelho` | `novotelsalvador` |
+| Novotel Salvador Rio Vermelho | `novotelrv` | `novotelsalvador` |
 | Grand Mercure Rio de Janeiro Copacabana | `grandmercureriocopacabana` | `grandmercurecopacabana` |
 | Novotel Rio de Janeiro Leme | `novotelrioleme` | `novotelleme` |
 | Mercure Rio Boutique Copacabana | `mercurerioboutiquecopacabana` | `mercurerioboutique` |
