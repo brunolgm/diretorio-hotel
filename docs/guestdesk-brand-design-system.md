@@ -45,7 +45,7 @@ Esses identificadores permanecem canônicos; não precisam de alias. Valor ausen
 | --- | --- | --- | --- |
 | `libguest-signature` | institucional, hotéis independentes e outros segmentos | foundation-only | `midnight-slate` |
 | `novotel` | Novotel | experiência pública implementada; ativação por hotel ainda manual | `deep-ocean` |
-| `grand-mercure` | Grand Mercure | foundation-only | `graphite-gold` |
+| `grand-mercure` | Grand Mercure | experience-implemented | `graphite-gold` |
 | `mercure` | Mercure | foundation-only; direção visual ainda requer consolidação | `ivory-noir` |
 
 Os quatro identificadores são reconhecidos diretamente pela camada pública e pelo resolvedor, inclusive em preview e testes sem gravação no banco. Eles não integram `HOTEL_THEME_PRESETS`, não aparecem no admin e são rejeitados por `sanitizeHotelThemePreset`. Portanto, não podem ser ativados por edição comum nesta sprint.

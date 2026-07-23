@@ -211,7 +211,7 @@ export function PromotionalBannerCarousel({
     if (!showEmptyFallback) return null;
 
     return (
-      <article className="hotel-theme-banner hotel-theme-banner-fallback overflow-hidden border border-[color:var(--hotel-border)] shadow-[0_28px_65px_-42px_rgba(15,23,42,0.4)]">
+      <article className="hotel-theme-banner hotel-theme-banner-fallback hotel-theme-banner-empty overflow-hidden border border-[color:var(--hotel-border)] shadow-[0_28px_65px_-42px_rgba(15,23,42,0.4)]">
         <div className="relative min-h-[240px] overflow-hidden bg-[linear-gradient(145deg,#003B7A_0%,#005DA8_58%,#0877BE_100%)] px-6 py-7 text-white md:min-h-[320px] md:px-9 md:py-10">
           <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_36%)]" />
           <div className="relative flex min-h-[190px] max-w-xl flex-col justify-end md:min-h-[240px]">

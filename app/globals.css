@@ -304,6 +304,400 @@
     display: none;
   }
 
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] {
+    --grand-mercure-dock-height: 94px;
+    position: relative;
+    isolation: isolate;
+    scroll-behavior: smooth;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-global-mandala {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: #b58b45;
+    opacity: .08;
+    -webkit-mask-image: var(--grand-mercure-background-mandala);
+    mask-image: var(--grand-mercure-background-mandala);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center -42px;
+    mask-position: center -42px;
+    -webkit-mask-size: clamp(840px, 124vw, 1820px) auto;
+    mask-size: clamp(840px, 124vw, 1820px) auto;
+    mask-mode: luminance;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-global-mandala-internal {
+    opacity: .05;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-scroll-region {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"].grand-mercure-dock-layout {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-scroll-region {
+    height: calc(100dvh - var(--grand-mercure-dock-height) - env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    padding-bottom: 3rem;
+    scroll-padding-bottom: 3rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-last-content {
+    margin-bottom: 2rem;
+    scroll-margin-bottom: calc(var(--grand-mercure-dock-height) + env(safe-area-inset-bottom) + 3rem);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-banner-zone {
+    padding-bottom: 1rem;
+    scroll-margin-bottom: calc(var(--grand-mercure-dock-height) + env(safe-area-inset-bottom) + 2rem);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] [id] {
+    scroll-margin-top: 1rem;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-language-trigger {
+    min-height: 44px;
+    border-color: rgba(113, 84, 45, .42) !important;
+    background: rgba(246, 237, 222, .92) !important;
+    color: #332e28 !important;
+    box-shadow: 0 10px 24px -18px rgba(68, 49, 24, .55) !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-language-trigger svg {
+    color: #493d30 !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-language-trigger:hover,
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-language-trigger:active {
+    background: #eee0ca !important;
+    border-color: rgba(103, 73, 34, .58) !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-language-trigger:focus-visible {
+    outline: 2px solid #80591f !important;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 4px rgba(255, 253, 249, .95) !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-language-menu {
+    border-color: rgba(151, 119, 72, .25) !important;
+    background: rgba(255, 252, 246, .97) !important;
+    color: #3f3932 !important;
+    box-shadow: 0 22px 50px -24px rgba(62, 46, 27, .48);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-language-menu > div:first-child {
+    color: #8a7862;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-language-menu a:not([aria-current="page"]) {
+    color: #5f554a;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-language-menu a:hover {
+    background: rgba(176, 141, 87, .1);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-card,
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-surface {
+    background: #fffdf9;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-public-empty-state {
+    max-width: 48rem;
+    min-height: 170px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-style: solid;
+    border-color: rgba(176, 141, 87, .3);
+    background: linear-gradient(135deg, #fffdf9 0%, #f8efe1 100%);
+    box-shadow: 0 20px 45px -34px rgba(66, 49, 29, .45);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-public-empty-state::before {
+    content: "";
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    top: -48px;
+    left: -42px;
+    border: 1px solid rgba(176, 141, 87, .16);
+    border-radius: 50%;
+    box-shadow: 0 0 0 14px rgba(176, 141, 87, .04), 0 0 0 28px rgba(176, 141, 87, .025);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-public-empty-state h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.35rem;
+    font-weight: 400;
+    margin-top: .65rem !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] h1,
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-heading {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 400;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner {
+    border-color: #ddcfbb;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-slide {
+    display: grid;
+    min-height: 220px;
+    grid-template-columns: minmax(0, 56%) minmax(0, 44%);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-media {
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 220px;
+    aspect-ratio: auto;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-image {
+    background-size: cover !important;
+    filter: sepia(.13) saturate(.88) contrast(.96);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-content {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 0;
+    background: linear-gradient(110deg, #fffdf9 72%, rgba(255,253,249,.75) 100%);
+    padding-bottom: 1.25rem;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 400;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-eyebrow,
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-period {
+    color: #9b6e28;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-cta {
+    background: #ad7e31;
+    color: #fff;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-fallback > div {
+    min-height: 220px !important;
+    background: linear-gradient(120deg, #fffdf9 0%, #f5ead8 100%) !important;
+    color: #39342e !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-empty > div {
+    min-height: 200px !important;
+    padding-top: 1.25rem !important;
+    padding-bottom: 1.25rem !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-empty > div > .relative {
+    min-height: 150px !important;
+    justify-content: center !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-fallback > div::after {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    top: -78px;
+    right: -54px;
+    border-radius: 50%;
+    opacity: .38;
+    background:
+      radial-gradient(circle, transparent 0 22%, rgba(176,141,87,.22) 23% 24%, transparent 25% 39%, rgba(176,141,87,.13) 40% 41%, transparent 42%),
+      repeating-conic-gradient(from 22.5deg, rgba(176,141,87,.16) 0 4deg, transparent 4deg 22.5deg);
+    -webkit-mask-image: radial-gradient(circle, #000 0 67%, transparent 69%);
+    mask-image: radial-gradient(circle, #000 0 67%, transparent 69%);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-fallback h2,
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-fallback p {
+    color: #51483e !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-fallback p:first-of-type {
+    color: #9b6e28 !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-missing-image {
+    display: none;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-filters {
+    border: 1px solid rgba(176, 141, 87, .28);
+    background: linear-gradient(135deg, #fffdf9 0%, #faf3e8 100%) !important;
+    box-shadow: 0 18px 42px -32px rgba(66, 49, 29, .4);
+    padding: 1rem;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-filters input,
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-filters select {
+    height: 44px !important;
+    border-color: rgba(151, 119, 72, .32) !important;
+    background: #fffdf9 !important;
+    color: #3f3932 !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-filters label > svg {
+    color: #aa7d38 !important;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-filters input:focus,
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-filters select:focus {
+    border-color: #a77a36;
+    box-shadow: 0 0 0 3px rgba(176, 141, 87, .13);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-filters > p {
+    margin-top: .65rem;
+    color: #786b5b;
+    font-size: .75rem;
+    font-weight: 500;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-filters + div {
+    margin-top: 1.5rem;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-editorial-card {
+    border: 1px solid rgba(176, 141, 87, .26);
+    background: linear-gradient(160deg, #fffdf9 0%, #fbf5ec 100%);
+    box-shadow: 0 20px 44px -34px rgba(66, 49, 29, .48);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-card-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    font-size: 1.3rem;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-card-category {
+    color: #8d7047;
+    font-size: .65rem;
+    letter-spacing: .16em;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-card-cta {
+    border: 1px solid #9b7134;
+    background: #a97d3b;
+    color: #fffdf9;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-hero {
+    background: rgba(251, 247, 239, .64);
+    padding-top: 1.25rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-hero::before {
+    content: "";
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    top: -78px;
+    left: -70px;
+    border: 1px solid rgba(176, 141, 87, .12);
+    border-radius: 50%;
+    box-shadow: 0 0 0 18px rgba(176, 141, 87, .035), 0 0 0 36px rgba(176, 141, 87, .02);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-detail-identity {
+    margin-top: 1rem;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-detail-title {
+    margin-top: .75rem;
+  }
+
+  @media (max-width: 430px) {
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-slide {
+      grid-template-columns: minmax(0, 58%) minmax(0, 42%);
+      min-height: 190px;
+    }
+
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-media {
+      min-height: 190px;
+    }
+
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-content {
+      padding: .8rem .9rem 1.15rem;
+    }
+
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-title {
+      font-size: 1.12rem;
+      line-height: 1.15;
+    }
+
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-description {
+      font-size: .68rem;
+      line-height: 1rem;
+    }
+
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-public-empty-state {
+      min-height: 155px;
+      padding: 1.25rem !important;
+    }
+
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-empty > div {
+      min-height: 180px !important;
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
+    }
+
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-empty > div > .relative {
+      min-height: 140px !important;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .hotel-theme-page[data-hotel-theme="grand-mercure"].grand-mercure-dock-layout {
+      height: auto;
+      min-height: 100vh;
+      overflow: visible;
+    }
+
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-scroll-region {
+      height: auto;
+      overflow: visible;
+      padding-bottom: 0;
+      scroll-padding-bottom: 0;
+    }
+
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-last-content {
+      margin-bottom: 1rem;
+      scroll-margin-bottom: 0;
+    }
+
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-hero {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+  }
+
   @media (max-width: 374px) {
     .hotel-theme-page[data-hotel-theme="novotel"] .hotel-theme-hero {
       border-bottom-right-radius: 28px;
@@ -323,7 +717,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hotel-theme-page[data-hotel-theme="novotel"] {
+    .hotel-theme-page[data-hotel-theme="novotel"],
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] {
       scroll-behavior: auto;
     }
   }

@@ -58,7 +58,7 @@ export function NovotelServiceExplorer({
 
   return (
     <div>
-      <div className="rounded-[24px] bg-white p-4 shadow-[0_18px_42px_-32px_rgba(0,43,92,0.24)] ring-1 ring-[color:var(--hotel-border)] md:p-5">
+      <div className="hotel-service-filters rounded-[24px] bg-white p-4 shadow-[0_18px_42px_-32px_rgba(0,43,92,0.24)] ring-1 ring-[color:var(--hotel-border)] md:p-5">
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_260px]">
           <label className="relative block">
             <span className="sr-only">{labels.searchPlaceholder}</span>
@@ -94,23 +94,23 @@ export function NovotelServiceExplorer({
           {visibleItems.map((item) => (
             <article
               key={item.id}
-              className={`relative flex h-full flex-col overflow-hidden rounded-[24px] bg-white p-5 shadow-[0_18px_42px_-32px_rgba(0,43,92,0.26)] ring-1 ${item.href ? 'ring-[#0072CE]/30' : 'ring-[color:var(--hotel-border)]'}`}
+              className={`hotel-service-editorial-card relative flex h-full flex-col overflow-hidden rounded-[24px] bg-white p-5 shadow-[var(--hotel-card-shadow)] ring-1 ${item.href ? 'ring-[color:var(--hotel-accent-border)]' : 'ring-[color:var(--hotel-border)]'}`}
             >
-              {item.href ? <div className="absolute inset-y-0 left-0 w-1 bg-[#0072CE]" aria-hidden="true" /> : null}
+              {item.href ? <div className="absolute inset-y-0 left-0 w-1 bg-[var(--hotel-accent)]" aria-hidden="true" /> : null}
               <div className="flex items-start gap-4">
                 <div className="hotel-theme-icon flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] border">
                   <ServiceIcon iconName={item.icon} className="h-6 w-6" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h2 className="break-words text-lg font-semibold leading-6 text-[color:var(--hotel-primary)]">{item.title}</h2>
-                  {item.category ? <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--hotel-accent)]">{item.category}</p> : null}
+                  <h2 className="hotel-service-card-title break-words text-lg font-semibold leading-6 text-[color:var(--hotel-primary)]">{item.title}</h2>
+                  {item.category ? <p className="hotel-service-card-category mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--hotel-accent)]">{item.category}</p> : null}
                 </div>
               </div>
               <p className="mt-4 whitespace-pre-line break-words text-[15px] leading-6 text-[color:var(--hotel-text-muted)]">{item.content}</p>
               {item.href ? (
                 <div className="mt-auto flex justify-end pt-5">
                   <span className="sr-only">{labels.actionAvailable}</span>
-                  <a href={item.href} target={item.isExternal ? '_blank' : undefined} rel={item.isExternal ? 'noreferrer' : undefined} className="inline-flex min-h-11 items-center rounded-[14px] bg-[var(--hotel-accent)] px-4 text-sm font-semibold text-[color:var(--hotel-accent-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2">
+                  <a href={item.href} target={item.isExternal ? '_blank' : undefined} rel={item.isExternal ? 'noreferrer' : undefined} className="hotel-service-card-cta inline-flex min-h-11 items-center rounded-[14px] bg-[var(--hotel-accent)] px-4 text-sm font-semibold text-[color:var(--hotel-accent-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2">
                     {item.cta || labels.open}
                     {item.isExternal ? <ArrowUpRight className="ml-2 h-4 w-4" /> : <ChevronRight className="ml-2 h-4 w-4" />}
                   </a>
@@ -120,7 +120,7 @@ export function NovotelServiceExplorer({
           ))}
         </div>
       ) : (
-        <div className="mt-5 rounded-[24px] border border-dashed border-[color:var(--hotel-border)] bg-white p-8 text-center">
+        <div className="hotel-public-empty-state mt-5 rounded-[24px] border border-dashed border-[color:var(--hotel-border)] bg-white p-8 text-center">
           <Search className="mx-auto h-8 w-8 text-[color:var(--hotel-accent)]" aria-hidden="true" />
           <h2 className="mt-4 text-lg font-semibold text-[color:var(--hotel-primary)]">{labels.noResultsTitle}</h2>
           <p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{labels.noResultsDescription}</p>
