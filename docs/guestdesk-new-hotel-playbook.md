@@ -37,7 +37,7 @@ O dashboard apresenta uma checklist leve dos quatro itens essenciais. Comunicado
 
 - o preset salvo controla apenas a camada visual; não altera conteúdo, permissões ou rotas
 - os cinco presets legados continuam sendo as únicas opções operacionais no admin
-- `novotel` possui experiência pública implementada, mas sua ativação continua manual e homologada por hotel; `libguest-signature`, `grand-mercure` e `mercure` permanecem foundation-only
+- `novotel` e `grand-mercure` possuem experiências públicas implementadas, mas sua ativação continua manual e homologada por hotel; `libguest-signature` e `mercure` permanecem foundation-only
 - no futuro painel interno de provisionamento, bandeiras homologadas usarão o preset próprio; hotéis independentes, outros segmentos e clientes sem bandeira homologada usarão `libguest-signature`
 - `custom` está reservado para evolução futura e ainda não é um preset operacional
 - até existir esse painel, nenhuma associação de preset foundation deve ser automática ou feita por edição comum no admin

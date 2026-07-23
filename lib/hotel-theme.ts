@@ -46,7 +46,7 @@ export const HOTEL_BRAND_PRESETS = [
   {
     value: 'grand-mercure',
     label: 'Grand Mercure',
-    status: 'foundation-only',
+    status: 'experience-implemented',
     legacyFallback: 'graphite-gold',
   },
   {
@@ -470,8 +470,8 @@ const HOTEL_THEME_CONFIGS: Record<HotelVisualPreset, HotelThemeConfig> = {
     label: 'Grand Mercure', kind: 'brand',
     heroClassName: 'bg-[linear-gradient(145deg,#211F1C_0%,#34302B_55%,#5A4C3C_100%)]',
     heroOverlayClassName: 'bg-[radial-gradient(circle_at_top_right,rgba(229,205,161,0.20),transparent_32%),linear-gradient(180deg,rgba(18,16,13,0.04),rgba(18,16,13,0.28))]',
-    tokens: { background: 'linear-gradient(180deg,#F7F3EA 0%,#F2ECE0 48%,#FAF8F3 100%)', surface: '#FFFCF7', surfaceMuted: 'linear-gradient(180deg,#FFFCF7 0%,#F5EFE5 100%)', primary: '#2B2926', accent: '#B08D57', secondary: '#EDE3D2', text: '#2B2926', textMuted: '#70675B', border: 'rgba(124,101,70,0.22)', cardRadius: '24px', heroBackground: 'linear-gradient(145deg,#211F1C 0%,#34302B 55%,#5A4C3C 100%)', heroOverlay: 'radial-gradient(circle at top right,rgba(229,205,161,0.20),transparent 32%),linear-gradient(180deg,rgba(18,16,13,0.04),rgba(18,16,13,0.28))', heroMuted: '#E8DCC7', navigation: '#2B2926', iconStyle: 'outlined', iconColor: '#8B6B3E', buttonRadius: '12px', bannerRadius: '24px' },
-    badgeBackground: 'rgba(255,248,235,0.10)', badgeBorder: 'rgba(229,205,161,0.24)', badgeText: '#F3E6CF', footerBackground: 'rgba(255,252,247,0.94)', footerBorder: 'rgba(176,141,87,0.24)', footerText: '#4B4339', heroSecondaryBg: 'rgba(255,248,235,0.08)', heroSecondaryBorder: 'rgba(229,205,161,0.20)', heroSecondaryText: '#F7EDDD', heroSecondaryHoverBg: 'rgba(255,248,235,0.14)', heroDisabledBg: 'rgba(255,248,235,0.06)', heroDisabledText: 'rgba(247,237,221,0.48)', sectionLabelText: '#746858',
+    tokens: { background: 'linear-gradient(180deg,#FBF7EF 0%,#F4EDE2 52%,#FBF8F2 100%)', surface: '#FFFDF9', surfaceMuted: 'linear-gradient(180deg,#FFFDF9 0%,#F8F1E7 100%)', primary: '#2B2926', accent: '#B08D57', secondary: '#EDE3D2', text: '#2B2926', textMuted: '#70675B', border: 'rgba(124,101,70,0.22)', cardRadius: '24px', cardShadow: '0 18px 45px -32px rgba(66,51,32,.42)', heroBackground: '#FBF7EF', heroOverlay: 'radial-gradient(circle at top left,rgba(211,168,96,.13),transparent 34%)', heroText: '#2B2926', heroMuted: '#70675B', heroRadius: '28px', navigation: '#2B2926', iconStyle: 'outlined', iconColor: '#9A7134', buttonRadius: '12px', bannerBackground: '#FFFDF9', bannerRadius: '22px', helpBackground: '#FFFDF9', signatureBackground: '#292826', signatureText: '#E7DCCA', fontFamily: '"Avenir Next", Avenir, Montserrat, ui-sans-serif, system-ui, sans-serif' },
+    badgeBackground: 'rgba(176,141,87,0.09)', badgeBorder: 'rgba(176,141,87,0.28)', badgeText: '#5A4932', footerBackground: '#292826', footerBorder: 'rgba(176,141,87,0.28)', footerText: '#E7DCCA', heroSecondaryBg: 'rgba(176,141,87,0.08)', heroSecondaryBorder: 'rgba(176,141,87,0.25)', heroSecondaryText: '#4A4035', heroSecondaryHoverBg: 'rgba(176,141,87,0.14)', heroDisabledBg: 'rgba(176,141,87,0.05)', heroDisabledText: 'rgba(74,64,53,0.48)', sectionLabelText: '#746858',
   }),
   mercure: createThemeConfig({
     label: 'Mercure', kind: 'brand',

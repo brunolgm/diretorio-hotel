@@ -18,6 +18,9 @@ import {
   Wifi,
 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
+import { GrandMercureAreaHero } from '@/components/public/grand-mercure/grand-mercure-area-hero';
+import { GrandMercureGlobalMandala } from '@/components/public/grand-mercure/grand-mercure-ornament';
+import { GrandMercureMobileNavigation } from '@/components/public/grand-mercure/grand-mercure-mobile-navigation';
 import { NovotelAreaHero } from '@/components/public/novotel/novotel-area-hero';
 import { NovotelMobileNavigation, type NovotelNavigationKey } from '@/components/public/novotel/novotel-mobile-navigation';
 import { NovotelServiceExplorer } from '@/components/public/novotel/novotel-service-explorer';
@@ -84,7 +87,7 @@ function getAreaCopy(language: SupportedPublicLanguage) {
 
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
-    <div className="mx-auto max-w-2xl rounded-[24px] border border-dashed border-[color:var(--hotel-border)] bg-white p-8 text-center shadow-[0_18px_42px_-34px_rgba(15,23,42,0.24)]">
+    <div className="hotel-public-empty-state relative mx-auto max-w-2xl overflow-hidden rounded-[24px] border border-dashed border-[color:var(--hotel-border)] bg-white p-8 text-center shadow-[0_18px_42px_-34px_rgba(15,23,42,0.24)]">
       <Info className="mx-auto h-8 w-8 text-[color:var(--hotel-accent)]" />
       <h2 className="mt-4 text-lg font-semibold text-[color:var(--hotel-primary)]">{title}</h2>
       <p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{description}</p>
@@ -154,6 +157,8 @@ export function HotelPublicAreaContent({
   const areaCopy = getAreaCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const isNovotel = theme.preset === 'novotel';
+  const isGrandMercure = theme.preset === 'grand-mercure';
+  const isBrandExperience = isNovotel || isGrandMercure;
   const buildAreaHref = (value: PublicHotelAreaKey) => buildPublicHotelAreaHref({ slug: hotel.slug, area: value, language, domainContext, preferSubdomainRoot });
   const homeHref = buildPublicHotelHref({ slug: hotel.slug, language, domainContext, preferSubdomainRoot });
   const basePath = buildPublicHotelAreaHref({ slug: hotel.slug, area, language: 'pt', domainContext, preferSubdomainRoot });
@@ -205,11 +210,23 @@ export function HotelPublicAreaContent({
   });
 
   return (
-    <main className={`hotel-theme-page min-h-screen ${isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] md:pb-12' : 'pb-10'}`} style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+    <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] md:pb-12' : 'pb-10'}`} style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
       <PublicAnalytics hotelId={hotel.id} hotelSlug={hotel.slug} language={language} />
-      <div className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isNovotel ? 'max-w-7xl' : 'max-w-5xl'}`}>
+      {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
+      <div className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
         {isNovotel ? (
           <NovotelAreaHero
+            hotel={hotel}
+            language={language}
+            languageBasePath={basePath}
+            homeHref={homeHref}
+            backLabel={areaCopy.back}
+            title={areaMeta.title}
+            description={areaMeta.description}
+            icon={AreaIcon}
+          />
+        ) : isGrandMercure ? (
+          <GrandMercureAreaHero
             hotel={hotel}
             language={language}
             languageBasePath={basePath}
@@ -238,7 +255,7 @@ export function HotelPublicAreaContent({
           </header>
         )}
 
-        <section className={`mt-6 ${isNovotel ? 'mb-8 md:mb-4' : ''}`}>
+        <section className={`mt-6 ${isGrandMercure ? 'grand-mercure-last-content mb-8 md:mb-4' : isNovotel ? 'mb-8 md:mb-4' : ''}`}>
           {area === 'informacoes' ? (
             <div className="space-y-5">
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -283,7 +300,7 @@ export function HotelPublicAreaContent({
           {area === 'cardapio' ? roomMenuSection ? <ServiceList sections={[roomMenuSection]} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.noMenu} /> : null}
           {area === 'turismo' ? tourismSections.length ? <ServiceList sections={tourismSections} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
           {area === 'comunicados' ? announcements.length ? <div className="grid gap-4 md:grid-cols-2">{announcements.map((announcement) => <article key={announcement.id} className="rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><BellRing className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{announcement.title}</h2><p className="mt-2 whitespace-pre-line text-sm leading-6 text-[color:var(--hotel-text-muted)]">{announcement.body}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
-          {area === 'servicos' ? sections.length ? isNovotel ? (
+          {area === 'servicos' ? sections.length ? isBrandExperience ? (
             <NovotelServiceExplorer
               items={serviceExplorerItems}
               labels={{
@@ -301,6 +318,7 @@ export function HotelPublicAreaContent({
         </section>
       </div>
       {isNovotel ? <NovotelMobileNavigation items={navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
+      {isGrandMercure ? <GrandMercureMobileNavigation items={navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
     </main>
   );
 }
