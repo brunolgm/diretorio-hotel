@@ -27,6 +27,7 @@ export interface Database {
           checkout_time: string | null;
           logo_url: string | null;
           hero_image_url: string | null;
+          brand_code: string | null;
           theme_preset: string | null;
           theme_primary_color: string | null;
           created_at: string | null;
@@ -49,6 +50,7 @@ export interface Database {
           checkout_time?: string | null;
           logo_url?: string | null;
           hero_image_url?: string | null;
+          brand_code?: string | null;
           theme_preset?: string | null;
           theme_primary_color?: string | null;
           created_at?: string | null;
@@ -71,6 +73,7 @@ export interface Database {
           checkout_time?: string | null;
           logo_url?: string | null;
           hero_image_url?: string | null;
+          brand_code?: string | null;
           theme_preset?: string | null;
           theme_primary_color?: string | null;
           created_at?: string | null;

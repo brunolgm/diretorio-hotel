@@ -3,9 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Palette } from 'lucide-react';
 import {
-  DEFAULT_HOTEL_THEME_PRESET,
+  getHotelThemeAccentPreset,
   HOTEL_THEME_ACCENT_SUGGESTIONS,
-  sanitizeHotelThemePreset,
   type HotelThemePreset,
 } from '@/lib/hotel-theme';
 
@@ -28,7 +27,7 @@ export function ThemeColorField({
 }) {
   const [value, setValue] = useState(defaultValue || '');
   const [activePreset, setActivePreset] = useState<HotelThemePreset>(
-    sanitizeHotelThemePreset(preset) ?? DEFAULT_HOTEL_THEME_PRESET
+    getHotelThemeAccentPreset(preset)
   );
   const validColor = useMemo(() => getValidHexColor(value), [value]);
   const swatchColor = validColor ?? NEUTRAL_SWATCH;
@@ -42,9 +41,7 @@ export function ThemeColorField({
     }
 
     const updatePreset = () => {
-      setActivePreset(
-        sanitizeHotelThemePreset(presetSelect.value) ?? DEFAULT_HOTEL_THEME_PRESET
-      );
+      setActivePreset(getHotelThemeAccentPreset(presetSelect.value));
     };
 
     updatePreset();

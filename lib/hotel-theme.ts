@@ -52,7 +52,7 @@ export const HOTEL_BRAND_PRESETS = [
   {
     value: 'mercure',
     label: 'Mercure',
-    status: 'foundation-only',
+    status: 'experience-implemented',
     legacyFallback: 'ivory-noir',
   },
 ] as const satisfies ReadonlyArray<{
@@ -64,6 +64,20 @@ export const HOTEL_BRAND_PRESETS = [
 
 export type HotelBrandPreset = (typeof HOTEL_BRAND_PRESETS)[number]['value'];
 export type HotelVisualPreset = HotelThemePreset | HotelBrandPreset;
+
+export const HOTEL_BRAND_CODES = [
+  'mercure',
+  'novotel',
+  'grand-mercure',
+] as const;
+
+export type HotelBrandCode = (typeof HOTEL_BRAND_CODES)[number];
+
+type HotelAdminThemeGovernanceInput = {
+  brand_code: string | null | undefined;
+  theme_preset: string | null | undefined;
+};
+
 export type HotelIconStyle = 'soft' | 'outlined' | 'solid';
 
 export interface HotelThemeTokens {
@@ -495,11 +509,84 @@ export function sanitizeHotelThemePreset(value: string | null | undefined) {
   return isHotelThemePreset(normalized) ? normalized : null;
 }
 
-function resolveVisualPreset(value: string | null | undefined): HotelVisualPreset {
+export function sanitizeHotelVisualPreset(value: string | null | undefined) {
   const normalized = typeof value === 'string' ? value.trim() : '';
   return isHotelThemePreset(normalized) || isHotelBrandPreset(normalized)
     ? normalized
-    : DEFAULT_HOTEL_THEME_PRESET;
+    : null;
+}
+
+export function isHotelBrandCode(
+  value: string | null | undefined
+): value is HotelBrandCode {
+  return HOTEL_BRAND_CODES.some((brandCode) => brandCode === value);
+}
+
+/**
+ * Transitional compatibility for hotels that already use an official brand
+ * preset. Remove the theme_preset fallback after brand_code is provisioned for
+ * every existing branded hotel.
+ */
+export function resolveAdminHotelBrandCode(
+  hotel: HotelAdminThemeGovernanceInput
+): HotelBrandCode | null {
+  const normalizedBrandCode =
+    typeof hotel.brand_code === 'string' ? hotel.brand_code.trim() : '';
+
+  if (isHotelBrandCode(normalizedBrandCode)) {
+    return normalizedBrandCode;
+  }
+
+  if (normalizedBrandCode) {
+    return null;
+  }
+
+  const normalizedPreset =
+    typeof hotel.theme_preset === 'string' ? hotel.theme_preset.trim() : '';
+
+  return isHotelBrandCode(normalizedPreset) ? normalizedPreset : null;
+}
+
+export function getAllowedAdminThemePresets(hotel: HotelAdminThemeGovernanceInput) {
+  const brandCode = resolveAdminHotelBrandCode(hotel);
+  const configuredBrandPreset = HOTEL_BRAND_PRESETS.find(
+    (preset) =>
+      preset.status === 'experience-implemented' &&
+      preset.value === brandCode
+  );
+
+  return configuredBrandPreset
+    ? [...HOTEL_THEME_PRESETS, configuredBrandPreset]
+    : [...HOTEL_THEME_PRESETS];
+}
+
+export function isAllowedAdminThemePreset(
+  hotel: HotelAdminThemeGovernanceInput,
+  value: string | null | undefined
+): value is HotelVisualPreset {
+  const normalized = typeof value === 'string' ? value.trim() : '';
+  return getAllowedAdminThemePresets(hotel).some(
+    (preset) => preset.value === normalized
+  );
+}
+
+export function getHotelThemeAccentPreset(
+  value: string | null | undefined
+): HotelThemePreset {
+  const normalized = typeof value === 'string' ? value.trim() : '';
+
+  if (isHotelThemePreset(normalized)) {
+    return normalized;
+  }
+
+  return (
+    HOTEL_BRAND_PRESETS.find((preset) => preset.value === normalized)?.legacyFallback ??
+    DEFAULT_HOTEL_THEME_PRESET
+  );
+}
+
+function resolveVisualPreset(value: string | null | undefined): HotelVisualPreset {
+  return sanitizeHotelVisualPreset(value) ?? DEFAULT_HOTEL_THEME_PRESET;
 }
 
 export function resolveHotelTheme(

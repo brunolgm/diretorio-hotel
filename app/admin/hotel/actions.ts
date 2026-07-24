@@ -8,8 +8,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 import { isValidOptionalUrl, readNullableString, readOptionalUrl, readTrimmedString } from '@/lib/form-utils';
 import {
-  isHotelBrandPreset,
-  sanitizeHotelThemePreset,
+  isAllowedAdminThemePreset,
   sanitizeHotelThemePrimaryColor,
 } from '@/lib/hotel-theme';
 import { validateHotelSubdomain } from '@/lib/hotel-subdomain';
@@ -65,6 +64,12 @@ export async function updateHotelAction(formData: FormData) {
     );
   }
 
+  if (!isAllowedAdminThemePreset(hotel, themePresetInput)) {
+    redirect(
+      '/admin/hotel?error=O%20tema%20selecionado%20n%C3%A3o%20%C3%A9%20permitido%20para%20este%20hotel'
+    );
+  }
+
   if (validatedSubdomain.normalizedValue) {
     const { data: conflictingHotel, error: subdomainError } = await supabase
       .from('hotels')
@@ -104,9 +109,7 @@ export async function updateHotelAction(formData: FormData) {
     checkout_time: readNullableString(formData, 'checkout_time'),
     logo_url: readOptionalUrl(formData, 'logo_url'),
     hero_image_url: readOptionalUrl(formData, 'hero_image_url'),
-    theme_preset: isHotelBrandPreset(hotel.theme_preset)
-      ? hotel.theme_preset
-      : sanitizeHotelThemePreset(themePresetInput),
+    theme_preset: themePresetInput,
     theme_primary_color: sanitizeHotelThemePrimaryColor(themePrimaryColorInput),
   };
 

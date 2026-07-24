@@ -1045,6 +1045,15 @@ Importante:
 - Nenhum schema, migration, RLS, SQL, registro de hotel, loader, admin ou integração foi alterado na Sprint 40.
 - Status: implementação visual local concluída e validada nesta branch; ativação do preset e substituição da assinatura tipográfica por logo oficial dependem de provisionamento e ativos homologados.
 
+### Governança de bandeiras e presets
+
+- `hotels.brand_code` representa a identidade permanente da bandeira; `hotels.theme_preset` representa somente a apresentação visual selecionada.
+- O painel administrativo do hotel pode escolher apenas os cinco temas neutros e o preset correspondente ao `brand_code`, sem editar a bandeira.
+- A definição de `brand_code` pertence ao futuro painel interno LibGuest e ao fluxo de onboarding multi-hotel, não ao administrador comum do hotel.
+- Hotéis sem bandeira estruturada recebem apenas temas neutros. Como transição, um preset oficial de marca já persistido pode preservar temporariamente a mesma marca até o provisionamento de `brand_code`.
+- Não existe inferência por nome, slug ou domínio. A ativação inicial deve identificar o hotel por ID imutável, passar por revisão da plataforma e registrar auditoria.
+- Mercure Rio Boutique Copacabana, Novotel Salvador Rio Vermelho e Grand Mercure Rio de Janeiro Copacabana precisarão receber, respectivamente, `mercure`, `novotel` e `grand-mercure` após a aplicação controlada da migration.
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
