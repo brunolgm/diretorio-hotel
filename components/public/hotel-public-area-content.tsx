@@ -24,6 +24,8 @@ import { GrandMercureMobileNavigation } from '@/components/public/grand-mercure/
 import { NovotelAreaHero } from '@/components/public/novotel/novotel-area-hero';
 import { NovotelMobileNavigation, type NovotelNavigationKey } from '@/components/public/novotel/novotel-mobile-navigation';
 import { NovotelServiceExplorer } from '@/components/public/novotel/novotel-service-explorer';
+import { MercureAreaHero } from '@/components/public/mercure/mercure-area-hero';
+import { MercureBottomDock } from '@/components/public/mercure/mercure-bottom-dock';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import { ServiceIcon } from '@/components/service-icon';
 import type { DomainContext } from '@/lib/domain-context';
@@ -111,11 +113,11 @@ function ServiceList({
   openLabel: string;
 }) {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="hotel-public-content-grid grid gap-4 md:grid-cols-2">
       {sections.map((section) => {
         const destination = getServiceDestination(section, pageData.hotel.slug, language, domainContext, { preferSubdomainRoot });
         return (
-          <article key={section.id} className="rounded-[24px] bg-white p-5 shadow-[0_18px_42px_-32px_rgba(0,43,92,0.26)] ring-1 ring-[color:var(--hotel-border)]">
+          <article key={section.id} className="hotel-public-content-card rounded-[24px] bg-white p-5 shadow-[0_18px_42px_-32px_rgba(0,43,92,0.26)] ring-1 ring-[color:var(--hotel-border)]">
             <div className="flex items-start gap-4">
               <div className="hotel-theme-icon flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] border">
                 <ServiceIcon iconName={section.icon} className="h-6 w-6" />
@@ -158,7 +160,8 @@ export function HotelPublicAreaContent({
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const isNovotel = theme.preset === 'novotel';
   const isGrandMercure = theme.preset === 'grand-mercure';
-  const isBrandExperience = isNovotel || isGrandMercure;
+  const isMercure = theme.preset === 'mercure';
+  const isBrandExperience = isNovotel || isGrandMercure || isMercure;
   const buildAreaHref = (value: PublicHotelAreaKey) => buildPublicHotelAreaHref({ slug: hotel.slug, area: value, language, domainContext, preferSubdomainRoot });
   const homeHref = buildPublicHotelHref({ slug: hotel.slug, language, domainContext, preferSubdomainRoot });
   const basePath = buildPublicHotelAreaHref({ slug: hotel.slug, area, language: 'pt', domainContext, preferSubdomainRoot });
@@ -210,7 +213,7 @@ export function HotelPublicAreaContent({
   });
 
   return (
-    <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : 'pb-10'}`} style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+    <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : 'pb-10'}`} style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
       <PublicAnalytics hotelId={hotel.id} hotelSlug={hotel.slug} language={language} />
       {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
       <div className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
@@ -227,6 +230,17 @@ export function HotelPublicAreaContent({
           />
         ) : isGrandMercure ? (
           <GrandMercureAreaHero
+            hotel={hotel}
+            language={language}
+            languageBasePath={basePath}
+            homeHref={homeHref}
+            backLabel={areaCopy.back}
+            title={areaMeta.title}
+            description={areaMeta.description}
+            icon={AreaIcon}
+          />
+        ) : isMercure ? (
+          <MercureAreaHero
             hotel={hotel}
             language={language}
             languageBasePath={basePath}
@@ -255,7 +269,7 @@ export function HotelPublicAreaContent({
           </header>
         )}
 
-        <section className={`mt-6 ${isGrandMercure ? 'grand-mercure-last-content mb-8 md:mb-4' : isNovotel ? 'mb-8 md:mb-4' : ''}`}>
+        <section className={`mt-6 ${isGrandMercure ? 'grand-mercure-last-content mb-8 md:mb-4' : isNovotel || isMercure ? 'mb-8 md:mb-4' : ''}`}>
           {area === 'informacoes' ? (
             <div className="space-y-5">
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -272,7 +286,7 @@ export function HotelPublicAreaContent({
                   { icon: Clock3, title: copy.checkIn, value: hotel.checkin_time || copy.notInformed },
                   { icon: Clock3, title: copy.checkOut, value: hotel.checkout_time || copy.notInformed },
                 ].map((item) => (
-                  <div key={item.title} className="rounded-[22px] bg-white p-4 shadow-[0_16px_36px_-30px_rgba(0,43,92,0.26)] ring-1 ring-[color:var(--hotel-border)]">
+                  <div key={item.title} className="hotel-public-content-card rounded-[22px] bg-white p-4 shadow-[0_16px_36px_-30px_rgba(0,43,92,0.26)] ring-1 ring-[color:var(--hotel-border)]">
                     <item.icon className="h-6 w-6 text-[color:var(--hotel-accent)]" />
                     <p className="mt-3 text-xs font-medium uppercase tracking-[0.12em] text-[color:var(--hotel-text-muted)]">{item.title}</p>
                     <p className="mt-1 break-words text-sm font-semibold text-[color:var(--hotel-primary)]">{item.value}</p>
@@ -282,24 +296,24 @@ export function HotelPublicAreaContent({
                   </div>
                 ))}
               </div>
-              {policies.length ? <div className="grid gap-3 md:grid-cols-2">{policies.map((policy) => <article key={policy.id} className="rounded-[22px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><ShieldCheck className="h-6 w-6 text-[color:var(--hotel-accent)]" /><h2 className="mt-3 font-semibold text-[color:var(--hotel-primary)]">{policy.title}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{policy.description}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} />}
+              {policies.length ? <div className="grid gap-3 md:grid-cols-2">{policies.map((policy) => <article key={policy.id} className="hotel-public-content-card rounded-[22px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><ShieldCheck className="h-6 w-6 text-[color:var(--hotel-accent)]" /><h2 className="mt-3 font-semibold text-[color:var(--hotel-primary)]">{policy.title}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{policy.description}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} />}
             </div>
           ) : null}
           {area === 'contato' ? (
             departments.length || whatsappHref || institutionalLinks.length ? (
               <div className="grid gap-4 md:grid-cols-2">
-                {whatsappHref ? <a href={whatsappHref} target="_blank" rel="noreferrer" data-analytics-event="whatsapp_click" data-analytics-target-url={whatsappHref} data-analytics-label="Public contact area" className="rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><MessageCircle className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">WhatsApp</h2><p className="mt-2 text-sm text-[color:var(--hotel-text-muted)]">{copy.whatsappSupport}</p></a> : null}
+                {whatsappHref ? <a href={whatsappHref} target="_blank" rel="noreferrer" data-analytics-event="whatsapp_click" data-analytics-target-url={whatsappHref} data-analytics-label="Public contact area" className="hotel-public-content-card rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><MessageCircle className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">WhatsApp</h2><p className="mt-2 text-sm text-[color:var(--hotel-text-muted)]">{copy.whatsappSupport}</p></a> : null}
                 {institutionalLinks.map((item) => {
                   const LinkIcon = item.icon;
-                  return <a key={item.href} href={item.href} target="_blank" rel="noreferrer" data-analytics-event={item.event || undefined} data-analytics-target-url={item.event ? item.href : undefined} className="rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><LinkIcon className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{item.label}</h2><p className="mt-2 text-sm text-[color:var(--hotel-text-muted)]">{areaCopy.open}<ArrowUpRight className="ml-1 inline h-4 w-4" /></p></a>;
+                  return <a key={item.href} href={item.href} target="_blank" rel="noreferrer" data-analytics-event={item.event || undefined} data-analytics-target-url={item.event ? item.href : undefined} className="hotel-public-content-card rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><LinkIcon className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{item.label}</h2><p className="mt-2 text-sm text-[color:var(--hotel-text-muted)]">{areaCopy.open}<ArrowUpRight className="ml-1 inline h-4 w-4" /></p></a>;
                 })}
-                {departments.map((department) => <article key={department.id} className="rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><Phone className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{department.name}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{department.description}</p>{department.url ? <a href={department.url} target="_blank" rel="noreferrer" data-analytics-event="department_click" data-analytics-department-id={department.id} data-analytics-target-url={department.url} className="mt-4 inline-flex min-h-11 items-center rounded-[14px] bg-[var(--hotel-accent)] px-4 text-sm font-semibold text-[color:var(--hotel-accent-foreground)]">{department.action || areaCopy.open}<ChevronRight className="ml-2 h-4 w-4" /></a> : null}</article>)}
+                {departments.map((department) => <article key={department.id} className="hotel-public-content-card rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><Phone className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{department.name}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{department.description}</p>{department.url ? <a href={department.url} target="_blank" rel="noreferrer" data-analytics-event="department_click" data-analytics-department-id={department.id} data-analytics-target-url={department.url} className="mt-4 inline-flex min-h-11 items-center rounded-[14px] bg-[var(--hotel-accent)] px-4 text-sm font-semibold text-[color:var(--hotel-accent-foreground)]">{department.action || areaCopy.open}<ChevronRight className="ml-2 h-4 w-4" /></a> : null}</article>)}
               </div>
             ) : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} />
           ) : null}
           {area === 'cardapio' ? roomMenuSection ? <ServiceList sections={[roomMenuSection]} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.noMenu} /> : null}
           {area === 'turismo' ? tourismSections.length ? <ServiceList sections={tourismSections} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
-          {area === 'comunicados' ? announcements.length ? <div className="grid gap-4 md:grid-cols-2">{announcements.map((announcement) => <article key={announcement.id} className="rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><BellRing className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{announcement.title}</h2><p className="mt-2 whitespace-pre-line text-sm leading-6 text-[color:var(--hotel-text-muted)]">{announcement.body}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
+          {area === 'comunicados' ? announcements.length ? <div className="grid gap-4 md:grid-cols-2">{announcements.map((announcement) => <article key={announcement.id} className="hotel-public-content-card rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><BellRing className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{announcement.title}</h2><p className="mt-2 whitespace-pre-line text-sm leading-6 text-[color:var(--hotel-text-muted)]">{announcement.body}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
           {area === 'servicos' ? sections.length ? isBrandExperience ? (
             <NovotelServiceExplorer
               items={serviceExplorerItems}
@@ -316,9 +330,15 @@ export function HotelPublicAreaContent({
             />
           ) : <ServiceList sections={sections} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
         </section>
+        {isMercure ? (
+          <footer className="mercure-internal-footer px-6 pt-2 pb-1 text-center text-[10px] font-medium tracking-[.18em] text-[#685d64] md:pt-4 md:pb-0 md:text-xs">
+            Powered by <span className="tracking-normal text-[#52204f]">LibGuest</span>
+          </footer>
+        ) : null}
       </div>
       {isNovotel ? <NovotelMobileNavigation items={navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
       {isGrandMercure ? <GrandMercureMobileNavigation items={navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
+      {isMercure ? <MercureBottomDock items={navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
     </main>
   );
 }

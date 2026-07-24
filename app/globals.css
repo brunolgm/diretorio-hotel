@@ -456,6 +456,223 @@
     backdrop-filter: blur(2px);
   }
 
+  .mercure-internal-page[data-hotel-theme="mercure"] {
+    --mercure-plum: #52204f;
+    --mercure-plum-dark: #3d173c;
+    --mercure-plum-medium: #71386e;
+    --mercure-background: #fbf7f8;
+    --mercure-rose: #f4ecef;
+    --mercure-warm-white: #fffdfd;
+    --mercure-text: #342b31;
+    --mercure-text-muted: #685d64;
+    --hotel-primary: #52204f;
+    --hotel-accent: #71386e;
+    --hotel-accent-foreground: #ffffff;
+    --hotel-text: #342b31;
+    --hotel-text-muted: #685d64;
+    --hotel-border: rgba(82, 32, 79, .12);
+    --hotel-accent-border: rgba(82, 32, 79, .22);
+    --hotel-card-shadow: 0 20px 48px -34px rgba(61, 23, 60, .38);
+    position: relative;
+    overflow-x: clip;
+    background: linear-gradient(180deg, #fbf7f8 0%, #f8f1f3 52%, #fbf7f8 100%);
+    color: var(--mercure-text);
+    font-family: "Avenir Next", Avenir, Montserrat, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .mercure-internal-hero-media {
+    z-index: 0;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .mercure-internal-hero-media img {
+    filter: brightness(1.08) saturate(1.06) sepia(.04) contrast(1.01);
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .mercure-internal-hero-overlay {
+    z-index: 1;
+    background:
+      linear-gradient(180deg, rgba(251,247,248,.84) 0%, rgba(251,247,248,.57) 42%, rgba(251,247,248,.77) 100%),
+      linear-gradient(90deg, #fbf7f8 0%, rgba(251,247,248,.92) 42%, rgba(251,247,248,.34) 74%, rgba(251,247,248,.04) 100%);
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .mercure-internal-hero-floral {
+    z-index: 2;
+    background: url("/brand/mercure/mercure-floral-pattern.svg") no-repeat -140px -104px / 860px auto;
+    opacity: .24;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .mercure-official-monogram,
+  .mercure-internal-page[data-hotel-theme="mercure"] .mercure-official-wordmark {
+    background-color: currentColor;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .mercure-official-monogram {
+    -webkit-mask-image: url("/brand/mercure/mercure-monogram-official.svg");
+    mask-image: url("/brand/mercure/mercure-monogram-official.svg");
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .mercure-official-wordmark {
+    -webkit-mask-image: url("/brand/mercure/mercure-wordmark-official.svg");
+    mask-image: url("/brand/mercure/mercure-wordmark-official.svg");
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-theme-language-trigger {
+    border-color: rgba(82, 32, 79, .22) !important;
+    background: rgba(255, 253, 253, .96) !important;
+    color: #52204f !important;
+    box-shadow: 0 12px 28px -20px rgba(61, 23, 60, .5) !important;
+    backdrop-filter: blur(14px);
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-theme-language-trigger svg {
+    color: #52204f !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-theme-language-trigger:hover {
+    border-color: rgba(82, 32, 79, .34) !important;
+    background: #fffdfd !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-theme-language-trigger:focus-visible {
+    outline: 2px solid #71386e !important;
+    outline-offset: 3px !important;
+    box-shadow: 0 0 0 3px rgba(255, 253, 253, .94), 0 12px 28px -20px rgba(61, 23, 60, .5) !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-theme-language-menu {
+    border-color: rgba(82, 32, 79, .12);
+    background: rgba(255, 253, 253, .97);
+    color: #342b31;
+    box-shadow: 0 24px 58px -28px rgba(61, 23, 60, .52);
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-theme-language-menu > div:first-child {
+    color: #71386e !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-theme-language-menu a {
+    opacity: 1 !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-theme-language-menu a:not([aria-current="page"]) {
+    color: #5f3859 !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-theme-language-menu a[aria-current="page"] {
+    background: #f7edf3 !important;
+    color: #52204f !important;
+    box-shadow: inset 0 0 0 1px rgba(82, 32, 79, .12) !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-theme-language-menu a:hover {
+    background: #f4e7ee !important;
+    color: #52204f !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-theme-language-menu a:focus-visible {
+    outline: 2px solid #71386e !important;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px #fffdfd !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-theme-icon {
+    border-color: rgba(82, 32, 79, .14);
+    background: #f7edf3;
+    color: #52204f;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-public-content-card,
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-service-editorial-card {
+    border: 1px solid rgba(82, 32, 79, .11);
+    background: linear-gradient(155deg, #fffdfd 0%, #fdf9fa 100%);
+    box-shadow: 0 20px 48px -34px rgba(61, 23, 60, .38);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] a.hotel-public-content-card:hover,
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-service-editorial-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(82, 32, 79, .2);
+    box-shadow: 0 25px 54px -34px rgba(61, 23, 60, .46);
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] a.hotel-public-content-card:focus-visible {
+    outline: 2px solid #71386e;
+    outline-offset: 3px;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-service-filters {
+    border: 1px solid rgba(82, 32, 79, .13);
+    background: linear-gradient(145deg, #fffdfd 0%, #f9f2f5 100%) !important;
+    box-shadow: 0 20px 48px -34px rgba(61, 23, 60, .38);
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-service-filters input,
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-service-filters select {
+    border-color: rgba(82, 32, 79, .18) !important;
+    background: #fffdfd !important;
+    color: #342b31 !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-service-filters input::placeholder {
+    color: #82737d !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-service-filters label > svg {
+    color: #71386e !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-service-filters input:focus,
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-service-filters select:focus {
+    border-color: #71386e !important;
+    box-shadow: 0 0 0 3px rgba(113, 56, 110, .14) !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-service-card-title {
+    color: #52204f;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-service-card-category {
+    color: #71386e;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-service-card-cta {
+    border: 1px solid #52204f;
+    background: #52204f;
+    color: #fff;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-public-empty-state {
+    max-width: 48rem;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-style: solid;
+    border-color: rgba(82, 32, 79, .14);
+    background: linear-gradient(145deg, #fffdfd 0%, #f9f1f4 100%);
+    box-shadow: 0 22px 50px -38px rgba(61, 23, 60, .45);
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-public-empty-state svg {
+    color: #71386e;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .hotel-public-empty-state h2 {
+    color: #52204f;
+    margin-top: .75rem !important;
+  }
+
+  .mercure-internal-page[data-hotel-theme="mercure"] .mercure-internal-footer {
+    border-top: 1px solid rgba(82, 32, 79, .08);
+  }
+
   @media (max-width: 430px) {
     .mercure-public-home[data-hotel-theme="mercure"] .mercure-page-floral {
       background-position: 46% top;
@@ -474,6 +691,12 @@
         linear-gradient(90deg, #52204f 0%, #52204f 42%, rgba(82,32,79,.9) 58%, rgba(82,32,79,.16) 82%, transparent 100%),
         linear-gradient(180deg, rgba(61,23,60,.03), rgba(61,23,60,.18));
     }
+
+    .mercure-internal-page[data-hotel-theme="mercure"] .mercure-internal-hero-floral {
+      background-position: 58% -84px;
+      background-size: 620px auto;
+      opacity: .2;
+    }
   }
 
   @media (min-width: 768px) {
@@ -487,6 +710,18 @@
       background:
         linear-gradient(180deg, rgba(251,247,248,.72) 0%, rgba(251,247,248,.28) 34%, rgba(251,247,248,.02) 70%, transparent 100%),
         linear-gradient(90deg, #fbf7f8 0%, rgba(251,247,248,.96) 29%, rgba(251,247,248,.52) 48%, rgba(251,247,248,.12) 66%, rgba(251,247,248,.01) 84%);
+    }
+
+    .mercure-internal-page[data-hotel-theme="mercure"] .mercure-internal-hero-overlay {
+      background:
+        linear-gradient(180deg, rgba(251,247,248,.82) 0%, rgba(251,247,248,.48) 44%, rgba(251,247,248,.72) 100%),
+        linear-gradient(90deg, #fbf7f8 0%, rgba(251,247,248,.9) 38%, rgba(251,247,248,.28) 72%, rgba(251,247,248,.03) 100%);
+    }
+
+    .mercure-internal-page[data-hotel-theme="mercure"] .mercure-internal-hero-floral {
+      background-position: -160px -110px;
+      background-size: 980px auto;
+      opacity: .22;
     }
   }
 
@@ -510,6 +745,15 @@
     .mercure-public-home[data-hotel-theme="mercure"] *,
     .mercure-public-home[data-hotel-theme="mercure"] *::before,
     .mercure-public-home[data-hotel-theme="mercure"] *::after {
+      scroll-behavior: auto !important;
+      transition-duration: .01ms !important;
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+
+    .mercure-internal-page[data-hotel-theme="mercure"] *,
+    .mercure-internal-page[data-hotel-theme="mercure"] *::before,
+    .mercure-internal-page[data-hotel-theme="mercure"] *::after {
       scroll-behavior: auto !important;
       transition-duration: .01ms !important;
       animation-duration: .01ms !important;

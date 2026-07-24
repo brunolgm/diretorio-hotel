@@ -1064,6 +1064,18 @@ Importante:
 - As seis páginas internas Mercure continuam funcionais, porém genéricas, e foram encaminhadas integralmente para a Sprint 42.
 - A Sprint 41 não reconstruiu páginas internas, não alterou loaders, dados, rotas, analytics, Supabase ou isolamento multi-hotel.
 
+### Registro curto da Sprint 42
+
+- Status: identidade visual das seis páginas internas Mercure implementada e homologada localmente.
+- `HotelPublicAreaContent` continua como arquitetura única para Serviços, Informações, Turismo, Comunicados, Contato Online e Cardápio; a variante visual depende exclusivamente do preset resolvido `mercure`.
+- O hero interno reutiliza a imagem pública existente, o floral aprovado, a assinatura oficial em variante compacta, o seletor compartilhado e as cópias PT/EN/ES existentes.
+- Busca, filtros, cards, destinos, analytics e loaders não foram duplicados. O explorer compartilhado ganhou somente apresentação Mercure isolada por `data-hotel-theme`.
+- O dock Mercure permanece visível até 1024 px e oculto a partir de 1025 px, com safe area e reserva inferior.
+- A matriz percorreu Serviços Mercure nos dez viewports obrigatórios, as seis áreas em PT/EN/ES e regressões de Serviços Novotel/Grand Mercure em mobile, tablet e desktop.
+- O ambiente Mercure estava vazio; nenhum conteúdo fictício foi persistido. Loading/erro públicos por preset, `<html lang>` dinâmico e detalhe de serviço branded permanecem como evoluções futuras.
+- Arquitetura, cobertura, evidências e pendências estão em `docs/SPRINT_42_INTERNAL_PAGES_BRANDING.md`.
+- Não houve alteração de schema, migration, RLS, configuração Supabase ou dados de hotel.
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
