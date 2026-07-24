@@ -26,7 +26,8 @@ import {
 import { requireAdminAccess } from '@/lib/auth';
 import {
   DEFAULT_HOTEL_THEME_PRESET,
-  HOTEL_THEME_PRESETS,
+  getAllowedAdminThemePresets,
+  isHotelBrandCode,
   resolveHotelTheme,
 } from '@/lib/hotel-theme';
 import {
@@ -102,6 +103,7 @@ function SetupChecklistItem({
 export default async function AdminHotelPage({ searchParams }: AdminHotelPageProps) {
   await requireAdminAccess('editor');
   const hotel = await getAdminHotel();
+  const allowedThemePresets = getAllowedAdminThemePresets(hotel);
   const params = searchParams ? await searchParams : {};
   const success = params?.success;
   const error = params?.error;
@@ -494,7 +496,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 defaultValue={hotel.theme_preset || DEFAULT_HOTEL_THEME_PRESET}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
               >
-                {HOTEL_THEME_PRESETS.map((preset) => (
+                {allowedThemePresets.map((preset) => (
                   <option key={preset.value} value={preset.value}>
                     {preset.label}
                   </option>
@@ -504,6 +506,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 Escolha uma base visual premium e controlada. O preset define os fundos, a
                 atmosfera e os acabamentos principais do diretório. Mesmo sem ajustes extras, o preset padrão mantém a apresentação pública estável.
               </AdminHelpText>
+              {!isHotelBrandCode(hotel.brand_code) ? (
+                <AdminHelpText>
+                  A bandeira deste hotel ainda não foi definida pela administração da plataforma.
+                </AdminHelpText>
+              ) : null}
             </div>
 
             <div className="space-y-2 md:col-span-2">
