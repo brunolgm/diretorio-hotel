@@ -29,7 +29,7 @@ export function MercureBottomDock({
   return (
     <nav
       aria-label={ariaLabel}
-      className="mercure-bottom-dock fixed inset-x-0 bottom-0 z-40 border-t border-[#52204f]/10 bg-[#fffdfd]/96 pb-[env(safe-area-inset-bottom)] shadow-[0_-16px_42px_-28px_rgba(61,23,60,.34)] backdrop-blur-xl md:hidden"
+      className="mercure-bottom-dock fixed inset-x-0 bottom-0 z-40 border-t border-[#52204f]/10 bg-[#fffdfd]/96 pb-[env(safe-area-inset-bottom)] shadow-[0_-16px_42px_-28px_rgba(61,23,60,.34)] backdrop-blur-xl min-[1025px]:hidden"
     >
       <div className="mx-auto grid min-h-[68px] max-w-[430px] grid-cols-5 px-1.5 py-1.5">
         {items.map((item) => {

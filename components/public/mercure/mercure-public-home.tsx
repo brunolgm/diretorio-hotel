@@ -119,7 +119,7 @@ export function MercurePublicHome({
 
   return (
     <main
-      className="hotel-theme-page mercure-public-home min-h-screen pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-10"
+      className="hotel-theme-page mercure-public-home min-h-screen pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-10"
       style={theme.cssVars}
       data-hotel-theme={theme.preset}
       data-hotel-icon-style={theme.iconStyle}
