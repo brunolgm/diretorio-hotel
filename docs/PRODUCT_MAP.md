@@ -1031,6 +1031,20 @@ Importante:
 - Hero com imagem foi conferido no ambiente atual; o fallback sem imagem permanece coberto pelo componente sem depender de banner.
 - Comparação direta das referências conferiu ordem, primeira dobra, proporções, grade 2x3, densidade, luminosidade do hero, presença da marca, banner, ajuda e navegação. A conferência final do render em 320, 390, 430 px, iPhone 14 Pro Max e desktop permanece no checklist manual.
 
+### Registro curto das Sprints 38, 39 e 40
+
+- Sprints 38 e 39: encerradas com a experiência Grand Mercure isolada no preset `grand-mercure`, incluindo os refinamentos finais de assinatura, fundo e faixa editorial, sem alteração de banco.
+- Sprint 40: aberta nesta branch para implementar a identidade pública Mercure Rio Boutique Copacabana conforme `docs/references/mercure-rio-boutique-copacabana-mockup.png`.
+- `HotelPublicPageContent` delega a composição somente quando `resolveHotelTheme(...).preset === 'mercure'`; não há decisão por slug, nome, subdomínio ou hotel fixo.
+- A home Mercure preserva os loaders e dados compartilhados e mantém a ordem: hero, seis acessos, banner dinâmico/fallback, ajuda, assinatura e navegação inferior mobile.
+- Dados administrativos continuam sendo a primeira fonte para logo, hero e banners. Na ausência atual de logo e mídia configurados, a experiência usa assinatura tipográfica temporária e fallbacks fotográficos próprios em `public/brand/mercure/`.
+- Textos PT/EN/ES foram adicionados ao mecanismo existente em `lib/public-copy.ts`; rotas, destinos, analytics, QR, roomToken, Thex e WhatsApp permanecem compartilhados.
+- Componentes principais: `components/public/mercure/mercure-public-home.tsx`, `mercure-brand-signature.tsx`, `mercure-promotional-banner.tsx` e `mercure-bottom-dock.tsx`.
+- Integração visual: `components/public/hotel-public-page-content.tsx`, `lib/public-copy.ts`, `app/globals.css` e ativos em `public/brand/mercure/`.
+- Isolamento visual usa `.mercure-public-home[data-hotel-theme="mercure"]`; Novotel, Grand Mercure, LibGuest Signature, presets legados e páginas internas não recebem essas regras.
+- Nenhum schema, migration, RLS, SQL, registro de hotel, loader, admin ou integração foi alterado na Sprint 40.
+- Status: implementação visual local concluída e validada nesta branch; ativação do preset e substituição da assinatura tipográfica por logo oficial dependem de provisionamento e ativos homologados.
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
@@ -1120,7 +1134,13 @@ Importante:
 - implementada localmente: composição visual Novotel pronta para revisão manual, sem ativação ou alteração de dados
 
 ### Sprint 38
-- prevista: aplicação Grand Mercure e consolidação/aplicação Mercure
+- concluída: aplicação da experiência Grand Mercure
+
+### Sprint 39
+- concluída: refinamentos finais da experiência Grand Mercure
+
+### Sprint 40
+- implementação visual local concluída para revisão: identidade pública Mercure Rio Boutique Copacabana, sem ativação ou alteração de dados
 
 ### Nota de roadmap
 - Este roadmap é direcional e pode ser repriorizado.

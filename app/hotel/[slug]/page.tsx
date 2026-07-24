@@ -5,6 +5,7 @@ import { getPublicHotelPageDataBySlug } from '@/lib/public-hotel-data';
 import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
 import { readRoomContext } from '@/lib/room-context';
 import { resolveActiveRoomContextForHotel } from '@/lib/room-links';
+import { resolveDevelopmentThemePreview } from '@/lib/public-theme-preview';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +15,7 @@ interface PageProps {
   }>;
   searchParams?: Promise<{
     lang?: string;
+    previewPreset?: string | string[];
   }>;
 }
 
@@ -21,6 +23,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
   const { slug } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const language: SupportedPublicLanguage = normalizePublicLanguage(resolvedSearchParams?.lang);
+  const previewPreset = resolveDevelopmentThemePreview(resolvedSearchParams?.previewPreset);
   const domainContext = await getRequestDomainContext();
   const pageData = await getPublicHotelPageDataBySlug(slug, language);
 
@@ -36,10 +39,13 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
           roomToken: roomContext.roomToken,
         })
       : null;
+  const renderHotel = previewPreset
+    ? { ...pageData.hotel, theme_preset: previewPreset }
+    : pageData.hotel;
 
   return (
     <HotelPublicPageContent
-      hotel={pageData.hotel}
+      hotel={renderHotel}
       banners={pageData.banners}
       announcements={pageData.announcements}
       sections={pageData.sections}

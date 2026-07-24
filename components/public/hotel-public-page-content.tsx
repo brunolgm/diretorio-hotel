@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { GrandMercurePublicHome } from '@/components/public/grand-mercure/grand-mercure-public-home';
+import { MercurePublicHome } from '@/components/public/mercure/mercure-public-home';
 import { NovotelPublicHome } from '@/components/public/novotel/novotel-public-home';
 import { PromotionalBannerCarousel } from '@/components/public/promotional-banner-carousel';
 import { PublicAnalytics } from '@/components/public/public-analytics';
@@ -328,6 +329,7 @@ export function HotelPublicPageContent({
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const isNovotelExperience = theme.preset === 'novotel';
   const isGrandMercureExperience = theme.preset === 'grand-mercure';
+  const isMercureExperience = theme.preset === 'mercure';
   const useSubdomainRoot =
     preferSubdomainRoot ??
     shouldPreferHotelSubdomainRoot({
@@ -358,6 +360,17 @@ export function HotelPublicPageContent({
   if (isGrandMercureExperience) {
     return (
       <GrandMercurePublicHome
+        pageData={{ hotel, banners, announcements, sections, departments, policies, hasFallbackContent }}
+        language={language}
+        domainContext={domainContext}
+        preferSubdomainRoot={useSubdomainRoot}
+      />
+    );
+  }
+
+  if (isMercureExperience) {
+    return (
+      <MercurePublicHome
         pageData={{ hotel, banners, announcements, sections, departments, policies, hasFallbackContent }}
         language={language}
         domainContext={domainContext}

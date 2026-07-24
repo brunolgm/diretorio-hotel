@@ -10,6 +10,18 @@ type PublicCopy = {
   navigationTourism: string;
   navigationLabel: string;
   novotelHeroDescription: string;
+  mercureHeroDescription: string;
+  mercureInformationDescription: string;
+  mercureContactDescription: string;
+  mercureMenuDescription: string;
+  mercureTourismDescription: string;
+  mercureAnnouncementsDescription: string;
+  mercureServicesDescription: string;
+  mercureBannerEyebrow: string;
+  mercureBannerTitle: string;
+  mercureBannerCta: string;
+  mercureBannerPrevious: string;
+  mercureBannerNext: string;
   editorialInformationTitle: string;
   editorialContactTitle: string;
   editorialMenuTitle: string;
@@ -105,6 +117,18 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     navigationTourism: 'Turismo',
     navigationLabel: 'Navegação principal do hotel',
     novotelHeroDescription: 'Tudo o que você precisa para aproveitar sua estadia.',
+    mercureHeroDescription: 'A experiência Mercure,\ndo seu jeito.',
+    mercureInformationDescription: 'Informações gerais do hotel',
+    mercureContactDescription: 'Fale com nossa equipe',
+    mercureMenuDescription: 'Room Service e restaurantes',
+    mercureTourismDescription: 'Descubra o melhor do Rio',
+    mercureAnnouncementsDescription: 'Fique por dentro das novidades',
+    mercureServicesDescription: 'Tudo que você precisa durante a sua estadia',
+    mercureBannerEyebrow: 'VIVA NOVAS EXPERIÊNCIAS',
+    mercureBannerTitle: 'DESCONTOS\nEXCLUSIVOS',
+    mercureBannerCta: 'CONFIRA',
+    mercureBannerPrevious: 'Banner anterior',
+    mercureBannerNext: 'Próximo banner',
     editorialInformationTitle: 'Informações',
     editorialContactTitle: 'Contato Online',
     editorialMenuTitle: 'Cardápio',
@@ -217,6 +241,18 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     navigationTourism: 'Tourism',
     navigationLabel: 'Hotel main navigation',
     novotelHeroDescription: 'Everything you need to make the most of your stay.',
+    mercureHeroDescription: 'The Mercure experience,\nyour way.',
+    mercureInformationDescription: 'General hotel information',
+    mercureContactDescription: 'Talk to our team',
+    mercureMenuDescription: 'Room Service and restaurants',
+    mercureTourismDescription: 'Discover the best of Rio',
+    mercureAnnouncementsDescription: 'Stay up to date with the latest news',
+    mercureServicesDescription: 'Everything you need during your stay',
+    mercureBannerEyebrow: 'LIVE NEW EXPERIENCES',
+    mercureBannerTitle: 'EXCLUSIVE\nOFFERS',
+    mercureBannerCta: 'DISCOVER',
+    mercureBannerPrevious: 'Previous banner',
+    mercureBannerNext: 'Next banner',
     editorialInformationTitle: 'Information',
     editorialContactTitle: 'Online Contact',
     editorialMenuTitle: 'Menu',
@@ -329,6 +365,18 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     navigationTourism: 'Turismo',
     navigationLabel: 'Navegación principal del hotel',
     novotelHeroDescription: 'Todo lo que necesita para disfrutar su estadía.',
+    mercureHeroDescription: 'La experiencia Mercure,\na tu manera.',
+    mercureInformationDescription: 'Información general del hotel',
+    mercureContactDescription: 'Habla con nuestro equipo',
+    mercureMenuDescription: 'Room Service y restaurantes',
+    mercureTourismDescription: 'Descubre lo mejor de Río',
+    mercureAnnouncementsDescription: 'Mantente al día con las novedades',
+    mercureServicesDescription: 'Todo lo que necesitas durante tu estadía',
+    mercureBannerEyebrow: 'VIVE NUEVAS EXPERIENCIAS',
+    mercureBannerTitle: 'OFERTAS\nEXCLUSIVAS',
+    mercureBannerCta: 'DESCUBRE',
+    mercureBannerPrevious: 'Banner anterior',
+    mercureBannerNext: 'Siguiente banner',
     editorialInformationTitle: 'Información',
     editorialContactTitle: 'Contacto Online',
     editorialMenuTitle: 'Menú',
