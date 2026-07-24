@@ -11,7 +11,7 @@ export function GrandMercureMobileNavigation({ items, activeItem, ariaLabel }: {
   ariaLabel: string;
 }) {
   return (
-    <nav aria-label={ariaLabel} className="grand-mercure-mobile-dock fixed inset-x-0 bottom-0 z-30 box-content h-[94px] bg-[#292826] pb-[env(safe-area-inset-bottom)] text-[#eee3d1] shadow-[0_-16px_38px_-26px_rgba(34,30,24,.65)] md:hidden">
+    <nav aria-label={ariaLabel} className="grand-mercure-mobile-dock fixed inset-x-0 bottom-0 z-30 box-content h-[94px] bg-[#292826] pb-[env(safe-area-inset-bottom)] text-[#eee3d1] shadow-[0_-16px_38px_-26px_rgba(34,30,24,.65)] min-[1025px]:hidden">
       <div className="mx-auto grid h-[68px] max-w-[430px] grid-cols-5 px-1 pt-1.5">
         {items.map((item) => {
           const Icon = ICONS[item.key];

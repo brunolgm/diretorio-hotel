@@ -88,7 +88,7 @@ export function NovotelPublicHome({
 
   return (
     <main
-      className="hotel-theme-page min-h-screen pb-[calc(7.5rem+env(safe-area-inset-bottom))] md:pb-12"
+      className="hotel-theme-page min-h-screen pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12"
       style={theme.cssVars}
       data-hotel-theme={theme.preset}
       data-hotel-icon-style={theme.iconStyle}
@@ -121,7 +121,7 @@ export function NovotelPublicHome({
           </div>
         </section>
 
-        <section className="relative z-10 -mt-6 grid grid-cols-2 gap-2 px-4 md:-mt-10 md:grid-cols-3 md:gap-5 md:px-10">
+        <section className="relative z-10 -mt-6 grid grid-cols-2 gap-2 px-4 md:-mt-10 md:gap-5 md:px-10 xl:grid-cols-3">
           {cards.map((card) => {
             const Icon = card.icon;
             return (

@@ -1054,6 +1054,16 @@ Importante:
 - Não existe inferência por nome, slug ou domínio. A ativação inicial deve identificar o hotel por ID imutável, passar por revisão da plataforma e registrar auditoria.
 - Mercure Rio Boutique Copacabana, Novotel Salvador Rio Vermelho e Grand Mercure Rio de Janeiro Copacabana precisarão receber, respectivamente, `mercure`, `novotel` e `grand-mercure` após a aplicação controlada da migration.
 
+### Registro curto da Sprint 41
+
+- Status: homologação visual, funcional e responsiva concluída localmente com matriz em `docs/SPRINT_41_VISUAL_HOMOLOGATION.md`.
+- A home Novotel passou a usar duas colunas no tablet e três colunas somente a partir de 1280 px, eliminando a quebra palavra por palavra.
+- Os docks Novotel, Grand Mercure e Mercure Home permanecem fixos e visíveis até 1024 px, com safe area e reserva inferior; a partir de 1025 px ficam ocultos.
+- A região de rolagem protegida do Grand Mercure segue ativa enquanto o dock estiver visível.
+- Os seletores de idioma Mercure e Grand Mercure receberam contraste explícito para estados ativo, inativo, hover e foco; Novotel foi preservado.
+- As seis páginas internas Mercure continuam funcionais, porém genéricas, e foram encaminhadas integralmente para a Sprint 42.
+- A Sprint 41 não reconstruiu páginas internas, não alterou loaders, dados, rotas, analytics, Supabase ou isolamento multi-hotel.
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
