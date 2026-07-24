@@ -4,6 +4,7 @@ import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { PromotionalBannerCarousel } from '@/components/public/promotional-banner-carousel';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import { GrandMercureBrandSignature } from './grand-mercure-brand-signature';
+import { GrandMercureBrazilianPillars } from './grand-mercure-brazilian-pillars';
 import { GrandMercureMobileNavigation } from './grand-mercure-mobile-navigation';
 import { GrandMercureGlobalMandala } from './grand-mercure-ornament';
 import type { DomainContext } from '@/lib/domain-context';
@@ -16,9 +17,9 @@ import { buildPublicHotelAreaHref, buildPublicHotelHref, type PublicHotelAreaKey
 type Card = { area: PublicHotelAreaKey; title: string; description: string; icon: ElementType };
 
 function getGrandMercureCopy(language: SupportedPublicLanguage) {
-  if (language === 'en') return { welcome: 'Welcome', description: 'Your premium digital directory', help: 'Our team is available to make your experience even better.' };
-  if (language === 'es') return { welcome: 'Bienvenido', description: 'Su directorio digital premium', help: 'Nuestro equipo está disponible para mejorar aún más su experiencia.' };
-  return { welcome: 'Bem-vindo', description: 'Seu diretório digital premium', help: 'Nossa equipe está à disposição para proporcionar a melhor experiência.' };
+  if (language === 'en') return { welcome: 'Welcome', description: 'An experience in every detail', help: 'Our team is available to make your experience even better.' };
+  if (language === 'es') return { welcome: 'Bienvenido', description: 'Una experiencia en cada detalle', help: 'Nuestro equipo está disponible para mejorar aún más su experiencia.' };
+  return { welcome: 'Bem-vindo', description: 'Uma experiência em cada detalhe', help: 'Nossa equipe está à disposição para proporcionar a melhor experiência.' };
 }
 
 export function GrandMercurePublicHome({ pageData, language, domainContext, preferSubdomainRoot }: {
@@ -72,6 +73,8 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
       </section>
 
       <section className="grand-mercure-banner-zone mt-5 px-3 md:mt-8 md:px-8 lg:px-14"><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></section>
+
+      <GrandMercureBrazilianPillars language={language} />
 
       <section className="grand-mercure-help-zone grand-mercure-last-content relative mx-3 mt-4 flex min-h-[82px] items-center gap-3 rounded-[20px] border border-[#dfd2c0] bg-[#fffdf9] py-4 pr-16 pl-4 shadow-[0_12px_30px_-24px_rgba(56,45,29,.42)] md:mx-8 md:mt-6 md:min-h-[96px] md:px-7 lg:mx-14">
         <CircleHelp className="h-7 w-7 shrink-0 text-[#b38234]" strokeWidth={1.4} />

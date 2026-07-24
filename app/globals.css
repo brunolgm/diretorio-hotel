@@ -547,6 +547,33 @@
     display: none;
   }
 
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-brazilian-pillars article {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-brazilian-pillars article:nth-child(odd) {
+    border-right: 1px solid rgba(176, 141, 87, .2);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-brazilian-pillars article:nth-child(-n+2) {
+    border-bottom: 1px solid rgba(176, 141, 87, .2);
+  }
+
+  .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-promenade {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 30%;
+    pointer-events: none;
+    background: url("/brand/grand-mercure/copacabana-promenade-texture.webp") no-repeat center bottom / 106% 100%;
+    opacity: .31;
+    filter: brightness(.9);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 18%, rgba(0,0,0,.18) 42%, rgba(0,0,0,.58) 68%, #000 92%);
+    mask-image: linear-gradient(to bottom, transparent 0%, transparent 18%, rgba(0,0,0,.18) 42%, rgba(0,0,0,.58) 68%, #000 92%);
+  }
+
   .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-service-filters {
     border: 1px solid rgba(176, 141, 87, .28);
     background: linear-gradient(135deg, #fffdf9 0%, #faf3e8 100%) !important;
@@ -634,6 +661,11 @@
   }
 
   @media (max-width: 430px) {
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-promenade {
+      background-size: auto 100%;
+      opacity: .28;
+    }
+
     .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-banner-slide {
       grid-template-columns: minmax(0, 58%) minmax(0, 42%);
       min-height: 190px;
@@ -695,6 +727,15 @@
     .hotel-theme-page[data-hotel-theme="grand-mercure"] .hotel-theme-hero {
       padding-top: 2rem;
       padding-bottom: 2rem;
+    }
+
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-brazilian-pillars article {
+      border-right: 1px solid rgba(176, 141, 87, .2);
+      border-bottom: 0 !important;
+    }
+
+    .hotel-theme-page[data-hotel-theme="grand-mercure"] .grand-mercure-brazilian-pillars article:last-child {
+      border-right: 0;
     }
   }
 
