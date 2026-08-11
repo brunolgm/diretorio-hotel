@@ -1076,6 +1076,16 @@ Importante:
 - Arquitetura, cobertura, evidências e pendências estão em `docs/SPRINT_42_INTERNAL_PAGES_BRANDING.md`.
 - Não houve alteração de schema, migration, RLS, configuração Supabase ou dados de hotel.
 
+### Registro curto da Sprint 43
+
+- Status: auditoria estática completa do painel administrativo dos hotéis, documentada em `docs/SPRINT_43_ADMIN_AUDIT.md`, sem alteração funcional, SQL, migration, RLS ou dados.
+- O painel do hotel já possui dashboard, hotel/identidade, serviços, departamentos, políticas, comunicados, banners, apartamentos/QR, analytics, usuários, quatro papéis e tradução PT/EN/ES; esses módulos devem ser preservados e refinados, não reconstruídos.
+- O contexto atual é single-hotel por `profiles.hotel_id`. Não existem `allowed_hotels`, contexto ativo ou troca de hotel; essa evolução foi reservada ao onboarding multi-hotel da Sprint 47.
+- Leituras e mutações auditadas aplicam escopo por hotel no servidor. A Sprint 45 deve alinhar a hierarquia de papéis às RLS versionadas, revisar a ingestão pública de analytics e criar governança/auditoria persistente.
+- A Sprint 44 ficou limitada a correções comprovadas: textos corrompidos, acessibilidade, confirmações/pending, contrato de clique de banner, completude de tradução, responsividade das telas densas, ciclo de mídia e paginação/queries.
+- O futuro painel interno LibGuest permanece separado e foi mantido na Sprint 46 para provisionamento, `brand_code`, módulos, usuários globais, planos e governança de plataforma.
+- Custom domain, biblioteca geral de mídia, edição manual de tradução e permissões por módulo continuam condicionados a lacuna/demanda comprovada.
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
