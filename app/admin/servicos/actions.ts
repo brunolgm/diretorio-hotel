@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -76,7 +76,7 @@ export async function createSectionAction(formData: FormData) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
         error: buildOperationalErrorMessage(
-          'o serviÃ§o',
+          'o serviço',
           'criar',
           'Revise os campos e tente novamente.'
         ),
@@ -100,7 +100,7 @@ export async function createSectionAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/servicos', {
-      success: 'ServiÃ§o criado com sucesso',
+      success: 'Serviço criado com sucesso',
       warning: formatTranslationWarning(translationResult),
     })
   );
@@ -115,7 +115,7 @@ export async function deleteSectionAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: 'ServiÃ§o invÃ¡lido para exclusÃ£o.',
+        error: 'Serviço inválido para exclusão.',
       })
     );
   }
@@ -140,7 +140,7 @@ export async function deleteSectionAction(formData: FormData) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
         error: buildOperationalErrorMessage(
-          'o serviÃ§o',
+          'o serviço',
           'excluir',
           'Tente novamente em instantes.'
         ),
@@ -153,7 +153,7 @@ export async function deleteSectionAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/servicos', {
-      success: 'ServiÃ§o excluÃ­do com sucesso',
+      success: 'Serviço excluído com sucesso',
     })
   );
 }
@@ -168,7 +168,7 @@ export async function toggleSectionAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: 'ServiÃ§o invÃ¡lido para atualizaÃ§Ã£o de status.',
+        error: 'Serviço inválido para atualização de status.',
       })
     );
   }
@@ -193,7 +193,7 @@ export async function toggleSectionAction(formData: FormData) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
         error: buildOperationalErrorMessage(
-          'o status do serviÃ§o',
+          'o status do serviço',
           'atualizar',
           'Tente novamente em instantes.'
         ),
@@ -206,7 +206,7 @@ export async function toggleSectionAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/servicos', {
-      success: enabled ? 'ServiÃ§o ativado com sucesso' : 'ServiÃ§o desativado com sucesso',
+      success: enabled ? 'Serviço ativado com sucesso' : 'Serviço desativado com sucesso',
     })
   );
 }
@@ -220,7 +220,7 @@ export async function retranslateSectionAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: 'ServiÃ§o invÃ¡lido para retraduÃ§Ã£o.',
+        error: 'Serviço inválido para retradução.',
       })
     );
   }
@@ -243,7 +243,7 @@ export async function retranslateSectionAction(formData: FormData) {
     });
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
-        error: 'NÃ£o foi possÃ­vel preparar o serviÃ§o para retraduÃ§Ã£o agora.',
+        error: 'Não foi possível preparar o serviço para retradução agora.',
       })
     );
   }
@@ -264,7 +264,7 @@ export async function retranslateSectionAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/servicos', {
-      success: 'RetraduÃ§Ã£o do serviÃ§o concluÃ­da',
+      success: 'Retradução do serviço concluída',
       warning: formatTranslationWarning(translationResult),
     })
   );

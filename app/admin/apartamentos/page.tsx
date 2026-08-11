@@ -1,6 +1,8 @@
-import { BedDouble, CheckCircle2, QrCode, RefreshCw } from 'lucide-react';
+import { BedDouble, CheckCircle2, QrCode } from 'lucide-react';
 import { RoomQrCard } from '@/components/admin/room-qr-card';
 import { FeedbackToast } from '@/components/feedback-toast';
+import { AdminConfirmAction } from '@/components/admin/confirm-action';
+import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
   AdminActionGroup,
   AdminCheckboxRow,
@@ -11,10 +13,9 @@ import {
   AdminHelpList,
   AdminHelpText,
   AdminInfoBadge,
+  AdminInlineError,
   AdminListSummary,
   AdminPageHero,
-  AdminPrimaryButton,
-  AdminSecondaryButton,
   AdminSectionTitle,
   AdminStatCard,
   AdminSurface,
@@ -69,6 +70,7 @@ export default async function AdminRoomsPage({ searchParams }: AdminRoomsPagePro
         error={params?.error}
         warning={params?.warning}
       />
+      <AdminInlineError message={params?.error} />
 
       <AdminPageHero
         eyebrow="qrs por apartamento"
@@ -134,17 +136,18 @@ export default async function AdminRoomsPage({ searchParams }: AdminRoomsPagePro
 
           <form action={createRoomLinkAction}>
             <AdminFormGrid className="mt-8">
-              <AdminField label="Número do apartamento">
-                <AdminTextInput name="room_number" required placeholder="Ex.: 749" />
+              <AdminField label="Número do apartamento" htmlFor="new-room-number">
+                <AdminTextInput id="new-room-number" name="room_number" required placeholder="Ex.: 749" />
               </AdminField>
 
-              <AdminField label="Etiqueta interna">
-                <AdminTextInput name="label" placeholder="Ex.: Apto luxo 749" />
+              <AdminField label="Etiqueta interna" htmlFor="new-room-label">
+                <AdminTextInput id="new-room-label" name="label" placeholder="Ex.: Apto luxo 749" />
                 <AdminHelpText>Opcional. Ajuda a equipe a localizar o registro no painel.</AdminHelpText>
               </AdminField>
 
-              <AdminField label="Link do cardápio Thex" className="md:col-span-2">
+              <AdminField label="Link do cardápio Thex" htmlFor="new-room-menu-url" className="md:col-span-2">
                 <AdminTextInput
+                  id="new-room-menu-url"
                   name="restaurant_menu_url"
                   placeholder="https://..."
                 />
@@ -153,8 +156,9 @@ export default async function AdminRoomsPage({ searchParams }: AdminRoomsPagePro
                 </AdminHelpText>
               </AdminField>
 
-              <AdminField label="Observações" className="md:col-span-2">
+              <AdminField label="Observações" htmlFor="new-room-notes" className="md:col-span-2">
                 <AdminTextarea
+                  id="new-room-notes"
                   name="notes"
                   className="min-h-28"
                   placeholder="Ex.: mesa Thex espelha o número do apartamento."
@@ -170,7 +174,7 @@ export default async function AdminRoomsPage({ searchParams }: AdminRoomsPagePro
             </div>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <AdminPrimaryButton type="submit">Criar apartamento</AdminPrimaryButton>
+              <AdminSubmitButton label="Criar apartamento" pendingLabel="Criando..." className="w-full sm:w-auto" />
               <AdminInfoBadge>O token é aleatório e não expõe o número do quarto na URL</AdminInfoBadge>
             </div>
           </form>
@@ -202,7 +206,7 @@ export default async function AdminRoomsPage({ searchParams }: AdminRoomsPagePro
               return (
                 <div
                   key={roomLink.id}
-                  className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-[0_16px_40px_-34px_rgba(15,23,42,0.22)]"
+                  className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_16px_40px_-34px_rgba(15,23,42,0.22)] sm:rounded-[30px] sm:p-6"
                 >
                   <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
                     <div className="min-w-0 flex-1">
@@ -231,24 +235,27 @@ export default async function AdminRoomsPage({ searchParams }: AdminRoomsPagePro
                           <input type="hidden" name="id" value={roomLink.id} />
 
                           <AdminFormGrid>
-                            <AdminField label="Número do apartamento">
+                            <AdminField label="Número do apartamento" htmlFor={`room-number-${roomLink.id}`}>
                               <AdminTextInput
+                                id={`room-number-${roomLink.id}`}
                                 name="room_number"
                                 defaultValue={roomLink.room_number}
                                 required
                               />
                             </AdminField>
 
-                            <AdminField label="Etiqueta interna">
+                            <AdminField label="Etiqueta interna" htmlFor={`room-label-${roomLink.id}`}>
                               <AdminTextInput
+                                id={`room-label-${roomLink.id}`}
                                 name="label"
                                 defaultValue={roomLink.label || ''}
                                 placeholder="Ex.: Frente elevador"
                               />
                             </AdminField>
 
-                            <AdminField label="Link do cardápio Thex" className="md:col-span-2">
+                            <AdminField label="Link do cardápio Thex" htmlFor={`room-menu-url-${roomLink.id}`} className="md:col-span-2">
                               <AdminTextInput
+                                id={`room-menu-url-${roomLink.id}`}
                                 name="restaurant_menu_url"
                                 defaultValue={roomLink.restaurant_menu_url || ''}
                                 placeholder="https://..."
@@ -258,8 +265,9 @@ export default async function AdminRoomsPage({ searchParams }: AdminRoomsPagePro
                               </AdminHelpText>
                             </AdminField>
 
-                            <AdminField label="Observações" className="md:col-span-2">
+                            <AdminField label="Observações" htmlFor={`room-notes-${roomLink.id}`} className="md:col-span-2">
                               <AdminTextarea
+                                id={`room-notes-${roomLink.id}`}
                                 name="notes"
                                 className="min-h-24"
                                 defaultValue={roomLink.notes || ''}
@@ -281,7 +289,7 @@ export default async function AdminRoomsPage({ searchParams }: AdminRoomsPagePro
 
                           <div className="mt-6">
                             <AdminActionGroup>
-                              <AdminPrimaryButton type="submit">Salvar apartamento</AdminPrimaryButton>
+                              <AdminSubmitButton label="Salvar apartamento" pendingLabel="Salvando..." className="w-full sm:w-auto" />
                             </AdminActionGroup>
                           </div>
                         </form>
@@ -307,18 +315,20 @@ export default async function AdminRoomsPage({ searchParams }: AdminRoomsPagePro
                               name="is_active"
                               value={String(!roomLink.is_active)}
                             />
-                            <AdminSecondaryButton type="submit">
-                              {roomLink.is_active ? 'Inativar' : 'Reativar'}
-                            </AdminSecondaryButton>
+                            <AdminSubmitButton label={roomLink.is_active ? 'Inativar' : 'Reativar'} pendingLabel="Atualizando..." variant="secondary" className="w-full sm:w-auto" />
                           </form>
 
-                          <form action={regenerateRoomTokenAction}>
-                            <input type="hidden" name="id" value={roomLink.id} />
-                            <AdminSecondaryButton type="submit">
-                              <RefreshCw className="mr-2 h-4 w-4" />
-                              Regenerar token
-                            </AdminSecondaryButton>
-                          </form>
+                          <AdminConfirmAction
+                            action={regenerateRoomTokenAction}
+                            title="Regenerar token do QR?"
+                            description={`O QR e o link atuais do apartamento ${roomLink.room_number} deixarão de funcionar. Será necessário usar e imprimir o novo QR.`}
+                            triggerLabel="Regenerar token"
+                            confirmLabel="Regenerar QR"
+                            pendingLabel="Gerando..."
+                            tone="warning"
+                            className="w-full sm:w-auto"
+                            hiddenFields={[{ name: 'id', value: roomLink.id }]}
+                          />
                         </div>
                       ) : null}
                     </div>

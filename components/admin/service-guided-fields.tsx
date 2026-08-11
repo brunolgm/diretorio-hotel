@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ServiceIcon } from '@/components/service-icon';
 import { AdminField, AdminHelpText, AdminSelect, AdminTextInput } from '@/components/admin/ui';
 import {
@@ -34,6 +34,46 @@ export function ServiceGuidedFields({
   const [customCategory, setCustomCategory] = useState(
     initialCategoryExists ? '' : normalizedInitialCategory
   );
+  const iconPickerTriggerRef = useRef<HTMLButtonElement>(null);
+  const iconPickerDialogRef = useRef<HTMLDivElement>(null);
+
+  function closeIconPicker() {
+    setIsIconPickerOpen(false);
+    window.requestAnimationFrame(() => iconPickerTriggerRef.current?.focus());
+  }
+
+  useEffect(() => {
+    if (!isIconPickerOpen) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        closeIconPicker();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const focusable = Array.from(
+        iconPickerDialogRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        ) || []
+      );
+      const first = focusable.at(0);
+      const last = focusable.at(-1);
+
+      if (!first || !last) return;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isIconPickerOpen]);
 
   const resolvedCategory = useMemo(() => {
     return useCustomCategory ? customCategory.trim() : selectedCategory.trim();
@@ -46,7 +86,7 @@ export function ServiceGuidedFields({
 
   return (
     <>
-      <AdminField label="Ícone">
+      <AdminField label="Ícone" htmlFor="service-icon-picker-trigger">
         <input type="hidden" name="icon" value={selectedIcon} />
 
         <div className="flex min-h-12 flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] sm:flex-row sm:items-center sm:justify-between">
@@ -64,6 +104,8 @@ export function ServiceGuidedFields({
           </div>
 
           <button
+            id="service-icon-picker-trigger"
+            ref={iconPickerTriggerRef}
             type="button"
             className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-none transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2 sm:w-auto"
             onClick={() => setIsIconPickerOpen(true)}
@@ -84,9 +126,10 @@ export function ServiceGuidedFields({
           role="dialog"
           aria-modal="true"
           aria-labelledby="service-icon-picker-title"
-          onClick={() => setIsIconPickerOpen(false)}
+          onClick={closeIconPicker}
         >
           <div
+            ref={iconPickerDialogRef}
             className="w-full max-w-2xl rounded-[28px] bg-white p-5 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.45)] ring-1 ring-slate-200/80 md:p-6"
             onClick={(event) => event.stopPropagation()}
           >
@@ -108,7 +151,8 @@ export function ServiceGuidedFields({
 
               <button
                 type="button"
-                onClick={() => setIsIconPickerOpen(false)}
+                onClick={closeIconPicker}
+                autoFocus
                 className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-lg text-slate-500 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2"
                 aria-label="Fechar seletor de ícones"
               >
@@ -124,9 +168,10 @@ export function ServiceGuidedFields({
                   <button
                     key={option.value}
                     type="button"
+                    aria-pressed={isSelected}
                     onClick={() => {
                       setSelectedIcon(option.value);
-                      setIsIconPickerOpen(false);
+                      closeIconPicker();
                     }}
                     className={[
                       'group relative flex h-[84px] min-h-[84px] flex-col items-center justify-center rounded-[18px] border px-2 py-2 text-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2',
@@ -169,10 +214,11 @@ export function ServiceGuidedFields({
         </div>
       ) : null}
 
-      <AdminField label="Categoria">
+      <AdminField label="Categoria" htmlFor="service-category-select">
         <input type="hidden" name="category" value={resolvedCategory} />
 
         <AdminSelect
+          id="service-category-select"
           value={useCustomCategory ? '__custom__' : selectedCategory}
           onChange={(event) => {
             const nextValue = event.target.value;
@@ -201,8 +247,9 @@ export function ServiceGuidedFields({
       </AdminField>
 
       {useCustomCategory ? (
-        <AdminField label="Nova categoria">
+        <AdminField label="Nova categoria" htmlFor="service-custom-category">
           <AdminTextInput
+            id="service-custom-category"
             value={customCategory}
             onChange={(event) => setCustomCategory(event.target.value)}
             placeholder="Ex.: Experiências"

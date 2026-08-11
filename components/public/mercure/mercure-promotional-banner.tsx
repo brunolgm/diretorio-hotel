@@ -64,7 +64,7 @@ export function MercurePromotionalBanner({
             href={banner.cta_url}
             target="_blank"
             rel="noreferrer"
-            data-analytics-event="banner_click"
+            data-analytics-event="website_click"
             data-analytics-target-url={banner.cta_url}
             data-analytics-label={banner.title}
             className="mt-4 inline-flex min-h-10 items-center justify-center rounded-sm border border-white/80 px-5 text-[11px] font-medium tracking-[.04em] transition hover:bg-white hover:text-[#52204f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#52204f] md:mt-6 md:min-h-12 md:px-7 md:text-sm"

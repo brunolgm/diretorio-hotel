@@ -9,6 +9,7 @@ import {
   AdminGuideCard,
   AdminHelpList,
   AdminInfoBadge,
+  AdminInlineError,
   AdminLinkButton,
   AdminListItem,
   AdminPageHero,
@@ -65,6 +66,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
   return (
     <main className="space-y-6">
       <FeedbackToast success={params?.success} error={params?.error} warning={params?.warning} />
+      <AdminInlineError message={params?.error} />
 
       <AdminPageHero
         eyebrow="gestão de acesso"
@@ -154,14 +156,15 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
 
           <form action={createHotelUserAction}>
             <AdminFormGrid className="mt-8">
-              <AdminField label="Nome completo" className="md:col-span-2">
-                <AdminTextInput name="full_name" required placeholder="Ex.: Ana Souza" />
+              <AdminField label="Nome completo" htmlFor="create-user-name" className="md:col-span-2">
+                <AdminTextInput id="create-user-name" name="full_name" required placeholder="Ex.: Ana Souza" />
               </AdminField>
 
-              <AdminField label="E-mail" className="md:col-span-2">
+              <AdminField label="E-mail" htmlFor="create-user-email" className="md:col-span-2">
                 <div className="relative">
                   <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <AdminTextInput
+                    id="create-user-email"
                     type="email"
                     name="email"
                     required
@@ -171,8 +174,9 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                 </div>
               </AdminField>
 
-              <AdminField label="Senha inicial">
+              <AdminField label="Senha inicial" htmlFor="create-user-password">
                 <AdminTextInput
+                  id="create-user-password"
                   type="password"
                   name="password"
                   required
@@ -180,8 +184,8 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                 />
               </AdminField>
 
-              <AdminField label="Papel">
-                <AdminSelect name="role" defaultValue="operador">
+              <AdminField label="Papel" htmlFor="create-user-role">
+                <AdminSelect id="create-user-role" name="role" defaultValue="operador">
                   {APP_ROLE_OPTIONS.map((role) => (
                     <option key={role.value} value={role.value}>
                       {role.label}

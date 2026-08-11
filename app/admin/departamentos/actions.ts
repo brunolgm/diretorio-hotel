@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -100,7 +100,7 @@ export async function deleteDepartmentAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: 'Departamento invÃ¡lido para exclusÃ£o.',
+        error: 'Departamento inválido para exclusão.',
       })
     );
   }
@@ -138,7 +138,7 @@ export async function deleteDepartmentAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/departamentos', {
-      success: 'Departamento excluÃ­do com sucesso',
+      success: 'Departamento excluído com sucesso',
     })
   );
 }
@@ -153,7 +153,7 @@ export async function toggleDepartmentAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: 'Departamento invÃ¡lido para atualizaÃ§Ã£o de status.',
+        error: 'Departamento inválido para atualização de status.',
       })
     );
   }
@@ -205,7 +205,7 @@ export async function retranslateDepartmentAction(formData: FormData) {
   if (!id) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: 'Departamento invÃ¡lido para retraduÃ§Ã£o.',
+        error: 'Departamento inválido para retradução.',
       })
     );
   }
@@ -228,7 +228,7 @@ export async function retranslateDepartmentAction(formData: FormData) {
     });
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
-        error: 'NÃ£o foi possÃ­vel preparar o departamento para retraduÃ§Ã£o agora.',
+        error: 'Não foi possível preparar o departamento para retradução agora.',
       })
     );
   }
@@ -248,7 +248,7 @@ export async function retranslateDepartmentAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/departamentos', {
-      success: 'RetraduÃ§Ã£o do departamento concluÃ­da',
+      success: 'Retradução do departamento concluída',
       warning: formatTranslationWarning(translationResult),
     })
   );

@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -177,7 +177,7 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
     redirect(
       buildFeedbackRedirect(`/admin/usuarios/${id}`, {
         error: buildOperationalErrorMessage(
-          'o acesso do usuÃ¡rio',
+          'o acesso do usuário',
           'atualizar',
           'Tente novamente em instantes.'
         ),
@@ -210,7 +210,7 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
     redirect(
       buildFeedbackRedirect(`/admin/usuarios/${id}`, {
         error: buildOperationalErrorMessage(
-          'o perfil do usuÃ¡rio',
+          'o perfil do usuário',
           'atualizar',
           'Tente novamente em instantes.'
         ),

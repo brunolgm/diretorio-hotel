@@ -93,7 +93,7 @@ export function buildOperationalErrorMessage(
   operation: string,
   guidance = 'Revise os dados informados e tente novamente.'
 ) {
-  return `NÃ£o foi possÃ­vel ${operation} ${subject}. ${guidance}`;
+  return `Não foi possível ${operation} ${subject}. ${guidance}`;
 }
 
 export function logOperationalError({

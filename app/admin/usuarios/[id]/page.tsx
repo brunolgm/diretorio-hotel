@@ -2,6 +2,7 @@
 import { notFound } from 'next/navigation';
 import { FeedbackToast } from '@/components/feedback-toast';
 import {
+  AdminBreadcrumbs,
   AdminCheckboxRow,
   AdminField,
   AdminFormGrid,
@@ -61,6 +62,7 @@ export default async function EditHotelUserPage({ params, searchParams }: PagePr
         error={resolvedSearchParams?.error}
         warning={resolvedSearchParams?.warning}
       />
+      <AdminBreadcrumbs items={[{ label: 'Painel', href: '/admin' }, { label: 'Usuários', href: '/admin/usuarios' }, { label: 'Editar usuário' }]} />
 
       <AdminPageHero
         eyebrow="editar usuário"

@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -96,7 +96,7 @@ export async function createHotelUserAction(formData: FormData) {
     redirect(
       buildFeedbackRedirect('/admin/usuarios', {
         error: buildOperationalErrorMessage(
-          'o usuÃ¡rio',
+          'o usuário',
           'criar',
           'Revise os dados informados e tente novamente.'
         ),
@@ -130,7 +130,7 @@ export async function createHotelUserAction(formData: FormData) {
     redirect(
       buildFeedbackRedirect('/admin/usuarios', {
         error:
-          'O acesso foi iniciado, mas nÃ£o foi possÃ­vel concluir o perfil do usuÃ¡rio. Tente novamente.',
+          'O acesso foi iniciado, mas não foi possível concluir o perfil do usuário. Tente novamente.',
       })
     );
   }
@@ -219,7 +219,7 @@ export async function toggleHotelUserStatusAction(formData: FormData) {
     redirect(
       buildFeedbackRedirect('/admin/usuarios', {
         error: buildOperationalErrorMessage(
-          'o status do usuÃ¡rio',
+          'o status do usuário',
           'atualizar',
           'Tente novamente em instantes.'
         ),

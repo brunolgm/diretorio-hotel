@@ -9,19 +9,19 @@
   MessageCircle,
   ShieldCheck,
   Sparkles,
-  Upload,
   Wifi,
 } from 'lucide-react';
 import { HotelSubdomainField } from '@/components/admin/hotel-subdomain-field';
 import { ThemeColorField } from '@/components/admin/theme-color-field';
 import { FeedbackToast } from '@/components/feedback-toast';
+import { AdminConfirmAction } from '@/components/admin/confirm-action';
+import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
   AdminGuideCard,
   AdminHelpList,
   AdminHelpText,
   AdminInfoBadge,
-  AdminPrimaryButton,
-  AdminSecondaryButton,
+  AdminInlineError,
 } from '@/components/admin/ui';
 import { requireAdminAccess } from '@/lib/auth';
 import {
@@ -127,8 +127,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
   return (
     <main className="space-y-6">
       <FeedbackToast success={success} error={error} />
+      <AdminInlineError message={error} />
 
-      <section className="overflow-hidden rounded-[32px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_55%,#1e293b_100%)] p-8 text-white shadow-sm md:p-10">
+      <section className="overflow-hidden rounded-[26px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_55%,#1e293b_100%)] p-5 text-white shadow-sm sm:rounded-[32px] sm:p-8 md:p-10">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 backdrop-blur">
@@ -203,7 +204,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
           />
         </AdminGuideCard>
 
-        <div className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70">
+        <div className="rounded-[26px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 sm:rounded-[32px] sm:p-8">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-sm text-slate-500">Checklist inicial</p>
@@ -269,7 +270,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
       <section className="grid gap-6 xl:grid-cols-[1.15fr,0.85fr]">
         <form
           action={updateHotelAction}
-          className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70"
+          className="rounded-[26px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 sm:rounded-[32px] sm:p-8"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -303,8 +304,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
 
           <div className="mt-8 grid gap-5 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700">Nome do hotel</label>
+              <label htmlFor="hotel-name" className="block text-sm font-medium text-slate-700">Nome do hotel</label>
               <input
+                id="hotel-name"
                 name="name"
                 defaultValue={hotel.name || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -315,7 +317,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700">Slug público</label>
+              <p className="block text-sm font-medium text-slate-700">Slug público</p>
               <div className="rounded-[24px] border border-slate-200 bg-slate-50/70 p-4">
                 <p className="text-sm font-semibold text-slate-900">{hotel.slug}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -329,10 +331,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700">
+              <label htmlFor="hotel-subdomain" className="block text-sm font-medium text-slate-700">
                 Subdomínio público
               </label>
               <HotelSubdomainField
+                id="hotel-subdomain"
                 name="subdomain"
                 defaultValue={hotel.subdomain || ''}
                 slugFallback={hotel.slug}
@@ -347,8 +350,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Cidade</label>
+              <label htmlFor="hotel-city" className="block text-sm font-medium text-slate-700">Cidade</label>
               <input
+                id="hotel-city"
                 name="city"
                 defaultValue={hotel.city || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -359,8 +363,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700">Imagem de capa URL</label>
+              <label htmlFor="hotel-hero-url" className="block text-sm font-medium text-slate-700">Imagem de capa URL</label>
               <input
+                id="hotel-hero-url"
                 name="hero_image_url"
                 defaultValue={hotel.hero_image_url || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -372,10 +377,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">WhatsApp</label>
+              <label htmlFor="hotel-whatsapp" className="block text-sm font-medium text-slate-700">WhatsApp</label>
               <div className="relative">
                 <MessageCircle className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
+                  id="hotel-whatsapp"
                   name="whatsapp_number"
                   defaultValue={hotel.whatsapp_number || ''}
                   className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-11 pr-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -388,10 +394,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700">Link de reservas</label>
+              <label htmlFor="hotel-booking-url" className="block text-sm font-medium text-slate-700">Link de reservas</label>
               <div className="relative">
                 <Globe className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
+                  id="hotel-booking-url"
                   name="booking_url"
                   defaultValue={hotel.booking_url || ''}
                   className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-11 pr-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -404,10 +411,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700">Link do site</label>
+              <label htmlFor="hotel-website-url" className="block text-sm font-medium text-slate-700">Link do site</label>
               <div className="relative">
                 <Globe className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
+                  id="hotel-website-url"
                   name="website_url"
                   defaultValue={hotel.website_url || ''}
                   className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-11 pr-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -420,10 +428,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700">Instagram</label>
+              <label htmlFor="hotel-instagram-url" className="block text-sm font-medium text-slate-700">Instagram</label>
               <div className="relative">
                 <Globe className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
+                  id="hotel-instagram-url"
                   name="instagram_url"
                   defaultValue={hotel.instagram_url || ''}
                   className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-11 pr-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -436,10 +445,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Wi-Fi</label>
+              <label htmlFor="hotel-wifi-name" className="block text-sm font-medium text-slate-700">Wi-Fi</label>
               <div className="relative">
                 <Wifi className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
+                  id="hotel-wifi-name"
                   name="wifi_name"
                   defaultValue={hotel.wifi_name || ''}
                   className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-11 pr-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -451,8 +461,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Senha do Wi-Fi</label>
+              <label htmlFor="hotel-wifi-password" className="block text-sm font-medium text-slate-700">Senha do Wi-Fi</label>
               <input
+                id="hotel-wifi-password"
                 name="wifi_password"
                 defaultValue={hotel.wifi_password || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -463,8 +474,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Café da manhã</label>
+              <label htmlFor="hotel-breakfast" className="block text-sm font-medium text-slate-700">Café da manhã</label>
               <input
+                id="hotel-breakfast"
                 name="breakfast_hours"
                 defaultValue={hotel.breakfast_hours || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -475,8 +487,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Logo URL</label>
+              <label htmlFor="hotel-logo-url" className="block text-sm font-medium text-slate-700">Logo URL</label>
               <input
+                id="hotel-logo-url"
                 name="logo_url"
                 defaultValue={hotel.logo_url || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -488,10 +501,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700">
+              <label htmlFor="hotel-theme-preset" className="block text-sm font-medium text-slate-700">
                 Preset visual do diretório
               </label>
               <select
+                id="hotel-theme-preset"
                 name="theme_preset"
                 defaultValue={hotel.theme_preset || DEFAULT_HOTEL_THEME_PRESET}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -514,10 +528,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700">
+              <label htmlFor="hotel-theme-color" className="block text-sm font-medium text-slate-700">
                 Cor primária opcional
               </label>
               <ThemeColorField
+                id="hotel-theme-color"
                 name="theme_primary_color"
                 defaultValue={hotel.theme_primary_color || ''}
                 preset={hotel.theme_preset || DEFAULT_HOTEL_THEME_PRESET}
@@ -529,8 +544,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Check-in</label>
+              <label htmlFor="hotel-checkin" className="block text-sm font-medium text-slate-700">Check-in</label>
               <input
+                id="hotel-checkin"
                 name="checkin_time"
                 defaultValue={hotel.checkin_time || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -541,8 +557,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Check-out</label>
+              <label htmlFor="hotel-checkout" className="block text-sm font-medium text-slate-700">Check-out</label>
               <input
+                id="hotel-checkout"
                 name="checkout_time"
                 defaultValue={hotel.checkout_time || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
@@ -554,7 +571,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <AdminPrimaryButton type="submit">Salvar alterações</AdminPrimaryButton>
+            <AdminSubmitButton label="Salvar alterações" pendingLabel="Salvando..." className="w-full sm:w-auto" />
 
             <AdminInfoBadge>
               <ShieldCheck className="h-3.5 w-3.5" />
@@ -564,7 +581,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
         </form>
 
         <div className="space-y-6">
-          <div className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70">
+          <div className="rounded-[26px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 sm:rounded-[32px] sm:p-8">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm text-slate-500">Identidade visual</p>
@@ -624,20 +641,19 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             {hotel.logo_url ? (
-              <form action={removeHotelLogoAction} className="mt-4">
-                <AdminSecondaryButton type="submit" className="border-red-200 text-red-600 hover:bg-red-50 focus-visible:ring-red-200">
-                  Remover logo
-                </AdminSecondaryButton>
-              </form>
+              <div className="mt-4">
+                <AdminConfirmAction action={removeHotelLogoAction} title="Remover logo?" description="A logo deixará de aparecer na experiência pública até que outra seja configurada." triggerLabel="Remover logo" confirmLabel="Remover logo" pendingLabel="Removendo..." />
+              </div>
             ) : null}
 
             <form action={uploadHotelLogoAction} className="mt-6 space-y-4">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
+                <label htmlFor="logo-upload" className="mb-2 block text-sm font-medium text-slate-700">
                   Selecionar arquivo
                 </label>
                 <input
                   type="file"
+                  id="logo-upload"
                   name="logo"
                   accept="image/*"
                   required
@@ -648,14 +664,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 </AdminHelpText>
               </div>
 
-              <AdminPrimaryButton type="submit">
-                <Upload className="mr-2 h-4 w-4" />
-                Enviar logo
-              </AdminPrimaryButton>
+              <AdminSubmitButton label="Enviar logo" pendingLabel="Enviando..." className="w-full sm:w-auto" />
             </form>
           </div>
 
-          <div className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70">
+          <div className="rounded-[26px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 sm:rounded-[32px] sm:p-8">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm text-slate-500">Imagem pública</p>
@@ -690,20 +703,19 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
 
             {hotel.hero_image_url ? (
-              <form action={removeHotelHeroImageAction} className="mt-4">
-                <AdminSecondaryButton type="submit" className="border-red-200 text-red-600 hover:bg-red-50 focus-visible:ring-red-200">
-                  Remover imagem de capa
-                </AdminSecondaryButton>
-              </form>
+              <div className="mt-4">
+                <AdminConfirmAction action={removeHotelHeroImageAction} title="Remover imagem de capa?" description="A experiência pública voltará a usar o fallback visual seguro do preset." triggerLabel="Remover imagem de capa" confirmLabel="Remover imagem" pendingLabel="Removendo..." />
+              </div>
             ) : null}
 
             <form action={uploadHotelHeroImageAction} className="mt-6 space-y-4">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
+                <label htmlFor="hero-image-upload" className="mb-2 block text-sm font-medium text-slate-700">
                   Selecionar imagem horizontal
                 </label>
                 <input
                   type="file"
+                  id="hero-image-upload"
                   name="hero_image"
                   accept="image/jpeg,image/png,image/webp"
                   required
@@ -713,14 +725,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   JPEG, PNG ou WEBP com até 10 MB. Revise o recorte em celular e desktop após o envio.
                 </AdminHelpText>
               </div>
-              <AdminPrimaryButton type="submit">
-                <Upload className="mr-2 h-4 w-4" />
-                Enviar imagem de capa
-              </AdminPrimaryButton>
+              <AdminSubmitButton label="Enviar imagem de capa" pendingLabel="Enviando..." className="w-full sm:w-auto" />
             </form>
           </div>
 
-          <div className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70">
+          <div className="rounded-[26px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 sm:rounded-[32px] sm:p-8">
             <p className="text-sm text-slate-500">Resumo visual</p>
             <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
               Estado atual do hotel

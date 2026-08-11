@@ -2,14 +2,15 @@ import { FileText, Hash } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { ServiceGuidedFields } from '@/components/admin/service-guided-fields';
 import { FeedbackToast } from '@/components/feedback-toast';
+import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
+  AdminBreadcrumbs,
   AdminField,
   AdminFormGrid,
   AdminGuideCard,
   AdminHelpList,
   AdminInfoBadge,
   AdminPageHero,
-  AdminPrimaryButton,
   AdminSectionTitle,
   AdminSelect,
   AdminSurface,
@@ -80,6 +81,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
   return (
     <main className="space-y-6">
       <FeedbackToast success={success} error={errorMessage} warning={warning} />
+      <AdminBreadcrumbs items={[{ label: 'Painel', href: '/admin' }, { label: 'Serviços', href: '/admin/servicos' }, { label: 'Editar serviço' }]} />
 
       <AdminPageHero
         eyebrow="editar serviço"
@@ -206,7 +208,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
           </AdminFormGrid>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <AdminPrimaryButton type="submit">Salvar alterações</AdminPrimaryButton>
+            <AdminSubmitButton label="Salvar alterações" pendingLabel="Salvando..." />
             <AdminInfoBadge>Atualização com feedback visual</AdminInfoBadge>
           </div>
         </form>

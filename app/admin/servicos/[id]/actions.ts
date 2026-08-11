@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -94,7 +94,7 @@ export async function updateSectionAction(id: string, formData: FormData) {
 
   redirect(
     buildFeedbackRedirect(`/admin/servicos/${id}`, {
-      success: 'ServiÃ§o atualizado com sucesso',
+      success: 'Serviço atualizado com sucesso',
       warning: formatTranslationWarning(translationResult),
     })
   );

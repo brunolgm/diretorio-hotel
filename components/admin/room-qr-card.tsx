@@ -72,8 +72,8 @@ export function RoomQrCard({
         </span>
       </div>
 
-      <div className="mt-4 flex items-start gap-4">
-        <div className="flex h-28 w-28 items-center justify-center rounded-[24px] bg-white ring-1 ring-slate-200">
+      <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+        <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-[24px] bg-white ring-1 ring-slate-200">
           {qrDataUrl ? (
             <div
               role="img"
@@ -86,17 +86,17 @@ export function RoomQrCard({
           )}
         </div>
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 w-full flex-1">
           <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
             Link do QR
           </p>
           <p className="mt-2 break-all text-sm leading-6 text-slate-600">{publicUrl}</p>
 
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-4 grid gap-2 sm:flex sm:flex-wrap">
             <button
               type="button"
               onClick={handleCopy}
-              className="inline-flex h-10 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
             >
               {copyState === 'done' ? (
                 <Check className="mr-2 h-4 w-4" />
@@ -110,7 +110,7 @@ export function RoomQrCard({
               <a
                 href={qrDataUrl}
                 download={`libguest-apartamento-${roomNumber}.png`}
-                className="inline-flex h-10 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
               >
                 <Download className="mr-2 h-4 w-4" />
                 Baixar QR

@@ -1,7 +1,9 @@
 import { AlertTriangle, CalendarClock, Megaphone } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { FeedbackToast } from '@/components/feedback-toast';
+import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
+  AdminBreadcrumbs,
   AdminCheckboxRow,
   AdminField,
   AdminFormGrid,
@@ -9,7 +11,6 @@ import {
   AdminHelpList,
   AdminInfoBadge,
   AdminPageHero,
-  AdminPrimaryButton,
   AdminSectionTitle,
   AdminSelect,
   AdminSurface,
@@ -79,6 +80,7 @@ export default async function EditAnnouncementPage({ params, searchParams }: Pag
   return (
     <main className="space-y-6">
       <FeedbackToast success={success} error={errorMessage} warning={warning} />
+      <AdminBreadcrumbs items={[{ label: 'Painel', href: '/admin' }, { label: 'Comunicados', href: '/admin/comunicados' }, { label: 'Editar comunicado' }]} />
 
       <AdminPageHero
         eyebrow="editar comunicado"
@@ -193,7 +195,7 @@ export default async function EditAnnouncementPage({ params, searchParams }: Pag
           </AdminFormGrid>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <AdminPrimaryButton type="submit">Salvar alterações</AdminPrimaryButton>
+            <AdminSubmitButton label="Salvar alterações" pendingLabel="Salvando..." />
             <AdminInfoBadge>
               <AlertTriangle className="h-3.5 w-3.5" />
               Atualização com feedback visual

@@ -1,17 +1,19 @@
-import { AlertTriangle, ImageIcon } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { FeedbackToast } from '@/components/feedback-toast';
+import { AdminConfirmAction } from '@/components/admin/confirm-action';
+import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
+  AdminBreadcrumbs,
   AdminCheckboxRow,
-  AdminDangerButton,
   AdminField,
   AdminFormGrid,
   AdminGuideCard,
   AdminHelpList,
   AdminHelpText,
   AdminInfoBadge,
+  AdminInlineError,
   AdminPageHero,
-  AdminPrimaryButton,
   AdminSectionTitle,
   AdminSurface,
   AdminTextInput,
@@ -82,6 +84,8 @@ export default async function EditBannerPage({ params, searchParams }: PageProps
   return (
     <main className="space-y-6">
       <FeedbackToast success={success} error={errorMessage} warning={warning} />
+      <AdminInlineError message={errorMessage} />
+      <AdminBreadcrumbs items={[{ label: 'Painel', href: '/admin' }, { label: 'Banners', href: '/admin/banners' }, { label: 'Editar banner' }]} />
 
       <AdminPageHero
         eyebrow="editar banner"
@@ -125,9 +129,15 @@ export default async function EditBannerPage({ params, searchParams }: PageProps
 
           <form action={action}>
             <AdminFormGrid className="md:grid-cols-1">
-              <AdminField label="Título">
+              <AdminField
+                label="Título"
+                htmlFor="banner-title"
+                error={errorMessage?.toLowerCase().includes('título') ? errorMessage : undefined}
+              >
                 <AdminTextInput
+                  id="banner-title"
                   name="title"
+                  aria-invalid={errorMessage?.toLowerCase().includes('título') || undefined}
                   defaultValue={banner.title || ''}
                   required
                   placeholder="Ex.: Pacote romântico de fim de semana"
@@ -199,7 +209,7 @@ export default async function EditBannerPage({ params, searchParams }: PageProps
             </AdminFormGrid>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <AdminPrimaryButton type="submit">Salvar alterações</AdminPrimaryButton>
+              <AdminSubmitButton label="Salvar alterações" pendingLabel="Salvando..." />
               <AdminInfoBadge>
                 <AlertTriangle className="h-3.5 w-3.5" />
                 Atualização com feedback visual
@@ -256,10 +266,11 @@ export default async function EditBannerPage({ params, searchParams }: PageProps
           <form action={uploadPromotionalBannerImageAction} className="mt-8 space-y-4">
             <input type="hidden" name="banner_id" value={banner.id} />
 
-            <AdminField label="Arquivo da imagem">
+            <AdminField label="Arquivo da imagem" htmlFor="banner-image-upload">
               <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-4">
                 <input
                   type="file"
+                  id="banner-image-upload"
                   name="image"
                   accept="image/jpeg,image/png,image/webp"
                   className="block w-full text-sm text-slate-700 file:mr-4 file:rounded-xl file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-slate-800"
@@ -271,16 +282,13 @@ export default async function EditBannerPage({ params, searchParams }: PageProps
               </AdminHelpText>
             </AdminField>
 
-            <AdminPrimaryButton type="submit">
-              <ImageIcon className="mr-2 h-4 w-4" />
-              Enviar imagem
-            </AdminPrimaryButton>
+            <AdminSubmitButton label="Enviar imagem" pendingLabel="Enviando..." />
           </form>
 
           {banner.image_url ? (
-            <form action={removeImageAction} className="mt-3">
-              <AdminDangerButton type="submit">Remover imagem</AdminDangerButton>
-            </form>
+            <div className="mt-3">
+              <AdminConfirmAction action={removeImageAction} title="Remover imagem do banner?" description="O banner continuará salvo, mas passará a usar o fallback visual até receber outra imagem." triggerLabel="Remover imagem" confirmLabel="Remover imagem" pendingLabel="Removendo..." />
+            </div>
           ) : null}
         </AdminSurface>
       </section>

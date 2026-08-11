@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
@@ -85,7 +85,7 @@ export async function uploadHotelLogoAction(formData: FormData) {
     });
     redirect(
       `/admin/hotel?error=${encodeURIComponent(
-        'A logo foi enviada, mas nÃ£o foi possÃ­vel concluir a atualizaÃ§Ã£o do hotel. Revise a tela e tente novamente.'
+        'A logo foi enviada, mas não foi possível concluir a atualização do hotel. Revise a tela e tente novamente.'
       )}`
     );
   }
