@@ -1095,6 +1095,14 @@ Importante:
 - A decisão permanece evoluir o painel operacional atual, preservando multi-hotel, páginas públicas, presets, QR/Thex, server actions e dados, em vez de reconstruí-lo.
 - Detalhes e matriz de entrega: `docs/SPRINT_44_ADMIN_REFINEMENT.md`.
 
+### Abertura da Sprint 45
+
+- Status: primeira etapa aberta em modo de auditoria, sem mudança funcional, SQL, migration, RLS, Auth, Storage ou dados.
+- Os riscos altos confirmados são a divergência entre papéis das server actions e RLS recentes, o insert público direto de analytics sem rate limit e a ausência de uma baseline versionada completa para tabelas centrais/traduções.
+- Auth + profiles, concorrência do último administrador, validação/lifecycle de uploads, auditoria persistente e mínimo privilégio de QR/notas exigem hardening coordenado.
+- A execução foi separada em 45A (código e testes sem banco), 45B (baseline, migrations/RLS/RPC e audit log) e 45C (rate limiting, monitoramento, reconciliação e retenção). Nenhuma fase de implementação foi iniciada automaticamente.
+- Diagnóstico, matriz RLS/actions, riscos e testes necessários: `docs/SPRINT_45_SECURITY_GOVERNANCE_AUDIT.md`.
+
 ## 10. Known pending items
 
 ### Produto e arquitetura
