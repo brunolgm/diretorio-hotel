@@ -21,6 +21,7 @@ import {
   syncSectionTranslations,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
+import { isUuid } from '@/lib/security/identifiers';
 
 export async function createSectionAction(formData: FormData) {
   await requireAdminAccess('operador');
@@ -112,7 +113,7 @@ export async function deleteSectionAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
         error: 'Serviço inválido para exclusão.',
@@ -165,7 +166,7 @@ export async function toggleSectionAction(formData: FormData) {
   const id = readTrimmedString(formData, 'id');
   const enabled = String(formData.get('enabled') || '') === 'true';
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
         error: 'Serviço inválido para atualização de status.',
@@ -217,7 +218,7 @@ export async function retranslateSectionAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/servicos', {
         error: 'Serviço inválido para retradução.',

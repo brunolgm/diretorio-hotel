@@ -12,7 +12,7 @@ import {
   sanitizeHotelThemePrimaryColor,
 } from '@/lib/hotel-theme';
 import { validateHotelSubdomain } from '@/lib/hotel-subdomain';
-import { getHotelHeroStoragePaths } from '@/lib/hotel-hero-storage';
+import { extractOwnedHotelAssetPath } from '@/lib/security/image-upload';
 import {
   buildOperationalErrorMessage,
   logOperationalError,
@@ -145,7 +145,13 @@ export async function updateHotelAction(formData: FormData) {
 export async function removeHotelLogoAction() {
   await requireAdminAccess('editor');
   const supabase = await createClient();
+  const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
+  const storagePath = extractOwnedHotelAssetPath({
+    publicUrl: hotel.logo_url,
+    hotelId: hotel.id,
+    category: 'logo',
+  });
 
   const { data: updatedHotel, error } = await supabase
     .from('hotels')
@@ -173,6 +179,21 @@ export async function removeHotelLogoAction() {
     );
   }
 
+  if (storagePath) {
+    const { error: storageError } = await adminSupabase.storage
+      .from('hotel-assets')
+      .remove([storagePath]);
+    if (storageError) {
+      logOperationalError({
+        module: 'hotel',
+        action: 'removeHotelLogoAction',
+        operation: 'remove logo from storage',
+        hotelId: hotel.id,
+        error: 'Logo storage removal failed',
+      });
+    }
+  }
+
   redirect('/admin/hotel?success=Logo%20removida%20com%20sucesso');
 }
 
@@ -181,6 +202,11 @@ export async function removeHotelHeroImageAction() {
   const supabase = await createClient();
   const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
+  const storagePath = extractOwnedHotelAssetPath({
+    publicUrl: hotel.hero_image_url,
+    hotelId: hotel.id,
+    category: 'hero',
+  });
 
   const { data: updatedHotel, error } = await supabase
     .from('hotels')
@@ -208,9 +234,9 @@ export async function removeHotelHeroImageAction() {
     );
   }
 
-  const { error: storageError } = await adminSupabase.storage
-    .from('hotel-assets')
-    .remove(getHotelHeroStoragePaths(hotel.id));
+  const { error: storageError } = storagePath
+    ? await adminSupabase.storage.from('hotel-assets').remove([storagePath])
+    : { error: null };
 
   if (storageError) {
     logOperationalError({

@@ -1103,6 +1103,17 @@ Importante:
 - A execução foi separada em 45A (código e testes sem banco), 45B (baseline, migrations/RLS/RPC e audit log) e 45C (rate limiting, monitoramento, reconciliação e retenção). Nenhuma fase de implementação foi iniciada automaticamente.
 - Diagnóstico, matriz RLS/actions, riscos e testes necessários: `docs/SPRINT_45_SECURITY_GOVERNANCE_AUDIT.md`.
 
+### Conclusão da Sprint 45A
+
+- Status: hardening de código e primeira base automatizada de testes de segurança concluídos localmente, sem SQL, migration, RLS, policy, schema, dados ou infraestrutura externa.
+- Analytics passou a ter body limitado, schema fechado, allowlist única, metadata mínima e hotel resolvido server-side por slug; o browser não envia mais `hotelId`.
+- Uploads de logo, hero e banner aplicam validação server-side por assinatura binária, estrutura de cabeçalho, formato, dimensões e consistência de MIME; aceitam somente JPEG/PNG/WebP, geram paths aleatórios por hotel/categoria e compensam falhas de persistência sem apagar o objeto anterior antes do sucesso. Não há decodificação integral da imagem.
+- A orquestração Auth/profile verifica compensações, as actions sensíveis validam UUIDs e escopo, e `roomToken` é rejeitado antes da consulta quando o formato é inválido.
+- Testes sintéticos cobrem analytics, uploads, compensação de usuários, autorização por papel e hotel A × hotel B, sem acessar produção ou usar segredos reais.
+- Permanecem para 45B a baseline/migrations de RLS, o fechamento do insert direto de analytics, RPC do último administrador, audit log e policies de Storage; para 45C ficam rate limit distribuído, monitoramento, retenção, reconciliação e alertas.
+- Como hardening futuro de baixo risco, permanece validar a origem e o hostname esperados da public URL antes de extrair paths usados em remoções no Storage.
+- Detalhes, limites e cobertura: `docs/SPRINT_45A_SECURITY_HARDENING.md`.
+
 ## 10. Known pending items
 
 ### Produto e arquitetura

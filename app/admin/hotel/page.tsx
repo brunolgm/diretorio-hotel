@@ -655,7 +655,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   type="file"
                   id="logo-upload"
                   name="logo"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp"
                   required
                   className="block w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm outline-none transition focus:border-slate-300 focus:bg-white focus-visible:ring-2 focus-visible:ring-slate-200"
                 />

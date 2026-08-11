@@ -11,11 +11,12 @@ import {
   syncPolicyTranslations,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
+import { isUuid } from '@/lib/security/identifiers';
 import type { Database } from '@/types/database';
 
 export async function updatePolicyAction(id: string, formData: FormData) {
   await requireAdminAccess('operador');
-  if (!id.trim()) {
+  if (!isUuid(id)) {
     redirect('/admin/politicas?error=Pol%C3%ADtica%20inv%C3%A1lida');
   }
 

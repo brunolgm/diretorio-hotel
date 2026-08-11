@@ -93,7 +93,7 @@ export function NovotelPublicHome({
       data-hotel-theme={theme.preset}
       data-hotel-icon-style={theme.iconStyle}
     >
-      <PublicAnalytics hotelId={hotel.id} hotelSlug={hotel.slug} language={language} />
+      <PublicAnalytics hotelSlug={hotel.slug} language={language} />
 
       <div className="mx-auto max-w-7xl md:px-6 md:py-8">
         <section className="relative min-h-[320px] overflow-hidden rounded-b-[34px] bg-[var(--hotel-hero-background)] px-6 pt-5 pb-14 text-white shadow-[0_30px_70px_-38px_rgba(0,43,92,0.72)] md:min-h-[540px] md:rounded-[34px] md:px-12 md:py-10">

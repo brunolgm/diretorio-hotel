@@ -12,6 +12,7 @@ import {
   syncAnnouncementTranslations,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
+import { isUuid } from '@/lib/security/identifiers';
 import type { Database } from '@/types/database';
 
 function readOptionalDateTimeIso(formData: FormData, key: string) {
@@ -46,7 +47,7 @@ function validateAnnouncementWindow({
 export async function updateAnnouncementAction(id: string, formData: FormData) {
   await requireAdminAccess('operador');
 
-  if (!id.trim()) {
+  if (!isUuid(id)) {
     redirect('/admin/comunicados?error=Comunicado%20inv%C3%A1lido');
   }
 

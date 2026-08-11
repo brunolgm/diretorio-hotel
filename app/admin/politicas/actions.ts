@@ -13,6 +13,7 @@ import {
   syncPolicyTranslations,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
+import { isUuid } from '@/lib/security/identifiers';
 
 export async function createPolicyAction(formData: FormData) {
   await requireAdminAccess('operador');
@@ -82,7 +83,7 @@ export async function deletePolicyAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
         error: 'Política inválida para exclusão.',
@@ -135,7 +136,7 @@ export async function togglePolicyAction(formData: FormData) {
   const id = readTrimmedString(formData, 'id');
   const enabled = String(formData.get('enabled') || '') === 'true';
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
         error: 'Política inválida para atualização de status.',
@@ -187,7 +188,7 @@ export async function retranslatePolicyAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/politicas', {
         error: 'Política inválida para retradução.',

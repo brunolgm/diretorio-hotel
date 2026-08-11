@@ -19,11 +19,12 @@ import {
   syncSectionTranslations,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
+import { isUuid } from '@/lib/security/identifiers';
 import type { Database } from '@/types/database';
 
 export async function updateSectionAction(id: string, formData: FormData) {
   await requireAdminAccess('operador');
-  if (!id.trim()) {
+  if (!isUuid(id)) {
     redirect('/admin/servicos?error=Servi%C3%A7o%20inv%C3%A1lido');
   }
 

@@ -17,6 +17,7 @@ import {
   logOperationalError,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
+import { isUuid } from '@/lib/security/identifiers';
 
 const ADMIN_ROOMS_PATH = '/admin/apartamentos';
 
@@ -118,7 +119,7 @@ export async function updateRoomLinkAction(formData: FormData) {
   const restaurantMenuUrlInput = readNullableString(formData, 'restaurant_menu_url');
   const restaurantMenuUrl = readOptionalUrl(formData, 'restaurant_menu_url');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect(ADMIN_ROOMS_PATH, {
         error: 'Apartamento inválido para edição.',
@@ -191,7 +192,7 @@ export async function toggleRoomLinkStatusAction(formData: FormData) {
   const id = readTrimmedString(formData, 'id');
   const isActive = String(formData.get('is_active') || '') === 'true';
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect(ADMIN_ROOMS_PATH, {
         error: 'Apartamento inválido para atualização de status.',
@@ -241,7 +242,7 @@ export async function regenerateRoomTokenAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect(ADMIN_ROOMS_PATH, {
         error: 'Apartamento inválido para regenerar o QR.',

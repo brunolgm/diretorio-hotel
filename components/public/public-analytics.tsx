@@ -11,7 +11,6 @@ const CLICK_COOLDOWN_MS = 2500;
 const LANGUAGE_SELECTION_COOLDOWN_MS = 5000;
 
 interface PublicAnalyticsProps {
-  hotelId: string;
   hotelSlug: string;
   language: SupportedPublicLanguage;
 }
@@ -66,7 +65,6 @@ function shouldTrackEvent(dedupeKey: string, cooldownMs: number) {
 }
 
 function sendAnalyticsEvent(payload: {
-  hotelId: string;
   hotelSlug: string;
   eventType: AnalyticsEventType;
   sessionId?: string | null;
@@ -94,7 +92,6 @@ function sendAnalyticsEvent(payload: {
 }
 
 export function PublicAnalytics({
-  hotelId,
   hotelSlug,
   language,
 }: PublicAnalyticsProps) {
@@ -104,7 +101,6 @@ export function PublicAnalytics({
 
     if (shouldTrackEvent(pageViewKey, PAGE_VIEW_COOLDOWN_MS)) {
       sendAnalyticsEvent({
-        hotelId,
         hotelSlug,
         eventType: 'page_view',
         sessionId,
@@ -153,7 +149,6 @@ export function PublicAnalytics({
       }
 
       sendAnalyticsEvent({
-        hotelId,
         hotelSlug,
         eventType,
         sessionId,
@@ -171,7 +166,7 @@ export function PublicAnalytics({
     return () => {
       document.removeEventListener('click', handleClick);
     };
-  }, [hotelId, hotelSlug, language]);
+  }, [hotelSlug, language]);
 
   return null;
 }

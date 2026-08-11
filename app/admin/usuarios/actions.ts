@@ -11,6 +11,8 @@ import {
   logOperationalError,
 } from '@/lib/services/translation-admin';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { provisionAuthUserWithProfile } from '@/lib/security/user-consistency';
+import { isUuid } from '@/lib/security/identifiers';
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -76,22 +78,38 @@ export async function createHotelUserAction(formData: FormData) {
     redirect(buildFeedbackRedirect('/admin/usuarios', { error: 'Selecione um papel válido.' }));
   }
 
-  const { data: createdUser, error: createError } = await adminClient.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: {
-      full_name: fullName,
+  const provisioning = await provisionAuthUserWithProfile({
+    createAuthUser: async () => {
+      const { data, error } = await adminClient.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { full_name: fullName },
+      });
+      return error || !data.user
+        ? { ok: false as const, error: error || 'Auth user was not returned' }
+        : { ok: true as const, value: { userId: data.user.id } };
+    },
+    createProfile: async (userId) => {
+      const { error } = await adminClient.from('profiles').upsert(
+        { id: userId, email, full_name: fullName, role, hotel_id: hotel.id, is_active: isActive },
+        { onConflict: 'id' }
+      );
+      return error ? { ok: false as const, error } : { ok: true as const, value: undefined };
+    },
+    deleteAuthUser: async (userId) => {
+      const { error } = await adminClient.auth.admin.deleteUser(userId);
+      return error ? { ok: false as const, error } : { ok: true as const, value: undefined };
     },
   });
 
-  if (createError || !createdUser.user) {
+  if (!provisioning.ok && provisioning.stage === 'auth') {
     logOperationalError({
       module: 'users',
       action: 'createHotelUserAction',
       operation: 'create auth user',
       hotelId: hotel.id,
-      error: createError || 'Auth user was not returned',
+      error: provisioning.error,
     });
     redirect(
       buildFeedbackRedirect('/admin/usuarios', {
@@ -104,28 +122,25 @@ export async function createHotelUserAction(formData: FormData) {
     );
   }
 
-  const { error: profileError } = await adminClient.from('profiles').upsert(
-    {
-      id: createdUser.user.id,
-      email,
-      full_name: fullName,
-      role,
-      hotel_id: hotel.id,
-      is_active: isActive,
-    },
-    { onConflict: 'id' }
-  );
-
-  if (profileError) {
+  if (!provisioning.ok && provisioning.stage === 'profile') {
     logOperationalError({
       module: 'users',
       action: 'createHotelUserAction',
       operation: 'persist user profile',
       hotelId: hotel.id,
-      targetId: createdUser.user.id,
-      error: profileError,
+      targetId: provisioning.userId,
+      error: provisioning.error,
     });
-    await adminClient.auth.admin.deleteUser(createdUser.user.id);
+    if (!provisioning.compensated) {
+      logOperationalError({
+        module: 'users',
+        action: 'createHotelUserAction',
+        operation: 'rollback auth user after profile failure',
+        hotelId: hotel.id,
+        targetId: provisioning.userId,
+        error: provisioning.compensationError || 'Auth rollback failed',
+      });
+    }
 
     redirect(
       buildFeedbackRedirect('/admin/usuarios', {
@@ -152,7 +167,7 @@ export async function toggleHotelUserStatusAction(formData: FormData) {
   const id = readTrimmedString(formData, 'id');
   const nextStatus = String(formData.get('is_active') || '') === 'true';
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(buildFeedbackRedirect('/admin/usuarios', { error: 'Usuário inválido.' }));
   }
 

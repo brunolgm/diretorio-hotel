@@ -18,6 +18,7 @@ import {
   syncDepartmentTranslations,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
+import { isUuid } from '@/lib/security/identifiers';
 
 export async function createDepartmentAction(formData: FormData) {
   await requireAdminAccess('operador');
@@ -97,7 +98,7 @@ export async function deleteDepartmentAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
         error: 'Departamento inválido para exclusão.',
@@ -150,7 +151,7 @@ export async function toggleDepartmentAction(formData: FormData) {
   const id = readTrimmedString(formData, 'id');
   const enabled = String(formData.get('enabled') || '') === 'true';
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
         error: 'Departamento inválido para atualização de status.',
@@ -202,7 +203,7 @@ export async function retranslateDepartmentAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/departamentos', {
         error: 'Departamento inválido para retradução.',

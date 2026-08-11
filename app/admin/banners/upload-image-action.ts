@@ -6,11 +6,18 @@ import { requireAdminAccess } from '@/lib/auth';
 import { readTrimmedString } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
 import {
+  buildHotelAssetStoragePath,
+  extractOwnedHotelAssetPath,
+  IMAGE_UPLOAD_POLICIES,
+  validateImageUpload,
+} from '@/lib/security/image-upload';
+import {
   buildOperationalErrorMessage,
   logOperationalError,
 } from '@/lib/services/translation-admin';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
+import { isUuid } from '@/lib/security/identifiers';
 
 export async function uploadPromotionalBannerImageAction(formData: FormData) {
   await requireAdminAccess('operador');
@@ -20,7 +27,7 @@ export async function uploadPromotionalBannerImageAction(formData: FormData) {
   const bannerId = readTrimmedString(formData, 'banner_id');
   const fileEntry = formData.get('image');
 
-  if (!bannerId) {
+  if (!isUuid(bannerId)) {
     redirect('/admin/banners?error=Banner%20inv%C3%A1lido%20para%20upload');
   }
 
@@ -30,7 +37,7 @@ export async function uploadPromotionalBannerImageAction(formData: FormData) {
 
   const { data: banner, error: bannerError } = await supabase
     .from('hotel_promotional_banners')
-    .select('id')
+    .select('id, image_url')
     .eq('id', bannerId)
     .eq('hotel_id', hotel.id)
     .single();
@@ -39,28 +46,31 @@ export async function uploadPromotionalBannerImageAction(formData: FormData) {
     redirect(`/admin/banners/${bannerId}?error=Banner%20n%C3%A3o%20encontrado`);
   }
 
-  const file = fileEntry;
-  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-  const allowedMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
-  const maxFileSize = 2 * 1024 * 1024;
-
-  if (!allowedMimeTypes.has(file.type)) {
-    redirect(`/admin/banners/${bannerId}?error=Envie%20uma%20imagem%20JPG,%20PNG%20ou%20WEBP`);
+  const validation = await validateImageUpload(fileEntry, IMAGE_UPLOAD_POLICIES.banner);
+  if (!validation.ok) {
+    const message = validation.reason === 'too_large'
+      ? 'O banner deve ter no máximo 2MB'
+      : validation.reason === 'dimensions'
+        ? 'A imagem do banner possui dimensões excessivas'
+        : 'Envie uma imagem PNG, JPEG ou WebP válida';
+    redirect(`/admin/banners/${bannerId}?error=${encodeURIComponent(message)}`);
   }
 
-  if (file.size > maxFileSize) {
-    redirect(`/admin/banners/${bannerId}?error=O%20banner%20deve%20ter%20no%20m%C3%A1ximo%202MB`);
-  }
+  const path = buildHotelAssetStoragePath({
+    hotelId: hotel.id,
+    category: 'promotional-banners',
+    resourceId: banner.id,
+    extension: validation.value.extension,
+  });
+  const previousPath = extractOwnedHotelAssetPath({
+    publicUrl: banner.image_url,
+    hotelId: hotel.id,
+    category: 'promotional-banners',
+  });
 
-  if (!file.name.trim()) {
-    redirect(`/admin/banners/${bannerId}?error=Arquivo%20de%20banner%20inv%C3%A1lido`);
-  }
-
-  const path = `${hotel.id}/promotional-banners/${banner.id}.${ext}`;
-
-  const { error: uploadError } = await adminSupabase.storage.from('hotel-assets').upload(path, file, {
-    upsert: true,
-    contentType: file.type,
+  const { error: uploadError } = await adminSupabase.storage.from('hotel-assets').upload(path, validation.value.bytes, {
+    upsert: false,
+    contentType: validation.value.mimeType,
   });
 
   if (uploadError) {
@@ -97,6 +107,7 @@ export async function uploadPromotionalBannerImageAction(formData: FormData) {
     .maybeSingle();
 
   if (updateError || !updatedBanner) {
+    const { error: cleanupError } = await adminSupabase.storage.from('hotel-assets').remove([path]);
     logOperationalError({
       module: 'banners',
       action: 'uploadPromotionalBannerImageAction',
@@ -105,11 +116,37 @@ export async function uploadPromotionalBannerImageAction(formData: FormData) {
       targetId: banner.id,
       error: 'Banner image URL update failed',
     });
+    if (cleanupError) {
+      logOperationalError({
+        module: 'banners',
+        action: 'uploadPromotionalBannerImageAction',
+        operation: 'rollback uploaded banner image',
+        hotelId: hotel.id,
+        targetId: banner.id,
+        error: 'Banner image rollback cleanup failed',
+      });
+    }
     redirect(
       `/admin/banners/${bannerId}?error=${encodeURIComponent(
         'A imagem foi enviada, mas não foi possível concluir a atualização do banner. Revise a tela e tente novamente.'
       )}`
     );
+  }
+
+  if (previousPath && previousPath !== path) {
+    const { error: cleanupError } = await adminSupabase.storage
+      .from('hotel-assets')
+      .remove([previousPath]);
+    if (cleanupError) {
+      logOperationalError({
+        module: 'banners',
+        action: 'uploadPromotionalBannerImageAction',
+        operation: 'clean previous banner image',
+        hotelId: hotel.id,
+        targetId: banner.id,
+        error: 'Previous banner image cleanup failed',
+      });
+    }
   }
 
   revalidatePath('/admin/banners');

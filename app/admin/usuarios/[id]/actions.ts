@@ -15,6 +15,8 @@ import {
   logOperationalError,
 } from '@/lib/services/translation-admin';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { updateProfileThenAuth } from '@/lib/security/user-consistency';
+import { isUuid } from '@/lib/security/identifiers';
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -56,7 +58,7 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
   const role = normalizeAppRole(readTrimmedString(formData, 'role'));
   const isActive = readCheckboxBoolean(formData, 'is_active');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(buildFeedbackRedirect('/admin/usuarios', { error: 'Usuário inválido.' }));
   }
 
@@ -88,7 +90,7 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
 
   const { data: currentProfile, error: currentProfileError } = await adminClient
     .from('profiles')
-    .select('id, role, is_active, hotel_id')
+    .select('id, email, full_name, role, is_active, hotel_id')
     .eq('id', id)
     .eq('hotel_id', hotel.id)
     .single();
@@ -163,54 +165,65 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
     authUpdates.password = password;
   }
 
-  const { error: authError } = await adminClient.auth.admin.updateUserById(id, authUpdates);
+  const coordinatedUpdate = await updateProfileThenAuth({
+    updateProfile: async () => {
+      const { data, error } = await adminClient
+        .from('profiles')
+        .update({ full_name: fullName, email, role, is_active: isActive })
+        .eq('id', id)
+        .eq('hotel_id', hotel.id)
+        .select('id')
+        .maybeSingle();
+      return error || !data
+        ? { ok: false as const, error: error || 'Profile was not updated' }
+        : { ok: true as const, value: undefined };
+    },
+    updateAuth: async () => {
+      const { error } = await adminClient.auth.admin.updateUserById(id, authUpdates);
+      return error ? { ok: false as const, error } : { ok: true as const, value: undefined };
+    },
+    restoreProfile: async () => {
+      const { data, error } = await adminClient
+        .from('profiles')
+        .update({
+          full_name: currentProfile.full_name,
+          email: currentProfile.email,
+          role: currentProfile.role,
+          is_active: currentProfile.is_active,
+        })
+        .eq('id', id)
+        .eq('hotel_id', hotel.id)
+        .select('id')
+        .maybeSingle();
+      return error || !data
+        ? { ok: false as const, error: error || 'Profile rollback failed' }
+        : { ok: true as const, value: undefined };
+    },
+  });
 
-  if (authError) {
+  if (!coordinatedUpdate.ok) {
     logOperationalError({
       module: 'users',
       action: 'updateHotelUserAction',
-      operation: 'update auth user',
+      operation: coordinatedUpdate.stage === 'profile' ? 'update user profile' : 'update auth user',
       hotelId: hotel.id,
       targetId: id,
-      error: authError,
+      error: coordinatedUpdate.error,
     });
+    if (coordinatedUpdate.stage === 'auth' && !coordinatedUpdate.compensated) {
+      logOperationalError({
+        module: 'users',
+        action: 'updateHotelUserAction',
+        operation: 'rollback profile after auth failure',
+        hotelId: hotel.id,
+        targetId: id,
+        error: coordinatedUpdate.compensationError || 'Profile rollback failed',
+      });
+    }
     redirect(
       buildFeedbackRedirect(`/admin/usuarios/${id}`, {
         error: buildOperationalErrorMessage(
           'o acesso do usuário',
-          'atualizar',
-          'Tente novamente em instantes.'
-        ),
-      })
-    );
-  }
-
-  const { data: updatedProfile, error: profileError } = await adminClient
-    .from('profiles')
-    .update({
-      full_name: fullName,
-      email,
-      role,
-      is_active: isActive,
-    })
-    .eq('id', id)
-    .eq('hotel_id', hotel.id)
-    .select('id')
-    .maybeSingle();
-
-  if (profileError || !updatedProfile) {
-    logOperationalError({
-      module: 'users',
-      action: 'updateHotelUserAction',
-      operation: 'update user profile',
-      hotelId: hotel.id,
-      targetId: id,
-      error: profileError,
-    });
-    redirect(
-      buildFeedbackRedirect(`/admin/usuarios/${id}`, {
-        error: buildOperationalErrorMessage(
-          'o perfil do usuário',
           'atualizar',
           'Tente novamente em instantes.'
         ),
