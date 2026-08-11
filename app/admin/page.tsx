@@ -299,7 +299,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         />
 
         <AdminFilterBar className="mt-8">
-          <AdminSelect name="range" defaultValue={analytics.range} className="md:w-[220px]">
+          <AdminSelect aria-label="Selecionar período dos analytics" name="range" defaultValue={analytics.range} className="md:w-[220px]">
             <option value="today">Hoje</option>
             <option value="7d">Últimos 7 dias</option>
             <option value="30d">Últimos 30 dias</option>

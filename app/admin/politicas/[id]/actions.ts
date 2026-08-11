@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -64,7 +64,7 @@ export async function updatePolicyAction(id: string, formData: FormData) {
 
   redirect(
     buildFeedbackRedirect(`/admin/politicas/${id}`, {
-      success: 'PolÃ­tica atualizada com sucesso',
+      success: 'Política atualizada com sucesso',
       warning: formatTranslationWarning(translationResult),
     })
   );

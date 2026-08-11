@@ -43,10 +43,12 @@ const FEEDBACK_STYLES = {
 } as const;
 
 export function HotelSubdomainField({
+  id,
   name,
   defaultValue,
   slugFallback,
 }: {
+  id?: string;
   name: string;
   defaultValue?: string | null;
   slugFallback: string;
@@ -68,6 +70,7 @@ export function HotelSubdomainField({
       <div className="relative">
         <Link2 className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
+          id={id}
           name={name}
           value={value}
           onChange={(event) => setValue(event.target.value)}

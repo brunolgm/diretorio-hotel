@@ -5,17 +5,15 @@ import {
   Languages,
   LayoutGrid,
   Pencil,
-  Plus,
   Power,
-  RefreshCw,
-  Trash2,
 } from 'lucide-react';
 import { ServiceGuidedFields } from '@/components/admin/service-guided-fields';
 import { FeedbackToast } from '@/components/feedback-toast';
+import { AdminConfirmAction } from '@/components/admin/confirm-action';
+import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
   AdminActionGroup,
   AdminCheckboxRow,
-  AdminDangerButton,
   AdminEmptyState,
   AdminField,
   AdminFilterBar,
@@ -23,6 +21,7 @@ import {
   AdminHelpList,
   AdminHelpText,
   AdminInfoBadge,
+  AdminInlineError,
   AdminLanguageBadge,
   AdminLinkButton,
   AdminListItem,
@@ -30,7 +29,6 @@ import {
   AdminPageHero,
   AdminPrimaryButton,
   AdminSearchInput,
-  AdminSecondaryButton,
   AdminSectionTitle,
   AdminSelect,
   AdminStatCard,
@@ -153,6 +151,7 @@ export default async function AdminServicesPage({
   return (
     <main className="space-y-6">
       <FeedbackToast success={success} error={errorMessage} warning={warning} />
+      <AdminInlineError message={errorMessage} />
 
       <AdminPageHero
         eyebrow="gestão de serviços"
@@ -228,8 +227,8 @@ export default async function AdminServicesPage({
 
             <form action={createSectionAction}>
               <div className="mt-8 grid gap-5">
-                <AdminField label="Título">
-                  <AdminTextInput name="title" required placeholder="Ex.: Room service" />
+                <AdminField label="Título" error={errorMessage?.toLowerCase().includes('título') ? errorMessage : null}>
+                  <AdminTextInput name="title" required placeholder="Ex.: Room service" aria-invalid={errorMessage?.toLowerCase().includes('título') || undefined} aria-describedby={errorMessage?.toLowerCase().includes('título') ? 'title-error' : undefined} />
                   <AdminHelpText>
                     Este é o texto principal do card. Prefira algo fácil de escanear.
                   </AdminHelpText>
@@ -295,10 +294,7 @@ export default async function AdminServicesPage({
               </div>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <AdminPrimaryButton type="submit">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Criar serviço
-                </AdminPrimaryButton>
+                <AdminSubmitButton label="Criar serviço" pendingLabel="Criando..." />
 
                 <AdminInfoBadge>
                   <FileText className="h-3.5 w-3.5" />
@@ -344,12 +340,13 @@ export default async function AdminServicesPage({
 
           <AdminFilterBar>
             <AdminSearchInput
+              aria-label="Buscar serviços"
               type="search"
               name="q"
               defaultValue={searchQuery}
               placeholder="Buscar por título, categoria, descrição, ação ou botão"
             />
-            <AdminSelect name="status" defaultValue={statusFilter} className="md:w-[190px]">
+            <AdminSelect aria-label="Filtrar serviços por status" name="status" defaultValue={statusFilter} className="md:w-[190px]">
               <option value="all">Todos os status</option>
               <option value="active">Somente ativos</option>
               <option value="inactive">Somente inativos</option>
@@ -413,28 +410,24 @@ export default async function AdminServicesPage({
 
                           <form action={retranslateSectionAction}>
                             <input type="hidden" name="id" value={item.id} />
-                            <AdminSecondaryButton type="submit">
-                              <RefreshCw className="mr-2 h-4 w-4" />
-                              Retraduzir
-                            </AdminSecondaryButton>
+                            <AdminSubmitButton label="Retraduzir" pendingLabel="Traduzindo..." variant="secondary" />
                           </form>
 
                           <form action={toggleSectionAction}>
                             <input type="hidden" name="id" value={item.id} />
                             <input type="hidden" name="enabled" value={String(!item.enabled)} />
-                            <AdminSecondaryButton type="submit">
-                              <Power className="mr-2 h-4 w-4" />
-                              {item.enabled ? 'Desativar' : 'Ativar'}
-                            </AdminSecondaryButton>
+                            <AdminSubmitButton label={item.enabled ? 'Desativar' : 'Ativar'} pendingLabel="Atualizando..." variant="secondary" />
                           </form>
 
-                          <form action={deleteSectionAction}>
-                            <input type="hidden" name="id" value={item.id} />
-                            <AdminDangerButton type="submit">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Excluir
-                            </AdminDangerButton>
-                          </form>
+                          <AdminConfirmAction
+                            action={deleteSectionAction}
+                            title="Excluir serviço?"
+                            description={`O serviço “${item.title}” será removido do diretório e esta ação não poderá ser desfeita.`}
+                            triggerLabel="Excluir"
+                            confirmLabel="Excluir serviço"
+                            pendingLabel="Excluindo..."
+                            hiddenFields={[{ name: 'id', value: item.id }]}
+                          />
                         </AdminActionGroup>
                       ) : null
                     }

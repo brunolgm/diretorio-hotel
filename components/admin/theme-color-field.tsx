@@ -17,10 +17,12 @@ function getValidHexColor(value: string) {
 }
 
 export function ThemeColorField({
+  id,
   name,
   defaultValue,
   preset,
 }: {
+  id?: string;
   name: string;
   defaultValue?: string | null;
   preset?: string | null;
@@ -58,6 +60,7 @@ export function ThemeColorField({
         <div className="relative min-w-0 flex-1">
           <Palette className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
+            id={id}
             name={name}
             value={value}
             onChange={(event) => setValue(event.target.value)}

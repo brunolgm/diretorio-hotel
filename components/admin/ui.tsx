@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { ReactNode } from 'react';
-import { ArrowRight, Search } from 'lucide-react';
+import { Children, isValidElement, ReactNode } from 'react';
+import { ArrowRight, ChevronRight, Search } from 'lucide-react';
 
 type TranslationAvailabilityStatus = 'complete' | 'partial' | 'missing';
 
@@ -29,7 +29,7 @@ export function AdminPageHero({
   rightSlot?: ReactNode;
 }) {
   return (
-    <section className="relative overflow-hidden rounded-[34px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_50%,#1e293b_100%)] p-8 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,0.75)] ring-1 ring-slate-900/10 md:p-10">
+    <section className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_50%,#1e293b_100%)] p-5 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,0.75)] ring-1 ring-slate-900/10 sm:rounded-[34px] sm:p-8 md:p-10">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.14),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(148,163,184,0.14),transparent_30%)]" />
 
       <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
@@ -65,7 +65,7 @@ export function AdminSurface({
   return (
     <div
       className={cn(
-        'rounded-[32px] bg-white p-8 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] ring-1 ring-slate-200/80',
+        'rounded-[26px] bg-white p-5 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] ring-1 ring-slate-200/80 sm:rounded-[32px] sm:p-8',
         className
       )}
     >
@@ -222,6 +222,7 @@ export function AdminSearchInput({
       <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
       <input
         {...props}
+        id={props.id || (typeof props.name === 'string' ? props.name : undefined)}
         className={cn(
           'h-11 w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-4 text-sm outline-none transition focus:border-slate-300 focus-visible:ring-2 focus-visible:ring-slate-200',
           className
@@ -239,6 +240,7 @@ export function AdminSelect({
   return (
     <select
       {...props}
+      id={props.id || (typeof props.name === 'string' ? props.name : undefined)}
       className={cn(
         'h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:border-slate-300 focus-visible:ring-2 focus-visible:ring-slate-200',
         className
@@ -428,20 +430,79 @@ export function AdminFormGrid({
   return <div className={cn('mt-8 grid gap-5 md:grid-cols-2', className)}>{children}</div>;
 }
 
+function findAdminControlId(children: ReactNode): string | undefined {
+  for (const child of Children.toArray(children)) {
+    if (!isValidElement<{ id?: string; name?: string; children?: ReactNode }>(child)) continue;
+
+    if (child.props.id || child.props.name) return child.props.id || child.props.name;
+
+    const nestedId = findAdminControlId(child.props.children);
+    if (nestedId) return nestedId;
+  }
+
+  return undefined;
+}
+
 export function AdminField({
   label,
   children,
   className,
+  htmlFor,
+  error,
 }: {
   label: string;
   children: ReactNode;
   className?: string;
+  htmlFor?: string;
+  error?: string | null;
 }) {
+  const controlId = htmlFor || findAdminControlId(children);
+
   return (
     <div className={cn('space-y-2', className)}>
-      <label className="block text-sm font-medium text-slate-700">{label}</label>
+      <label htmlFor={controlId} className="block text-sm font-medium text-slate-700">{label}</label>
       {children}
+      {error ? (
+        <p id={controlId ? `${controlId}-error` : undefined} role="alert" className="text-sm text-red-600">
+          {error}
+        </p>
+      ) : null}
     </div>
+  );
+}
+
+export function AdminInlineError({ message }: { message?: string | null }) {
+  if (!message) return null;
+
+  return (
+    <div role="alert" className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700">
+      {message}
+    </div>
+  );
+}
+
+export function AdminBreadcrumbs({
+  items,
+}: {
+  items: Array<{ label: string; href?: string }>;
+}) {
+  return (
+    <nav aria-label="Navegação estrutural" className="mb-4 overflow-x-auto">
+      <ol className="flex min-w-max items-center gap-2 text-sm text-slate-500">
+        {items.map((item, index) => (
+          <li key={`${item.label}-${index}`} className="flex items-center gap-2">
+            {index ? <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" /> : null}
+            {item.href ? (
+              <Link href={item.href} className="rounded-md hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300">
+                {item.label}
+              </Link>
+            ) : (
+              <span aria-current="page" className="font-medium text-slate-700">{item.label}</span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
   );
 }
 
@@ -505,6 +566,8 @@ export function AdminTextInput(props: React.InputHTMLAttributes<HTMLInputElement
   return (
     <input
       {...props}
+      id={props.id || (typeof props.name === 'string' ? props.name : undefined)}
+      aria-invalid={props['aria-invalid']}
       className={cn(
         'h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white focus-visible:ring-2 focus-visible:ring-slate-200',
         props.className
@@ -517,6 +580,7 @@ export function AdminTextarea(props: React.TextareaHTMLAttributes<HTMLTextAreaEl
   return (
     <textarea
       {...props}
+      id={props.id || (typeof props.name === 'string' ? props.name : undefined)}
       className={cn(
         'min-h-32 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm outline-none transition focus:border-slate-300 focus:bg-white focus-visible:ring-2 focus-visible:ring-slate-200',
         props.className

@@ -1086,6 +1086,15 @@ Importante:
 - O futuro painel interno LibGuest permanece separado e foi mantido na Sprint 46 para provisionamento, `brand_code`, módulos, usuários globais, planos e governança de plataforma.
 - Custom domain, biblioteca geral de mídia, edição manual de tradução e permissões por módulo continuam condicionados a lacuna/demanda comprovada.
 
+### Registro curto da Sprint 44
+
+- Status: saneamento e refinamento do painel administrativo existente concluídos localmente, sem reconstrução arquitetural.
+- Foram corrigidos os textos corrompidos auditados, a incompatibilidade de `banner_click`, confirmações destrutivas, pending de formulários, erros inline, labels, breadcrumbs e os pontos de densidade mobile em Hotel e Apartamentos/QR.
+- O clique do banner Mercure reutiliza o evento oficial equivalente `website_click`; nenhum schema, banco ou evento duplicado foi criado.
+- Paginação permaneceu adiada por falta de evidência de volume real. Segurança/RLS, ingestão de analytics, atomicidade de usuários, lifecycle de mídia e auditoria persistente seguem separados para a Sprint 45.
+- A decisão permanece evoluir o painel operacional atual, preservando multi-hotel, páginas públicas, presets, QR/Thex, server actions e dados, em vez de reconstruí-lo.
+- Detalhes e matriz de entrega: `docs/SPRINT_44_ADMIN_REFINEMENT.md`.
+
 ## 10. Known pending items
 
 ### Produto e arquitetura

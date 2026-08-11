@@ -5,17 +5,15 @@ import {
   FileText,
   Languages,
   Pencil,
-  Plus,
   Power,
-  RefreshCw,
   Sparkles,
-  Trash2,
 } from 'lucide-react';
 import { FeedbackToast } from '@/components/feedback-toast';
+import { AdminConfirmAction } from '@/components/admin/confirm-action';
+import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
   AdminActionGroup,
   AdminCheckboxRow,
-  AdminDangerButton,
   AdminEmptyState,
   AdminField,
   AdminFilterBar,
@@ -23,6 +21,7 @@ import {
   AdminHelpList,
   AdminHelpText,
   AdminInfoBadge,
+  AdminInlineError,
   AdminLanguageBadge,
   AdminLinkButton,
   AdminListItem,
@@ -30,7 +29,6 @@ import {
   AdminPageHero,
   AdminPrimaryButton,
   AdminSearchInput,
-  AdminSecondaryButton,
   AdminSectionTitle,
   AdminSelect,
   AdminStatCard,
@@ -145,6 +143,7 @@ export default async function AdminPoliciesPage({
   return (
     <main className="space-y-6">
       <FeedbackToast success={success} error={errorMessage} warning={warning} />
+      <AdminInlineError message={errorMessage} />
 
       <AdminPageHero
         eyebrow="regras do hotel"
@@ -220,8 +219,8 @@ export default async function AdminPoliciesPage({
 
           <form action={createPolicyAction}>
             <div className="mt-8 grid gap-5">
-              <AdminField label="Título">
-                <AdminTextInput name="title" required placeholder="Ex.: Não fumar" />
+              <AdminField label="Título" error={errorMessage?.toLowerCase().includes('título') ? errorMessage : null}>
+                <AdminTextInput name="title" required placeholder="Ex.: Não fumar" aria-invalid={errorMessage?.toLowerCase().includes('título') || undefined} aria-describedby={errorMessage?.toLowerCase().includes('título') ? 'title-error' : undefined} />
                 <AdminHelpText>
                   O título deve deixar a regra evidente logo na primeira leitura.
                 </AdminHelpText>
@@ -245,10 +244,7 @@ export default async function AdminPoliciesPage({
             </div>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <AdminPrimaryButton type="submit">
-                <Plus className="mr-2 h-4 w-4" />
-                Criar política
-              </AdminPrimaryButton>
+              <AdminSubmitButton label="Criar política" pendingLabel="Criando..." />
 
               <AdminInfoBadge>
                 <Sparkles className="h-3.5 w-3.5" />
@@ -296,12 +292,13 @@ export default async function AdminPoliciesPage({
 
           <AdminFilterBar>
             <AdminSearchInput
+              aria-label="Buscar políticas"
               type="search"
               name="q"
               defaultValue={searchQuery}
               placeholder="Buscar por título ou descrição"
             />
-            <AdminSelect name="status" defaultValue={statusFilter} className="md:w-[190px]">
+            <AdminSelect aria-label="Filtrar políticas por status" name="status" defaultValue={statusFilter} className="md:w-[190px]">
               <option value="all">Todos os status</option>
               <option value="active">Somente ativos</option>
               <option value="inactive">Somente inativos</option>
@@ -363,28 +360,24 @@ export default async function AdminPoliciesPage({
 
                           <form action={retranslatePolicyAction}>
                             <input type="hidden" name="id" value={item.id} />
-                            <AdminSecondaryButton type="submit">
-                              <RefreshCw className="mr-2 h-4 w-4" />
-                              Retraduzir
-                            </AdminSecondaryButton>
+                            <AdminSubmitButton label="Retraduzir" pendingLabel="Traduzindo..." variant="secondary" />
                           </form>
 
                           <form action={togglePolicyAction}>
                             <input type="hidden" name="id" value={item.id} />
                             <input type="hidden" name="enabled" value={String(!item.enabled)} />
-                            <AdminSecondaryButton type="submit">
-                              <Power className="mr-2 h-4 w-4" />
-                              {item.enabled ? 'Desativar' : 'Ativar'}
-                            </AdminSecondaryButton>
+                            <AdminSubmitButton label={item.enabled ? 'Desativar' : 'Ativar'} pendingLabel="Atualizando..." variant="secondary" />
                           </form>
 
-                          <form action={deletePolicyAction}>
-                            <input type="hidden" name="id" value={item.id} />
-                            <AdminDangerButton type="submit">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Excluir
-                            </AdminDangerButton>
-                          </form>
+                          <AdminConfirmAction
+                            action={deletePolicyAction}
+                            title="Excluir política?"
+                            description={`A política “${item.title}” será removida do diretório e esta ação não poderá ser desfeita.`}
+                            triggerLabel="Excluir"
+                            confirmLabel="Excluir política"
+                            pendingLabel="Excluindo..."
+                            hiddenFields={[{ name: 'id', value: item.id }]}
+                          />
                         </AdminActionGroup>
                       ) : null
                     }

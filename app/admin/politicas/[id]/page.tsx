@@ -1,14 +1,15 @@
-﻿import { AlertTriangle, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { FeedbackToast } from '@/components/feedback-toast';
+import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
+  AdminBreadcrumbs,
   AdminField,
   AdminFormGrid,
   AdminGuideCard,
   AdminHelpList,
   AdminInfoBadge,
   AdminPageHero,
-  AdminPrimaryButton,
   AdminSectionTitle,
   AdminSurface,
   AdminTextInput,
@@ -63,11 +64,12 @@ export default async function EditPolicyPage({ params, searchParams }: PageProps
   return (
     <main className="space-y-6">
       <FeedbackToast success={success} error={errorMessage} warning={warning} />
+      <AdminBreadcrumbs items={[{ label: 'Painel', href: '/admin' }, { label: 'Políticas', href: '/admin/politicas' }, { label: 'Editar política' }]} />
 
       <AdminPageHero
-        eyebrow="editar polÃ­tica"
+        eyebrow="editar política"
         title="Editar regra do hotel"
-        description="Atualize o tÃ­tulo, a descriÃ§Ã£o e o status de exibiÃ§Ã£o da polÃ­tica no diretÃ³rio pÃºblico."
+        description="Atualize o título, a descrição e o status de exibição da política no diretório público."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
@@ -75,7 +77,7 @@ export default async function EditPolicyPage({ params, searchParams }: PageProps
               <p className="mt-2 text-lg font-semibold text-white">{hotel.name}</p>
             </div>
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.16em] text-slate-300">PolÃ­tica</p>
+              <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Política</p>
               <p className="mt-2 text-lg font-semibold text-white">{policy.title}</p>
             </div>
           </div>
@@ -84,14 +86,14 @@ export default async function EditPolicyPage({ params, searchParams }: PageProps
 
       <AdminSurface>
         <AdminSectionTitle
-          eyebrow="ediÃ§Ã£o individual"
-          title={policy.title || 'PolÃ­tica'}
-          description="PortuguÃªs continua como conteÃºdo fonte deste cadastro. EN e ES sÃ£o atualizados a partir do texto salvo em PT."
-          action={<AdminInfoBadge>Regra exibida ao hÃ³spede</AdminInfoBadge>}
+          eyebrow="edição individual"
+          title={policy.title || 'Política'}
+          description="Português continua como conteúdo fonte deste cadastro. EN e ES são atualizados a partir do texto salvo em PT."
+          action={<AdminInfoBadge>Regra exibida ao hóspede</AdminInfoBadge>}
         />
 
         <AdminGuideCard
-          title="Como a traduÃ§Ã£o funciona neste cadastro"
+          title="Como a tradução funciona neste cadastro"
           description={getRetranslationHelpText()}
           className="mt-8"
         >
@@ -100,7 +102,7 @@ export default async function EditPolicyPage({ params, searchParams }: PageProps
 
         <form action={action}>
           <AdminFormGrid className="md:grid-cols-1">
-            <AdminField label="TÃ­tulo">
+            <AdminField label="Título">
               <div className="relative">
                 <ShieldCheck className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <AdminTextInput
@@ -108,17 +110,17 @@ export default async function EditPolicyPage({ params, searchParams }: PageProps
                   defaultValue={policy.title || ''}
                   required
                   className="pl-11"
-                  placeholder="Ex.: NÃ£o fumar"
+                  placeholder="Ex.: Não fumar"
                 />
               </div>
             </AdminField>
 
-            <AdminField label="DescriÃ§Ã£o">
+            <AdminField label="Descrição">
               <AdminTextarea
                 name="description"
                 defaultValue={policy.description || ''}
                 className="min-h-40"
-                placeholder="Descreva com clareza a regra ou orientaÃ§Ã£o que o hÃ³spede precisa saber."
+                placeholder="Descreva com clareza a regra ou orientação que o hóspede precisa saber."
               />
             </AdminField>
 
@@ -126,16 +128,16 @@ export default async function EditPolicyPage({ params, searchParams }: PageProps
               <label className="block text-sm font-medium text-slate-700">Status</label>
               <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm font-medium text-slate-700">
                 <input type="checkbox" name="enabled" defaultChecked={policy.enabled ?? false} />
-                Ativa no diretÃ³rio
+                Ativa no diretório
               </label>
             </div>
           </AdminFormGrid>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <AdminPrimaryButton type="submit">Salvar alteraÃ§Ãµes</AdminPrimaryButton>
+            <AdminSubmitButton label="Salvar alterações" pendingLabel="Salvando..." />
             <AdminInfoBadge>
               <AlertTriangle className="h-3.5 w-3.5" />
-              AtualizaÃ§Ã£o com feedback visual
+              Atualização com feedback visual
             </AdminInfoBadge>
           </div>
         </form>

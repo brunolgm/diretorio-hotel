@@ -5,18 +5,16 @@ import {
   MessageCircle,
   Pencil,
   Phone,
-  Plus,
   Power,
-  RefreshCw,
   Sparkles,
-  Trash2,
   Users,
 } from 'lucide-react';
 import { FeedbackToast } from '@/components/feedback-toast';
+import { AdminConfirmAction } from '@/components/admin/confirm-action';
+import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
   AdminActionGroup,
   AdminCheckboxRow,
-  AdminDangerButton,
   AdminEmptyState,
   AdminField,
   AdminFilterBar,
@@ -25,6 +23,7 @@ import {
   AdminHelpList,
   AdminHelpText,
   AdminInfoBadge,
+  AdminInlineError,
   AdminLanguageBadge,
   AdminLinkButton,
   AdminListItem,
@@ -32,7 +31,6 @@ import {
   AdminPageHero,
   AdminPrimaryButton,
   AdminSearchInput,
-  AdminSecondaryButton,
   AdminSectionTitle,
   AdminSelect,
   AdminStatCard,
@@ -147,6 +145,7 @@ export default async function AdminDepartmentsPage({
   return (
     <main className="space-y-6">
       <FeedbackToast success={success} error={errorMessage} warning={warning} />
+      <AdminInlineError message={errorMessage} />
 
       <AdminPageHero
         eyebrow="gestão de departamentos"
@@ -222,8 +221,8 @@ export default async function AdminDepartmentsPage({
 
           <form action={createDepartmentAction}>
             <AdminFormGrid>
-              <AdminField label="Nome" className="md:col-span-2">
-                <AdminTextInput name="name" required placeholder="Ex.: Recepção" />
+              <AdminField label="Nome" className="md:col-span-2" error={errorMessage?.toLowerCase().includes('nome') ? errorMessage : null}>
+                <AdminTextInput name="name" required placeholder="Ex.: Recepção" aria-invalid={errorMessage?.toLowerCase().includes('nome') || undefined} aria-describedby={errorMessage?.toLowerCase().includes('nome') ? 'name-error' : undefined} />
                 <AdminHelpText>
                   Este nome aparece no diretório público e deve ser fácil de reconhecer.
                 </AdminHelpText>
@@ -277,10 +276,7 @@ export default async function AdminDepartmentsPage({
             </AdminFormGrid>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <AdminPrimaryButton type="submit">
-                <Plus className="mr-2 h-4 w-4" />
-                Criar departamento
-              </AdminPrimaryButton>
+              <AdminSubmitButton label="Criar departamento" pendingLabel="Criando..." />
 
               <AdminInfoBadge>
                 <Sparkles className="h-3.5 w-3.5" />
@@ -328,12 +324,13 @@ export default async function AdminDepartmentsPage({
 
           <AdminFilterBar>
             <AdminSearchInput
+              aria-label="Buscar departamentos"
               type="search"
               name="q"
               defaultValue={searchQuery}
               placeholder="Buscar por nome, descrição, botão ou horário"
             />
-            <AdminSelect name="status" defaultValue={statusFilter} className="md:w-[190px]">
+            <AdminSelect aria-label="Filtrar departamentos por status" name="status" defaultValue={statusFilter} className="md:w-[190px]">
               <option value="all">Todos os status</option>
               <option value="active">Somente ativos</option>
               <option value="inactive">Somente inativos</option>
@@ -389,28 +386,24 @@ export default async function AdminDepartmentsPage({
 
                           <form action={retranslateDepartmentAction}>
                             <input type="hidden" name="id" value={item.id} />
-                            <AdminSecondaryButton type="submit">
-                              <RefreshCw className="mr-2 h-4 w-4" />
-                              Retraduzir
-                            </AdminSecondaryButton>
+                            <AdminSubmitButton label="Retraduzir" pendingLabel="Traduzindo..." variant="secondary" />
                           </form>
 
                           <form action={toggleDepartmentAction}>
                             <input type="hidden" name="id" value={item.id} />
                             <input type="hidden" name="enabled" value={String(!item.enabled)} />
-                            <AdminSecondaryButton type="submit">
-                              <Power className="mr-2 h-4 w-4" />
-                              {item.enabled ? 'Desativar' : 'Ativar'}
-                            </AdminSecondaryButton>
+                            <AdminSubmitButton label={item.enabled ? 'Desativar' : 'Ativar'} pendingLabel="Atualizando..." variant="secondary" />
                           </form>
 
-                          <form action={deleteDepartmentAction}>
-                            <input type="hidden" name="id" value={item.id} />
-                            <AdminDangerButton type="submit">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Excluir
-                            </AdminDangerButton>
-                          </form>
+                          <AdminConfirmAction
+                            action={deleteDepartmentAction}
+                            title="Excluir departamento?"
+                            description={`O departamento “${item.name}” será removido do diretório e esta ação não poderá ser desfeita.`}
+                            triggerLabel="Excluir"
+                            confirmLabel="Excluir departamento"
+                            pendingLabel="Excluindo..."
+                            hiddenFields={[{ name: 'id', value: item.id }]}
+                          />
                         </AdminActionGroup>
                       ) : null
                     }

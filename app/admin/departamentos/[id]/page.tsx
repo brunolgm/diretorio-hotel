@@ -1,14 +1,15 @@
-﻿import { Building2, Clock3, Link as LinkIcon, MessageCircle } from 'lucide-react';
+import { Building2, Clock3, Link as LinkIcon, MessageCircle } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { FeedbackToast } from '@/components/feedback-toast';
+import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
+  AdminBreadcrumbs,
   AdminField,
   AdminFormGrid,
   AdminGuideCard,
   AdminHelpList,
   AdminInfoBadge,
   AdminPageHero,
-  AdminPrimaryButton,
   AdminSectionTitle,
   AdminSurface,
   AdminTextInput,
@@ -63,11 +64,12 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
   return (
     <main className="space-y-6">
       <FeedbackToast success={success} error={errorMessage} warning={warning} />
+      <AdminBreadcrumbs items={[{ label: 'Painel', href: '/admin' }, { label: 'Departamentos', href: '/admin/departamentos' }, { label: 'Editar departamento' }]} />
 
       <AdminPageHero
         eyebrow="editar departamento"
         title="Editar canal de atendimento"
-        description="Atualize nome, descriÃ§Ã£o, horÃ¡rio, aÃ§Ã£o de contato e status de exibiÃ§Ã£o do departamento."
+        description="Atualize nome, descrição, horário, ação de contato e status de exibição do departamento."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
@@ -84,14 +86,14 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
 
       <AdminSurface>
         <AdminSectionTitle
-          eyebrow="ediÃ§Ã£o individual"
+          eyebrow="edição individual"
           title={department.name || 'Departamento'}
-          description="PortuguÃªs continua como conteÃºdo fonte deste cadastro. EN e ES sÃ£o atualizados a partir do conteÃºdo salvo em PT."
-          action={<AdminInfoBadge>Contato do diretÃ³rio</AdminInfoBadge>}
+          description="Português continua como conteúdo fonte deste cadastro. EN e ES são atualizados a partir do conteúdo salvo em PT."
+          action={<AdminInfoBadge>Contato do diretório</AdminInfoBadge>}
         />
 
         <AdminGuideCard
-          title="Como a traduÃ§Ã£o funciona neste cadastro"
+          title="Como a tradução funciona neste cadastro"
           description={getRetranslationHelpText()}
           className="mt-8"
         >
@@ -108,20 +110,20 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
                   defaultValue={department.name || ''}
                   required
                   className="pl-11"
-                  placeholder="Ex.: RecepÃ§Ã£o"
+                  placeholder="Ex.: Recepção"
                 />
               </div>
             </AdminField>
 
-            <AdminField label="DescriÃ§Ã£o" className="md:col-span-2">
+            <AdminField label="Descrição" className="md:col-span-2">
               <AdminTextarea
                 name="description"
                 defaultValue={department.description || ''}
-                placeholder="Descreva com clareza como esse setor atende o hÃ³spede."
+                placeholder="Descreva com clareza como esse setor atende o hóspede."
               />
             </AdminField>
 
-            <AdminField label="HorÃ¡rio">
+            <AdminField label="Horário">
               <div className="relative">
                 <Clock3 className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <AdminTextInput
@@ -133,14 +135,14 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
               </div>
             </AdminField>
 
-            <AdminField label="Texto do botÃ£o">
+            <AdminField label="Texto do botão">
               <div className="relative">
                 <MessageCircle className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <AdminTextInput
                   name="action"
                   defaultValue={department.action || ''}
                   className="pl-11"
-                  placeholder="Ex.: Falar com a RecepÃ§Ã£o"
+                  placeholder="Ex.: Falar com a Recepção"
                 />
               </div>
             </AdminField>
@@ -165,14 +167,14 @@ export default async function EditDepartmentPage({ params, searchParams }: PageP
                   name="enabled"
                   defaultChecked={department.enabled ?? false}
                 />
-                Ativo no diretÃ³rio
+                Ativo no diretório
               </label>
             </div>
           </AdminFormGrid>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <AdminPrimaryButton type="submit">Salvar alteraÃ§Ãµes</AdminPrimaryButton>
-            <AdminInfoBadge>AtualizaÃ§Ã£o com feedback visual</AdminInfoBadge>
+            <AdminSubmitButton label="Salvar alterações" pendingLabel="Salvando..." />
+            <AdminInfoBadge>Atualização com feedback visual</AdminInfoBadge>
           </div>
         </form>
       </AdminSurface>
