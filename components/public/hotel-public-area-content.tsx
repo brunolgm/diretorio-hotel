@@ -214,7 +214,7 @@ export function HotelPublicAreaContent({
 
   return (
     <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : 'pb-10'}`} style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
-      <PublicAnalytics hotelId={hotel.id} hotelSlug={hotel.slug} language={language} />
+      <PublicAnalytics hotelSlug={hotel.slug} language={language} />
       {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
       <div className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
         {isNovotel ? (

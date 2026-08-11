@@ -5,6 +5,7 @@ import {
   findHotelById,
 } from '@/lib/room-links';
 import { applyRoomContextCookie, clearRoomContextCookie } from '@/lib/room-context';
+import { isRoomToken } from '@/lib/security/identifiers';
 
 interface RouteProps {
   params: Promise<{
@@ -17,7 +18,7 @@ export async function GET(_request: Request, { params }: RouteProps) {
   const normalizedToken = roomToken.trim();
   const requestUrl = new URL(_request.url);
 
-  if (!normalizedToken) {
+  if (!isRoomToken(normalizedToken)) {
     const response = NextResponse.redirect(new URL('/qr-invalido', requestUrl));
     clearRoomContextCookie(response);
     return response;

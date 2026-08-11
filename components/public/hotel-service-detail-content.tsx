@@ -78,7 +78,7 @@ export function HotelServiceDetailContent({
       data-hotel-theme={theme.preset}
       data-hotel-icon-style={theme.iconStyle}
     >
-      <PublicAnalytics hotelId={hotel.id} hotelSlug={hotel.slug} language={language} />
+      <PublicAnalytics hotelSlug={hotel.slug} language={language} />
       {isGrandMercureExperience ? <GrandMercureGlobalMandala internal /> : null}
 
       <div className={`mx-auto px-4 py-6 md:px-6 md:py-8 ${isGrandMercureExperience ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-6xl' : 'max-w-4xl'}`}>

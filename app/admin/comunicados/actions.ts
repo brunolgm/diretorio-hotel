@@ -13,6 +13,7 @@ import {
   syncAnnouncementTranslations,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
+import { isUuid } from '@/lib/security/identifiers';
 
 function readOptionalDateTimeIso(formData: FormData, key: string) {
   const rawValue = readNullableString(formData, key);
@@ -133,7 +134,7 @@ export async function deleteAnnouncementAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/comunicados', {
         error: 'Comunicado inválido para exclusão.',
@@ -187,7 +188,7 @@ export async function toggleAnnouncementAction(formData: FormData) {
   const id = readTrimmedString(formData, 'id');
   const isActive = String(formData.get('is_active') || '') === 'true';
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/comunicados', {
         error: 'Comunicado inválido para atualização de status.',
@@ -245,7 +246,7 @@ export async function retranslateAnnouncementAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/comunicados', {
         error: 'Comunicado inválido para retradução.',

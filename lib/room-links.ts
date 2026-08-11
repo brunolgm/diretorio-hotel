@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import type { Database } from '@/types/database';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { classifyProductHostname, PRODUCT_ROOT_DOMAIN } from '@/lib/product-domain';
+import { isRoomToken } from '@/lib/security/identifiers';
 
 export type HotelRoomLink = Database['public']['Tables']['hotel_room_links']['Row'];
 type PublicHotel = Database['public']['Tables']['hotels']['Row'];
@@ -43,6 +44,7 @@ export function buildHotelPublicEntryUrl(
 }
 
 export async function findActiveRoomLinkByToken(roomToken: string) {
+  if (!isRoomToken(roomToken)) return null;
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('hotel_room_links')
@@ -86,6 +88,7 @@ export async function resolveRoomRestaurantMenuUrl(params: {
   hotelId: string;
   roomToken: string;
 }) {
+  if (!isRoomToken(params.roomToken)) return { kind: 'invalid' as const };
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('hotel_room_links')
@@ -126,6 +129,7 @@ export async function resolveActiveRoomContextForHotel(params: {
   hotelId: string;
   roomToken: string;
 }) {
+  if (!isRoomToken(params.roomToken)) return null;
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('hotel_room_links')

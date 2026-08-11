@@ -386,7 +386,7 @@ export function HotelPublicPageContent({
       data-hotel-theme={theme.preset}
       data-hotel-icon-style={theme.iconStyle}
     >
-      <PublicAnalytics hotelId={hotel.id} hotelSlug={hotel.slug} language={language} />
+      <PublicAnalytics hotelSlug={hotel.slug} language={language} />
 
       <div className="mx-auto max-w-6xl px-4 py-6 pb-28 md:px-6 md:py-8 md:pb-8">
         <section

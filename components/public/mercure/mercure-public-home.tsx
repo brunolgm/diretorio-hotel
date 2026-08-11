@@ -124,7 +124,7 @@ export function MercurePublicHome({
       data-hotel-theme={theme.preset}
       data-hotel-icon-style={theme.iconStyle}
     >
-      <PublicAnalytics hotelId={hotel.id} hotelSlug={hotel.slug} language={language} />
+      <PublicAnalytics hotelSlug={hotel.slug} language={language} />
       <div className="mercure-page-floral pointer-events-none fixed inset-0" aria-hidden="true" />
 
       <div className="relative mx-auto max-w-[1240px] md:px-6 md:py-7">

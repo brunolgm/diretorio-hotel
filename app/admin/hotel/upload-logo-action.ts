@@ -5,14 +5,22 @@ import { revalidatePath } from 'next/cache';
 import { requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
 import {
+  buildHotelAssetStoragePath,
+  extractOwnedHotelAssetPath,
+  IMAGE_UPLOAD_POLICIES,
+  validateImageUpload,
+} from '@/lib/security/image-upload';
+import {
   buildOperationalErrorMessage,
   logOperationalError,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function uploadHotelLogoAction(formData: FormData) {
   await requireAdminAccess('editor');
   const supabase = await createClient();
+  const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
 
   const fileEntry = formData.get('logo');
@@ -21,30 +29,32 @@ export async function uploadHotelLogoAction(formData: FormData) {
     redirect('/admin/hotel?error=Selecione uma imagem antes de enviar');
   }
 
-  const file = fileEntry;
-  const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
-  const allowedMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']);
-  const maxFileSize = 5 * 1024 * 1024;
-
-  if (!allowedMimeTypes.has(file.type)) {
-    redirect('/admin/hotel?error=Envie%20uma%20imagem%20JPEG,%20PNG,%20WEBP%20ou%20SVG');
+  const validation = await validateImageUpload(fileEntry, IMAGE_UPLOAD_POLICIES.logo);
+  if (!validation.ok) {
+    const message = validation.reason === 'too_large'
+      ? 'A logo deve ter no máximo 5MB'
+      : validation.reason === 'dimensions'
+        ? 'A logo possui dimensões excessivas'
+        : 'Envie uma imagem PNG, JPEG ou WebP válida';
+    redirect(`/admin/hotel?error=${encodeURIComponent(message)}`);
   }
 
-  if (file.size > maxFileSize) {
-    redirect('/admin/hotel?error=A%20logo%20deve%20ter%20no%20m%C3%A1ximo%205MB');
-  }
+  const path = buildHotelAssetStoragePath({
+    hotelId: hotel.id,
+    category: 'logo',
+    extension: validation.value.extension,
+  });
+  const previousPath = extractOwnedHotelAssetPath({
+    publicUrl: hotel.logo_url,
+    hotelId: hotel.id,
+    category: 'logo',
+  });
 
-  if (!file.name.trim()) {
-    redirect('/admin/hotel?error=Arquivo%20de%20logo%20inv%C3%A1lido');
-  }
-
-  const path = `${hotel.id}/logo.${ext}`;
-
-  const { error: uploadError } = await supabase.storage
+  const { error: uploadError } = await adminSupabase.storage
     .from('hotel-assets')
-    .upload(path, file, {
-      upsert: true,
-      contentType: file.type,
+    .upload(path, validation.value.bytes, {
+      upsert: false,
+      contentType: validation.value.mimeType,
     });
 
   if (uploadError) {
@@ -76,6 +86,7 @@ export async function uploadHotelLogoAction(formData: FormData) {
     .maybeSingle();
 
   if (updateError || !updatedHotel) {
+    const { error: cleanupError } = await adminSupabase.storage.from('hotel-assets').remove([path]);
     logOperationalError({
       module: 'hotel',
       action: 'uploadHotelLogoAction',
@@ -83,11 +94,35 @@ export async function uploadHotelLogoAction(formData: FormData) {
       hotelId: hotel.id,
       error: updateError,
     });
+    if (cleanupError) {
+      logOperationalError({
+        module: 'hotel',
+        action: 'uploadHotelLogoAction',
+        operation: 'rollback uploaded logo',
+        hotelId: hotel.id,
+        error: 'Logo rollback cleanup failed',
+      });
+    }
     redirect(
       `/admin/hotel?error=${encodeURIComponent(
         'A logo foi enviada, mas não foi possível concluir a atualização do hotel. Revise a tela e tente novamente.'
       )}`
     );
+  }
+
+  if (previousPath && previousPath !== path) {
+    const { error: cleanupError } = await adminSupabase.storage
+      .from('hotel-assets')
+      .remove([previousPath]);
+    if (cleanupError) {
+      logOperationalError({
+        module: 'hotel',
+        action: 'uploadHotelLogoAction',
+        operation: 'clean previous logo',
+        hotelId: hotel.id,
+        error: 'Previous logo cleanup failed',
+      });
+    }
   }
 
   revalidatePath('/admin/hotel');

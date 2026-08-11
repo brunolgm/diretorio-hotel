@@ -40,3 +40,23 @@ export function hasMinimumRole(role: AppRole, requiredRole: AppRole) {
 export function getRoleLabel(role: AppRole) {
   return APP_ROLE_OPTIONS.find((option) => option.value === role)?.label || role;
 }
+
+export function canAccessHotelResource({
+  role,
+  requiredRole,
+  userHotelId,
+  resourceHotelId,
+}: {
+  role: AppRole | null | undefined;
+  requiredRole: AppRole;
+  userHotelId: string | null | undefined;
+  resourceHotelId: string | null | undefined;
+}) {
+  return Boolean(
+    userHotelId &&
+      resourceHotelId &&
+      role &&
+      userHotelId === resourceHotelId &&
+      hasMinimumRole(role, requiredRole)
+  );
+}

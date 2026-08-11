@@ -47,7 +47,7 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
   ];
 
   return <main className="hotel-theme-page grand-mercure-dock-layout min-h-screen" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
-    <PublicAnalytics hotelId={hotel.id} hotelSlug={hotel.slug} language={language} />
+    <PublicAnalytics hotelSlug={hotel.slug} language={language} />
     <GrandMercureGlobalMandala />
     <div className="grand-mercure-scroll-region mx-auto max-w-[1280px] md:px-6 md:py-7">
       <section className="relative overflow-hidden bg-[#fbf7ef]/25 px-3 pt-3 pb-5 min-[360px]:px-4 md:rounded-[32px] md:border md:border-[#ddcfbb] md:px-10 md:pt-6 md:pb-9">

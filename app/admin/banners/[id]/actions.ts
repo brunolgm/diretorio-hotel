@@ -21,6 +21,8 @@ import {
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
+import { extractOwnedHotelAssetPath } from '@/lib/security/image-upload';
+import { isUuid } from '@/lib/security/identifiers';
 
 function readOptionalDateTimeIso(formData: FormData, key: string) {
   const rawValue = readNullableString(formData, key);
@@ -51,42 +53,10 @@ function validateBannerWindow({
   return new Date(endsAt).getTime() >= new Date(startsAt).getTime();
 }
 
-function getPromotionalBannerStoragePath({
-  imageUrl,
-  hotelId,
-}: {
-  imageUrl: string | null;
-  hotelId: string;
-}) {
-  if (!imageUrl) {
-    return null;
-  }
-
-  try {
-    const url = new URL(imageUrl);
-    const publicBucketPath = '/storage/v1/object/public/hotel-assets/';
-    const pathIndex = url.pathname.indexOf(publicBucketPath);
-
-    if (pathIndex === -1) {
-      return null;
-    }
-
-    const storagePath = decodeURIComponent(url.pathname.slice(pathIndex + publicBucketPath.length));
-
-    if (!storagePath.startsWith(`${hotelId}/promotional-banners/`)) {
-      return null;
-    }
-
-    return storagePath;
-  } catch {
-    return null;
-  }
-}
-
 export async function updatePromotionalBannerAction(id: string, formData: FormData) {
   await requireAdminAccess('operador');
 
-  if (!id.trim()) {
+  if (!isUuid(id)) {
     redirect('/admin/banners?error=Banner%20inv%C3%A1lido');
   }
 
@@ -182,7 +152,7 @@ export async function updatePromotionalBannerAction(id: string, formData: FormDa
 export async function removePromotionalBannerImageAction(id: string) {
   await requireAdminAccess('operador');
 
-  if (!id.trim()) {
+  if (!isUuid(id)) {
     redirect('/admin/banners?error=Banner%20inv%C3%A1lido');
   }
 
@@ -213,49 +183,13 @@ export async function removePromotionalBannerImageAction(id: string) {
     );
   }
 
-  const storagePath = getPromotionalBannerStoragePath({
-    imageUrl: banner.image_url,
+  const storagePath = extractOwnedHotelAssetPath({
+    publicUrl: banner.image_url,
     hotelId: hotel.id,
+    category: 'promotional-banners',
   });
 
   let warning: string | undefined;
-
-  if (banner.image_url && storagePath) {
-    const { error: removeError } = await adminSupabase.storage
-      .from('hotel-assets')
-      .remove([storagePath]);
-
-    if (removeError) {
-      logOperationalError({
-        module: 'banners',
-        action: 'removePromotionalBannerImageAction',
-        operation: 'remove promotional banner image from storage',
-        hotelId: hotel.id,
-        targetId: id,
-        error: 'Storage removal failed',
-      });
-      redirect(
-        buildFeedbackRedirect(`/admin/banners/${id}`, {
-          error: buildOperationalErrorMessage(
-            'a imagem do banner',
-            'remover',
-            'Tente novamente em instantes.'
-          ),
-        })
-      );
-    }
-  } else if (banner.image_url) {
-    warning =
-      'A imagem foi desvinculada do banner, mas não foi possível confirmar a remoção do arquivo antigo no Storage.';
-    logOperationalError({
-      module: 'banners',
-      action: 'removePromotionalBannerImageAction',
-      operation: 'derive promotional banner image storage path',
-      hotelId: hotel.id,
-      targetId: id,
-      error: 'Promotional banner image URL did not match the expected storage path',
-    });
-  }
 
   const { data: updatedBanner, error: updateError } = await supabase
     .from('hotel_promotional_banners')
@@ -286,6 +220,25 @@ export async function removePromotionalBannerImageAction(id: string) {
         ),
       })
     );
+  }
+
+  if (storagePath) {
+    const { error: removeError } = await adminSupabase.storage
+      .from('hotel-assets')
+      .remove([storagePath]);
+    if (removeError) {
+      warning = 'A imagem foi desvinculada, mas o arquivo antigo precisa de limpeza posterior.';
+      logOperationalError({
+        module: 'banners',
+        action: 'removePromotionalBannerImageAction',
+        operation: 'remove promotional banner image from storage',
+        hotelId: hotel.id,
+        targetId: id,
+        error: 'Storage removal failed',
+      });
+    }
+  } else if (banner.image_url) {
+    warning = 'A imagem foi desvinculada, mas o arquivo antigo não pôde ser identificado com segurança.';
   }
 
   revalidatePath('/admin/banners');

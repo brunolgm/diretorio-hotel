@@ -19,6 +19,9 @@ import {
   syncPromotionalBannerTranslations,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { extractOwnedHotelAssetPath } from '@/lib/security/image-upload';
+import { isUuid } from '@/lib/security/identifiers';
 
 function readOptionalDateTimeIso(formData: FormData, key: string) {
   const rawValue = readNullableString(formData, key);
@@ -144,10 +147,11 @@ export async function createPromotionalBannerAction(formData: FormData) {
 export async function deletePromotionalBannerAction(formData: FormData) {
   await requireAdminAccess('operador');
   const supabase = await createClient();
+  const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/banners', {
         error: 'Banner inválido para exclusão.',
@@ -160,7 +164,7 @@ export async function deletePromotionalBannerAction(formData: FormData) {
     .delete()
     .eq('id', id)
     .eq('hotel_id', hotel.id)
-    .select('id')
+    .select('id, image_url')
     .maybeSingle();
 
   if (error || !deletedBanner) {
@@ -183,6 +187,27 @@ export async function deletePromotionalBannerAction(formData: FormData) {
     );
   }
 
+  const storagePath = extractOwnedHotelAssetPath({
+    publicUrl: deletedBanner.image_url,
+    hotelId: hotel.id,
+    category: 'promotional-banners',
+  });
+  if (storagePath) {
+    const { error: cleanupError } = await adminSupabase.storage
+      .from('hotel-assets')
+      .remove([storagePath]);
+    if (cleanupError) {
+      logOperationalError({
+        module: 'banners',
+        action: 'deletePromotionalBannerAction',
+        operation: 'clean deleted banner image',
+        hotelId: hotel.id,
+        targetId: id,
+        error: 'Deleted banner image cleanup failed',
+      });
+    }
+  }
+
   revalidatePath('/admin/banners');
   revalidatePath('/');
   revalidatePath(`/hotel/${hotel.slug}`);
@@ -201,7 +226,7 @@ export async function togglePromotionalBannerAction(formData: FormData) {
   const id = readTrimmedString(formData, 'id');
   const isActive = String(formData.get('is_active') || '') === 'true';
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/banners', {
         error: 'Banner inválido para atualização de status.',
@@ -259,7 +284,7 @@ export async function retranslatePromotionalBannerAction(formData: FormData) {
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
 
-  if (!id) {
+  if (!isUuid(id)) {
     redirect(
       buildFeedbackRedirect('/admin/banners', {
         error: 'Banner inválido para retradução.',

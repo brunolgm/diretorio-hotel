@@ -3,12 +3,13 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
-import {
-  getHotelHeroStoragePath,
-  getHotelHeroStoragePaths,
-  isSupportedHotelHeroMimeType,
-} from '@/lib/hotel-hero-storage';
 import { getAdminHotel } from '@/lib/queries';
+import {
+  buildHotelAssetStoragePath,
+  extractOwnedHotelAssetPath,
+  IMAGE_UPLOAD_POLICIES,
+  validateImageUpload,
+} from '@/lib/security/image-upload';
 import { buildOperationalErrorMessage, logOperationalError } from '@/lib/services/translation-admin';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
@@ -24,20 +25,32 @@ export async function uploadHotelHeroImageAction(formData: FormData) {
     redirect('/admin/hotel?error=Selecione%20uma%20imagem%20de%20capa');
   }
 
-  const maxFileSize = 10 * 1024 * 1024;
-
-  if (!isSupportedHotelHeroMimeType(fileEntry.type)) {
-    redirect('/admin/hotel?error=Envie%20uma%20imagem%20JPEG,%20PNG%20ou%20WEBP');
+  const validation = await validateImageUpload(fileEntry, IMAGE_UPLOAD_POLICIES.hero);
+  if (!validation.ok) {
+    const message = validation.reason === 'too_large'
+      ? 'A imagem de capa deve ter no máximo 10MB'
+      : validation.reason === 'dimensions'
+        ? 'A imagem de capa possui dimensões excessivas'
+        : 'Envie uma imagem PNG, JPEG ou WebP válida';
+    redirect(`/admin/hotel?error=${encodeURIComponent(message)}`);
   }
 
-  if (fileEntry.size > maxFileSize) {
-    redirect('/admin/hotel?error=A%20imagem%20de%20capa%20deve%20ter%20no%20m%C3%A1ximo%2010MB');
-  }
-
-  const storagePath = getHotelHeroStoragePath(hotel.id, fileEntry.type);
+  const storagePath = buildHotelAssetStoragePath({
+    hotelId: hotel.id,
+    category: 'hero',
+    extension: validation.value.extension,
+  });
+  const previousPath = extractOwnedHotelAssetPath({
+    publicUrl: hotel.hero_image_url,
+    hotelId: hotel.id,
+    category: 'hero',
+  });
   const { error: uploadError } = await adminSupabase.storage
     .from('hotel-assets')
-    .upload(storagePath, fileEntry, { upsert: true, contentType: fileEntry.type });
+    .upload(storagePath, validation.value.bytes, {
+      upsert: false,
+      contentType: validation.value.mimeType,
+    });
 
   if (uploadError) {
     logOperationalError({
@@ -59,7 +72,9 @@ export async function uploadHotelHeroImageAction(formData: FormData) {
     .maybeSingle();
 
   if (updateError || !updatedHotel) {
-    await adminSupabase.storage.from('hotel-assets').remove([storagePath]);
+    const { error: cleanupError } = await adminSupabase.storage
+      .from('hotel-assets')
+      .remove([storagePath]);
     logOperationalError({
       module: 'hotel',
       action: 'uploadHotelHeroImageAction',
@@ -67,15 +82,21 @@ export async function uploadHotelHeroImageAction(formData: FormData) {
       hotelId: hotel.id,
       error: 'Hero image URL update failed',
     });
+    if (cleanupError) {
+      logOperationalError({
+        module: 'hotel',
+        action: 'uploadHotelHeroImageAction',
+        operation: 'rollback uploaded hero image',
+        hotelId: hotel.id,
+        error: 'Hero image rollback cleanup failed',
+      });
+    }
     redirect(`/admin/hotel?error=${encodeURIComponent('A imagem foi enviada, mas não foi possível concluir a atualização do hotel. Revise a tela e tente novamente.')}`);
   }
 
-  const staleStoragePaths = getHotelHeroStoragePaths(hotel.id).filter(
-    (path) => path !== storagePath
-  );
-  const { error: cleanupError } = await adminSupabase.storage
-    .from('hotel-assets')
-    .remove(staleStoragePaths);
+  const { error: cleanupError } = previousPath && previousPath !== storagePath
+    ? await adminSupabase.storage.from('hotel-assets').remove([previousPath])
+    : { error: null };
 
   if (cleanupError) {
     logOperationalError({
