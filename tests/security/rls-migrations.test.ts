@@ -206,3 +206,38 @@ test('Storage is server-only while room-link policies enforce hotel-first paths'
   assert.doesNotMatch(qrAudit, /room_token|roomToken|changed_fields|\[/);
   assert.doesNotMatch(actions, /\.delete\(\)/);
 });
+
+test('platform identity is private and does not grant global hotel access', () => {
+  const sql = migration('202608130001_46a_platform_identity_authorization.sql');
+  const preflightIndex = sql.indexOf('do $$');
+  const tableIndex = sql.indexOf('create table public.platform_users');
+  const functionIndex = sql.indexOf('create function public.get_current_platform_access()');
+
+  assert.ok(preflightIndex >= 0 && tableIndex > preflightIndex, 'preflight must precede table creation');
+  assert.ok(functionIndex > tableIndex, 'the narrow RPC must be created after the private table');
+  assert.match(sql, /to_regclass\('public\.platform_users'\)/i);
+  assert.match(sql, /to_regprocedure\('public\.get_current_platform_access\(\)'\)/i);
+  assert.doesNotMatch(sql, /create or replace/i);
+  assert.match(sql, /user_id uuid primary key references auth\.users\(id\) on delete cascade/i);
+  assert.match(sql, /role text not null/i);
+  assert.match(sql, /is_active boolean not null default true/i);
+  assert.match(sql, /check \(role in \('platform_admin'\)\)/i);
+  assert.doesNotMatch(sql, /hotel_id/i);
+  assert.match(sql, /alter table public\.platform_users enable row level security/i);
+  assert.match(
+    sql,
+    /revoke all on table public\.platform_users from public, anon, authenticated, service_role/i
+  );
+  assert.doesNotMatch(sql, /create policy[\s\S]*platform_users/i);
+  assert.match(sql, /where pu\.user_id = auth\.uid\(\)/i);
+  assert.match(sql, /security definer[\s\S]*set search_path = ''/i);
+  assert.match(
+    sql,
+    /grant execute on function public\.get_current_platform_access\(\)[\s\S]*to authenticated/i
+  );
+  assert.doesNotMatch(
+    sql,
+    /grant (?:select|insert|update|delete|all)[^;]*platform_users[^;]*to (?:anon|authenticated)/i
+  );
+  assert.doesNotMatch(sql, /public\.hotels|from\s+hotels|on\s+hotels/i);
+});
