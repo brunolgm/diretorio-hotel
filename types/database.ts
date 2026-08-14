@@ -783,6 +783,31 @@ export interface Database {
           is_active: boolean;
         }[];
       };
+      get_platform_hotel_metrics: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          total_hotels: number;
+          hotels_by_brand: Json;
+        }[];
+      };
+      list_platform_hotels: {
+        Args: {
+          p_search?: string | null;
+          p_page?: number;
+          p_page_size?: number;
+        };
+        Returns: {
+          total_count: number;
+          id: string;
+          name: string;
+          slug: string;
+          subdomain: string | null;
+          city: string | null;
+          brand_code: string | null;
+          theme_preset: string | null;
+          logo_url: string | null;
+        }[];
+      };
       has_active_hotel_role: {
         Args: { target_hotel_id: string; required_role: string };
         Returns: boolean;

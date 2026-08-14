@@ -479,7 +479,7 @@ Na auditoria inicial, o único arquivo criado foi esta documentação. Na Sprint
 
 ## 17. Sprint 46A — Platform Identity & Authorization
 
-Status: fundação preparada localmente para revisão, sem aplicação no Supabase.
+Status: concluída e homologada em produção conforme a abertura da Sprint 46B.
 
 ### 17.1 Modelo versionado
 
@@ -537,3 +537,89 @@ Foram criados apenas `app/platform/layout.tsx` e `app/platform/page.tsx` para pr
 - não criar métrica por status até existir lifecycle canônico;
 - adicionar testes de autorização e mínimo privilégio para cada nova consulta;
 - validar a migration 46A em ambiente preview autorizado antes de depender dela em deploy.
+
+## 18. Sprint 46B — Platform Dashboard & Hotel Directory
+
+Status: implementação local preparada para homologação, sem executar a migration ou os testes SQL desta fase.
+
+### 18.1 Contratos globais read-only
+
+A migration `202608140001_46b_platform_dashboard_directory.sql` cria duas RPCs autoautorizadas:
+
+- `get_platform_hotel_metrics()`: total de hotéis e distribuição agregada por `brand_code`;
+- `list_platform_hotels(p_search, p_page, p_page_size)`: diretório paginado e pesquisável.
+
+Ambas usam `SECURITY DEFINER`, `search_path = ''`, validam `auth.uid()` e exigem `platform_users.role = 'platform_admin'` com `is_active = true`. EXECUTE é concedido somente a `authenticated`. Nenhuma policy, grant ou SELECT global foi adicionado a `public.hotels`.
+
+O diretório expõe exclusivamente:
+
+- `total_count` como metadado de paginação;
+- `id`;
+- `name`;
+- `slug`;
+- `subdomain`;
+- `city`;
+- `brand_code`;
+- `theme_preset`;
+- `logo_url`.
+
+`created_at` e `updated_at` foram retirados do contrato inicial porque dashboard e diretório não os utilizam. O detalhe read-only foi adiado para evitar uma terceira RPC e uma superfície sem caso de uso nesta fase.
+
+Campos e relações explicitamente proibidos:
+
+- `wifi_name` e `wifi_password`;
+- horários, contatos e demais configuração operacional;
+- profiles ou usuários;
+- analytics detalhados;
+- room tokens e notas internas;
+- conteúdo, comunicados, banners e tabelas filhas;
+- qualquer segredo, credencial ou payload operacional.
+
+### 18.2 Métricas
+
+O dashboard implementa:
+
+- total global de hotéis;
+- contagem por `brand_code`;
+- grupo explícito `unassigned` para hotéis sem bandeira;
+- CTA para o diretório.
+
+Não existe métrica por status. Lifecycle continua sem definição canônica e não é inferido por completude, bandeira, slug ou subdomínio.
+
+### 18.3 Busca e paginação
+
+A aplicação normaliza os parâmetros no servidor e o banco revalida os limites:
+
+- página entre 1 e 100.000;
+- limite entre 1 e 50, com default 12 na UI;
+- busca de até 100 caracteres;
+- busca apenas em nome, slug, subdomínio e cidade;
+- `%`, `_` e `\` são escapados e tratados literalmente;
+- nenhuma SQL dinâmica é usada;
+- ordenação determinística por nome normalizado e UUID;
+- nenhuma consulta sem limite é exposta ao diretório.
+
+`lib/platform-queries.ts` chama `requirePlatformAccess()`, usa o cliente SSR autenticado e acessa somente as duas RPCs aprovadas. Não consulta `public.hotels` diretamente nem usa service role.
+
+### 18.4 UI e estados
+
+`/platform` passa a ter shell neutro com navegação para Dashboard e Hotéis. O dashboard possui métricas, distribuição por bandeira, estado vazio, loading e erro controlado. `/platform/hoteis` possui busca GET, paginação server-side, cards institucionais, logo opcional e estados vazio/erro.
+
+Não há edição, criação, onboarding, troca de contexto, status ou mutation. O chrome global permanece LibGuest neutro e nenhuma tela de `/admin` foi redesenhada.
+
+### 18.5 Homologação e riscos
+
+Foram preparados testes SQL separados de catálogo e comportamento. Eles verificam grants, SECURITY DEFINER, projeções, limites, autorização negativa, ausência de acesso global via RLS, busca literal contra payload de injeção e não exposição de valores secretos sintéticos.
+
+Riscos residuais:
+
+- funções SECURITY DEFINER exigem revisão de owner/grants no ambiente antes de produção;
+- paginação por offset é suficiente para o volume inicial, mas poderá migrar para cursor se houver escala comprovada;
+- URLs de logo são dados públicos controlados pelo hotel e devem continuar renderizadas sem ampliar permissões de Storage;
+- qualquer novo campo no contrato exige revisão explícita; `select *` continua proibido.
+
+### 18.6 Escopo futuro preservado
+
+- Sprint 46C: governança, mutações estreitas, auditoria global e eventual detalhe read-only de hotel;
+- Sprint 46.5: redesign visual exclusivo do `/admin` operacional do hotel;
+- Sprint 47: onboarding multi-hotel, criação e provisionamento coordenado.
