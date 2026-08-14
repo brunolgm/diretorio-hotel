@@ -82,6 +82,31 @@ export interface Database {
         Relationships: [];
       };
 
+      platform_users: {
+        Row: {
+          user_id: string;
+          role: string;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          role: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          role?: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+
       hotel_sections: {
         Row: {
           id: string;
@@ -751,6 +776,13 @@ export interface Database {
       };
     };
     Functions: {
+      get_current_platform_access: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          role: string;
+          is_active: boolean;
+        }[];
+      };
       has_active_hotel_role: {
         Args: { target_hotel_id: string; required_role: string };
         Returns: boolean;

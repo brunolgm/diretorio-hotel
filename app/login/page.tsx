@@ -4,6 +4,8 @@ import { LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { normalizeAppRole } from '@/lib/app-roles';
+import { resolveAuthenticatedDestination } from '@/lib/auth-destination';
+import { hasActivePlatformAccess } from '@/lib/platform-roles';
 import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
@@ -37,21 +39,38 @@ export default function LoginPage() {
         return;
       }
 
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role, hotel_id, is_active')
-        .eq('id', signedInUser.id)
-        .single();
+      const [profileResult, platformResult] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('role, hotel_id, is_active')
+          .eq('id', signedInUser.id)
+          .maybeSingle(),
+        supabase.rpc('get_current_platform_access'),
+      ]);
 
+      const profile = profileResult.data;
       const normalizedRole = normalizeAppRole(profile?.role);
+      const platformAccess = platformResult.data?.[0];
+      const hasHotelAccess = Boolean(
+        !profileResult.error && profile?.hotel_id && profile.is_active && normalizedRole
+      );
+      const hasPlatformAccess = Boolean(
+        !platformResult.error && platformAccess && hasActivePlatformAccess(platformAccess)
+      );
+      const requestedPath = new URLSearchParams(window.location.search).get('next');
+      const destination = resolveAuthenticatedDestination({
+        requestedPath,
+        hasHotelAccess,
+        hasPlatformAccess,
+      });
 
-      if (profileError || !profile?.hotel_id || !profile.is_active || !normalizedRole) {
+      if (destination === '/acesso-indisponivel') {
         await supabase.auth.signOut();
         setError('Seu acesso administrativo não está disponível no momento.');
         return;
       }
 
-      router.replace('/admin');
+      router.replace(destination);
     } catch {
       setError('Não foi possível entrar agora. Tente novamente em instantes.');
     } finally {
