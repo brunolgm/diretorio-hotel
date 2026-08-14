@@ -25,11 +25,11 @@ function getNavItemsForRole(role: AppRole) {
       label: 'Informações do hotel',
       icon: 'hotel',
     });
+    items.push({ href: '/admin/apartamentos', label: 'Apartamentos', icon: 'rooms' });
   }
 
   items.push(
     { href: '/admin/servicos', label: 'Serviços', icon: 'services' },
-    { href: '/admin/apartamentos', label: 'Apartamentos', icon: 'rooms' },
     { href: '/admin/departamentos', label: 'Departamentos', icon: 'departments' },
     { href: '/admin/politicas', label: 'Políticas', icon: 'policies' },
     { href: '/admin/comunicados', label: 'Comunicados', icon: 'announcements' },

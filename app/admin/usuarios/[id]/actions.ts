@@ -17,40 +17,17 @@ import {
 import { createAdminClient } from '@/lib/supabase/admin';
 import { updateProfileThenAuth } from '@/lib/security/user-consistency';
 import { isUuid } from '@/lib/security/identifiers';
+import { createClient } from '@/lib/supabase/server';
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
-async function countOtherActiveAdministrators({
-  adminClient,
-  hotelId,
-  excludeProfileId,
-}: {
-  adminClient: ReturnType<typeof createAdminClient>;
-  hotelId: string;
-  excludeProfileId: string;
-}) {
-  const { data, error } = await adminClient
-    .from('profiles')
-    .select('id, role, is_active')
-    .eq('hotel_id', hotelId)
-    .eq('is_active', true);
-
-  if (error) {
-    throw new Error('Não foi possível validar os administradores ativos do hotel.');
-  }
-
-  return (data || []).filter((profile) => {
-    const role = normalizeAppRole(profile.role);
-    return profile.id !== excludeProfileId && role === 'administrador';
-  }).length;
 }
 
 export async function updateHotelUserAction(id: string, formData: FormData) {
   const { user } = await requireAdminAccess('administrador');
   const hotel = await getAdminHotel();
   const adminClient = createAdminClient();
+  const supabase = await createClient();
 
   const fullName = readTrimmedString(formData, 'full_name');
   const email = readTrimmedString(formData, 'email').toLowerCase();
@@ -129,27 +106,6 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
     }
   }
 
-  if (
-    (normalizeAppRole(currentProfile.role) === 'administrador' && role !== 'administrador') ||
-    !isActive
-  ) {
-    if (normalizeAppRole(currentProfile.role) === 'administrador') {
-      const otherActiveAdministrators = await countOtherActiveAdministrators({
-        adminClient,
-        hotelId: hotel.id,
-        excludeProfileId: currentProfile.id,
-      });
-
-      if (otherActiveAdministrators === 0 && (!isActive || role !== 'administrador')) {
-        redirect(
-          buildFeedbackRedirect(`/admin/usuarios/${id}`, {
-            error: 'O hotel precisa manter pelo menos um administrador ativo.',
-          })
-        );
-      }
-    }
-  }
-
   const authUpdates: {
     email?: string;
     password?: string;
@@ -167,14 +123,14 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
 
   const coordinatedUpdate = await updateProfileThenAuth({
     updateProfile: async () => {
-      const { data, error } = await adminClient
-        .from('profiles')
-        .update({ full_name: fullName, email, role, is_active: isActive })
-        .eq('id', id)
-        .eq('hotel_id', hotel.id)
-        .select('id')
-        .maybeSingle();
-      return error || !data
+      const { data, error } = await supabase.rpc('admin_update_hotel_user', {
+        p_target_user_id: id,
+        p_full_name: fullName,
+        p_email: email,
+        p_role: role,
+        p_is_active: isActive,
+      });
+      return error || !data?.[0]
         ? { ok: false as const, error: error || 'Profile was not updated' }
         : { ok: true as const, value: undefined };
     },
@@ -183,19 +139,18 @@ export async function updateHotelUserAction(id: string, formData: FormData) {
       return error ? { ok: false as const, error } : { ok: true as const, value: undefined };
     },
     restoreProfile: async () => {
-      const { data, error } = await adminClient
-        .from('profiles')
-        .update({
-          full_name: currentProfile.full_name,
-          email: currentProfile.email,
-          role: currentProfile.role,
-          is_active: currentProfile.is_active,
-        })
-        .eq('id', id)
-        .eq('hotel_id', hotel.id)
-        .select('id')
-        .maybeSingle();
-      return error || !data
+      const previousRole = normalizeAppRole(currentProfile.role);
+      if (!previousRole || !currentProfile.full_name || !currentProfile.email) {
+        return { ok: false as const, error: 'Previous profile is invalid' };
+      }
+      const { data, error } = await supabase.rpc('admin_update_hotel_user', {
+        p_target_user_id: id,
+        p_full_name: currentProfile.full_name,
+        p_email: currentProfile.email,
+        p_role: previousRole,
+        p_is_active: currentProfile.is_active,
+      });
+      return error || !data?.[0]
         ? { ok: false as const, error: error || 'Profile rollback failed' }
         : { ok: true as const, value: undefined };
     },

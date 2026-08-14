@@ -12,11 +12,10 @@ import {
 } from '@/lib/security/image-upload';
 import { buildOperationalErrorMessage, logOperationalError } from '@/lib/services/translation-admin';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { createClient } from '@/lib/supabase/server';
+import { recordAdminAuditEvent } from '@/lib/audit';
 
 export async function uploadHotelHeroImageAction(formData: FormData) {
-  await requireAdminAccess('editor');
-  const supabase = await createClient();
+  const { user } = await requireAdminAccess('editor');
   const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
   const fileEntry = formData.get('hero_image');
@@ -63,8 +62,8 @@ export async function uploadHotelHeroImageAction(formData: FormData) {
     redirect(`/admin/hotel?error=${encodeURIComponent(buildOperationalErrorMessage('a imagem de capa', 'enviar', 'Verifique o arquivo e tente novamente.'))}`);
   }
 
-  const { data } = supabase.storage.from('hotel-assets').getPublicUrl(storagePath);
-  const { data: updatedHotel, error: updateError } = await supabase
+  const { data } = adminSupabase.storage.from('hotel-assets').getPublicUrl(storagePath);
+  const { data: updatedHotel, error: updateError } = await adminSupabase
     .from('hotels')
     .update({ hero_image_url: data.publicUrl })
     .eq('id', hotel.id)
@@ -107,6 +106,15 @@ export async function uploadHotelHeroImageAction(formData: FormData) {
       error: 'Previous hero image cleanup failed',
     });
   }
+
+  await recordAdminAuditEvent({
+    actorUserId: user.id,
+    hotelId: hotel.id,
+    action: 'hotel.hero_uploaded',
+    entityType: 'hotel',
+    entityId: hotel.id,
+    metadata: { media_category: 'hero', format: validation.value.extension },
+  });
 
   revalidatePath('/admin/hotel');
   revalidatePath('/');

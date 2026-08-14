@@ -1114,6 +1114,17 @@ Importante:
 - Como hardening futuro de baixo risco, permanece validar a origem e o hostname esperados da public URL antes de extrair paths usados em remoções no Storage.
 - Detalhes, limites e cobertura: `docs/SPRINT_45A_SECURITY_HARDENING.md`.
 
+### Preparação da Sprint 45B
+
+- Status: linha de base, migrations e integrações de RLS e governança preparadas localmente para revisão; nenhum SQL, nenhuma migration, nenhuma policy e nenhum dado foram aplicados.
+- A linha de base proposta alinha os quatro papéis existentes ao hotel do perfil, expõe hotéis pela view explícita `public_hotels` para `anon` e `authenticated`, mantém o conteúdo genuinamente público nos dois contextos e reserva a atualização de `hotels` às actions server-side.
+- A API de analytics usa inserção server-side. A gestão de papel e status passa por RPC transacional com lock por hotel e proteção concorrente do último administrador.
+- O audit log é append-only para os papéis da aplicação: `service_role` apenas executa a função validada `SECURITY DEFINER`, sem INSERT ou SELECT direto; administradores leem somente o próprio hotel.
+- Mídia administrativa é mutada exclusivamente pelas server actions validadas. Room links exigem editor+, não possuem DELETE administrativo e são resolvidos publicamente apenas no servidor.
+- As migrations possuem preflight para abortar diante de objetos e policies remotos inesperados. Exportar policies, grants, flags de RLS, funções e triggers do preview continua obrigatório antes de qualquer aplicação.
+- Testes estáticos e um verificador SQL de catálogo foram adicionados; testes comportamentais entre hotéis A e B dependem de um clone descartável com linha de base e dados sintéticos revisados.
+- Detalhes, ordem, rollback lógico e riscos: `docs/SPRINT_45B_RLS_GOVERNANCE.md`.
+
 ## 10. Known pending items
 
 ### Produto e arquitetura

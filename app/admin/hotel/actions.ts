@@ -18,10 +18,12 @@ import {
   logOperationalError,
 } from '@/lib/services/translation-admin';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { recordAdminAuditEvent } from '@/lib/audit';
 
 export async function updateHotelAction(formData: FormData) {
-  await requireAdminAccess('editor');
+  const { user } = await requireAdminAccess('editor');
   const supabase = await createClient();
+  const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
   const name = readTrimmedString(formData, 'name');
   const bookingUrlInput = readNullableString(formData, 'booking_url');
@@ -113,7 +115,7 @@ export async function updateHotelAction(formData: FormData) {
     theme_primary_color: sanitizeHotelThemePrimaryColor(themePrimaryColorInput),
   };
 
-  const { data: updatedHotel, error } = await supabase
+  const { data: updatedHotel, error } = await adminSupabase
     .from('hotels')
     .update(payload)
     .eq('id', hotel.id)
@@ -139,12 +141,24 @@ export async function updateHotelAction(formData: FormData) {
     );
   }
 
+  await recordAdminAuditEvent({
+    actorUserId: user.id,
+    hotelId: hotel.id,
+    action: 'hotel.settings_updated',
+    entityType: 'hotel',
+    entityId: hotel.id,
+    metadata: {
+      changed_fields: [
+        'identity', 'contact', 'wifi', 'hours', 'media_urls', 'theme', 'subdomain',
+      ],
+    },
+  });
+
   redirect('/admin/hotel?success=Altera%C3%A7%C3%B5es%20salvas%20com%20sucesso');
 }
 
 export async function removeHotelLogoAction() {
-  await requireAdminAccess('editor');
-  const supabase = await createClient();
+  const { user } = await requireAdminAccess('editor');
   const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
   const storagePath = extractOwnedHotelAssetPath({
@@ -153,7 +167,7 @@ export async function removeHotelLogoAction() {
     category: 'logo',
   });
 
-  const { data: updatedHotel, error } = await supabase
+  const { data: updatedHotel, error } = await adminSupabase
     .from('hotels')
     .update({ logo_url: null })
     .eq('id', hotel.id)
@@ -194,12 +208,20 @@ export async function removeHotelLogoAction() {
     }
   }
 
+  await recordAdminAuditEvent({
+    actorUserId: user.id,
+    hotelId: hotel.id,
+    action: 'hotel.logo_removed',
+    entityType: 'hotel',
+    entityId: hotel.id,
+    metadata: { media_category: 'logo' },
+  });
+
   redirect('/admin/hotel?success=Logo%20removida%20com%20sucesso');
 }
 
 export async function removeHotelHeroImageAction() {
-  await requireAdminAccess('editor');
-  const supabase = await createClient();
+  const { user } = await requireAdminAccess('editor');
   const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
   const storagePath = extractOwnedHotelAssetPath({
@@ -208,7 +230,7 @@ export async function removeHotelHeroImageAction() {
     category: 'hero',
   });
 
-  const { data: updatedHotel, error } = await supabase
+  const { data: updatedHotel, error } = await adminSupabase
     .from('hotels')
     .update({ hero_image_url: null })
     .eq('id', hotel.id)
@@ -247,6 +269,15 @@ export async function removeHotelHeroImageAction() {
       error: 'Hero image storage removal failed',
     });
   }
+
+  await recordAdminAuditEvent({
+    actorUserId: user.id,
+    hotelId: hotel.id,
+    action: 'hotel.hero_removed',
+    entityType: 'hotel',
+    entityId: hotel.id,
+    metadata: { media_category: 'hero' },
+  });
 
   revalidatePath('/admin/hotel');
   revalidatePath('/');

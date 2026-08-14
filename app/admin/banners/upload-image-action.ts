@@ -18,9 +18,10 @@ import {
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { isUuid } from '@/lib/security/identifiers';
+import { recordAdminAuditEvent } from '@/lib/audit';
 
 export async function uploadPromotionalBannerImageAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  const { user } = await requireAdminAccess('operador');
   const supabase = await createClient();
   const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
@@ -148,6 +149,15 @@ export async function uploadPromotionalBannerImageAction(formData: FormData) {
       });
     }
   }
+
+  await recordAdminAuditEvent({
+    actorUserId: user.id,
+    hotelId: hotel.id,
+    action: 'banner.image_uploaded',
+    entityType: 'hotel_promotional_banner',
+    entityId: banner.id,
+    metadata: { media_category: 'promotional-banners', format: validation.value.extension },
+  });
 
   revalidatePath('/admin/banners');
   revalidatePath(`/admin/banners/${banner.id}`);

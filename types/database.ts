@@ -644,6 +644,43 @@ export interface Database {
         ];
       };
 
+      admin_audit_log: {
+        Row: {
+          id: string;
+          created_at: string;
+          actor_user_id: string;
+          hotel_id: string;
+          action: string;
+          entity_type: string;
+          entity_id: string | null;
+          metadata: Json;
+          request_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          actor_user_id: string;
+          hotel_id: string;
+          action: string;
+          entity_type: string;
+          entity_id?: string | null;
+          metadata?: Json;
+          request_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          created_at?: string;
+          actor_user_id?: string;
+          hotel_id?: string;
+          action?: string;
+          entity_type?: string;
+          entity_id?: string | null;
+          metadata?: Json;
+          request_id?: string | null;
+        };
+        Relationships: [];
+      };
+
       profiles: {
         Row: {
           id: string;
@@ -687,8 +724,71 @@ export interface Database {
       };
     };
 
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Views: {
+      public_hotels: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          subdomain: string | null;
+          city: string | null;
+          booking_url: string | null;
+          website_url: string | null;
+          instagram_url: string | null;
+          whatsapp_number: string | null;
+          wifi_name: string | null;
+          wifi_password: string | null;
+          breakfast_hours: string | null;
+          checkin_time: string | null;
+          checkout_time: string | null;
+          logo_url: string | null;
+          hero_image_url: string | null;
+          brand_code: string | null;
+          theme_preset: string | null;
+          theme_primary_color: string | null;
+        };
+        Relationships: [];
+      };
+    };
+    Functions: {
+      has_active_hotel_role: {
+        Args: { target_hotel_id: string; required_role: string };
+        Returns: boolean;
+      };
+      has_active_hotel_path_role: {
+        Args: { target_hotel_id: string; required_role: string };
+        Returns: boolean;
+      };
+      record_admin_audit_event: {
+        Args: {
+          p_actor_user_id: string;
+          p_hotel_id: string;
+          p_action: string;
+          p_entity_type: string;
+          p_entity_id?: string | null;
+          p_metadata?: Json;
+          p_request_id?: string | null;
+        };
+        Returns: string;
+      };
+      admin_update_hotel_user: {
+        Args: {
+          p_target_user_id: string;
+          p_full_name: string;
+          p_email: string;
+          p_role: string;
+          p_is_active: boolean;
+        };
+        Returns: {
+          id: string;
+          hotel_id: string;
+          full_name: string | null;
+          email: string | null;
+          role: string | null;
+          is_active: boolean;
+        }[];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

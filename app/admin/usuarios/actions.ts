@@ -13,6 +13,8 @@ import {
 import { createAdminClient } from '@/lib/supabase/admin';
 import { provisionAuthUserWithProfile } from '@/lib/security/user-consistency';
 import { isUuid } from '@/lib/security/identifiers';
+import { recordAdminAuditEvent } from '@/lib/audit';
+import { createClient } from '@/lib/supabase/server';
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -22,33 +24,8 @@ function validateRole(value: string) {
   return normalizeAppRole(value);
 }
 
-async function countOtherActiveAdministrators({
-  adminClient,
-  hotelId,
-  excludeProfileId,
-}: {
-  adminClient: ReturnType<typeof createAdminClient>;
-  hotelId: string;
-  excludeProfileId: string;
-}) {
-  const { data, error } = await adminClient
-    .from('profiles')
-    .select('id, role, is_active')
-    .eq('hotel_id', hotelId)
-    .eq('is_active', true);
-
-  if (error) {
-    throw new Error('Não foi possível validar os administradores ativos do hotel.');
-  }
-
-  return (data || []).filter((profile) => {
-    const role = normalizeAppRole(profile.role);
-    return profile.id !== excludeProfileId && role === 'administrador';
-  }).length;
-}
-
 export async function createHotelUserAction(formData: FormData) {
-  await requireAdminAccess('administrador');
+  const { user } = await requireAdminAccess('administrador');
   const hotel = await getAdminHotel();
   const adminClient = createAdminClient();
 
@@ -150,6 +127,15 @@ export async function createHotelUserAction(formData: FormData) {
     );
   }
 
+  await recordAdminAuditEvent({
+    actorUserId: user.id,
+    hotelId: hotel.id,
+    action: 'user.created',
+    entityType: 'profile',
+    entityId: provisioning.userId,
+    metadata: { role, is_active: isActive },
+  });
+
   revalidatePath('/admin/usuarios');
 
   redirect(
@@ -163,6 +149,7 @@ export async function toggleHotelUserStatusAction(formData: FormData) {
   const { user } = await requireAdminAccess('administrador');
   const hotel = await getAdminHotel();
   const adminClient = createAdminClient();
+  const supabase = await createClient();
 
   const id = readTrimmedString(formData, 'id');
   const nextStatus = String(formData.get('is_active') || '') === 'true';
@@ -198,29 +185,22 @@ export async function toggleHotelUserStatusAction(formData: FormData) {
     );
   }
 
-  if (!nextStatus && normalizeAppRole(profile.role) === 'administrador') {
-    const otherActiveAdministrators = await countOtherActiveAdministrators({
-      adminClient,
-      hotelId: hotel.id,
-      excludeProfileId: profile.id,
-    });
-
-    if (otherActiveAdministrators === 0) {
-      redirect(
-        buildFeedbackRedirect('/admin/usuarios', {
-          error: 'O hotel precisa manter pelo menos um administrador ativo.',
-        })
-      );
-    }
+  const normalizedRole = normalizeAppRole(profile.role);
+  if (!normalizedRole || !profile.full_name || !profile.email) {
+    redirect(buildFeedbackRedirect('/admin/usuarios', { error: 'Perfil de usuário inválido.' }));
   }
 
-  const { data: updatedProfile, error: updateError } = await adminClient
-    .from('profiles')
-    .update({ is_active: nextStatus })
-    .eq('id', profile.id)
-    .eq('hotel_id', hotel.id)
-    .select('id')
-    .maybeSingle();
+  const { data: updatedProfiles, error: updateError } = await supabase.rpc(
+    'admin_update_hotel_user',
+    {
+      p_target_user_id: profile.id,
+      p_full_name: profile.full_name,
+      p_email: profile.email,
+      p_role: normalizedRole,
+      p_is_active: nextStatus,
+    }
+  );
+  const updatedProfile = updatedProfiles?.[0];
 
   if (updateError || !updatedProfile) {
     logOperationalError({
@@ -231,6 +211,13 @@ export async function toggleHotelUserStatusAction(formData: FormData) {
       targetId: profile.id,
       error: updateError,
     });
+    if (updateError?.message.includes('last_active_administrator_required')) {
+      redirect(
+        buildFeedbackRedirect('/admin/usuarios', {
+          error: 'O hotel precisa manter pelo menos um administrador ativo.',
+        })
+      );
+    }
     redirect(
       buildFeedbackRedirect('/admin/usuarios', {
         error: buildOperationalErrorMessage(
