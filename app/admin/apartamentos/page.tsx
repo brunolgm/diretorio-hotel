@@ -42,7 +42,7 @@ interface AdminRoomsPageProps {
 }
 
 export default async function AdminRoomsPage({ searchParams }: AdminRoomsPageProps) {
-  const { profile } = await requireAdminAccess('visualizador');
+  const { profile } = await requireAdminAccess('editor');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const canManageRooms = hasMinimumRole(profile.normalizedRole, 'editor');

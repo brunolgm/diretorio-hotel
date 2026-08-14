@@ -18,6 +18,7 @@ import {
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
 import { isUuid } from '@/lib/security/identifiers';
+import { recordAdminAuditEvent } from '@/lib/audit';
 
 const ADMIN_ROOMS_PATH = '/admin/apartamentos';
 
@@ -237,7 +238,7 @@ export async function toggleRoomLinkStatusAction(formData: FormData) {
 }
 
 export async function regenerateRoomTokenAction(formData: FormData) {
-  await requireAdminAccess('editor');
+  const { user } = await requireAdminAccess('editor');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -285,6 +286,15 @@ export async function regenerateRoomTokenAction(formData: FormData) {
       })
     );
   }
+
+  await recordAdminAuditEvent({
+    actorUserId: user.id,
+    hotelId: hotel.id,
+    action: 'room.qr_regenerated',
+    entityType: 'hotel_room_link',
+    entityId: id,
+    metadata: {},
+  });
 
   revalidatePath(ADMIN_ROOMS_PATH);
   redirect(

@@ -35,9 +35,25 @@ test('allows hotel A and rejects the same valid resource ID from hotel B', () =>
   );
 });
 
+test('room-link administration requires editor access in the same hotel', () => {
+  assert.equal(
+    canAccessHotelResource({ role: 'visualizador', requiredRole: 'editor', userHotelId: HOTEL_A, resourceHotelId: HOTEL_A }),
+    false
+  );
+  assert.equal(
+    canAccessHotelResource({ role: 'editor', requiredRole: 'editor', userHotelId: HOTEL_A, resourceHotelId: HOTEL_A }),
+    true
+  );
+  assert.equal(
+    canAccessHotelResource({ role: 'editor', requiredRole: 'editor', userHotelId: HOTEL_A, resourceHotelId: HOTEL_B }),
+    false
+  );
+});
+
 test('validates synthetic UUIDs and room-token format', () => {
   assert.equal(isUuid(HOTEL_A), true);
   assert.equal(isUuid('not-a-uuid'), false);
   assert.equal(isRoomToken('AbCdEfGhIjKlMnOpQrStUvWx'), true);
   assert.equal(isRoomToken('short-token'), false);
+  assert.equal(isRoomToken('AbCdEfGhIjKlMnOpQrStUvW!'), false);
 });

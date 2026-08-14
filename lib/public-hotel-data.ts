@@ -1,11 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/public';
 import { normalizeHotelSubdomainInput } from '@/lib/hotel-subdomain';
 import { type SupportedPublicLanguage } from '@/lib/public-language';
 import type { Database } from '@/types/database';
 
-type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
+type SupabaseClient = ReturnType<typeof createPublicClient>;
 
-export type PublicHotel = Database['public']['Tables']['hotels']['Row'];
+export type PublicHotel = Database['public']['Views']['public_hotels']['Row'];
 export type PublicHotelSection = Database['public']['Tables']['hotel_sections']['Row'];
 export type PublicHotelDepartment = Database['public']['Tables']['hotel_departments']['Row'];
 export type PublicHotelPolicy = Database['public']['Tables']['hotel_policies']['Row'];
@@ -47,7 +47,7 @@ async function getHotelBySlugWithClient(supabase: SupabaseClient, slug: string) 
   }
 
   const { data, error } = await supabase
-    .from('hotels')
+    .from('public_hotels')
     .select('*')
     .eq('slug', normalizedSlug)
     .maybeSingle();
@@ -68,7 +68,7 @@ async function getHotelBySubdomainWithClient(supabase: SupabaseClient, subdomain
   }
 
   const { data: hotelBySubdomain, error: hotelBySubdomainError } = await supabase
-    .from('hotels')
+    .from('public_hotels')
     .select('*')
     .eq('subdomain', normalizedSubdomain)
     .maybeSingle();
@@ -428,7 +428,7 @@ export async function getPublicHotelPageDataBySlug(
   slug: string,
   language: SupportedPublicLanguage
 ) {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const hotel = await getHotelBySlugWithClient(supabase, slug);
 
   if (!hotel) {
@@ -442,7 +442,7 @@ export async function getPublicHotelPageDataBySubdomain(
   subdomain: string,
   language: SupportedPublicLanguage
 ) {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const hotel = await getHotelBySubdomainWithClient(supabase, subdomain);
 
   if (!hotel) {
@@ -457,7 +457,7 @@ export async function getPublicHotelServiceDetailDataBySlug(
   serviceId: string,
   language: SupportedPublicLanguage
 ) {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const hotel = await getHotelBySlugWithClient(supabase, slug);
 
   if (!hotel) {
@@ -472,7 +472,7 @@ export async function getPublicHotelServiceDetailDataBySubdomain(
   serviceId: string,
   language: SupportedPublicLanguage
 ) {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const hotel = await getHotelBySubdomainWithClient(supabase, subdomain);
 
   if (!hotel) {

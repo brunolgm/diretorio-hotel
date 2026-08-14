@@ -22,6 +22,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { extractOwnedHotelAssetPath } from '@/lib/security/image-upload';
 import { isUuid } from '@/lib/security/identifiers';
+import { recordAdminAuditEvent } from '@/lib/audit';
 
 function readOptionalDateTimeIso(formData: FormData, key: string) {
   const rawValue = readNullableString(formData, key);
@@ -53,7 +54,7 @@ function validateBannerWindow({
 }
 
 export async function createPromotionalBannerAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  const { user } = await requireAdminAccess('operador');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const title = readTrimmedString(formData, 'title');
@@ -132,6 +133,15 @@ export async function createPromotionalBannerAction(formData: FormData) {
     },
   });
 
+  await recordAdminAuditEvent({
+    actorUserId: user.id,
+    hotelId: hotel.id,
+    action: 'banner.created',
+    entityType: 'hotel_promotional_banner',
+    entityId: banner.id,
+    metadata: { is_active: payload.is_active },
+  });
+
   revalidatePath('/admin/banners');
   revalidatePath('/');
   revalidatePath(`/hotel/${hotel.slug}`);
@@ -145,7 +155,7 @@ export async function createPromotionalBannerAction(formData: FormData) {
 }
 
 export async function deletePromotionalBannerAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  const { user } = await requireAdminAccess('operador');
   const supabase = await createClient();
   const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
@@ -207,6 +217,15 @@ export async function deletePromotionalBannerAction(formData: FormData) {
       });
     }
   }
+
+  await recordAdminAuditEvent({
+    actorUserId: user.id,
+    hotelId: hotel.id,
+    action: 'banner.deleted',
+    entityType: 'hotel_promotional_banner',
+    entityId: id,
+    metadata: { had_owned_image: Boolean(storagePath) },
+  });
 
   revalidatePath('/admin/banners');
   revalidatePath('/');

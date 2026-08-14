@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { ANALYTICS_LIMITS, validateAnalyticsPayload } from '@/lib/analytics';
 import { isJsonContentType, readUtf8BodyWithLimit } from '@/lib/security/http';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { createPublicClient } from '@/lib/supabase/public';
 import type { Database } from '@/types/database';
 
 export async function POST(request: NextRequest) {
@@ -26,9 +27,9 @@ export async function POST(request: NextRequest) {
 
     const payload = validation.value;
 
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data: hotel, error: hotelError } = await supabase
-      .from('hotels')
+      .from('public_hotels')
       .select('id')
       .eq('slug', payload.hotelSlug)
       .maybeSingle();
@@ -61,7 +62,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { error } = await supabase.from('hotel_analytics_events').insert(insertPayload);
+    const adminClient = createAdminClient();
+    const { error } = await adminClient.from('hotel_analytics_events').insert(insertPayload);
 
     if (error) {
       console.error('[analytics] event insert failed', { code: error.code });

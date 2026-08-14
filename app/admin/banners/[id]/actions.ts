@@ -23,6 +23,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database';
 import { extractOwnedHotelAssetPath } from '@/lib/security/image-upload';
 import { isUuid } from '@/lib/security/identifiers';
+import { recordAdminAuditEvent } from '@/lib/audit';
 
 function readOptionalDateTimeIso(formData: FormData, key: string) {
   const rawValue = readNullableString(formData, key);
@@ -54,7 +55,7 @@ function validateBannerWindow({
 }
 
 export async function updatePromotionalBannerAction(id: string, formData: FormData) {
-  await requireAdminAccess('operador');
+  const { user } = await requireAdminAccess('operador');
 
   if (!isUuid(id)) {
     redirect('/admin/banners?error=Banner%20inv%C3%A1lido');
@@ -136,6 +137,15 @@ export async function updatePromotionalBannerAction(id: string, formData: FormDa
     },
   });
 
+  await recordAdminAuditEvent({
+    actorUserId: user.id,
+    hotelId: hotel.id,
+    action: 'banner.updated',
+    entityType: 'hotel_promotional_banner',
+    entityId: id,
+    metadata: { changed_fields: ['content', 'schedule', 'status', 'display_order'] },
+  });
+
   revalidatePath('/admin/banners');
   revalidatePath(`/admin/banners/${id}`);
   revalidatePath('/');
@@ -150,7 +160,7 @@ export async function updatePromotionalBannerAction(id: string, formData: FormDa
 }
 
 export async function removePromotionalBannerImageAction(id: string) {
-  await requireAdminAccess('operador');
+  const { user } = await requireAdminAccess('operador');
 
   if (!isUuid(id)) {
     redirect('/admin/banners?error=Banner%20inv%C3%A1lido');
@@ -240,6 +250,15 @@ export async function removePromotionalBannerImageAction(id: string) {
   } else if (banner.image_url) {
     warning = 'A imagem foi desvinculada, mas o arquivo antigo não pôde ser identificado com segurança.';
   }
+
+  await recordAdminAuditEvent({
+    actorUserId: user.id,
+    hotelId: hotel.id,
+    action: 'banner.image_removed',
+    entityType: 'hotel_promotional_banner',
+    entityId: id,
+    metadata: { media_category: 'promotional-banners' },
+  });
 
   revalidatePath('/admin/banners');
   revalidatePath(`/admin/banners/${id}`);
