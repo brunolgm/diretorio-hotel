@@ -193,9 +193,11 @@ test('Storage is server-only while room-link policies enforce hotel-first paths'
   const page = readFileSync(join(root, 'app', 'admin', 'apartamentos', 'page.tsx'), 'utf8');
   assert.match(page, /requireAdminAccess\('editor'\)/);
 
-  const layout = readFileSync(join(root, 'app', 'admin', 'layout.tsx'), 'utf8');
-  const editorNavigation = layout.match(/if \(hasMinimumRole\(role, 'editor'\)\) \{[\s\S]*?\n  \}/)?.[0] || '';
-  assert.match(editorNavigation, /\/admin\/apartamentos/);
+  const navigation = readFileSync(join(root, 'lib', 'admin-navigation.ts'), 'utf8');
+  assert.match(
+    navigation,
+    /href: '\/admin\/apartamentos'[\s\S]*?requiredRole: 'editor'/
+  );
 
   const actions = readFileSync(join(root, 'app', 'admin', 'apartamentos', 'actions.ts'), 'utf8');
   const qrActionIndex = actions.indexOf("action: 'room.qr_regenerated'");
