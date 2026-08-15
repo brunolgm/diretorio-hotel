@@ -140,7 +140,7 @@ export default async function AdminAnnouncementsPage({
     .order('created_at', { ascending: false });
 
   if (error) {
-    throw new Error('Erro ao carregar comunicados.');
+    throw new Error('Erro ao carregar anúncios.');
   }
 
   const announcementIds = announcements?.map((item) => item.id) || [];
@@ -152,7 +152,7 @@ export default async function AdminAnnouncementsPage({
     : { data: [], error: null };
 
   if (translationError) {
-    console.error('Erro ao carregar status de tradução dos comunicados:', translationError);
+    console.error('Erro ao carregar status de tradução dos anúncios:', translationError);
   }
 
   const translationsByAnnouncementId = new Map<string, AnnouncementTranslation[]>();
@@ -199,8 +199,8 @@ export default async function AdminAnnouncementsPage({
 
       <AdminPageHero
         eyebrow="avisos do hotel"
-        title="Comunicados gerais"
-        description="Use comunicados para avisos temporários e informações importantes para hóspedes sem criar mensagens individuais ou dados pessoais."
+        title="Anúncios"
+        description="Publique avisos temporários e informações importantes para hóspedes."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
@@ -218,7 +218,7 @@ export default async function AdminAnnouncementsPage({
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <AdminStatCard
           icon={<Megaphone className="h-5 w-5" />}
-          title="Total de comunicados"
+          title="Total de anúncios"
           value={String(totalAnnouncements)}
           description="Quantidade total de avisos cadastrados para o hotel."
         />
@@ -226,7 +226,7 @@ export default async function AdminAnnouncementsPage({
           icon={<Eye className="h-5 w-5" />}
           title="Ativos agora"
           value={String(activeAnnouncements)}
-          description="Comunicados públicos que podem aparecer ao hóspede neste momento."
+          description="Anúncios visíveis neste momento."
         />
         <AdminStatCard
           icon={<CalendarClock className="h-5 w-5" />}
@@ -247,8 +247,8 @@ export default async function AdminAnnouncementsPage({
           <AdminSurface>
             <AdminSectionTitle
               eyebrow="cadastro rápido"
-              title="Novo comunicado"
-              description="Comunicados ativos aparecem na página pública do hotel durante o período definido."
+              title="Novo anúncio"
+              description="Anúncios ativos aparecem durante o período definido."
               action={<AdminInfoBadge>Role mínima: operador</AdminInfoBadge>}
             />
 
@@ -260,7 +260,7 @@ export default async function AdminAnnouncementsPage({
               <AdminHelpList
                 items={[
                   'Use este recurso para informações gerais e temporárias do hotel.',
-                  'Não use comunicados para mensagens individuais ou dados pessoais de hóspedes.',
+                  'Não use anúncios para mensagens individuais ou dados pessoais de hóspedes.',
                   'Se o aviso tiver prazo, preencha início e fim para controlar a exibição pública.',
                 ]}
               />
@@ -316,7 +316,7 @@ export default async function AdminAnnouncementsPage({
               </div>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <AdminSubmitButton label="Criar comunicado" pendingLabel="Criando..." />
+                <AdminSubmitButton label="Criar anúncio" pendingLabel="Criando..." />
 
                 <AdminInfoBadge>
                   <Sparkles className="h-3.5 w-3.5" />
@@ -329,8 +329,8 @@ export default async function AdminAnnouncementsPage({
           <AdminSurface>
             <AdminSectionTitle
               eyebrow="acesso em leitura"
-              title="Visualização de comunicados"
-              description="Seu papel permite revisar os comunicados do hotel sem criar, editar ou publicar mudanças."
+              title="Visualização de anúncios"
+              description="Seu papel permite revisar anúncios sem publicar mudanças."
               action={<AdminInfoBadge>Modo leitura</AdminInfoBadge>}
             />
 
@@ -345,7 +345,7 @@ export default async function AdminAnnouncementsPage({
         <AdminSurface>
           <AdminSectionTitle
             eyebrow="avisos cadastrados"
-            title="Lista de comunicados"
+            title="Lista de anúncios"
             description="Acompanhe avisos ativos, programados, expirados ou em fallback de tradução sem depender de mensagens individuais."
             action={<AdminListSummary total={filteredAnnouncements.length} label="resultado(s)" />}
           />
@@ -362,13 +362,13 @@ export default async function AdminAnnouncementsPage({
 
           <AdminFilterBar>
             <AdminSearchInput
-              aria-label="Buscar comunicados"
+              aria-label="Buscar anúncios"
               type="search"
               name="q"
               defaultValue={searchQuery}
               placeholder="Buscar por título ou mensagem"
             />
-            <AdminSelect aria-label="Filtrar comunicados por status" name="status" defaultValue={statusFilter} className="md:w-[220px]">
+            <AdminSelect aria-label="Filtrar anúncios por status" name="status" defaultValue={statusFilter} className="md:w-[220px]">
               <option value="all">Todos os status</option>
               <option value="active">Ativos agora</option>
               <option value="scheduled">Programados</option>
@@ -458,10 +458,10 @@ export default async function AdminAnnouncementsPage({
 
                           <AdminConfirmAction
                             action={deleteAnnouncementAction}
-                            title="Excluir comunicado?"
-                            description={`O comunicado “${item.title}” será removido da experiência pública e esta ação não poderá ser desfeita.`}
+                            title="Excluir anúncio?"
+                            description={`O anúncio “${item.title}” será removido da experiência pública e esta ação não poderá ser desfeita.`}
                             triggerLabel="Excluir"
-                            confirmLabel="Excluir comunicado"
+                            confirmLabel="Excluir anúncio"
                             pendingLabel="Excluindo..."
                             hiddenFields={[{ name: 'id', value: item.id }]}
                           />
@@ -475,13 +475,13 @@ export default async function AdminAnnouncementsPage({
               <AdminEmptyState
                 title={
                   hasActiveFilters
-                    ? 'Nenhum comunicado encontrado com os filtros atuais'
-                    : 'Nenhum comunicado cadastrado ainda'
+                    ? 'Nenhum anúncio encontrado com os filtros atuais'
+                    : 'Nenhum anúncio cadastrado ainda'
                 }
                 description={
                   hasActiveFilters
                     ? 'Ajuste a busca ou revise o filtro de status para localizar o aviso desejado.'
-                    : 'Crie o primeiro comunicado para publicar avisos gerais do hotel sem depender de mensagens individuais.'
+                    : 'Crie o primeiro anúncio para publicar avisos gerais do hotel.'
                 }
               />
             )}

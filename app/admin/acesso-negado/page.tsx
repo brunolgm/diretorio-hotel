@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function AccessDeniedPage() {
   return (
-    <section className="rounded-[32px] bg-white p-8 shadow-sm ring-1 ring-slate-200/70">
+    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">LibGuest</p>
       <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">
         Acesso n&atilde;o autorizado
@@ -12,7 +12,7 @@ export default function AccessDeniedPage() {
       </p>
       <Link
         href="/admin"
-        className="mt-6 inline-flex rounded-2xl bg-slate-950 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-800"
+        className="mt-6 inline-flex rounded-xl bg-[#0b2b50] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#123f70]"
       >
         Voltar ao painel
       </Link>

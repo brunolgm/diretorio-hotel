@@ -68,7 +68,7 @@ export default async function EditAnnouncementPage({ params, searchParams }: Pag
     .maybeSingle();
 
   if (error) {
-    throw new Error('Nao foi possivel carregar o comunicado solicitado.');
+    throw new Error('Não foi possível carregar o anúncio solicitado.');
   }
 
   if (!announcement) {
@@ -80,12 +80,12 @@ export default async function EditAnnouncementPage({ params, searchParams }: Pag
   return (
     <main className="space-y-6">
       <FeedbackToast success={success} error={errorMessage} warning={warning} />
-      <AdminBreadcrumbs items={[{ label: 'Painel', href: '/admin' }, { label: 'Comunicados', href: '/admin/comunicados' }, { label: 'Editar comunicado' }]} />
+      <AdminBreadcrumbs items={[{ label: 'Painel', href: '/admin' }, { label: 'Anúncios', href: '/admin/comunicados' }, { label: 'Editar anúncio' }]} />
 
       <AdminPageHero
-        eyebrow="editar comunicado"
+        eyebrow="editar anúncio"
         title="Editar aviso público do hotel"
-        description="Atualize título, mensagem, período e status de exibição do comunicado na página pública."
+        description="Atualize título, mensagem, período e status de exibição do anúncio."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
@@ -93,7 +93,7 @@ export default async function EditAnnouncementPage({ params, searchParams }: Pag
               <p className="mt-2 text-lg font-semibold text-white">{hotel.name}</p>
             </div>
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Comunicado</p>
+              <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Anúncio</p>
               <p className="mt-2 text-lg font-semibold text-white">{announcement.title}</p>
             </div>
           </div>
@@ -103,7 +103,7 @@ export default async function EditAnnouncementPage({ params, searchParams }: Pag
       <AdminSurface>
         <AdminSectionTitle
           eyebrow="edição individual"
-          title={announcement.title || 'Comunicado'}
+          title={announcement.title || 'Anúncio'}
           description="Português continua como conteúdo fonte deste cadastro. EN e ES são atualizados a partir do texto salvo em PT."
           action={<AdminInfoBadge>Role mínima: operador</AdminInfoBadge>}
         />
@@ -116,7 +116,7 @@ export default async function EditAnnouncementPage({ params, searchParams }: Pag
           <AdminHelpList
             items={[
               ...getTranslationWorkflowHelpItems(),
-              'Comunicados inativos ou fora do período não aparecem para o hóspede.',
+              'Anúncios inativos ou fora do período não aparecem para o hóspede.',
             ]}
           />
         </AdminGuideCard>

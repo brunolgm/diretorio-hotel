@@ -1,7 +1,8 @@
 import { ReactNode } from 'react';
-import { LogOut } from 'lucide-react';
+import { MapPin } from 'lucide-react';
+import { AdminSidebar } from '@/components/admin/admin-sidebar';
 import { MobileMenu } from '@/components/admin/mobile-menu';
-import { NavLinks, type NavItem } from '@/components/admin/nav-links';
+import { type NavItem } from '@/components/admin/nav-links';
 import { hasMinimumRole, requireAdminAccess, type AppRole } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 
@@ -32,7 +33,7 @@ function getNavItemsForRole(role: AppRole) {
     { href: '/admin/servicos', label: 'Serviços', icon: 'services' },
     { href: '/admin/departamentos', label: 'Departamentos', icon: 'departments' },
     { href: '/admin/politicas', label: 'Políticas', icon: 'policies' },
-    { href: '/admin/comunicados', label: 'Comunicados', icon: 'announcements' },
+    { href: '/admin/comunicados', label: 'Anúncios', icon: 'announcements' },
     { href: '/admin/banners', label: 'Banners', icon: 'banners' }
   );
 
@@ -46,56 +47,57 @@ function getNavItemsForRole(role: AppRole) {
 export default async function AdminLayout({ children }: AdminLayoutProps) {
   const { profile } = await requireAdminAccess('visualizador');
   const navItems = getNavItemsForRole(profile.normalizedRole);
+  const supabase = await createClient();
+  const { data: hotel } = await supabase
+    .from('hotels')
+    .select('name, city')
+    .eq('id', profile.hotel_id)
+    .single();
+  const hotelName = hotel?.name || 'Hotel';
+  const hotelCity = hotel?.city || null;
+  const userName = profile.full_name?.trim() || 'Usuário do hotel';
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <div className="mx-auto max-w-7xl p-4 md:p-6">
-        <div className="mb-4 flex items-center justify-between rounded-[28px] bg-white px-4 py-4 shadow-sm ring-1 ring-slate-200/70 lg:hidden">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-              LibGuest
-            </p>
-            <h1 className="mt-1 text-lg font-semibold tracking-tight text-slate-900">
-              Painel administrativo
-            </h1>
+    <div className="min-h-screen bg-[#f4f6f8] text-slate-950">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] border-r border-slate-900/10 lg:block">
+        <AdminSidebar
+          hotelName={hotelName}
+          hotelCity={hotelCity}
+          navItems={navItems}
+          userName={userName}
+          userRole={profile.normalizedRole}
+          signOutAction={signOut}
+        />
+      </aside>
+
+      <div className="min-w-0 lg:pl-[260px]">
+        <header className="sticky top-0 z-30 border-b border-slate-200/90 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
+          <div className="flex min-h-[72px] items-center justify-between gap-4 px-4 sm:px-6 xl:px-8">
+            <div className="flex min-w-0 items-center gap-3">
+              <MobileMenu
+                navItems={navItems}
+                signOutAction={signOut}
+                hotelName={hotelName}
+                hotelCity={hotelCity}
+                userName={userName}
+                userRole={profile.normalizedRole}
+              />
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Administrando este hotel
+                </p>
+                <p className="truncate text-sm font-semibold text-[#07182f] sm:text-base">{hotelName}</p>
+              </div>
+            </div>
+
+            <div className="hidden items-center gap-2 text-sm text-slate-500 sm:flex">
+              <MapPin className="h-4 w-4" aria-hidden="true" />
+              <span>{hotelCity || 'Cidade não informada'}</span>
+            </div>
           </div>
+        </header>
 
-          <MobileMenu navItems={navItems} signOutAction={signOut} />
-        </div>
-
-        <div className="flex gap-6">
-          <aside className="hidden w-72 shrink-0 rounded-[32px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:block">
-            <div className="border-b border-slate-200 pb-5">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-                LibGuest
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
-                Painel administrativo
-              </h2>
-            </div>
-
-            <div className="mt-5">
-              <NavLinks items={navItems} />
-            </div>
-
-            <div className="mt-8 border-t border-slate-200 pt-5">
-              <p className="mb-4 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
-                LibGuest
-              </p>
-              <form action={signOut}>
-                <button
-                  type="submit"
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sair
-                </button>
-              </form>
-            </div>
-          </aside>
-
-          <main className="min-w-0 flex-1">{children}</main>
-        </div>
+        <div className="mx-auto w-full max-w-[1500px] p-4 sm:p-6 xl:p-8">{children}</div>
       </div>
     </div>
   );
