@@ -28,6 +28,7 @@ export interface Database {
           logo_url: string | null;
           hero_image_url: string | null;
           brand_code: string | null;
+          platform_status: 'draft' | 'active' | 'suspended' | 'archived';
           theme_preset: string | null;
           theme_primary_color: string | null;
           created_at: string | null;
@@ -51,6 +52,7 @@ export interface Database {
           logo_url?: string | null;
           hero_image_url?: string | null;
           brand_code?: string | null;
+          platform_status?: 'draft' | 'active' | 'suspended' | 'archived';
           theme_preset?: string | null;
           theme_primary_color?: string | null;
           created_at?: string | null;
@@ -74,6 +76,7 @@ export interface Database {
           logo_url?: string | null;
           hero_image_url?: string | null;
           brand_code?: string | null;
+          platform_status?: 'draft' | 'active' | 'suspended' | 'archived';
           theme_preset?: string | null;
           theme_primary_color?: string | null;
           created_at?: string | null;
@@ -103,6 +106,40 @@ export interface Database {
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+
+      platform_audit_log: {
+        Row: {
+          id: string;
+          created_at: string;
+          actor_user_id: string;
+          action: string;
+          entity_type: string;
+          entity_id: string | null;
+          metadata: Json;
+          request_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          actor_user_id: string;
+          action: string;
+          entity_type: string;
+          entity_id?: string | null;
+          metadata?: Json;
+          request_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          created_at?: string;
+          actor_user_id?: string;
+          action?: string;
+          entity_type?: string;
+          entity_id?: string | null;
+          metadata?: Json;
+          request_id?: string | null;
         };
         Relationships: [];
       };
@@ -788,6 +825,7 @@ export interface Database {
         Returns: {
           total_hotels: number;
           hotels_by_brand: Json;
+          hotels_by_status: Json;
         }[];
       };
       list_platform_hotels: {
@@ -806,7 +844,58 @@ export interface Database {
           brand_code: string | null;
           theme_preset: string | null;
           logo_url: string | null;
+          platform_status: 'draft' | 'active' | 'suspended' | 'archived';
         }[];
+      };
+      is_hotel_publicly_active: {
+        Args: { target_hotel_id: string };
+        Returns: boolean;
+      };
+      get_platform_hotel_detail: {
+        Args: { p_hotel_id: string };
+        Returns: {
+          id: string;
+          name: string;
+          slug: string;
+          subdomain: string | null;
+          city: string | null;
+          brand_code: string | null;
+          theme_preset: string | null;
+          logo_url: string | null;
+          hero_image_url: string | null;
+          platform_status: 'draft' | 'active' | 'suspended' | 'archived';
+          created_at: string | null;
+          updated_at: string | null;
+        }[];
+      };
+      update_platform_hotel_brand: {
+        Args: { p_hotel_id: string; p_brand_code: string | null };
+        Returns: {
+          hotel_id: string;
+          brand_code: string | null;
+          platform_status: 'draft' | 'active' | 'suspended' | 'archived';
+          updated_at: string | null;
+        }[];
+      };
+      update_platform_hotel_status: {
+        Args: { p_hotel_id: string; p_status: string };
+        Returns: {
+          hotel_id: string;
+          brand_code: string | null;
+          platform_status: 'draft' | 'active' | 'suspended' | 'archived';
+          updated_at: string | null;
+        }[];
+      };
+      record_platform_audit_event: {
+        Args: {
+          p_actor_user_id: string;
+          p_action: string;
+          p_entity_type: string;
+          p_entity_id?: string | null;
+          p_metadata?: Json;
+          p_request_id?: string | null;
+        };
+        Returns: string;
       };
       has_active_hotel_role: {
         Args: { target_hotel_id: string; required_role: string };

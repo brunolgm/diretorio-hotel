@@ -1,5 +1,5 @@
-import { notFound } from 'next/navigation';
 import { HotelPublicPageContent } from '@/components/public/hotel-public-page-content';
+import { HotelExperienceUnavailable } from '@/components/public/hotel-experience-unavailable';
 import { getRequestDomainContext } from '@/lib/domain-context';
 import { getPublicHotelPageDataBySlug } from '@/lib/public-hotel-data';
 import { normalizePublicLanguage, type SupportedPublicLanguage } from '@/lib/public-language';
@@ -28,7 +28,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
   const pageData = await getPublicHotelPageDataBySlug(slug, language);
 
   if (!pageData) {
-    notFound();
+    return <HotelExperienceUnavailable />;
   }
 
   const roomContext = await readRoomContext();

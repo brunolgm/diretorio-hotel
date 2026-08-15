@@ -48,9 +48,10 @@ export async function findActiveRoomLinkByToken(roomToken: string) {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('hotel_room_links')
-    .select('id, hotel_id, room_number, label, room_token, restaurant_menu_url, is_active')
+    .select('id, hotel_id, room_number, label, room_token, restaurant_menu_url, is_active, hotels!inner(platform_status)')
     .eq('room_token', roomToken)
     .eq('is_active', true)
+    .eq('hotels.platform_status', 'active')
     .maybeSingle();
 
   if (error) {
@@ -61,7 +62,9 @@ export async function findActiveRoomLinkByToken(roomToken: string) {
     return null;
   }
 
-  return data;
+  if (!data) return null;
+  const { hotels: _hotelLifecycle, ...roomLink } = data;
+  return roomLink;
 }
 
 export async function findHotelById(hotelId: string) {
@@ -70,6 +73,7 @@ export async function findHotelById(hotelId: string) {
     .from('hotels')
     .select('*')
     .eq('id', hotelId)
+    .eq('platform_status', 'active')
     .maybeSingle();
 
   if (error) {
@@ -92,10 +96,11 @@ export async function resolveRoomRestaurantMenuUrl(params: {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('hotel_room_links')
-    .select('hotel_id, room_number, restaurant_menu_url, is_active')
+    .select('hotel_id, room_number, restaurant_menu_url, is_active, hotels!inner(platform_status)')
     .eq('hotel_id', params.hotelId)
     .eq('room_token', params.roomToken)
     .eq('is_active', true)
+    .eq('hotels.platform_status', 'active')
     .maybeSingle();
 
   if (error) {
@@ -133,10 +138,11 @@ export async function resolveActiveRoomContextForHotel(params: {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('hotel_room_links')
-    .select('room_number, label, is_active')
+    .select('room_number, label, is_active, hotels!inner(platform_status)')
     .eq('hotel_id', params.hotelId)
     .eq('room_token', params.roomToken)
     .eq('is_active', true)
+    .eq('hotels.platform_status', 'active')
     .maybeSingle();
 
   if (error) {

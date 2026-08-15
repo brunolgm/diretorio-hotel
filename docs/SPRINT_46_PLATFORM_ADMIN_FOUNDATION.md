@@ -540,7 +540,7 @@ Foram criados apenas `app/platform/layout.tsx` e `app/platform/page.tsx` para pr
 
 ## 18. Sprint 46B — Platform Dashboard & Hotel Directory
 
-Status: implementação local preparada para homologação, sem executar a migration ou os testes SQL desta fase.
+Status: concluída e homologada em produção conforme a abertura da Sprint 46C.
 
 ### 18.1 Contratos globais read-only
 
@@ -623,3 +623,125 @@ Riscos residuais:
 - Sprint 46C: governança, mutações estreitas, auditoria global e eventual detalhe read-only de hotel;
 - Sprint 46.5: redesign visual exclusivo do `/admin` operacional do hotel;
 - Sprint 47: onboarding multi-hotel, criação e provisionamento coordenado.
+
+## 19. Sprint 46C — Platform Hotel Governance
+
+Status: implementação local preparada para homologação, sem executar migration, SQL ou Supabase nesta etapa.
+
+### 19.1 Lifecycle final
+
+`public.hotels.platform_status` é o estado canônico explícito da governança:
+
+- `draft`: cadastro em preparação;
+- `active`: hotel operacional na plataforma;
+- `suspended`: uso temporariamente suspenso por decisão de governança;
+- `archived`: registro histórico inativo e não removido.
+
+A coluna é `text not null default 'active'` e possui CHECK fechado nesses quatro valores. O default mantém todos os hotéis existentes em `active`; nenhuma inferência usa completude, conteúdo, `brand_code`, tema, slug ou subdomínio.
+
+Transições permitidas:
+
+| Origem | Destinos permitidos |
+|---|---|
+| `draft` | `active`, `archived` |
+| `active` | `suspended`, `archived` |
+| `suspended` | `active`, `archived` |
+| `archived` | nenhum nesta fase |
+
+No-op é rejeitado. `archived` é terminal na 46C; reativação futura exige decisão explícita, não uma flexibilização silenciosa da RPC.
+
+O lifecycle também é uma regra operacional, não apenas um rótulo:
+
+| Estado | Experiência pública/analytics | QR e contexto de apartamento | `/admin` do hotel | `/platform` |
+|---|---|---|---|---|
+| `active` | disponível | disponível | disponível | disponível |
+| `draft` | indisponível | indisponível | disponível para preparação | disponível |
+| `suspended` | indisponível | indisponível | disponível para correção | disponível |
+| `archived` | indisponível | indisponível | contexto operacional bloqueado | disponível |
+
+Todos os registros existentes recebem `active` pelo default da adição da coluna; não existe UPDATE de backfill que derive outro estado. A view `public_hotels` preserva a projeção anterior, mas passa a conter `where platform_status = 'active'`. As dez policies públicas de conteúdo da 45B foram mantidas com os mesmos nomes e critérios temporais/`enabled`, acrescidas da função booleana estreita `is_hotel_publicly_active(hotel_id)`. Assim, filtrar a view não deixa um bypass via REST anon em tabelas filhas.
+
+Os helpers conhecidos `has_active_hotel_role` e `has_active_hotel_path_role` foram evoluídos, após preflight de definição, para recusar somente `archived`. Isso mantém `draft` e `suspended` operacionais no admin e bloqueia o hotel arquivado em páginas, actions, RLS e caminhos de Storage que dependem desses helpers. Login, proxy e `requireAdminAccess()` também confirmam a existência do contexto não arquivado para evitar encaminhamento enganoso.
+
+Os resolvedores server-side de room token, contexto e menu exigem `hotels.platform_status = 'active'` na mesma consulta que lê o link. Um token válido não contorna draft, suspensão ou arquivamento. Falhas de QR e resoluções públicas ausentes usam a mesma tela neutra “Experiência indisponível”; ela não informa se o hotel existe nem revela o lifecycle. A API de analytics continua validando via `public_hotels` e, portanto, deixa de aceitar eventos de hotéis não ativos.
+
+### 19.2 Contratos read-only
+
+`get_platform_hotel_detail(p_hotel_id uuid)` retorna somente:
+
+- `id`, `name`, `slug`, `subdomain`, `city`;
+- `brand_code`, `theme_preset`;
+- `logo_url`, `hero_image_url` somente para referência read-only;
+- `platform_status`, `created_at`, `updated_at`.
+
+Wi-Fi, horários, WhatsApp, dados operacionais, profiles, apartamentos/tokens, analytics, conteúdo, notas e credenciais permanecem fora do contrato. A RPC é `SECURITY DEFINER`, usa `search_path = ''`, resolve `auth.uid()` internamente e exige `platform_admin` ativo.
+
+Os contratos conhecidos da 46B foram recriados de forma explícita, sem `CREATE OR REPLACE`:
+
+- `get_platform_hotel_metrics()` adiciona `hotels_by_status`, mantendo total e distribuição por bandeira;
+- `list_platform_hotels(...)` adiciona apenas `platform_status` à projeção institucional paginada.
+
+Isso separa `unassigned` (ausência de bandeira) de `draft` (lifecycle) e mantém o dashboard sem SELECT direto na tabela base.
+
+### 19.3 Mutations estreitas
+
+As únicas mutations globais da fase são:
+
+- `update_platform_hotel_brand(p_hotel_id uuid, p_brand_code text)`;
+- `update_platform_hotel_status(p_hotel_id uuid, p_status text)`.
+
+Ambas revalidam `auth.uid()` e o `platform_admin` ativo no banco, rejeitam hotel inexistente, usam `SELECT ... FOR UPDATE`, alteram somente o campo autorizado e `updated_at`, e registram o evento global antes de concluir. Slug, subdomínio, tema, mídia e campos operacionais não são aceitos como payload.
+
+`brand_code` continua permitindo `NULL` para onboarding/mapeamento ainda incompleto. Valores não nulos permanecem fechados em `mercure`, `novotel` e `grand-mercure`. O admin do hotel não recebeu policy, grant ou action para editar bandeira.
+
+Hotel `archived` não aceita alteração de bandeira e retorna `platform_hotel_archived`. A verificação ocorre depois do lock da linha e antes de UPDATE/audit. O lifecycle arquivado continua terminal pelas transições já definidas.
+
+### 19.4 Audit global
+
+`public.platform_audit_log` é separado de `admin_audit_log` e não possui `hotel_id` obrigatório nem FKs destrutivas. Guarda UUID histórico do ator/alvo, action, entity, timestamp, metadata rasa e request ID opcional.
+
+RLS fica habilitada sem policy. `anon`, `authenticated` e `service_role` não recebem SELECT/INSERT/UPDATE/DELETE direto. `record_platform_audit_event(...)` também não concede EXECUTE a papéis da aplicação: somente as governance RPCs, executando sob seu owner, chamam o writer na mesma transação.
+
+Eventos iniciais:
+
+- `hotel.brand_updated` com `previous_brand` e `new_brand`;
+- `hotel.status_updated` com `previous_status` e `new_status`.
+
+Metadata deve ser objeto JSON raso, escalar, limitado a 2 KiB e sem chaves sensíveis. Uma falha de audit aborta a RPC e reverte a alteração do hotel.
+
+### 19.5 UI e autorização
+
+`/platform/hoteis/[id]` apresenta identidade institucional, referências read-only e lifecycle. Somente bandeira e estado possuem controles. Alteração de bandeira usa confirmação; suspensão e arquivamento descrevem explicitamente a consequência em Dialog acessível. Não há `window.confirm`, `requireAdminAccess`, `getAdminHotel`, service role ou consulta direta a `hotels`.
+
+O dashboard agora mostra distribuição por lifecycle e o diretório liga cada hotel ao detalhe de governança. O shell continua neutro LibGuest e `/admin` não foi redesenhado.
+
+### 19.6 Homologação e critérios de aceite
+
+Foram preparados, sem execução:
+
+- `46c_platform_governance_rls_verification.sql`: catálogo, lifecycle, projeções, SECURITY DEFINER, grants, audit append-only e regressão das policies/grants de `hotels`;
+- `46c_platform_governance_behavioral_matrix.sql`: fixtures sintéticas, platform admin ativo sem profile, inativo, admin de hotel, usuário sem associação e anon; detalhe mínimo, mutations, transições, audit e rollback forçado quando o audit falha.
+
+Critérios de aceite:
+
+- somente platform admin ativo executa detalhe e mutations;
+- lifecycle e bandeiras recusam valores fora da allowlist;
+- hotel inexistente e transição inválida são recusados;
+- audit e mutation são atômicos sob lock da linha;
+- browser não recebe UPDATE direto em `hotels` nem DML/leitura direta em `platform_audit_log`;
+- nenhum dado operacional aparece no detalhe;
+- platform admin sem profile funciona sem ganhar acesso às tabelas hotel-scoped;
+- dashboard separa métricas por bandeira e por lifecycle.
+- somente `active` resolve em `public_hotels`, conteúdo anon, analytics e QR;
+- `draft` e `suspended` preservam o admin para preparação/correção;
+- `archived` bloqueia o contexto operacional do hotel, mas permanece visível à plataforma;
+- a constraint e a RPC rejeitam qualquer bandeira fora de `NULL`, `mercure`, `novotel` e `grand-mercure`;
+- a listagem global continua incluindo todos os lifecycle.
+
+### 19.7 Escopo preservado
+
+Sprint 46.5 permanece exclusivamente responsável pelo redesign visual do `/admin` operacional, sem alterar a autorização global.
+
+Sprint 47 permanece responsável por onboarding multi-hotel: criação de hotel, escolha inicial de lifecycle/bandeira, slug/subdomínio, provisionamento coordenado de Auth/profile, idempotência, compensação e experiência completa. Também ficam fora da 46C exclusão de hotel, domínio customizado, cobrança/plano, gestão completa de `platform_users`, impersonation e acesso operacional do platform admin.
+
+Risco pendente para homologação: confirmar owner e grants efetivos das funções `SECURITY DEFINER` no ambiente descartável antes de produção. A matriz SQL deve ser aplicada apenas após inventário do alvo e nunca em produção.
