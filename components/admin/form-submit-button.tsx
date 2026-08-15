@@ -6,9 +6,9 @@ import { cn } from '@/lib/utils';
 
 const VARIANT_STYLES = {
   primary:
-    'h-11 bg-[#0b2b50] px-5 text-white shadow-sm hover:bg-[#123f70] focus-visible:ring-sky-300',
+    'h-11 bg-[var(--admin-accent)] px-5 text-[var(--admin-accent-text)] shadow-sm hover:bg-[var(--admin-accent-hover)] focus-visible:ring-[var(--admin-focus)]',
   secondary:
-    'h-11 border border-slate-300 bg-white px-4 text-slate-700 hover:bg-slate-50 focus-visible:ring-sky-200',
+    'h-11 border border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 text-[var(--admin-text)] hover:bg-[var(--admin-surface-muted)] focus-visible:ring-[var(--admin-focus)]',
   danger:
     'h-11 border border-red-200 bg-red-50 px-4 text-red-700 hover:bg-red-100 focus-visible:ring-red-200',
 } as const;
