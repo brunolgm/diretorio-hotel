@@ -77,7 +77,7 @@ export function NavLinks({ items, onNavigate }: NavLinksProps) {
   const pathname = usePathname();
 
   return (
-    <nav className="space-y-2">
+    <nav className="space-y-1">
       {items.map((item) => {
         const isActive = isActiveRoute(pathname, item.href);
 
@@ -87,13 +87,13 @@ export function NavLinks({ items, onNavigate }: NavLinksProps) {
             href={item.href}
             onClick={onNavigate}
             className={cn(
-              'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition',
+              'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300',
               isActive
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                ? 'bg-white text-[#07182f] shadow-[0_8px_24px_-16px_rgba(0,0,0,0.8)]'
+                : 'text-slate-300 hover:bg-white/10 hover:text-white'
             )}
           >
-            <NavIcon icon={item.icon} className="h-4 w-4" />
+            <NavIcon icon={item.icon} className="h-[18px] w-[18px] shrink-0" />
             <span>{item.label}</span>
           </Link>
         );

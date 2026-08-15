@@ -18,8 +18,6 @@ import {
 } from 'lucide-react';
 import {
   AdminFilterBar,
-  AdminGuideCard,
-  AdminHelpList,
   AdminInfoBadge,
   AdminLinkButton,
   AdminPageHero,
@@ -51,10 +49,10 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="group rounded-[30px] bg-white p-6 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.28)] ring-1 ring-slate-200/80 transition hover:-translate-y-0.5 hover:shadow-[0_24px_55px_-34px_rgba(15,23,42,0.32)]"
+      className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_-26px_rgba(15,23,42,0.25)] transition hover:border-slate-300 hover:shadow-sm"
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="rounded-[22px] bg-slate-100 p-3 text-slate-700 transition group-hover:bg-slate-900 group-hover:text-white">
+        <div className="rounded-xl bg-sky-50 p-2.5 text-[#0b4d7c] ring-1 ring-inset ring-sky-100 transition group-hover:bg-[#0b2b50] group-hover:text-white">
           <Icon className="h-5 w-5" />
         </div>
         <ArrowRight className="h-5 w-5 text-slate-400 transition group-hover:text-slate-700" />
@@ -172,34 +170,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   return (
     <main className="space-y-6">
       <AdminPageHero
-        eyebrow="LibGuest"
-        title={hotel.name}
-        description="Gerencie o LibGuest do hotel com uma experiência mais organizada, elegante e preparada para apresentação, operação e atualização diária."
-        rightSlot={
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[30px] border border-white/10 bg-white/10 p-5 backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Cidade</p>
-              <p className="mt-2 text-lg font-semibold text-white">
-                {hotel.city || 'Não informada'}
-              </p>
-            </div>
-            <div className="rounded-[30px] border border-white/10 bg-white/10 p-5 backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Status</p>
-              <p className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
-                {operationalReadiness.pending === 0 ? (
-                  <CheckCircle2 className="h-4 w-4" />
-                ) : (
-                  <CircleAlert className="h-4 w-4" />
-                )}
-                {operationalReadiness.pending === 0
-                  ? 'Base configurada'
-                  : `${operationalReadiness.pending} ${
-                      operationalReadiness.pending === 1 ? 'pendência' : 'pendências'
-                    }`}
-              </p>
-            </div>
-          </div>
-        }
+        eyebrow="Visão geral"
+        title="Dashboard"
+        description={`Operação e experiência digital de ${hotel.name}.`}
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -207,25 +180,25 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           icon={<Hotel className="h-5 w-5" />}
           title="Check-in"
           value={hotel.checkin_time || '—'}
-          description="Horário padrão configurado para entrada dos hóspedes."
+          description="Horário de entrada"
         />
         <AdminStatCard
           icon={<Clock3 className="h-5 w-5" />}
           title="Check-out"
           value={hotel.checkout_time || '—'}
-          description="Horário padrão configurado para saída dos hóspedes."
+          description="Horário de saída"
         />
         <AdminStatCard
           icon={<Eye className="h-5 w-5" />}
           title="Configuração essencial"
           value={`${operationalReadiness.completed}/${operationalReadiness.total}`}
-          description="Itens essenciais confirmados com dados do hotel atual."
+          description="Itens essenciais concluídos"
         />
         <AdminStatCard
           icon={<ShieldCheck className="h-5 w-5" />}
           title="Admin"
           value="Protegido"
-          description="Área administrativa com autenticação e acesso restrito."
+          description="Acesso autenticado e restrito"
         />
       </section>
 
@@ -233,7 +206,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         <AdminSectionTitle
           eyebrow="Prontidão operacional"
           title="O que falta configurar"
-          description="Esta lista usa somente dados reais do hotel atual e indica a base mínima recomendada para revisar a experiência pública."
+          description="Pendências calculadas com os dados atuais."
           action={
             <AdminInfoBadge>
               {operationalReadiness.pending === 0
@@ -272,12 +245,12 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               <Link
                 key={item.key}
                 href={hrefByKey[item.key]}
-                className="rounded-[24px] border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-sm"
+                className="rounded-xl border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm"
               >
                 {content}
               </Link>
             ) : (
-              <div key={item.key} className="rounded-[24px] border border-slate-200 bg-white p-5">
+              <div key={item.key} className="rounded-xl border border-slate-200 bg-white p-4">
                 {content}
               </div>
             );
@@ -289,7 +262,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         <AdminSectionTitle
           eyebrow="Analytics público"
           title="Uso da experiência pública"
-          description="Os analytics mostram interações registradas na experiência pública do hotel. Use este bloco para leitura gerencial leve, não como dashboard financeiro."
+          description="Interações registradas na experiência pública; não representa resultado financeiro."
           action={
             <AdminInfoBadge>
               <AdminQuickArrow />
@@ -298,7 +271,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           }
         />
 
-        <AdminFilterBar className="mt-8">
+        <AdminFilterBar className="mt-5">
           <AdminSelect aria-label="Selecionar período dos analytics" name="range" defaultValue={analytics.range} className="md:w-[220px]">
             <option value="today">Hoje</option>
             <option value="7d">Últimos 7 dias</option>
@@ -314,36 +287,34 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           ) : null}
         </AdminFilterBar>
 
-        <AdminGuideCard
-          title="Resumo do período selecionado"
-          description={`${getRangeWindowLabel(analytics.range, analytics.since)} Os números abaixo mostram o período atual e uma comparação rápida com ${comparisonLabel}.`}
-          className="mt-6"
-        />
+        <p className="mt-4 text-xs text-slate-500">
+          {getRangeWindowLabel(analytics.range, analytics.since)} Comparação com {comparisonLabel}.
+        </p>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <AdminStatCard
             icon={<Eye className="h-5 w-5" />}
             title="Visualizações públicas"
             value={String(analytics.pageViews)}
-            description="Total de page views registrados na experiência pública do hotel."
+            description="Acessos registrados"
           />
           <AdminStatCard
             icon={<MessageCircle className="h-5 w-5" />}
             title="Cliques em WhatsApp"
             value={String(analytics.whatsappClicks)}
-            description="Interações registradas nos pontos de contato via WhatsApp."
+            description="Contatos iniciados"
           />
           <AdminStatCard
             icon={<MousePointerClick className="h-5 w-5" />}
             title="Reservas e site"
             value={String(analytics.bookingAndWebsiteClicks)}
-            description="Soma das interações registradas em reservas e site oficial."
+            description="Cliques externos"
           />
           <AdminStatCard
             icon={<Languages className="h-5 w-5" />}
             title="Trocas de idioma"
             value={String(analytics.languageSelections)}
-            description="Mudanças manuais de idioma feitas durante a navegação."
+            description="Seleções manuais"
           />
         </div>
 
@@ -366,46 +337,41 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           />
         </div>
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr,1.1fr]">
-          <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
+        <div className="mt-5 grid gap-4 xl:grid-cols-[0.8fr,1.2fr]">
+          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
             <p className="text-sm font-semibold text-slate-900">Leitura gerencial do período</p>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+            <p className="mt-1 text-xs leading-5 text-slate-500">
               {analytics.totalEvents > 0
-                ? `Foram registrados ${analytics.totalEvents} eventos no período atual. O comparativo usa ${comparisonLabel} como base de leitura e ajuda a perceber tendência, não resultado financeiro.`
-                : 'Ainda não há eventos suficientes neste período para gerar uma leitura operacional consistente.'}
+                ? `${analytics.totalEvents} eventos registrados no período.`
+                : 'Sem eventos suficientes no período.'}
             </p>
 
-            <div className="mt-4 space-y-3 text-sm text-slate-600">
+            <ul className="mt-3 space-y-2 text-xs leading-5 text-slate-600">
               {analyticsReadout.map((item) => (
-                <div
-                  key={item}
-                  className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70"
-                >
-                  {item}
-                </div>
+                <li key={item} className="flex gap-2">
+                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-slate-400" />
+                  <span>{item}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-slate-900">Idiomas mais usados</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-500">
-                    Considera as visualizações registradas por idioma no período selecionado.
-                  </p>
                 </div>
                 <AdminInfoBadge>
                   {topLanguage ? getLanguageLabel(topLanguage.language) : 'Sem destaque'}
                 </AdminInfoBadge>
               </div>
-              <div className="mt-4 space-y-3">
+              <div className="mt-3 space-y-2">
                 {analytics.languageUsage.some((item) => item.count > 0) ? (
                   analytics.languageUsage.map((item) => (
                     <div
                       key={item.language}
-                      className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-slate-200/70"
+                      className="flex items-center justify-between gap-4 rounded-lg bg-white px-3 py-2.5 text-sm ring-1 ring-slate-200/70"
                     >
                       <span className="font-medium text-slate-700">
                         {getLanguageLabel(item.language)}
@@ -414,37 +380,34 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl bg-white px-4 py-6 text-sm text-slate-500 ring-1 ring-slate-200/70">
-                    Ainda não há visualizações suficientes por idioma neste período. Quando o hotel receber mais acessos, este bloco ajuda a identificar qual versão da experiência pública é mais usada.
+                  <div className="rounded-lg bg-white px-3 py-4 text-sm text-slate-500 ring-1 ring-slate-200/70">
+                    Sem visualizações por idioma neste período.
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-slate-900">Ações com mais engajamento</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-500">
-                    Mostra quais interações principais chamaram mais atenção no período.
-                  </p>
                 </div>
                 <AdminInfoBadge>{topAction ? topAction.label : 'Sem destaque'}</AdminInfoBadge>
               </div>
-              <div className="mt-4 space-y-3">
+              <div className="mt-3 space-y-2">
                 {analytics.topActions.some((item) => item.count > 0) ? (
                   analytics.topActions.map((item) => (
                     <div
                       key={item.eventType}
-                      className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-slate-200/70"
+                      className="flex items-center justify-between gap-4 rounded-lg bg-white px-3 py-2.5 text-sm ring-1 ring-slate-200/70"
                     >
                       <span className="font-medium text-slate-700">{item.label}</span>
                       <span className="font-semibold text-slate-950">{item.count}</span>
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl bg-white px-4 py-6 text-sm text-slate-500 ring-1 ring-slate-200/70">
-                    Ainda não há eventos suficientes para ranquear as ações principais. Assim que surgirem cliques reais, este bloco mostra o que está gerando mais interesse ou contato.
+                  <div className="rounded-lg bg-white px-3 py-4 text-sm text-slate-500 ring-1 ring-slate-200/70">
+                    Sem ações suficientes para ranking.
                   </div>
                 )}
               </div>
@@ -452,55 +415,35 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </div>
         </div>
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr,1.1fr]">
-          <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
+        <div className="mt-4">
+          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold text-slate-900">
                   Departamentos mais consultados
                 </p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Útil para entender quais pontos de contato geram mais dúvida ou demanda.
-                </p>
               </div>
               <AdminInfoBadge>{topDepartment ? topDepartment.name : 'Sem destaque'}</AdminInfoBadge>
             </div>
-            <div className="mt-4 space-y-3">
+            <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
               {analytics.departmentUsage.length ? (
                 analytics.departmentUsage.map((item) => (
                   <div
                     key={item.departmentId}
-                    className="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-slate-200/70"
+                    className="flex items-center justify-between gap-4 rounded-lg bg-white px-3 py-2.5 text-sm ring-1 ring-slate-200/70"
                   >
                     <span className="font-medium text-slate-700">{item.name}</span>
                     <span className="font-semibold text-slate-950">{item.count}</span>
                   </div>
                 ))
               ) : (
-                <div className="rounded-2xl bg-white px-4 py-6 text-sm text-slate-500 ring-1 ring-slate-200/70">
-                  Nenhum clique em departamento foi registrado neste período. Isso pode indicar baixo volume de uso ou que os hóspedes ainda não precisaram desses contatos.
+                <div className="rounded-lg bg-white px-3 py-4 text-sm text-slate-500 ring-1 ring-slate-200/70">
+                  Sem cliques em departamentos neste período.
                 </div>
               )}
             </div>
           </div>
 
-          <div className="rounded-[30px] border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-6 ring-1 ring-white/70">
-            <p className="text-sm font-semibold text-slate-900">Como usar estes dados na operação</p>
-            <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
-              <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70">
-                Use as visualizações para medir o alcance da experiência pública no período selecionado.
-              </div>
-              <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70">
-                Use reservas, site e WhatsApp para identificar pontos de contato mais próximos de intenção prática.
-              </div>
-              <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70">
-                Use idiomas e departamentos para revisar conteúdo, destacar informações recorrentes e reduzir dúvidas frequentes dos hóspedes.
-              </div>
-              <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-slate-200/70">
-                Estes números mostram interações registradas na experiência pública do hotel. Eles são indicadores de comportamento, não relatório financeiro nem prova isolada de conversão.
-              </div>
-            </div>
-          </div>
         </div>
       </AdminSurface>
 
@@ -541,51 +484,29 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         ) : null}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
+      <section className="grid gap-4 xl:grid-cols-[1.2fr,0.8fr]">
         <AdminSurface>
           <AdminSectionTitle eyebrow="Acesso rápido" title="Próximas ações recomendadas" />
 
-          <AdminGuideCard
-            title="Primeiros passos para operar o painel"
-            description="Se esta for a primeira revisão do hotel, siga esta ordem para atualizar o LibGuest com mais segurança e clareza."
-            className="mt-6"
-          >
-            <AdminHelpList
-              items={[
-                'Revise as informações do hotel para confirmar nome, links, Wi-Fi, horários e identidade visual.',
-                'Depois organize serviços, departamentos e políticas para publicar apenas conteúdos já prontos para o hóspede.',
-                'Finalize testando a rota pública no celular e validando idiomas, contatos e links principais.',
-              ]}
-            />
-          </AdminGuideCard>
-
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <div className="rounded-[26px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 ring-1 ring-slate-200/70">
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
               <p className="text-sm font-semibold text-slate-900">Revisar conteúdo</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Verifique descrições, textos de botões, horários e links finais do hotel.
-              </p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">Descrições, horários e links.</p>
             </div>
 
-            <div className="rounded-[26px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 ring-1 ring-slate-200/70">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
               <p className="text-sm font-semibold text-slate-900">Refinar apresentação</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Confira logo oficial, consistência visual e assinatura comercial do produto.
-              </p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">Logo e identidade visual.</p>
             </div>
 
-            <div className="rounded-[26px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 ring-1 ring-slate-200/70">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
               <p className="text-sm font-semibold text-slate-900">Testar jornada do hóspede</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Navegue pela rota pública e valide a experiência do LibGuest no celular.
-              </p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">Validação da rota pública.</p>
             </div>
 
-            <div className="rounded-[26px] bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 ring-1 ring-slate-200/70">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
               <p className="text-sm font-semibold text-slate-900">Preparar demonstração</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Organize o link público para portfólio, QR Code e apresentação comercial.
-              </p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">Link público e QR Code.</p>
             </div>
           </div>
         </AdminSurface>
@@ -602,34 +523,24 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             }
           />
 
-          <AdminGuideCard
-            title="Como ler este painel"
-            description="Os cards superiores mostram o estado operacional do hotel e o bloco de analytics resume o uso da experiência pública no período selecionado."
-            className="mt-6"
-          />
-
-          <div className="mt-6 space-y-4">
-            <div className="rounded-[26px] border border-slate-200 p-5">
+          <div className="mt-4 space-y-3">
+            <div className="rounded-xl border border-slate-200 p-4">
               <p className="text-sm font-semibold text-slate-900">Endereço público</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                O slug permanece como fallback seguro; valide a rota pública antes de divulgar.
-              </p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">Slug preservado como fallback.</p>
             </div>
 
-            <div className="rounded-[26px] border border-slate-200 p-5">
+            <div className="rounded-xl border border-slate-200 p-4">
               <p className="text-sm font-semibold text-slate-900">Conteúdo essencial</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <p className="mt-1 text-xs leading-5 text-slate-500">
                 {operationalReadiness.pending === 0
                   ? 'A base recomendada de hotel, serviços, departamentos e políticas está configurada.'
                   : 'Use a checklist de prontidão para concluir os itens essenciais que ainda faltam.'}
               </p>
             </div>
 
-            <div className="rounded-[26px] border border-slate-200 p-5">
+            <div className="rounded-xl border border-slate-200 p-4">
               <p className="text-sm font-semibold text-slate-900">Marca e conteúdo</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Revise identidade visual, textos e traduções antes da homologação final.
-              </p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">Revisão visual e traduções.</p>
             </div>
           </div>
         </AdminSurface>

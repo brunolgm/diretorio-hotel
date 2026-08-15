@@ -3,7 +3,6 @@
   Clock3,
   Coffee,
   Globe,
-  Hotel,
   ImageIcon,
   MapPin,
   MessageCircle,
@@ -17,11 +16,10 @@ import { FeedbackToast } from '@/components/feedback-toast';
 import { AdminConfirmAction } from '@/components/admin/confirm-action';
 import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
-  AdminGuideCard,
-  AdminHelpList,
   AdminHelpText,
   AdminInfoBadge,
   AdminInlineError,
+  AdminPageHero,
 } from '@/components/admin/ui';
 import { requireAdminAccess } from '@/lib/auth';
 import {
@@ -59,17 +57,17 @@ function InfoCard({
   description: string;
 }) {
   return (
-    <div className="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70">
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_28px_-26px_rgba(15,23,42,0.25)]">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm text-slate-500">{title}</p>
-          <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">{value}</p>
+          <p className="mt-2 text-xl font-semibold tracking-tight text-slate-950">{value}</p>
         </div>
-        <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
+        <div className="rounded-xl bg-sky-50 p-2.5 text-[#0b4d7c]">
           <Icon className="h-5 w-5" />
         </div>
       </div>
-      <p className="mt-4 text-sm leading-6 text-slate-600">{description}</p>
+      <p className="mt-2 text-xs leading-5 text-slate-500">{description}</p>
     </div>
   );
 }
@@ -84,17 +82,17 @@ function SetupChecklistItem({
   completed: boolean;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-[24px] bg-slate-50 p-4">
+    <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3">
       <div
         className={`mt-0.5 rounded-full p-1 ${
-          completed ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+          completed ? 'bg-slate-100 text-emerald-700' : 'bg-slate-100 text-amber-700'
         }`}
       >
         <CheckCircle2 className="h-4 w-4" />
       </div>
       <div>
         <p className="text-sm font-semibold text-slate-900">{title}</p>
-        <p className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
+        <p className="mt-0.5 text-xs leading-5 text-slate-500">{description}</p>
       </div>
     </div>
   );
@@ -129,91 +127,46 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
       <FeedbackToast success={success} error={error} />
       <AdminInlineError message={error} />
 
-      <section className="overflow-hidden rounded-[26px] bg-[linear-gradient(145deg,#020617_0%,#0f172a_55%,#1e293b_100%)] p-5 text-white shadow-sm sm:rounded-[32px] sm:p-8 md:p-10">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-100 backdrop-blur">
-              <Hotel className="h-3.5 w-3.5" />
-              Configurações do hotel
-            </div>
-
-            <h1 className="mt-6 text-3xl font-semibold tracking-tight md:text-4xl">
-              Informações do hotel
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200 md:text-base">
-              Atualize os dados principais do diretório digital e mantenha a experiência do hóspede
-              sempre alinhada com a operação real do hotel.
-            </p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:w-[360px]">
-            <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Hotel</p>
-              <p className="mt-2 text-lg font-semibold text-white">{hotel.name}</p>
-            </div>
-            <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.16em] text-slate-300">Status</p>
-              <p className="mt-2 flex items-center gap-2 text-lg font-semibold text-white">
-                <CheckCircle2 className="h-4 w-4" />
-                Operacional
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <AdminPageHero
+        eyebrow="Configurações do hotel"
+        title="Informações do hotel"
+        description="Dados operacionais e apresentação pública do hotel."
+      />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <InfoCard
           icon={MapPin}
           title="Cidade"
           value={hotel.city || 'Não informada'}
-          description="Localização exibida no diretório e no painel administrativo."
+          description="Localização cadastrada"
         />
         <InfoCard
           icon={Clock3}
           title="Check-in"
           value={hotel.checkin_time || '—'}
-          description="Horário padrão de entrada apresentado aos hóspedes."
+          description="Entrada dos hóspedes"
         />
         <InfoCard
           icon={Clock3}
           title="Check-out"
           value={hotel.checkout_time || '—'}
-          description="Horário padrão de saída informado no diretório."
+          description="Saída dos hóspedes"
         />
         <InfoCard
           icon={Coffee}
           title="Café da manhã"
           value={hotel.breakfast_hours || 'Não informado'}
-          description="Horário de serviço publicado para consulta rápida."
+          description="Horário publicado"
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.1fr,0.9fr]">
-        <AdminGuideCard
-          title="Onboarding rápido de hotel novo"
-          description="Use esta tela para finalizar a identidade básica do hotel, confirmar o endereço público principal e revisar a aparência do diretório antes de validar a experiência pública."
-        >
-          <AdminHelpList
-            items={[
-              'Preencha primeiro nome, cidade, contatos e links principais para o hotel já ficar identificável.',
-              'Depois confirme o subdomínio preferencial e saiba que o slug continua funcionando como fallback seguro.',
-              'Escolha o preset visual, revise a logo e confirme como o hotel aparece na página pública.',
-              'Depois de salvar, teste a rota pública no celular para validar leitura, contraste e presença visual.',
-            ]}
-          />
-        </AdminGuideCard>
-
-        <div className="rounded-[26px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 sm:rounded-[32px] sm:p-8">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm text-slate-500">Checklist inicial</p>
-              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                O hotel já está pronto para revisão?
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">Prontidão</p>
+              <h2 className="mt-1 text-xl font-semibold tracking-tight text-slate-950">
+                Checklist de publicação
               </h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Este resumo ajuda a entender rapidamente o que já está definido e o que ainda vale revisar antes de compartilhar a experiência pública.
-              </p>
             </div>
 
             <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
@@ -221,13 +174,13 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
           </div>
 
-          <div className="mt-6 grid gap-3">
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <SetupChecklistItem
               title="Identidade do hotel preenchida"
               description={
                 hasIdentityReady
-                  ? 'Nome e cidade já estão preenchidos para contextualizar o hotel no painel e na experiência pública.'
-                  : 'Preencha pelo menos nome e cidade para deixar a identidade do hotel mais clara.'
+                  ? 'Nome e cidade preenchidos.'
+                  : 'Preencha nome e cidade.'
               }
               completed={hasIdentityReady}
             />
@@ -235,22 +188,22 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               title="Endereço público definido"
               description={
                 hotel.subdomain
-                  ? `O subdomínio preferencial já está configurado em ${publicSubdomainPreview}.`
-                  : `O hotel ainda pode ser acessado pelo slug em ${slugFallbackPreview}. Configure o subdomínio quando quiser um endereço principal mais curto em ${rootDomains.primary}.`
+                  ? 'Subdomínio preferencial configurado.'
+                  : 'Slug disponível como fallback.'
               }
               completed={hasPublicAddressReady}
             />
             <SetupChecklistItem
               title="Tema visual selecionado"
-              description={`O preset atual é ${currentTheme.label}. Ele define a atmosfera visual base da experiência pública.`}
+              description={`Preset: ${currentTheme.label}.`}
               completed={hasThemeReady}
             />
             <SetupChecklistItem
               title="Identidade visual revisada"
               description={
                 hotel.logo_url
-                  ? 'A logo já está configurada e pronta para reforçar a identidade do hotel na experiência pública.'
-                  : 'Sem logo, o LibGuest mantém uma apresentação visual padrão e segura até que a marca do hotel seja enviada.'
+                  ? 'Logo configurada.'
+                  : 'Fallback visual em uso.'
               }
               completed={Boolean(hotel.logo_url)}
             />
@@ -258,28 +211,27 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               title="Experiência pública pronta para revisar"
               description={
                 hasPublicReviewReady
-                  ? 'Já existe base suficiente para testar a jornada pública e validar links, contatos e apresentação.'
-                  : 'Depois de preencher contatos ou links principais, faça um teste rápido na rota pública para revisar a experiência do hóspede.'
+                  ? 'Base pronta para validação.'
+                  : 'Revise contatos e links.'
               }
               completed={hasPublicReviewReady}
             />
           </div>
-        </div>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.15fr,0.85fr]">
         <form
           action={updateHotelAction}
-          className="rounded-[26px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 sm:rounded-[32px] sm:p-8"
+          className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 [&_input:not([type=file])]:h-11 [&_input:not([type=file])]:rounded-xl [&_input:not([type=file])]:border-slate-300 [&_input:not([type=file])]:bg-white [&_select]:h-11 [&_select]:rounded-xl [&_select]:border-slate-300 [&_select]:bg-white"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm text-slate-500">Cadastro principal</p>
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">Cadastro principal</p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-                Dados gerais do hotel
+                Dados do hotel
               </h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Edite os dados institucionais, horários, conectividade, endereço público e identidade visual do hotel em um único fluxo.
+                Revise os campos por categoria e salve ao final.
               </p>
             </div>
 
@@ -288,22 +240,27 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
           </div>
 
-            <AdminGuideCard
-              title="Como revisar este formulário"
-              description="Este bloco concentra as definições mais importantes para colocar um novo hotel no ar com clareza e consistência."
-              className="mt-8"
-            >
-            <AdminHelpList
-              items={[
-                'Revise primeiro nome, cidade, WhatsApp e links principais para garantir que o hóspede encontre o hotel certo.',
-                'Depois confirme o endereço público preferencial e entenda como o slug continua funcionando como fallback.',
-                'Finalize com tema, logo e um teste rápido da rota pública em celular e desktop depois de salvar.',
-              ]}
-            />
-          </AdminGuideCard>
+          <div className="mt-6 grid gap-5 md:grid-cols-2">
+            <div className="order-[1] border-b border-slate-200 pb-2 md:col-span-2">
+              <h3 className="text-sm font-semibold text-[#07182f]">Identidade</h3>
+            </div>
+            <div className="order-[10] border-b border-slate-200 pb-2 md:col-span-2">
+              <h3 className="text-sm font-semibold text-[#07182f]">Operação</h3>
+            </div>
+            <div className="order-[20] border-b border-slate-200 pb-2 md:col-span-2">
+              <h3 className="text-sm font-semibold text-[#07182f]">Contato</h3>
+            </div>
+            <div className="order-[30] border-b border-slate-200 pb-2 md:col-span-2">
+              <h3 className="text-sm font-semibold text-[#07182f]">Wi-Fi</h3>
+            </div>
+            <div className="order-[40] border-b border-slate-200 pb-2 md:col-span-2">
+              <h3 className="text-sm font-semibold text-[#07182f]">Links</h3>
+            </div>
+            <div className="order-[50] border-b border-slate-200 pb-2 md:col-span-2">
+              <h3 className="text-sm font-semibold text-[#07182f]">Marca e mídia</h3>
+            </div>
 
-          <div className="mt-8 grid gap-5 md:grid-cols-2">
-            <div className="space-y-2 md:col-span-2">
+            <div className="order-[2] space-y-2 md:col-span-2">
               <label htmlFor="hotel-name" className="block text-sm font-medium text-slate-700">Nome do hotel</label>
               <input
                 id="hotel-name"
@@ -316,21 +273,17 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               </AdminHelpText>
             </div>
 
-            <div className="space-y-2 md:col-span-2">
+            <div className="order-[41] space-y-2 md:col-span-2">
               <p className="block text-sm font-medium text-slate-700">Slug público</p>
-              <div className="rounded-[24px] border border-slate-200 bg-slate-50/70 p-4">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
                 <p className="text-sm font-semibold text-slate-900">{hotel.slug}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  O slug continua como fallback público seguro e mantém compatibilidade com a rota
-                  <span className="font-medium"> /hotel/{hotel.slug}</span>.
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  Fallback: <span className="font-medium">/hotel/{hotel.slug}</span>
                 </p>
               </div>
-              <AdminHelpText>
-                Nesta fase, use o subdomínio como endereço principal quando quiser uma URL mais curta. O slug continua disponível para validação e fallback.
-              </AdminHelpText>
             </div>
 
-            <div className="space-y-2 md:col-span-2">
+            <div className="order-[42] space-y-2 md:col-span-2">
               <label htmlFor="hotel-subdomain" className="block text-sm font-medium text-slate-700">
                 Subdomínio público
               </label>
@@ -340,16 +293,10 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 defaultValue={hotel.subdomain || ''}
                 slugFallback={hotel.slug}
               />
-              <AdminHelpText>
-                O endereço público principal agora prefere
-                <span className="font-medium"> {rootDomains.primary}</span>. O domínio legado
-                <span className="font-medium"> {rootDomains.legacy[0]}</span> continua aceito na
-                transição. Se o campo ficar vazio, a rota por slug seguirá disponível como fallback
-                seguro.
-              </AdminHelpText>
+              <AdminHelpText>Principal em {rootDomains.primary}; sem valor, o slug continua disponível.</AdminHelpText>
             </div>
 
-            <div className="space-y-2">
+            <div className="order-[3] space-y-2">
               <label htmlFor="hotel-city" className="block text-sm font-medium text-slate-700">Cidade</label>
               <input
                 id="hotel-city"
@@ -357,12 +304,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 defaultValue={hotel.city || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
               />
-              <AdminHelpText>
-                Ajuda a contextualizar o hotel no painel e no material de demonstração.
-              </AdminHelpText>
             </div>
 
-            <div className="space-y-2 md:col-span-2">
+            <div className="order-[51] space-y-2 md:col-span-2">
               <label htmlFor="hotel-hero-url" className="block text-sm font-medium text-slate-700">Imagem de capa URL</label>
               <input
                 id="hotel-hero-url"
@@ -372,11 +316,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 placeholder="https://..."
               />
               <AdminHelpText>
-                Imagem horizontal usada por experiências visuais compatíveis. Se estiver vazia, o tema mantém um fallback completo e seguro.
+                URL opcional; sem imagem, o preset fornece o fallback.
               </AdminHelpText>
             </div>
 
-            <div className="space-y-2">
+            <div className="order-[21] space-y-2">
               <label htmlFor="hotel-whatsapp" className="block text-sm font-medium text-slate-700">WhatsApp</label>
               <div className="relative">
                 <MessageCircle className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -389,11 +333,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 />
               </div>
               <AdminHelpText>
-                Use o número final que deve receber mensagens do hóspede no formato completo.
+                Número completo com código do país.
               </AdminHelpText>
             </div>
 
-            <div className="space-y-2 md:col-span-2">
+            <div className="order-[43] space-y-2 md:col-span-2">
               <label htmlFor="hotel-booking-url" className="block text-sm font-medium text-slate-700">Link de reservas</label>
               <div className="relative">
                 <Globe className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -406,11 +350,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 />
               </div>
               <AdminHelpText>
-                Aponte para a página final de reserva para reduzir abandono e cliques perdidos.
+                Use a página final de reservas.
               </AdminHelpText>
             </div>
 
-            <div className="space-y-2 md:col-span-2">
+            <div className="order-[44] space-y-2 md:col-span-2">
               <label htmlFor="hotel-website-url" className="block text-sm font-medium text-slate-700">Link do site</label>
               <div className="relative">
                 <Globe className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -422,12 +366,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   placeholder="https://..."
                 />
               </div>
-              <AdminHelpText>
-                Use o site institucional quando ele complementar a jornada do diretório com mais detalhes.
-              </AdminHelpText>
             </div>
 
-            <div className="space-y-2 md:col-span-2">
+            <div className="order-[45] space-y-2 md:col-span-2">
               <label htmlFor="hotel-instagram-url" className="block text-sm font-medium text-slate-700">Instagram</label>
               <div className="relative">
                 <Globe className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -439,12 +380,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   placeholder="https://instagram.com/..."
                 />
               </div>
-              <AdminHelpText>
-                Preencha apenas se o perfil estiver ativo e alinhado com a apresentação atual do hotel.
-              </AdminHelpText>
             </div>
 
-            <div className="space-y-2">
+            <div className="order-[31] space-y-2">
               <label htmlFor="hotel-wifi-name" className="block text-sm font-medium text-slate-700">Wi-Fi</label>
               <div className="relative">
                 <Wifi className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -455,12 +393,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-11 pr-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
                 />
               </div>
-              <AdminHelpText>
-                Use o nome de rede mais estável para evitar divergência entre painel e operação.
-              </AdminHelpText>
             </div>
 
-            <div className="space-y-2">
+            <div className="order-[32] space-y-2">
               <label htmlFor="hotel-wifi-password" className="block text-sm font-medium text-slate-700">Senha do Wi-Fi</label>
               <input
                 id="hotel-wifi-password"
@@ -468,12 +403,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 defaultValue={hotel.wifi_password || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
               />
-              <AdminHelpText>
-                Atualize quando a senha mudar para evitar solicitações recorrentes à recepção.
-              </AdminHelpText>
             </div>
 
-            <div className="space-y-2">
+            <div className="order-[11] space-y-2">
               <label htmlFor="hotel-breakfast" className="block text-sm font-medium text-slate-700">Café da manhã</label>
               <input
                 id="hotel-breakfast"
@@ -481,12 +413,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 defaultValue={hotel.breakfast_hours || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
               />
-              <AdminHelpText>
-                Informe o horário real exibido ao hóspede, inclusive quando houver exceções sazonais.
-              </AdminHelpText>
             </div>
 
-            <div className="space-y-2">
+            <div className="order-[52] space-y-2">
               <label htmlFor="hotel-logo-url" className="block text-sm font-medium text-slate-700">Logo URL</label>
               <input
                 id="hotel-logo-url"
@@ -496,11 +425,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 placeholder="https://..."
               />
               <AdminHelpText>
-                Use este campo apenas quando a logo já estiver hospedada em uma URL confiável. Se ficar vazio, o LibGuest mantém um fallback visual seguro na página pública.
+                Use uma URL confiável ou o upload ao lado.
               </AdminHelpText>
             </div>
 
-            <div className="space-y-2 md:col-span-2">
+            <div className="order-[53] space-y-2 md:col-span-2">
               <label htmlFor="hotel-theme-preset" className="block text-sm font-medium text-slate-700">
                 Preset visual do diretório
               </label>
@@ -517,8 +446,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 ))}
               </select>
               <AdminHelpText>
-                Escolha uma base visual premium e controlada. O preset define os fundos, a
-                atmosfera e os acabamentos principais do diretório. Mesmo sem ajustes extras, o preset padrão mantém a apresentação pública estável.
+                Define a base visual da experiência pública.
               </AdminHelpText>
               {!isHotelBrandCode(hotel.brand_code) ? (
                 <AdminHelpText>
@@ -527,7 +455,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               ) : null}
             </div>
 
-            <div className="space-y-2 md:col-span-2">
+            <div className="order-[54] space-y-2 md:col-span-2">
               <label htmlFor="hotel-theme-color" className="block text-sm font-medium text-slate-700">
                 Cor primária opcional
               </label>
@@ -538,12 +466,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 preset={hotel.theme_preset || DEFAULT_HOTEL_THEME_PRESET}
               />
               <AdminHelpText>
-                Esta cor afeta apenas acentos seguros, como o CTA principal e pequenos destaques.
-                Se estiver vazia ou inválida, o LibGuest usa a cor padrão do preset para preservar contraste e consistência.
+                Opcional; sem valor, usa a cor segura do preset.
               </AdminHelpText>
             </div>
 
-            <div className="space-y-2">
+            <div className="order-[12] space-y-2">
               <label htmlFor="hotel-checkin" className="block text-sm font-medium text-slate-700">Check-in</label>
               <input
                 id="hotel-checkin"
@@ -551,12 +478,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 defaultValue={hotel.checkin_time || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
               />
-              <AdminHelpText>
-                Este horário aparece como referência rápida na experiência pública.
-              </AdminHelpText>
             </div>
 
-            <div className="space-y-2">
+            <div className="order-[13] space-y-2">
               <label htmlFor="hotel-checkout" className="block text-sm font-medium text-slate-700">Check-out</label>
               <input
                 id="hotel-checkout"
@@ -564,9 +488,6 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 defaultValue={hotel.checkout_time || ''}
                 className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 text-sm outline-none transition focus:border-slate-300 focus:bg-white"
               />
-              <AdminHelpText>
-                Confirme este horário sempre que a operação sofrer ajuste em feriados ou eventos.
-              </AdminHelpText>
             </div>
           </div>
 
@@ -581,7 +502,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
         </form>
 
         <div className="space-y-6">
-          <div className="rounded-[26px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 sm:rounded-[32px] sm:p-8">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm text-slate-500">Identidade visual</p>
@@ -598,22 +519,11 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               </div>
             </div>
 
-            <AdminGuideCard
-              title="Boas práticas para a logo"
-              description="Use uma imagem limpa e atual para manter a apresentação do LibGuest consistente com a marca do hotel."
-              className="mt-6"
-            >
-              <AdminHelpList
-                items={[
-                  'Prefira o arquivo oficial mais recente da marca.',
-                  'Se possível, use uma imagem nítida, quadrada ou com boa área de respiro.',
-                  'Evite arquivos com baixa resolução, fundo poluído ou texto pequeno demais.',
-                  'Depois do upload, confira a visualização pública no celular e no desktop.',
-                ]}
-              />
-            </AdminGuideCard>
+            <p className="mt-3 text-xs leading-5 text-slate-500">
+              Use o arquivo oficial em PNG, JPEG ou WEBP, com boa resolução e área de respiro.
+            </p>
 
-            <div className="mt-6 rounded-[28px] border border-dashed border-slate-200 bg-slate-50/70 p-6">
+            <div className="mt-4 rounded-xl border border-dashed border-slate-300 bg-slate-50/70 p-4">
               {hotel.logo_url ? (
                 <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
                   <img
@@ -624,7 +534,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   <div>
                     <p className="text-sm font-semibold text-slate-900">Logo atual carregada</p>
                     <p className="mt-1 text-sm leading-6 text-slate-600">
-                      A imagem atual já está associada ao diretório do hotel e ajuda a reforçar a marca no hero público.
+                      Associada à experiência pública.
                     </p>
                   </div>
                 </div>
@@ -634,7 +544,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                     Nenhuma logo enviada até o momento
                   </p>
                   <p className="text-sm leading-6 text-slate-600">
-                    Sem logo, o LibGuest mantém uma apresentação visual padrão segura com ícone e tema do hotel até que a marca oficial seja adicionada.
+                    O fallback visual do preset permanece ativo.
                   </p>
                 </div>
               )}
@@ -646,7 +556,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               </div>
             ) : null}
 
-            <form action={uploadHotelLogoAction} className="mt-6 space-y-4">
+            <form action={uploadHotelLogoAction} className="mt-4 space-y-4">
               <div>
                 <label htmlFor="logo-upload" className="mb-2 block text-sm font-medium text-slate-700">
                   Selecionar arquivo
@@ -657,10 +567,10 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   name="logo"
                   accept="image/jpeg,image/png,image/webp"
                   required
-                  className="block w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm outline-none transition focus:border-slate-300 focus:bg-white focus-visible:ring-2 focus-visible:ring-slate-200"
+                  className="block w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-sky-600 focus-visible:ring-2 focus-visible:ring-sky-100"
                 />
                 <AdminHelpText className="mt-2">
-                  Após enviar, revise a visualização pública para confirmar tamanho, leitura e contraste da marca.
+                  Revise tamanho e contraste após o envio.
                 </AdminHelpText>
               </div>
 
@@ -668,7 +578,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </form>
           </div>
 
-          <div className="rounded-[26px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 sm:rounded-[32px] sm:p-8">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm text-slate-500">Imagem pública</p>
@@ -684,7 +594,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               </div>
             </div>
 
-            <div className="mt-6 overflow-hidden rounded-[24px] border border-dashed border-slate-200 bg-slate-50/70">
+            <div className="mt-4 overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50/70">
               {hotel.hero_image_url ? (
                 <div>
                   <div
@@ -708,7 +618,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
               </div>
             ) : null}
 
-            <form action={uploadHotelHeroImageAction} className="mt-6 space-y-4">
+            <form action={uploadHotelHeroImageAction} className="mt-4 space-y-4">
               <div>
                 <label htmlFor="hero-image-upload" className="mb-2 block text-sm font-medium text-slate-700">
                   Selecionar imagem horizontal
@@ -719,66 +629,24 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   name="hero_image"
                   accept="image/jpeg,image/png,image/webp"
                   required
-                  className="block w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm outline-none transition focus:border-slate-300 focus:bg-white focus-visible:ring-2 focus-visible:ring-slate-200"
+                  className="block w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-sky-600 focus-visible:ring-2 focus-visible:ring-sky-100"
                 />
                 <AdminHelpText className="mt-2">
-                  JPEG, PNG ou WEBP com até 10 MB. Revise o recorte em celular e desktop após o envio.
+                  JPEG, PNG ou WEBP, até 10 MB. Revise o recorte após o envio.
                 </AdminHelpText>
               </div>
               <AdminSubmitButton label="Enviar imagem de capa" pendingLabel="Enviando..." className="w-full sm:w-auto" />
             </form>
           </div>
 
-          <div className="rounded-[26px] bg-white p-5 shadow-sm ring-1 ring-slate-200/70 sm:rounded-[32px] sm:p-8">
-            <p className="text-sm text-slate-500">Resumo visual</p>
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">Resumo técnico</p>
             <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
-              Estado atual do hotel
+              Publicação e rotas
             </h2>
 
-            <AdminGuideCard
-              title="Checklist rápido antes de validar"
-              description="Use este resumo para uma última conferência depois de salvar as definições principais de um hotel novo."
-              className="mt-6"
-            >
-              <AdminHelpList
-                items={[
-                  'Confirme se a identidade básica do hotel está clara no painel.',
-                  'Revise o endereço público principal e saiba qual rota continua disponível por fallback.',
-                  'Teste a rota pública para validar tema, logo, horários, contatos e links principais.',
-                ]}
-              />
-            </AdminGuideCard>
-
-            <div className="mt-6 grid gap-4">
-              <div className="rounded-[24px] bg-slate-50 p-5">
-                <p className="text-sm font-semibold text-slate-900">Nome em exibição</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{hotel.name}</p>
-              </div>
-
-              <div className="rounded-[24px] bg-slate-50 p-5">
-                <p className="text-sm font-semibold text-slate-900">Conectividade</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Wi-Fi: {hotel.wifi_name || 'Não informado'}
-                </p>
-              </div>
-
-              <div className="rounded-[24px] bg-slate-50 p-5">
-                <p className="text-sm font-semibold text-slate-900">Contato direto</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  WhatsApp: {hotel.whatsapp_number || 'Não informado'}
-                </p>
-              </div>
-
-              <div className="rounded-[24px] bg-slate-50 p-5">
-                <p className="text-sm font-semibold text-slate-900">Logo pública</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {hotel.logo_url
-                    ? 'Logo configurada e pronta para aparecer no hero do diretório.'
-                    : 'Sem logo enviada. A experiência pública usa fallback visual seguro.'}
-                </p>
-              </div>
-
-              <div className="rounded-[24px] bg-slate-50 p-5">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl bg-slate-50 p-4 sm:col-span-2">
                 <p className="text-sm font-semibold text-slate-900">Tema público</p>
                 <div className="mt-2 flex items-center gap-3">
                   <span
@@ -792,12 +660,9 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                     ? `acento personalizado ${currentTheme.accentColor}`
                     : 'preset padrão sem override de acento'}
                 </p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  O preset mantém a base visual estável mesmo quando nenhuma cor adicional é definida.
-                </p>
               </div>
 
-              <div className="rounded-[24px] bg-slate-50 p-5">
+              <div className="rounded-xl bg-slate-50 p-4 sm:col-span-2">
                 <p className="text-sm font-semibold text-slate-900">URL pública principal</p>
                 <p className="mt-2 break-words text-sm leading-6 text-slate-600">
                   {publicSubdomainPreview}
@@ -807,7 +672,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 </p>
               </div>
 
-              <div className="rounded-[24px] bg-slate-50 p-5">
+              <div className="rounded-xl bg-slate-50 p-4 sm:col-span-2">
                 <p className="text-sm font-semibold text-slate-900">Domínio legado aceito</p>
                 <p className="mt-2 break-words text-sm leading-6 text-slate-600">
                   {legacySubdomainPreview}
@@ -817,7 +682,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                 </p>
               </div>
 
-              <div className="rounded-[24px] bg-slate-50 p-5">
+              <div className="rounded-xl bg-slate-50 p-4 sm:col-span-2">
                 <p className="text-sm font-semibold text-slate-900">Slug de fallback</p>
                 <p className="mt-2 break-words text-sm leading-6 text-slate-600">
                   {slugFallbackPreview}
