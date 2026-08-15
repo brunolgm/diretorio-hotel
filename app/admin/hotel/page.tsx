@@ -256,7 +256,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             <div className="order-[40] border-b border-slate-200 pb-2 md:col-span-2">
               <h3 className="text-sm font-semibold text-[var(--admin-text-strong)]">Links</h3>
             </div>
-            <div className="order-[50] border-b border-slate-200 pb-2 md:col-span-2">
+            <div id="marca" className="order-[50] scroll-mt-28 border-b border-slate-200 pb-2 md:col-span-2">
               <h3 className="text-sm font-semibold text-[var(--admin-text-strong)]">Marca e mídia</h3>
             </div>
 

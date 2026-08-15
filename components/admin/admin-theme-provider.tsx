@@ -10,7 +10,7 @@ export function AdminThemeProvider({
 }) {
   return (
     <div
-      className="admin-theme min-h-screen bg-[var(--admin-bg)] text-[var(--admin-text)]"
+      className="admin-theme min-h-screen overflow-x-hidden bg-[var(--admin-bg)] text-[var(--admin-text)]"
       data-admin-theme={theme.code}
       data-admin-theme-preset={theme.themePreset || 'default'}
       data-admin-logo-treatment={theme.logoTreatment}

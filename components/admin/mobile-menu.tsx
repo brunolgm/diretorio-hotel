@@ -5,11 +5,11 @@ import type { AdminLogoTreatment, AdminThemeCode, AdminThemeStyle } from '@/lib/
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Menu } from 'lucide-react';
 import { AdminSidebar } from '@/components/admin/admin-sidebar';
-import { type NavItem } from '@/components/admin/nav-links';
+import type { AdminNavigationGroup } from '@/lib/admin-navigation';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 interface MobileMenuProps {
-  navItems: NavItem[];
+  navGroups: AdminNavigationGroup[];
   signOutAction: () => Promise<void>;
   hotelName: string;
   hotelCity: string | null;
@@ -24,7 +24,7 @@ interface MobileMenuProps {
 }
 
 export function MobileMenu({
-  navItems,
+  navGroups,
   signOutAction,
   hotelName,
   hotelCity,
@@ -59,7 +59,7 @@ export function MobileMenu({
       <SheetContent
         side="left"
         showCloseButton={false}
-        className="admin-theme w-[88%] max-w-[310px] gap-0 border-0 bg-[var(--admin-sidebar)] p-0"
+        className="admin-theme h-dvh max-h-dvh w-[86vw] max-w-[320px] gap-0 overflow-hidden border-0 bg-[var(--admin-sidebar)] p-0"
         data-admin-theme={themeCode}
         data-admin-theme-preset={themePreset || 'default'}
         data-admin-logo-treatment={logoTreatment}
@@ -70,7 +70,7 @@ export function MobileMenu({
           hotelCity={hotelCity}
           hotelLogoUrl={hotelLogoUrl}
           themeLabel={themeLabel}
-          navItems={navItems}
+          navGroups={navGroups}
           userName={userName}
           userRole={userRole}
           signOutAction={async () => {

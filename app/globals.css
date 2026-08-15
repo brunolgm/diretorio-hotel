@@ -3,8 +3,21 @@
 @import "shadcn/tailwind.css";
 
 /* Hotel admin brand theme. Strictly scoped so /platform and public experiences stay neutral. */
+.admin-theme {
+  font-family: "Avenir Next", Avenir, Montserrat, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
 .admin-theme [class~="bg-white"] {
   background-color: var(--admin-surface);
+}
+
+.admin-scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.admin-scrollbar-hidden::-webkit-scrollbar {
+  display: none;
 }
 
 .admin-theme [class*="bg-slate-50"],
