@@ -1,20 +1,17 @@
 import Link from 'next/link';
-import { ArrowRight, Building2, Tags } from 'lucide-react';
+import { Activity, ArrowRight, Building2, Tags } from 'lucide-react';
+import {
+  getPlatformHotelBrandLabel,
+  getPlatformHotelStatusLabel,
+} from '@/lib/platform-governance';
 import { getPlatformHotelMetrics } from '@/lib/platform-queries';
-
-function getBrandLabel(brandCode: string) {
-  if (brandCode === 'unassigned') return 'Sem bandeira';
-  if (brandCode === 'grand-mercure') return 'Grand Mercure';
-  if (brandCode === 'mercure') return 'Mercure';
-  if (brandCode === 'novotel') return 'Novotel';
-  return brandCode;
-}
 
 export default async function PlatformPage() {
   const metrics = await getPlatformHotelMetrics();
   const brandEntries = Object.entries(metrics.hotelsByBrand).sort(([left], [right]) =>
-    getBrandLabel(left).localeCompare(getBrandLabel(right), 'pt-BR')
+    getPlatformHotelBrandLabel(left).localeCompare(getPlatformHotelBrandLabel(right), 'pt-BR')
   );
+  const statusEntries = Object.entries(metrics.hotelsByStatus);
 
   return (
     <div className="space-y-6">
@@ -43,7 +40,7 @@ export default async function PlatformPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid gap-4 md:grid-cols-3">
         <div className="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -60,6 +57,25 @@ export default async function PlatformPage() {
           </div>
           <p className="mt-4 text-sm leading-6 text-slate-600">
             Total atual no contrato global read-only da plataforma.
+          </p>
+        </div>
+
+        <div className="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+                Estados de lifecycle
+              </p>
+              <p className="mt-3 text-4xl font-semibold tracking-tight text-slate-950">
+                {statusEntries.length.toLocaleString('pt-BR')}
+              </p>
+            </div>
+            <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
+              <Activity className="h-5 w-5" aria-hidden="true" />
+            </div>
+          </div>
+          <p className="mt-4 text-sm leading-6 text-slate-600">
+            Distribuição pelo estado canônico de governança, sem inferência por completude.
           </p>
         </div>
 
@@ -99,7 +115,7 @@ export default async function PlatformPage() {
                 className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-4"
               >
                 <span className="text-sm font-medium text-slate-700">
-                  {getBrandLabel(brandCode)}
+                  {getPlatformHotelBrandLabel(brandCode)}
                 </span>
                 <span className="rounded-full bg-slate-950 px-3 py-1 text-xs font-semibold text-white">
                   {count.toLocaleString('pt-BR')}
@@ -112,6 +128,27 @@ export default async function PlatformPage() {
             Nenhum hotel cadastrado para compor as métricas globais.
           </div>
         )}
+      </section>
+
+      <section className="rounded-[30px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70 md:p-8">
+        <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
+          Distribuição por lifecycle
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Draft, ativo, suspenso e arquivado são estados explícitos e independentes de bandeira.
+        </p>
+        <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {statusEntries.map(([status, count]) => (
+            <div key={status} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-4">
+              <span className="text-sm font-medium text-slate-700">
+                {getPlatformHotelStatusLabel(status)}
+              </span>
+              <span className="rounded-full bg-slate-950 px-3 py-1 text-xs font-semibold text-white">
+                {count.toLocaleString('pt-BR')}
+              </span>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );

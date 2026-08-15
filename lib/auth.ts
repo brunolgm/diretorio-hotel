@@ -49,6 +49,16 @@ export async function requireAdminAccess(requiredRole: AppRole = 'visualizador')
     redirect('/acesso-indisponivel');
   }
 
+  const { data: hotelContext, error: hotelContextError } = await supabase
+    .from('hotels')
+    .select('id, platform_status')
+    .eq('id', profile.hotel_id)
+    .maybeSingle();
+
+  if (hotelContextError || !hotelContext || hotelContext.platform_status === 'archived') {
+    redirect('/acesso-indisponivel');
+  }
+
   if (!hasMinimumRole(normalizedRole, requiredRole)) {
     redirect('/admin/acesso-negado');
   }

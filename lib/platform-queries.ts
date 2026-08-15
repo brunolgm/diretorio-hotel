@@ -2,6 +2,10 @@ import 'server-only';
 
 import { requirePlatformAccess } from '@/lib/platform-auth';
 import type { PlatformHotelDirectoryParams } from '@/lib/platform-directory';
+import {
+  normalizePlatformHotelStatus,
+  type PlatformHotelStatus,
+} from '@/lib/platform-governance';
 import { createClient } from '@/lib/supabase/server';
 import type { Json } from '@/types/database';
 
@@ -16,6 +20,13 @@ export type PlatformHotelDirectoryItem = {
   brandCode: string | null;
   themePreset: string | null;
   logoUrl: string | null;
+  platformStatus: PlatformHotelStatus;
+};
+
+export type PlatformHotelDetail = PlatformHotelDirectoryItem & {
+  heroImageUrl: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
 };
 
 function normalizeBrandMetrics(value: Json): Record<string, number> {
@@ -45,6 +56,7 @@ export async function getPlatformHotelMetrics() {
   return {
     totalHotels: Number(metrics.total_hotels),
     hotelsByBrand: normalizeBrandMetrics(metrics.hotels_by_brand),
+    hotelsByStatus: normalizeBrandMetrics(metrics.hotels_by_status),
   };
 }
 
@@ -90,9 +102,40 @@ export async function listPlatformHotels(params: PlatformHotelDirectoryParams) {
         brandCode: row.brand_code,
         themePreset: row.theme_preset,
         logoUrl: row.logo_url,
+        platformStatus: normalizePlatformHotelStatus(row.platform_status) || 'active',
       })
     ),
     page: resolvedPage,
     pageSize: params.pageSize,
   };
+}
+
+export async function getPlatformHotelDetail(hotelId: string) {
+  await requirePlatformAccess();
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('get_platform_hotel_detail', {
+    p_hotel_id: hotelId,
+  });
+  const row = data?.[0];
+
+  if (error) {
+    throw new Error('Não foi possível carregar o detalhe global do hotel.');
+  }
+
+  if (!row) return null;
+
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    subdomain: row.subdomain,
+    city: row.city,
+    brandCode: row.brand_code,
+    themePreset: row.theme_preset,
+    logoUrl: row.logo_url,
+    heroImageUrl: row.hero_image_url,
+    platformStatus: normalizePlatformHotelStatus(row.platform_status) || 'active',
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  } satisfies PlatformHotelDetail;
 }

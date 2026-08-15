@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import { HotelServiceDetailContent } from '@/components/public/hotel-service-detail-content';
+import { HotelExperienceUnavailable } from '@/components/public/hotel-experience-unavailable';
 import { getRequestDomainContext, isHotelSubdomainContext } from '@/lib/domain-context';
 import { readRoomContext } from '@/lib/room-context';
 import { resolveRoomRestaurantMenuUrl } from '@/lib/room-links';
@@ -36,7 +37,11 @@ export default async function SubdomainHotelServiceDetailPage({
     language
   );
 
-  if (!pageData || !canRenderServiceDetailPage(pageData.section)) {
+  if (!pageData) {
+    return <HotelExperienceUnavailable />;
+  }
+
+  if (!canRenderServiceDetailPage(pageData.section)) {
     notFound();
   }
 

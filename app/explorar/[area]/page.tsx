@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { HotelPublicAreaContent } from '@/components/public/hotel-public-area-content';
+import { HotelExperienceUnavailable } from '@/components/public/hotel-experience-unavailable';
 import { getRequestDomainContext, isHotelSubdomainContext } from '@/lib/domain-context';
 import { getPublicHotelPageDataBySubdomain } from '@/lib/public-hotel-data';
 import { normalizePublicLanguage } from '@/lib/public-language';
@@ -23,7 +24,7 @@ export default async function PublicHotelAreaPage({
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const language = normalizePublicLanguage(resolvedSearchParams?.lang);
   const pageData = await getPublicHotelPageDataBySubdomain(domainContext.subdomain, language);
-  if (!pageData) notFound();
+  if (!pageData) return <HotelExperienceUnavailable />;
 
   return (
     <HotelPublicAreaContent

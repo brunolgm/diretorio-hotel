@@ -19,7 +19,7 @@ export async function GET(_request: Request, { params }: RouteProps) {
   const requestUrl = new URL(_request.url);
 
   if (!isRoomToken(normalizedToken)) {
-    const response = NextResponse.redirect(new URL('/qr-invalido', requestUrl));
+    const response = NextResponse.redirect(new URL('/experiencia-indisponivel', requestUrl));
     clearRoomContextCookie(response);
     return response;
   }
@@ -27,7 +27,7 @@ export async function GET(_request: Request, { params }: RouteProps) {
   const roomLink = await findActiveRoomLinkByToken(normalizedToken);
 
   if (!roomLink) {
-    const response = NextResponse.redirect(new URL('/qr-invalido', requestUrl));
+    const response = NextResponse.redirect(new URL('/experiencia-indisponivel', requestUrl));
     clearRoomContextCookie(response);
     return response;
   }
@@ -35,7 +35,7 @@ export async function GET(_request: Request, { params }: RouteProps) {
   const hotel = await findHotelById(roomLink.hotel_id);
 
   if (!hotel) {
-    const response = NextResponse.redirect(new URL('/qr-invalido', requestUrl));
+    const response = NextResponse.redirect(new URL('/experiencia-indisponivel', requestUrl));
     clearRoomContextCookie(response);
     return response;
   }

@@ -58,11 +58,25 @@ export async function proxy(request: NextRequest) {
     ]);
     const profile = profileResult.data;
     const platformAccess = platformResult.data?.[0];
-    const hasHotelAccess = Boolean(
+    const hasEligibleHotelProfile = Boolean(
       !profileResult.error &&
         profile?.hotel_id &&
         profile.is_active &&
         normalizeAppRole(profile.role)
+    );
+    const hotelContextResult = hasEligibleHotelProfile
+      ? await supabase
+          .from('hotels')
+          .select('id, platform_status')
+          .eq('id', profile!.hotel_id!)
+          .maybeSingle()
+      : null;
+    const hasHotelAccess = Boolean(
+      hasEligibleHotelProfile &&
+        hotelContextResult &&
+        !hotelContextResult.error &&
+        hotelContextResult.data &&
+        hotelContextResult.data.platform_status !== 'archived'
     );
     const hasPlatformAccess = Boolean(
       !platformResult.error && platformAccess && hasActivePlatformAccess(platformAccess)

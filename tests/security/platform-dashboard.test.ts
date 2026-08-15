@@ -122,7 +122,7 @@ test('platform query layer uses only approved RPCs after the platform guard', ()
   assert.doesNotMatch(queries, /\.from\(['"]hotels['"]\)|createAdminClient|service_role/i);
 });
 
-test('platform dashboard and directory remain read-only and status-free', () => {
+test('platform dashboard and directory preserve the read-only 46B boundary', () => {
   const dashboard = read('app', 'platform', 'page.tsx');
   const directory = read('app', 'platform', 'hoteis', 'page.tsx');
 
@@ -130,6 +130,7 @@ test('platform dashboard and directory remain read-only and status-free', () => 
   assert.match(dashboard, /\/platform\/hoteis/);
   assert.match(directory, /listPlatformHotels\(params\)/);
   assert.match(directory, /name="busca"/);
-  assert.doesNotMatch(`${dashboard}\n${directory}`, /brand_code.*(?:update|mutation)|lifecycle|status\/lifecycle/i);
+  assert.match(directory, /\/platform\/hoteis\/\$\{hotel\.id\}/);
+  assert.doesNotMatch(`${dashboard}\n${directory}`, /\.from\(['"]hotels['"]\)|createAdminClient|service_role/i);
   assert.doesNotMatch(directory, /requireAdminAccess|getAdminHotel/);
 });

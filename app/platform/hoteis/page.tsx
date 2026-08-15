@@ -4,16 +4,12 @@ import {
   listPlatformHotels,
   normalizePlatformDirectoryParams,
 } from '@/lib/platform-queries';
+import {
+  getPlatformHotelBrandLabel,
+  getPlatformHotelStatusLabel,
+} from '@/lib/platform-governance';
 
 type DirectorySearchParams = Promise<Record<string, string | string[] | undefined>>;
-
-function getBrandLabel(brandCode: string | null) {
-  if (!brandCode) return 'Sem bandeira';
-  if (brandCode === 'grand-mercure') return 'Grand Mercure';
-  if (brandCode === 'mercure') return 'Mercure';
-  if (brandCode === 'novotel') return 'Novotel';
-  return brandCode;
-}
 
 function buildPageHref({
   search,
@@ -129,7 +125,10 @@ export default async function PlatformHotelsPage({
                     <p className="mt-1 text-sm text-slate-600">{hotel.city || 'Cidade não informada'}</p>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs">
                       <span className="rounded-full bg-slate-950 px-3 py-1 font-medium text-white">
-                        {getBrandLabel(hotel.brandCode)}
+                        {getPlatformHotelBrandLabel(hotel.brandCode)}
+                      </span>
+                      <span className="rounded-full bg-emerald-50 px-3 py-1 font-medium text-emerald-800 ring-1 ring-emerald-200">
+                        {getPlatformHotelStatusLabel(hotel.platformStatus)}
                       </span>
                       <span className="rounded-full bg-white px-3 py-1 text-slate-600 ring-1 ring-slate-200">
                         Tema: {hotel.themePreset || 'padrão'}
@@ -151,9 +150,12 @@ export default async function PlatformHotelsPage({
                   </div>
                 </dl>
 
-                <p className="mt-5 text-xs text-slate-500">
-                  Detalhe read-only reservado para a Sprint 46C.
-                </p>
+                <Link
+                  href={`/platform/hoteis/${hotel.id}`}
+                  className="mt-5 inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                >
+                  Abrir governança
+                </Link>
               </article>
             ))}
           </div>
