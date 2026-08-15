@@ -29,27 +29,27 @@ export function AdminPageHero({
   rightSlot?: ReactNode;
 }) {
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_12px_32px_-26px_rgba(15,23,42,0.28)] sm:p-7 [&_.bg-white\/10]:bg-slate-50 [&_.border-white\/10]:border-slate-200 [&_.text-slate-300]:text-slate-500 [&_.text-white]:text-slate-950">
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-[#0b2b50]" />
+    <section className="admin-theme-surface relative overflow-hidden rounded-2xl border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5 shadow-[0_12px_32px_-26px_rgba(15,23,42,0.28)] sm:p-7 [&_.bg-white\/10]:bg-[var(--admin-surface-muted)] [&_.border-white\/10]:border-[var(--admin-border)] [&_.text-slate-300]:text-[var(--admin-muted)] [&_.text-white]:text-[var(--admin-text-strong)]">
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-[var(--admin-accent)]" />
 
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-3xl">
-          <div className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#0b4d7c] ring-1 ring-inset ring-sky-100">
+          <div className="inline-flex items-center rounded-full bg-[var(--admin-accent-soft)] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--admin-accent)] ring-1 ring-inset ring-[var(--admin-border)]">
             {eyebrow}
           </div>
 
-          <h1 className="mt-4 text-2xl font-semibold tracking-tight text-[#07182f] sm:text-3xl">
+          <h1 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--admin-text-strong)] sm:text-3xl">
             {title}
           </h1>
 
           {description ? (
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--admin-muted)]">
               {description}
             </p>
           ) : null}
         </div>
 
-        {rightSlot ? <div className="lg:w-[360px] [&>div>div]:rounded-xl [&>div>div]:border [&>div>div]:border-slate-200 [&>div>div]:p-4">{rightSlot}</div> : null}
+        {rightSlot ? <div className="lg:w-[360px] [&>div>div]:rounded-xl [&>div>div]:border [&>div>div]:border-[var(--admin-border)] [&>div>div]:bg-[var(--admin-surface-muted)] [&>div>div]:p-4">{rightSlot}</div> : null}
       </div>
     </section>
   );
@@ -65,7 +65,7 @@ export function AdminSurface({
   return (
     <div
       className={cn(
-        'rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_30px_-26px_rgba(15,23,42,0.28)] sm:p-6',
+        'admin-theme-surface rounded-2xl border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5 shadow-[0_10px_30px_-26px_rgba(15,23,42,0.28)] sm:p-6',
         className
       )}
     >
@@ -89,13 +89,13 @@ export function AdminSectionTitle({
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div>
         {eyebrow ? (
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--admin-muted)]">
             {eyebrow}
           </p>
         ) : null}
-        <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-[#07182f] sm:text-2xl">{title}</h2>
+        <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-[var(--admin-text-strong)] sm:text-2xl">{title}</h2>
         {description ? (
-          <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+          <p className="mt-2 text-sm leading-6 text-[var(--admin-muted)]">{description}</p>
         ) : null}
       </div>
 
@@ -116,26 +116,26 @@ export function AdminStatCard({
   description: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_28px_-26px_rgba(15,23,42,0.25)]">
+    <div className="admin-theme-surface rounded-2xl border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5 shadow-[0_10px_28px_-26px_rgba(15,23,42,0.25)]">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">{title}</p>
-          <p className="mt-2 text-2xl font-semibold tracking-tight text-[#07182f]">{value}</p>
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--admin-muted)]">{title}</p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight text-[var(--admin-text-strong)]">{value}</p>
         </div>
 
-        <div className="rounded-xl bg-sky-50 p-2.5 text-[#0b4d7c] ring-1 ring-inset ring-sky-100">
+        <div className="rounded-xl bg-[var(--admin-accent-soft)] p-2.5 text-[var(--admin-accent)] ring-1 ring-inset ring-[var(--admin-border)]">
           {icon}
         </div>
       </div>
 
-      <p className="mt-3 text-xs leading-5 text-slate-500">{description}</p>
+      <p className="mt-3 text-xs leading-5 text-[var(--admin-muted)]">{description}</p>
     </div>
   );
 }
 
 export function AdminInfoBadge({ children }: { children: ReactNode }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">
+    <div className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent-soft)] px-3 py-1.5 text-xs font-medium text-[var(--admin-accent)] ring-1 ring-inset ring-[var(--admin-border)]">
       {children}
     </div>
   );
@@ -204,7 +204,7 @@ export function AdminFilterBar({
   return (
     <form
       className={cn(
-        'mt-6 flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50/80 p-4 md:flex-row md:items-center',
+        'mt-6 flex flex-col gap-3 rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface-muted)] p-4 md:flex-row md:items-center',
         className
       )}
     >
@@ -224,7 +224,7 @@ export function AdminSearchInput({
         {...props}
         id={props.id || (typeof props.name === 'string' ? props.name : undefined)}
         className={cn(
-          'h-11 w-full rounded-xl border border-slate-300 bg-white pl-11 pr-4 text-sm outline-none transition focus:border-sky-600 focus-visible:ring-2 focus-visible:ring-sky-100',
+          'h-11 w-full rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] pl-11 pr-4 text-sm text-[var(--admin-text)] outline-none transition focus:border-[var(--admin-focus)] focus-visible:ring-2 focus-visible:ring-[var(--admin-focus-soft)]',
           className
         )}
       />
@@ -242,7 +242,7 @@ export function AdminSelect({
       {...props}
       id={props.id || (typeof props.name === 'string' ? props.name : undefined)}
       className={cn(
-        'h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-700 outline-none transition focus:border-sky-600 focus-visible:ring-2 focus-visible:ring-sky-100',
+        'h-11 rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 text-sm text-[var(--admin-text)] outline-none transition focus:border-[var(--admin-focus)] focus-visible:ring-2 focus-visible:ring-[var(--admin-focus-soft)]',
         className
       )}
     >
@@ -259,7 +259,7 @@ export function AdminListSummary({
   label: string;
 }) {
   return (
-    <div className="inline-flex items-center rounded-full bg-white px-4 py-2 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
+    <div className="inline-flex items-center rounded-full bg-[var(--admin-surface)] px-4 py-2 text-xs font-medium text-[var(--admin-muted)] ring-1 ring-[var(--admin-border)]">
       {total} {label}
     </div>
   );
@@ -273,9 +273,9 @@ export function AdminEmptyState({
   description: string;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-8 text-center">
-      <p className="text-base font-semibold text-slate-900">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+    <div className="rounded-2xl border border-dashed border-[var(--admin-border)] bg-[var(--admin-surface-muted)] p-8 text-center">
+      <p className="text-base font-semibold text-[var(--admin-text-strong)]">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-[var(--admin-muted)]">{description}</p>
     </div>
   );
 }
@@ -294,18 +294,18 @@ export function AdminListItem({
   actions?: ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-[0_8px_24px_-22px_rgba(15,23,42,0.3)] sm:p-5">
+    <div className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4 transition hover:border-[var(--admin-focus)] hover:shadow-[0_8px_24px_-22px_rgba(15,23,42,0.3)] sm:p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-lg font-semibold tracking-tight text-slate-950">{title}</h3>
+            <h3 className="text-lg font-semibold tracking-tight text-[var(--admin-text-strong)]">{title}</h3>
             {status}
           </div>
 
-          {description ? <div className="mt-3 text-sm leading-6 text-slate-600">{description}</div> : null}
+          {description ? <div className="mt-3 text-sm leading-6 text-[var(--admin-muted)]">{description}</div> : null}
 
           {meta ? (
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-[var(--admin-muted)]">
               {meta}
             </div>
           ) : null}
@@ -340,7 +340,7 @@ export function AdminPrimaryButton({
     <button
       type={type}
       className={cn(
-        'inline-flex h-11 items-center justify-center rounded-xl bg-[#0b2b50] px-5 text-sm font-medium text-white shadow-sm transition hover:bg-[#123f70] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60',
+        'inline-flex h-11 items-center justify-center rounded-xl bg-[var(--admin-accent)] px-5 text-sm font-medium text-[var(--admin-accent-text)] shadow-sm transition hover:bg-[var(--admin-accent-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-focus)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60',
         className
       )}
     >
@@ -362,7 +362,7 @@ export function AdminSecondaryButton({
     <button
       type={type}
       className={cn(
-        'inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60',
+        'inline-flex h-11 items-center justify-center rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 text-sm font-medium text-[var(--admin-text)] transition hover:bg-[var(--admin-surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-focus)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60',
         className
       )}
     >
@@ -410,7 +410,7 @@ export function AdminLinkButton({
       className={cn(
         'inline-flex items-center justify-center rounded-xl text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         variant === 'secondary'
-          ? 'h-11 border border-slate-300 bg-white px-4 text-slate-700 hover:bg-slate-50 focus-visible:ring-sky-200'
+          ? 'h-11 border border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 text-[var(--admin-text)] hover:bg-[var(--admin-surface-muted)] focus-visible:ring-[var(--admin-focus)]'
           : 'h-11 border border-red-200 bg-white px-4 text-red-600 hover:bg-red-50 focus-visible:ring-red-200',
         className
       )}
@@ -460,7 +460,7 @@ export function AdminField({
 
   return (
     <div className={cn('space-y-2', className)}>
-      <label htmlFor={controlId} className="block text-sm font-medium text-slate-700">{label}</label>
+      <label htmlFor={controlId} className="block text-sm font-medium text-[var(--admin-text)]">{label}</label>
       {children}
       {error ? (
         <p id={controlId ? `${controlId}-error` : undefined} role="alert" className="text-sm text-red-600">
@@ -488,16 +488,16 @@ export function AdminBreadcrumbs({
 }) {
   return (
     <nav aria-label="Navegação estrutural" className="mb-4 overflow-x-auto">
-      <ol className="flex min-w-max items-center gap-2 text-sm text-slate-500">
+      <ol className="flex min-w-max items-center gap-2 text-sm text-[var(--admin-muted)]">
         {items.map((item, index) => (
           <li key={`${item.label}-${index}`} className="flex items-center gap-2">
             {index ? <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" /> : null}
             {item.href ? (
-              <Link href={item.href} className="rounded-md hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300">
+              <Link href={item.href} className="rounded-md hover:text-[var(--admin-text-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-focus)]">
                 {item.label}
               </Link>
             ) : (
-              <span aria-current="page" className="font-medium text-slate-700">{item.label}</span>
+              <span aria-current="page" className="font-medium text-[var(--admin-text)]">{item.label}</span>
             )}
           </li>
         ))}
@@ -513,7 +513,7 @@ export function AdminHelpText({
   children: ReactNode;
   className?: string;
 }) {
-  return <p className={cn('text-xs leading-5 text-slate-500', className)}>{children}</p>;
+  return <p className={cn('text-xs leading-5 text-[var(--admin-muted)]', className)}>{children}</p>;
 }
 
 export function AdminGuideCard({
@@ -530,13 +530,13 @@ export function AdminGuideCard({
   return (
     <div
       className={cn(
-        'rounded-xl border border-slate-200 bg-slate-50/60 p-4',
+        'rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface-muted)] p-4',
         className
       )}
     >
-      <p className="text-[13px] font-semibold text-slate-800">{title}</p>
+      <p className="text-[13px] font-semibold text-[var(--admin-text-strong)]">{title}</p>
       {description ? (
-        <p className="mt-1.5 text-xs leading-5 text-slate-500">{description}</p>
+        <p className="mt-1.5 text-xs leading-5 text-[var(--admin-muted)]">{description}</p>
       ) : null}
       {children ? <div className="mt-3">{children}</div> : null}
     </div>
@@ -551,10 +551,10 @@ export function AdminHelpList({
   className?: string;
 }) {
   return (
-    <ul className={cn('space-y-1.5 text-xs leading-5 text-slate-500', className)}>
+    <ul className={cn('space-y-1.5 text-xs leading-5 text-[var(--admin-muted)]', className)}>
       {items.map((item) => (
         <li key={item} className="flex gap-2">
-          <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400" />
+          <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[var(--admin-accent)]" />
           <span>{item}</span>
         </li>
       ))}
@@ -569,7 +569,7 @@ export function AdminTextInput(props: React.InputHTMLAttributes<HTMLInputElement
       id={props.id || (typeof props.name === 'string' ? props.name : undefined)}
       aria-invalid={props['aria-invalid']}
       className={cn(
-        'h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-sm outline-none transition focus:border-sky-600 focus-visible:ring-2 focus-visible:ring-sky-100',
+        'h-11 w-full rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3.5 text-sm text-[var(--admin-text)] outline-none transition focus:border-[var(--admin-focus)] focus-visible:ring-2 focus-visible:ring-[var(--admin-focus-soft)]',
         props.className
       )}
     />
@@ -582,7 +582,7 @@ export function AdminTextarea(props: React.TextareaHTMLAttributes<HTMLTextAreaEl
       {...props}
       id={props.id || (typeof props.name === 'string' ? props.name : undefined)}
       className={cn(
-        'min-h-32 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-sm outline-none transition focus:border-sky-600 focus-visible:ring-2 focus-visible:ring-sky-100',
+        'min-h-32 w-full rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3.5 py-3 text-sm text-[var(--admin-text)] outline-none transition focus:border-[var(--admin-focus)] focus-visible:ring-2 focus-visible:ring-[var(--admin-focus-soft)]',
         props.className
       )}
     />
@@ -599,7 +599,7 @@ export function AdminCheckboxRow({
   return (
     <label
       className={cn(
-        'flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm font-medium text-slate-700',
+        'flex items-center gap-3 rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface-muted)] px-4 py-3 text-sm font-medium text-[var(--admin-text)]',
         className
       )}
     >

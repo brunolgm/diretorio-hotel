@@ -63,7 +63,7 @@ function InfoCard({
           <p className="text-sm text-slate-500">{title}</p>
           <p className="mt-2 text-xl font-semibold tracking-tight text-slate-950">{value}</p>
         </div>
-        <div className="rounded-xl bg-sky-50 p-2.5 text-[#0b4d7c]">
+        <div className="rounded-xl bg-[var(--admin-accent-soft)] p-2.5 text-[var(--admin-accent)]">
           <Icon className="h-5 w-5" />
         </div>
       </div>
@@ -242,22 +242,22 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
 
           <div className="mt-6 grid gap-5 md:grid-cols-2">
             <div className="order-[1] border-b border-slate-200 pb-2 md:col-span-2">
-              <h3 className="text-sm font-semibold text-[#07182f]">Identidade</h3>
+              <h3 className="text-sm font-semibold text-[var(--admin-text-strong)]">Identidade</h3>
             </div>
             <div className="order-[10] border-b border-slate-200 pb-2 md:col-span-2">
-              <h3 className="text-sm font-semibold text-[#07182f]">Operação</h3>
+              <h3 className="text-sm font-semibold text-[var(--admin-text-strong)]">Operação</h3>
             </div>
             <div className="order-[20] border-b border-slate-200 pb-2 md:col-span-2">
-              <h3 className="text-sm font-semibold text-[#07182f]">Contato</h3>
+              <h3 className="text-sm font-semibold text-[var(--admin-text-strong)]">Contato</h3>
             </div>
             <div className="order-[30] border-b border-slate-200 pb-2 md:col-span-2">
-              <h3 className="text-sm font-semibold text-[#07182f]">Wi-Fi</h3>
+              <h3 className="text-sm font-semibold text-[var(--admin-text-strong)]">Wi-Fi</h3>
             </div>
             <div className="order-[40] border-b border-slate-200 pb-2 md:col-span-2">
-              <h3 className="text-sm font-semibold text-[#07182f]">Links</h3>
+              <h3 className="text-sm font-semibold text-[var(--admin-text-strong)]">Links</h3>
             </div>
             <div className="order-[50] border-b border-slate-200 pb-2 md:col-span-2">
-              <h3 className="text-sm font-semibold text-[#07182f]">Marca e mídia</h3>
+              <h3 className="text-sm font-semibold text-[var(--admin-text-strong)]">Marca e mídia</h3>
             </div>
 
             <div className="order-[2] space-y-2 md:col-span-2">
@@ -567,7 +567,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   name="logo"
                   accept="image/jpeg,image/png,image/webp"
                   required
-                  className="block w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-sky-600 focus-visible:ring-2 focus-visible:ring-sky-100"
+                  className="block w-full rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3 py-2.5 text-sm outline-none transition focus:border-[var(--admin-focus)] focus-visible:ring-2 focus-visible:ring-[var(--admin-focus-soft)]"
                 />
                 <AdminHelpText className="mt-2">
                   Revise tamanho e contraste após o envio.
@@ -629,7 +629,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
                   name="hero_image"
                   accept="image/jpeg,image/png,image/webp"
                   required
-                  className="block w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-sky-600 focus-visible:ring-2 focus-visible:ring-sky-100"
+                  className="block w-full rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3 py-2.5 text-sm outline-none transition focus:border-[var(--admin-focus)] focus-visible:ring-2 focus-visible:ring-[var(--admin-focus-soft)]"
                 />
                 <AdminHelpText className="mt-2">
                   JPEG, PNG ou WEBP, até 10 MB. Revise o recorte após o envio.

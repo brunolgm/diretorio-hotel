@@ -2,6 +2,75 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Hotel admin brand theme. Strictly scoped so /platform and public experiences stay neutral. */
+.admin-theme [class~="bg-white"] {
+  background-color: var(--admin-surface);
+}
+
+.admin-theme [class*="bg-slate-50"],
+.admin-theme [class~="bg-slate-100"] {
+  background-color: var(--admin-surface-muted);
+}
+
+.admin-theme [class~="bg-slate-900"],
+.admin-theme [class~="bg-slate-950"] {
+  background-color: var(--admin-accent);
+}
+
+.admin-theme [class*="bg-sky-50"],
+.admin-theme [class~="bg-sky-100"] {
+  background-color: var(--admin-accent-soft);
+}
+
+.admin-theme [class*="border-slate-2"],
+.admin-theme [class*="border-slate-3"],
+.admin-theme [class*="ring-slate-2"] {
+  border-color: var(--admin-border);
+  --tw-ring-color: var(--admin-border);
+}
+
+.admin-theme :is(.text-slate-950, .text-slate-900, .text-slate-800) {
+  color: var(--admin-text-strong);
+}
+
+.admin-theme .text-slate-700 {
+  color: var(--admin-text);
+}
+
+.admin-theme :is(.text-slate-600, .text-slate-500, .text-slate-400) {
+  color: var(--admin-muted);
+}
+
+.admin-theme :is(.text-sky-700, .text-sky-600) {
+  color: var(--admin-accent);
+}
+
+.admin-theme :is(input, select, textarea):focus,
+.admin-theme :is(input, select, textarea):focus-visible {
+  border-color: var(--admin-focus);
+  box-shadow: 0 0 0 3px var(--admin-focus-soft);
+  outline: none;
+}
+
+.admin-theme :is(a, button):focus-visible {
+  outline-color: var(--admin-focus);
+}
+
+.admin-theme[data-admin-logo-treatment="premium-frame"] .admin-brand-mark {
+  border: 1px solid color-mix(in srgb, var(--admin-focus) 55%, transparent);
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--admin-accent-soft) 65%, transparent);
+}
+
+.admin-theme[data-admin-logo-treatment="soft-frame"] .admin-brand-mark {
+  border-radius: 1rem;
+  box-shadow: inset 0 0 0 1px var(--admin-sidebar-border);
+}
+
+.admin-theme[data-admin-logo-treatment="crisp-frame"] .admin-brand-mark {
+  border-radius: .6rem;
+  box-shadow: inset 0 0 0 1px var(--admin-sidebar-border);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

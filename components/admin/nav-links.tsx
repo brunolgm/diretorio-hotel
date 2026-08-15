@@ -87,11 +87,12 @@ export function NavLinks({ items, onNavigate }: NavLinksProps) {
             href={item.href}
             onClick={onNavigate}
             className={cn(
-              'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300',
+              'relative flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-focus)]',
               isActive
-                ? 'bg-white text-[#07182f] shadow-[0_8px_24px_-16px_rgba(0,0,0,0.8)]'
-                : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                ? 'bg-[var(--admin-active-bg)] text-[var(--admin-active-text)] shadow-[0_8px_24px_-16px_rgba(0,0,0,0.8)] before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-[var(--admin-accent)]'
+                : 'text-[var(--admin-sidebar-muted)] hover:bg-white/10 hover:text-[var(--admin-sidebar-text)]'
             )}
+            aria-current={isActive ? 'page' : undefined}
           >
             <NavIcon icon={item.icon} className="h-[18px] w-[18px] shrink-0" />
             <span>{item.label}</span>
