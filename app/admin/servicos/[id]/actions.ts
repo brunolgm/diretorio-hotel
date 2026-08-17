@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
+import { requireHotelModule } from '@/lib/admin-entitlements';
 import {
   readCheckboxBoolean,
   readNullableString,
@@ -23,7 +24,7 @@ import { isUuid } from '@/lib/security/identifiers';
 import type { Database } from '@/types/database';
 
 export async function updateSectionAction(id: string, formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.services');
   if (!isUuid(id)) {
     redirect('/admin/servicos?error=Servi%C3%A7o%20inv%C3%A1lido');
   }

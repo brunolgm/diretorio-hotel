@@ -29,13 +29,15 @@ test('organizes the sidebar into the approved information architecture', () => {
   ]);
   assert.deepEqual(ADMIN_NAVIGATION[2].items.map(({ label }) => label), ['Idiomas', 'Logs de Acesso']);
   for (const item of ADMIN_NAVIGATION.flatMap(({ items }) => items)) {
-    assert.ok(item.moduleKey);
     assert.ok(item.requiredRole);
     assert.ok(item.availability);
   }
+  for (const href of ['/admin', '/admin/usuarios', '/admin/configuracoes', '/admin/hotel']) {
+    assert.equal(ADMIN_NAVIGATION.flatMap(({ items }) => items).find((item) => item.href === href)?.moduleKey, undefined);
+  }
 });
 
-test('preserves existing role visibility without introducing module entitlements', () => {
+test('preserves role visibility and composes it with module entitlements', () => {
   const viewerRoutes = getAdminNavigationForRole('visualizador').flatMap(({ items }) => items.map(({ href }) => href));
   const editorRoutes = getAdminNavigationForRole('editor').flatMap(({ items }) => items.map(({ href }) => href));
   const adminRoutes = getAdminNavigationForRole('administrador').flatMap(({ items }) => items.map(({ href }) => href));
@@ -43,7 +45,10 @@ test('preserves existing role visibility without introducing module entitlements
   assert.ok(editorRoutes.includes('/admin/hotel') && editorRoutes.includes('/admin/apartamentos'));
   assert.ok(!editorRoutes.includes('/admin/usuarios') && !editorRoutes.includes('/admin/logs'));
   assert.ok(adminRoutes.includes('/admin/usuarios') && adminRoutes.includes('/admin/logs'));
-  assert.doesNotMatch(read('lib', 'admin-navigation.ts'), /entitlement|platform_status|lifecycle|supabase/i);
+  const restricted = getAdminNavigationForRole('administrador', new Set(['core.directory'])).flatMap(({ items }) => items.map(({ href }) => href));
+  assert.ok(restricted.includes('/admin') && restricted.includes('/admin/usuarios') && restricted.includes('/admin/configuracoes'));
+  assert.ok(restricted.includes('/admin/experiencia') && !restricted.includes('/admin/servicos'));
+  assert.doesNotMatch(read('lib', 'admin-navigation.ts'), /platform_status|lifecycle|supabase/i);
 });
 
 test('keeps every existing admin route and adds only approved foundations', () => {
@@ -58,9 +63,10 @@ test('keeps every existing admin route and adds only approved foundations', () =
 });
 
 test('marks future areas as coming soon without fake operations', () => {
-  for (const moduleKey of ['fb.menu', 'content.tourism', 'experience.seo', 'experience.preview', 'audit.access_logs']) {
+  for (const moduleKey of ['fb.menu', 'content.tourism', 'experience.seo', 'audit.access_logs']) {
     assert.equal(ADMIN_MODULE_CATALOG.find(({ key }) => key === moduleKey)?.availability, 'coming_soon');
   }
+  assert.equal(ADMIN_MODULE_CATALOG.find(({ key }) => key === 'experience.preview')?.availability, 'available');
   const structural = [
     read('components', 'admin', 'admin-coming-soon-page.tsx'),
     read('app', 'admin', 'cardapio', 'page.tsx'),

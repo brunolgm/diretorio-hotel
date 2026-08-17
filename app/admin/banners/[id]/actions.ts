@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
+import { requireHotelModule } from '@/lib/admin-entitlements';
 import {
   readCheckboxBoolean,
   readNullableString,
@@ -55,7 +56,7 @@ function validateBannerWindow({
 }
 
 export async function updatePromotionalBannerAction(id: string, formData: FormData) {
-  const { user } = await requireAdminAccess('operador');
+  const { user } = await requireAdminAccess('operador'); await requireHotelModule('content.banners');
 
   if (!isUuid(id)) {
     redirect('/admin/banners?error=Banner%20inv%C3%A1lido');
@@ -160,7 +161,7 @@ export async function updatePromotionalBannerAction(id: string, formData: FormDa
 }
 
 export async function removePromotionalBannerImageAction(id: string) {
-  const { user } = await requireAdminAccess('operador');
+  const { user } = await requireAdminAccess('operador'); await requireHotelModule('content.banners');
 
   if (!isUuid(id)) {
     redirect('/admin/banners?error=Banner%20inv%C3%A1lido');

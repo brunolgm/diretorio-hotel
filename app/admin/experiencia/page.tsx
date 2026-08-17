@@ -7,6 +7,7 @@ import { MainBannerPreview } from '@/components/admin/experience/main-banner-pre
 import { PublicExperiencePreview } from '@/components/admin/experience/public-experience-preview';
 import { QuickTips } from '@/components/admin/experience/quick-tips';
 import { requireAdminAccess } from '@/lib/auth';
+import { hasHotelModule, requireHotelModule } from '@/lib/admin-entitlements';
 import { getAdminHotel, getAdminOperationalReadiness } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
 
@@ -35,6 +36,8 @@ function formatLastUpdate(value: string | null, now: Date) {
 export default async function AdminExperiencePage({ searchParams }: ExperiencePageProps) {
   const { profile } = await requireAdminAccess('visualizador');
   const params = searchParams ? await searchParams : {};
+  const previewEnabled = await hasHotelModule('experience.preview');
+  if (params.tab === 'preview' && !previewEnabled) await requireHotelModule('experience.preview');
   const activeTab = EXPERIENCE_TABS.some(({ key }) => key === params.tab) ? params.tab! : 'visao-geral';
   const hotel = await getAdminHotel();
   const supabase = await createClient();
@@ -92,8 +95,8 @@ export default async function AdminExperiencePage({ searchParams }: ExperiencePa
     <main className="min-w-0 space-y-4 font-sans">
       <ExperienceHeader hotelName={hotel.name} publicUrl={publicUrl} dateLabel={dateLabel} timeLabel={timeLabel} />
       <ExperienceMetrics status={statusCopy[hotel.platform_status]} lastUpdated={formatLastUpdate(latestUpdate, now)} languages={languages} publishedAreas={publishedAreas} totalAreas={6} featuredItems={eligibleBanners.length} />
-      <ExperienceTabs activeTab={activeTab} />
-      {activeTab === 'visao-geral' ? <><div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3 xl:grid-cols-[minmax(280px,30fr)_minmax(390px,43fr)_minmax(260px,27fr)]"><HomeCompositionCard items={compositionItems} additionalCount={6} /><MainBannerPreview banner={mainBanner ? { title: mainBanner.title, subtitle: mainBanner.subtitle, imageUrl: mainBanner.image_url, ctaLabel: mainBanner.cta_label } : null} position={mainBanner ? 1 : 0} total={eligibleBanners.length} /><PublicExperiencePreview publicUrl={publicUrl} hotelName={hotel.name} /></div><QuickTips /></> : <section className="rounded-[12px] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5"><AdminEmptyState title={`${EXPERIENCE_TABS.find(({ key }) => key === activeTab)?.label} em preparação`} description="Esta área já ocupa seu lugar na arquitetura, mas ainda não possui controles ou persistência. Nenhuma configuração fictícia foi adicionada." /></section>}
+      <ExperienceTabs activeTab={activeTab} previewEnabled={previewEnabled} />
+      {activeTab === 'visao-geral' ? <><div className={previewEnabled ? "grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3 xl:grid-cols-[minmax(280px,30fr)_minmax(390px,43fr)_minmax(260px,27fr)]" : "grid min-w-0 gap-3 xl:grid-cols-2"}><HomeCompositionCard items={compositionItems} additionalCount={6} /><MainBannerPreview banner={mainBanner ? { title: mainBanner.title, subtitle: mainBanner.subtitle, imageUrl: mainBanner.image_url, ctaLabel: mainBanner.cta_label } : null} position={mainBanner ? 1 : 0} total={eligibleBanners.length} />{previewEnabled ? <PublicExperiencePreview publicUrl={publicUrl} hotelName={hotel.name} /> : null}</div><QuickTips /></> : activeTab === 'preview' ? <PublicExperiencePreview publicUrl={publicUrl} hotelName={hotel.name} /> : <section className="rounded-[12px] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5"><AdminEmptyState title={`${EXPERIENCE_TABS.find(({ key }) => key === activeTab)?.label} em preparação`} description="Esta área já ocupa seu lugar na arquitetura, mas ainda não possui controles ou persistência. Nenhuma configuração fictícia foi adicionada." /></section>}
     </main>
   );
 }

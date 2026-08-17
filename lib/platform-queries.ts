@@ -8,6 +8,7 @@ import {
 } from '@/lib/platform-governance';
 import { createClient } from '@/lib/supabase/server';
 import type { Json } from '@/types/database';
+import { isModuleKey, type ModuleKey } from '@/lib/modules/catalog';
 
 export { normalizePlatformDirectoryParams } from '@/lib/platform-directory';
 
@@ -28,6 +29,8 @@ export type PlatformHotelDetail = PlatformHotelDirectoryItem & {
   createdAt: string | null;
   updatedAt: string | null;
 };
+
+export type PlatformHotelModule = { moduleKey: ModuleKey; isEnabled: boolean; enabledAt: string | null; disabledAt: string | null };
 
 function normalizeBrandMetrics(value: Json): Record<string, number> {
   if (!value || Array.isArray(value) || typeof value !== 'object') {
@@ -138,4 +141,12 @@ export async function getPlatformHotelDetail(hotelId: string) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   } satisfies PlatformHotelDetail;
+}
+
+export async function getPlatformHotelModules(hotelId: string): Promise<PlatformHotelModule[]> {
+  await requirePlatformAccess();
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('get_platform_hotel_modules', { p_hotel_id: hotelId });
+  if (error) throw new Error('Não foi possível carregar os módulos do hotel.');
+  return (data || []).flatMap((row) => isModuleKey(row.module_key) ? [{ moduleKey: row.module_key, isEnabled: row.is_enabled, enabledAt: row.enabled_at, disabledAt: row.disabled_at }] : []);
 }

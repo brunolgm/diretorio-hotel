@@ -1,5 +1,5 @@
 import { hasMinimumRole, type AppRole } from './app-roles.ts';
-import { getAdminModule, type AdminModuleAvailability, type AdminModuleKey } from './admin-modules.ts';
+import { getModule, type ModuleAvailability, type ModuleKey } from './modules/catalog.ts';
 
 export type AdminNavGroupKey = 'principal' | 'guest_experience' | 'management';
 export type AdminNavIcon =
@@ -11,9 +11,9 @@ export interface AdminNavigationItem {
   href: string;
   label: string;
   icon: AdminNavIcon;
-  moduleKey: AdminModuleKey;
+  moduleKey?: ModuleKey;
   requiredRole: AppRole;
-  availability: AdminModuleAvailability;
+  availability: ModuleAvailability;
   badge?: string;
 }
 
@@ -24,21 +24,21 @@ export interface AdminNavigationGroup {
 }
 
 function item(definition: Omit<AdminNavigationItem, 'availability' | 'badge'>): AdminNavigationItem {
-  const moduleDefinition = getAdminModule(definition.moduleKey);
+  const moduleDefinition = definition.moduleKey ? getModule(definition.moduleKey) : null;
   return {
     ...definition,
-    availability: moduleDefinition.availability,
-    badge: moduleDefinition.availability === 'coming_soon' ? 'Em breve' : undefined,
+    availability: moduleDefinition?.availability || 'available',
+    badge: moduleDefinition?.availability === 'coming_soon' ? 'Em breve' : undefined,
   };
 }
 
 export const ADMIN_NAVIGATION: readonly AdminNavigationGroup[] = [
   {
     key: 'principal', label: 'Principal', items: [
-      item({ href: '/admin', label: 'Dashboard', icon: 'dashboard', moduleKey: 'analytics.basic', requiredRole: 'visualizador' }),
+      item({ href: '/admin', label: 'Dashboard', icon: 'dashboard', requiredRole: 'visualizador' }),
       item({ href: '/admin/apartamentos', label: 'Unidades', icon: 'rooms', moduleKey: 'rooms.qr', requiredRole: 'editor' }),
-      item({ href: '/admin/usuarios', label: 'Usuários', icon: 'users', moduleKey: 'core.user_management', requiredRole: 'administrador' }),
-      item({ href: '/admin/configuracoes', label: 'Configurações', icon: 'settings', moduleKey: 'core.hotel_configuration', requiredRole: 'editor' }),
+      item({ href: '/admin/usuarios', label: 'Usuários', icon: 'users', requiredRole: 'administrador' }),
+      item({ href: '/admin/configuracoes', label: 'Configurações', icon: 'settings', requiredRole: 'editor' }),
     ],
   },
   {
@@ -50,7 +50,7 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationGroup[] = [
       item({ href: '/admin/cardapio', label: 'Cardápio (F&B)', icon: 'menu', moduleKey: 'fb.menu', requiredRole: 'visualizador' }),
       item({ href: '/admin/turismo', label: 'Turismo', icon: 'tourism', moduleKey: 'content.tourism', requiredRole: 'visualizador' }),
       item({ href: '/admin/comunicados', label: 'Comunicados', icon: 'announcements', moduleKey: 'content.announcements', requiredRole: 'visualizador' }),
-      item({ href: '/admin/hotel', label: 'Informações', icon: 'hotel', moduleKey: 'core.hotel_configuration', requiredRole: 'editor' }),
+      item({ href: '/admin/hotel', label: 'Informações', icon: 'hotel', requiredRole: 'editor' }),
       item({ href: '/admin/politicas', label: 'Políticas', icon: 'policies', moduleKey: 'content.policies', requiredRole: 'visualizador' }),
     ],
   },
@@ -62,9 +62,12 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationGroup[] = [
   },
 ] as const;
 
-export function getAdminNavigationForRole(role: AppRole): AdminNavigationGroup[] {
+export function getAdminNavigationForRole(role: AppRole, enabledModules?: ReadonlySet<ModuleKey>): AdminNavigationGroup[] {
   return ADMIN_NAVIGATION.map((group) => ({
     ...group,
-    items: group.items.filter((navigationItem) => hasMinimumRole(role, navigationItem.requiredRole)),
+    items: group.items.filter((navigationItem) =>
+      hasMinimumRole(role, navigationItem.requiredRole)
+      && (!navigationItem.moduleKey || !enabledModules || enabledModules.has(navigationItem.moduleKey))
+    ),
   })).filter((group) => group.items.length > 0);
 }

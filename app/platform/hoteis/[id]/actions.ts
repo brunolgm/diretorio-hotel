@@ -11,6 +11,7 @@ import {
 } from '@/lib/platform-governance';
 import { isUuid } from '@/lib/security/identifiers';
 import { createClient } from '@/lib/supabase/server';
+import { isModuleKey } from '@/lib/modules/catalog';
 
 function feedbackUrl(hotelId: string, kind: 'success' | 'error', message: string) {
   const query = new URLSearchParams({ [kind]: message });
@@ -93,4 +94,21 @@ export async function updatePlatformHotelStatusAction(formData: FormData) {
 
   revalidatePlatformHotel(hotelId);
   redirect(feedbackUrl(hotelId, 'success', 'Lifecycle atualizado e auditado.'));
+}
+
+export async function updatePlatformHotelModuleAction(formData: FormData) {
+  await requirePlatformAccess();
+  const hotelId = readTrimmedString(formData, 'hotel_id');
+  const moduleKey = readTrimmedString(formData, 'module_key');
+  const rawEnabled = readTrimmedString(formData, 'enabled');
+  if (!isUuid(hotelId) || !isModuleKey(moduleKey) || !['true', 'false'].includes(rawEnabled)) redirect('/platform/hoteis?error=Módulo%20inválido.');
+  const enabled = rawEnabled === 'true';
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('update_platform_hotel_module', { p_hotel_id: hotelId, p_module_key: moduleKey, p_enabled: enabled });
+  if (error) {
+    redirect(feedbackUrl(hotelId, 'error', error.message.includes('dependency_required') ? 'O diretório principal é obrigatório.' : 'Não foi possível atualizar o módulo com segurança.'));
+  }
+  revalidatePlatformHotel(hotelId);
+  redirect(feedbackUrl(hotelId, 'success', enabled ? 'Módulo habilitado e auditado.' : 'Módulo desabilitado e auditado.'));
 }

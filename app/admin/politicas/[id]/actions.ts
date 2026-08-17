@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
+import { requireHotelModule } from '@/lib/admin-entitlements';
 import { readCheckboxBoolean, readNullableString, readTrimmedString } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
 import {
@@ -15,7 +16,7 @@ import { isUuid } from '@/lib/security/identifiers';
 import type { Database } from '@/types/database';
 
 export async function updatePolicyAction(id: string, formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.policies');
   if (!isUuid(id)) {
     redirect('/admin/politicas?error=Pol%C3%ADtica%20inv%C3%A1lida');
   }

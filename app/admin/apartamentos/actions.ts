@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
+import { requireHotelModule } from '@/lib/admin-entitlements';
 import {
   readCheckboxBoolean,
   readNullableString,
@@ -46,7 +47,7 @@ async function createUniqueRoomToken(
 }
 
 export async function createRoomLinkAction(formData: FormData) {
-  await requireAdminAccess('editor');
+  await requireAdminAccess('editor'); await requireHotelModule('rooms.qr');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const roomNumber = readTrimmedString(formData, 'room_number');
@@ -112,7 +113,7 @@ export async function createRoomLinkAction(formData: FormData) {
 }
 
 export async function updateRoomLinkAction(formData: FormData) {
-  await requireAdminAccess('editor');
+  await requireAdminAccess('editor'); await requireHotelModule('rooms.qr');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -187,7 +188,7 @@ export async function updateRoomLinkAction(formData: FormData) {
 }
 
 export async function toggleRoomLinkStatusAction(formData: FormData) {
-  await requireAdminAccess('editor');
+  await requireAdminAccess('editor'); await requireHotelModule('rooms.qr');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -238,7 +239,7 @@ export async function toggleRoomLinkStatusAction(formData: FormData) {
 }
 
 export async function regenerateRoomTokenAction(formData: FormData) {
-  const { user } = await requireAdminAccess('editor');
+  const { user } = await requireAdminAccess('editor'); await requireHotelModule('rooms.qr');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
