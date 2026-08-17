@@ -90,7 +90,7 @@ test('omits module-specific warnings when their entitlements are disabled', () =
 
 test('gates only first activation and preserves lifecycle audit metadata', () => {
   const migration = read('supabase', 'migrations', '202608170002_48_activation_readiness.sql');
-  const statusFunction = migration.match(/create function public\.update_platform_hotel_status[\s\S]*?end;\n\$\$;/i)?.[0] || '';
+  const statusFunction = migration.match(/create function public\.update_platform_hotel_status[\s\S]*?end;\r?\n\$\$;/i)?.[0] || '';
   assert.match(statusFunction, /previous_status='draft' and p_status='active'/);
   assert.match(statusFunction, /platform_hotel_not_ready/);
   assert.match(statusFunction, /'hotel\.status_updated'/);
