@@ -3,6 +3,7 @@ import { ArrowLeft, Building2, CheckCircle2, ExternalLink, ImageIcon, Puzzle, Sh
 import { notFound } from 'next/navigation';
 import { AdminConfirmAction } from '@/components/admin/confirm-action';
 import { FeedbackToast } from '@/components/feedback-toast';
+import { HotelReadinessChecklist } from '@/components/readiness/hotel-readiness-checklist';
 import {
   getAllowedPlatformHotelStatusTransitions,
   getPlatformHotelBrandLabel,
@@ -10,6 +11,7 @@ import {
   PLATFORM_HOTEL_BRANDS,
 } from '@/lib/platform-governance';
 import { getPlatformHotelDetail, getPlatformHotelModules } from '@/lib/platform-queries';
+import { getPlatformHotelReadiness } from '@/lib/readiness-queries';
 import { MODULE_CATALOG, MODULE_GROUP_LABELS, type ModuleGroup } from '@/lib/modules/catalog';
 import { isUuid } from '@/lib/security/identifiers';
 import {
@@ -46,7 +48,10 @@ export default async function PlatformHotelDetailPage({
 
   const hotel = await getPlatformHotelDetail(id);
   if (!hotel) notFound();
-  const hotelModules = await getPlatformHotelModules(id);
+  const [hotelModules, readiness] = await Promise.all([
+    getPlatformHotelModules(id),
+    getPlatformHotelReadiness(id),
+  ]);
 
   const transitions = getAllowedPlatformHotelStatusTransitions(hotel.platformStatus);
   const brandChoices = [
@@ -66,6 +71,24 @@ export default async function PlatformHotelDetailPage({
       />
 
       {onboardingCreated ? <section className="rounded-[28px] border border-emerald-200 bg-emerald-50 p-6"><div className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" /><div><h2 className="font-semibold text-emerald-950">Próximos passos</h2><ul className="mt-2 grid gap-1 text-sm leading-6 text-emerald-900 sm:grid-cols-2"><li>Revisar a identidade do hotel</li><li>Confirmar os módulos habilitados</li><li>Orientar o administrador inicial</li><li>Acompanhar a preparação no /admin</li><li>Ativar somente quando estiver pronto</li></ul></div></div></section> : null}
+
+      <section className="rounded-[30px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70 md:p-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Go-live</p>
+            <h2 className="mt-2 text-xl font-semibold text-slate-950">Prontidão para ativação</h2>
+            <p className="mt-2 text-sm text-slate-600">Calculada em tempo real; recomendações não bloqueiam a publicação.</p>
+          </div>
+          <span className={readiness.readyToActivate ? 'rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700' : 'rounded-full bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700'}>
+            {readiness.readyToActivate ? 'Pronto para ativar' : 'Existem pendências'}
+          </span>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl bg-slate-50 p-4"><p className="text-xs text-slate-500">Bloqueantes</p><p className="mt-1 text-2xl font-semibold text-slate-950">{readiness.blockingCount}</p></div>
+          <div className="rounded-2xl bg-slate-50 p-4"><p className="text-xs text-slate-500">Recomendações</p><p className="mt-1 text-2xl font-semibold text-slate-950">{readiness.warningCount}</p></div>
+        </div>
+        <div className="mt-6"><HotelReadinessChecklist readiness={readiness} variant="platform" /></div>
+      </section>
 
       <section className="rounded-[30px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70 md:p-8">
         <div className="flex items-center gap-3">
@@ -195,20 +218,31 @@ export default async function PlatformHotelDetailPage({
             <div className="mt-6 flex flex-wrap gap-3">
               {transitions.map((status) => {
                 const sensitive = status === 'suspended' || status === 'archived';
-                const description = status === 'archived'
+                const activatingDraft = hotel.platformStatus === 'draft' && status === 'active';
+                const description = activatingDraft
+                  ? 'Este hotel ficará disponível publicamente e os acessos públicos/QR poderão ser utilizados.'
+                  : status === 'archived'
                   ? 'Arquivar é uma transição terminal nesta fase. O hotel permanece no histórico, sem exclusão, e a ação será auditada.'
                   : status === 'suspended'
                     ? 'A suspensão representa bloqueio temporário por governança. Confirme que essa consequência é intencional.'
                     : 'A alteração será aplicada ao lifecycle canônico e registrada no audit global.';
 
-                return (
+                return activatingDraft && !readiness.readyToActivate ? (
+                  <div key={status} className="max-w-md rounded-2xl border border-red-200 bg-red-50 p-4">
+                    <button type="button" disabled className="h-11 rounded-2xl border border-red-200 bg-white px-4 text-sm font-semibold text-red-400">Ativar</button>
+                    <p className="mt-3 text-sm font-medium text-red-800">Este hotel ainda possui pendências bloqueantes.</p>
+                    <ul className="mt-2 space-y-1 text-xs text-red-700">
+                      {readiness.checks.filter((check) => check.severity === 'blocking' && !check.passed).map((check) => <li key={check.key}>• {check.label}</li>)}
+                    </ul>
+                  </div>
+                ) : (
                   <AdminConfirmAction
                     key={status}
                     action={updatePlatformHotelStatusAction}
                     title={`Alterar lifecycle para ${getPlatformHotelStatusLabel(status)}?`}
                     description={description}
                     triggerLabel={getPlatformHotelStatusLabel(status)}
-                    confirmLabel={sensitive ? 'Confirmar mudança sensível' : 'Confirmar lifecycle'}
+                    confirmLabel={activatingDraft ? 'Confirmar publicação' : sensitive ? 'Confirmar mudança sensível' : 'Confirmar lifecycle'}
                     pendingLabel="Atualizando..."
                     tone={status === 'archived' ? 'danger' : 'warning'}
                     hiddenFields={[

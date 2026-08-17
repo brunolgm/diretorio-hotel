@@ -1,5 +1,4 @@
 ﻿import {
-  CheckCircle2,
   Clock3,
   Coffee,
   Globe,
@@ -13,6 +12,7 @@
 import { HotelSubdomainField } from '@/components/admin/hotel-subdomain-field';
 import { ThemeColorField } from '@/components/admin/theme-color-field';
 import { FeedbackToast } from '@/components/feedback-toast';
+import { HotelReadinessChecklist } from '@/components/readiness/hotel-readiness-checklist';
 import { AdminConfirmAction } from '@/components/admin/confirm-action';
 import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
@@ -34,6 +34,7 @@ import {
   getHotelSubdomainRootDomainSummary,
 } from '@/lib/hotel-subdomain';
 import { getAdminHotel } from '@/lib/queries';
+import { getCurrentHotelReadiness } from '@/lib/readiness-queries';
 import { removeHotelHeroImageAction, removeHotelLogoAction, updateHotelAction } from './actions';
 import { uploadHotelHeroImageAction } from './upload-hero-image-action';
 import { uploadHotelLogoAction } from './upload-logo-action';
@@ -72,35 +73,9 @@ function InfoCard({
   );
 }
 
-function SetupChecklistItem({
-  title,
-  description,
-  completed,
-}: {
-  title: string;
-  description: string;
-  completed: boolean;
-}) {
-  return (
-    <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3">
-      <div
-        className={`mt-0.5 rounded-full p-1 ${
-          completed ? 'bg-slate-100 text-emerald-700' : 'bg-slate-100 text-amber-700'
-        }`}
-      >
-        <CheckCircle2 className="h-4 w-4" />
-      </div>
-      <div>
-        <p className="text-sm font-semibold text-slate-900">{title}</p>
-        <p className="mt-0.5 text-xs leading-5 text-slate-500">{description}</p>
-      </div>
-    </div>
-  );
-}
-
 export default async function AdminHotelPage({ searchParams }: AdminHotelPageProps) {
   await requireAdminAccess('editor');
-  const hotel = await getAdminHotel();
+  const [hotel, readiness] = await Promise.all([getAdminHotel(), getCurrentHotelReadiness()]);
   const allowedThemePresets = getAllowedAdminThemePresets(hotel);
   const params = searchParams ? await searchParams : {};
   const success = params?.success;
@@ -113,14 +88,6 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
   const legacySubdomainPreview =
     buildHotelLegacySubdomainPreviewUrl(hotel.subdomain) ||
     buildHotelLegacySubdomainPreviewUrl(hotel.slug);
-  const hasIdentityReady = Boolean(hotel.name?.trim() && hotel.city?.trim());
-  const hasPublicAddressReady = Boolean(hotel.subdomain?.trim() || hotel.slug?.trim());
-  const hasThemeReady = Boolean(hotel.theme_preset || DEFAULT_HOTEL_THEME_PRESET);
-  const hasPublicReviewReady = Boolean(
-    hotel.name?.trim() &&
-      (hotel.subdomain?.trim() || hotel.slug?.trim()) &&
-      (hotel.booking_url || hotel.website_url || hotel.whatsapp_number)
-  );
 
   return (
     <main className="space-y-6">
@@ -174,48 +141,8 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
             </div>
           </div>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <SetupChecklistItem
-              title="Identidade do hotel preenchida"
-              description={
-                hasIdentityReady
-                  ? 'Nome e cidade preenchidos.'
-                  : 'Preencha nome e cidade.'
-              }
-              completed={hasIdentityReady}
-            />
-            <SetupChecklistItem
-              title="Endereço público definido"
-              description={
-                hotel.subdomain
-                  ? 'Subdomínio preferencial configurado.'
-                  : 'Slug disponível como fallback.'
-              }
-              completed={hasPublicAddressReady}
-            />
-            <SetupChecklistItem
-              title="Tema visual selecionado"
-              description={`Preset: ${currentTheme.label}.`}
-              completed={hasThemeReady}
-            />
-            <SetupChecklistItem
-              title="Identidade visual revisada"
-              description={
-                hotel.logo_url
-                  ? 'Logo configurada.'
-                  : 'Fallback visual em uso.'
-              }
-              completed={Boolean(hotel.logo_url)}
-            />
-            <SetupChecklistItem
-              title="Experiência pública pronta para revisar"
-              description={
-                hasPublicReviewReady
-                  ? 'Base pronta para validação.'
-                  : 'Revise contatos e links.'
-              }
-              completed={hasPublicReviewReady}
-            />
+          <div className="mt-4">
+            <HotelReadinessChecklist readiness={readiness} variant="admin" />
           </div>
       </section>
 

@@ -4,8 +4,6 @@ import {
   ArrowRight,
   ArrowUpRight,
   Building2,
-  CheckCircle2,
-  CircleAlert,
   Clock3,
   ConciergeBell,
   Eye,
@@ -28,12 +26,14 @@ import {
   AdminStatCard,
   AdminSurface,
 } from '@/components/admin/ui';
+import { HotelReadinessChecklist } from '@/components/readiness/hotel-readiness-checklist';
 import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
+import { getHotelReadinessNextSteps } from '@/lib/hotel-readiness';
 import {
   getAdminHotel,
-  getAdminOperationalReadiness,
   getHotelAnalyticsSummary,
 } from '@/lib/queries';
+import { getCurrentHotelReadiness } from '@/lib/readiness-queries';
 
 function QuickLink({
   href,
@@ -138,9 +138,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const { profile } = await requireAdminAccess('visualizador');
   const hotel = await getAdminHotel();
   const params = searchParams ? await searchParams : {};
-  const [analytics, operationalReadiness] = await Promise.all([
+  const [analytics, readiness] = await Promise.all([
     getHotelAnalyticsSummary(params?.range),
-    getAdminOperationalReadiness(),
+    getCurrentHotelReadiness(),
   ]);
   const comparisonLabel = getComparisonLabel(analytics.range);
   const canManageHotel = hasMinimumRole(profile.normalizedRole, 'editor');
@@ -150,6 +150,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const topDepartment = analytics.departmentUsage[0] || null;
   const primaryContactInteractions =
     analytics.whatsappClicks + analytics.bookingClicks + analytics.websiteClicks;
+  const readinessNextSteps = getHotelReadinessNextSteps(readiness);
   const analyticsReadout =
     analytics.totalEvents > 0
       ? [
@@ -191,7 +192,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         <AdminStatCard
           icon={<Eye className="h-5 w-5" />}
           title="Configuração essencial"
-          value={`${operationalReadiness.completed}/${operationalReadiness.total}`}
+          value={readiness.blockingCount === 0 ? 'Base pronta' : `${readiness.blockingCount} bloqueante${readiness.blockingCount === 1 ? '' : 's'}`}
           description="Itens essenciais concluídos"
         />
         <AdminStatCard
@@ -204,57 +205,22 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
       <AdminSurface>
         <AdminSectionTitle
-          eyebrow="Prontidão operacional"
-          title="O que falta configurar"
-          description="Pendências calculadas com os dados atuais."
+          eyebrow="Prontidão para publicação"
+          title={hotel.platform_status === 'active' ? 'Publicado' : 'Em preparação'}
+          description="Checklist calculado em tempo real com os dados e módulos atuais."
           action={
             <AdminInfoBadge>
-              {operationalReadiness.pending === 0
+              {readiness.blockingCount === 0
                 ? 'Base completa'
-                : `${operationalReadiness.pending} ${
-                    operationalReadiness.pending === 1 ? 'item pendente' : 'itens pendentes'
+                : `${readiness.blockingCount} ${
+                    readiness.blockingCount === 1 ? 'bloqueante' : 'bloqueantes'
                   }`}
             </AdminInfoBadge>
           }
         />
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {operationalReadiness.items.map((item) => {
-            const hrefByKey = {
-              hotel: '/admin/hotel',
-              services: '/admin/servicos',
-              departments: '/admin/departamentos',
-              policies: '/admin/politicas',
-            } as const;
-            const canOpenItem = item.key !== 'hotel' || canManageHotel;
-            const content = (
-              <div className="flex items-start gap-3">
-                {item.ready ? (
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-                ) : (
-                  <CircleAlert className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
-                )}
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{item.label}</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">{item.description}</p>
-                </div>
-              </div>
-            );
-
-            return canOpenItem ? (
-              <Link
-                key={item.key}
-                href={hrefByKey[item.key]}
-                className="rounded-xl border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm"
-              >
-                {content}
-              </Link>
-            ) : (
-              <div key={item.key} className="rounded-xl border border-slate-200 bg-white p-4">
-                {content}
-              </div>
-            );
-          })}
+        <div className="mt-6">
+          <HotelReadinessChecklist readiness={readiness} variant="admin" />
         </div>
       </AdminSurface>
 
@@ -489,25 +455,12 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           <AdminSectionTitle eyebrow="Acesso rápido" title="Próximas ações recomendadas" />
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-              <p className="text-sm font-semibold text-slate-900">Revisar conteúdo</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">Descrições, horários e links.</p>
-            </div>
-
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-              <p className="text-sm font-semibold text-slate-900">Refinar apresentação</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">Logo e identidade visual.</p>
-            </div>
-
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-              <p className="text-sm font-semibold text-slate-900">Testar jornada do hóspede</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">Validação da rota pública.</p>
-            </div>
-
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-              <p className="text-sm font-semibold text-slate-900">Preparar demonstração</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">Link público e QR Code.</p>
-            </div>
+            {readinessNextSteps.length ? readinessNextSteps.map((step) => (
+              <Link key={step.key} href={step.href!} className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 transition hover:border-slate-300">
+                <p className="text-sm font-semibold text-slate-900">{step.label}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">{step.description}</p>
+              </Link>
+            )) : <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">Nenhuma ação pendente no checklist atual.</div>}
           </div>
         </AdminSurface>
 
@@ -518,7 +471,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             action={
               <AdminInfoBadge>
                 <AdminQuickArrow />
-                {operationalReadiness.pending === 0 ? 'Base completa' : 'Revisão pendente'}
+                {readiness.blockingCount === 0 ? 'Base pronta' : 'Revisão pendente'}
               </AdminInfoBadge>
             }
           />
@@ -532,9 +485,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <div className="rounded-xl border border-slate-200 p-4">
               <p className="text-sm font-semibold text-slate-900">Conteúdo essencial</p>
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                {operationalReadiness.pending === 0
-                  ? 'A base recomendada de hotel, serviços, departamentos e políticas está configurada.'
-                  : 'Use a checklist de prontidão para concluir os itens essenciais que ainda faltam.'}
+                {readiness.blockingCount === 0
+                  ? `Sem bloqueantes; ${readiness.warningCount} recomendações continuam visíveis.`
+                  : 'Use o checklist de prontidão para concluir os bloqueantes antes da ativação.'}
               </p>
             </div>
 

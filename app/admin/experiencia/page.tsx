@@ -8,7 +8,9 @@ import { PublicExperiencePreview } from '@/components/admin/experience/public-ex
 import { QuickTips } from '@/components/admin/experience/quick-tips';
 import { requireAdminAccess } from '@/lib/auth';
 import { hasHotelModule, requireHotelModule } from '@/lib/admin-entitlements';
-import { getAdminHotel, getAdminOperationalReadiness } from '@/lib/queries';
+import { getAdminHotel } from '@/lib/queries';
+import { hasPassedReadinessChecks } from '@/lib/hotel-readiness';
+import { getCurrentHotelReadiness } from '@/lib/readiness-queries';
 import { createClient } from '@/lib/supabase/server';
 
 interface ExperiencePageProps { searchParams?: Promise<{ tab?: string }> }
@@ -42,7 +44,7 @@ export default async function AdminExperiencePage({ searchParams }: ExperiencePa
   const hotel = await getAdminHotel();
   const supabase = await createClient();
   const [readiness, services, departments, policies, announcements, banners] = await Promise.all([
-    getAdminOperationalReadiness(),
+    getCurrentHotelReadiness(),
     supabase.from('hotel_sections').select('id, enabled, updated_at').eq('hotel_id', profile.hotel_id),
     supabase.from('hotel_departments').select('id, enabled, updated_at').eq('hotel_id', profile.hotel_id),
     supabase.from('hotel_policies').select('id, enabled, updated_at').eq('hotel_id', profile.hotel_id),
@@ -74,7 +76,9 @@ export default async function AdminExperiencePage({ searchParams }: ExperiencePa
   const enabledPolicies = (policies.data ?? []).filter(({ enabled }) => enabled).length;
   const eligibleAnnouncements = (announcements.data ?? []).filter((item) => isEligible(item, nowValue)).length;
   const eligibleBanners = (banners.data ?? []).filter((item) => isEligible(item, nowValue));
-  const informationReady = readiness.items.find(({ key }) => key === 'hotel')?.ready ?? false;
+  const informationReady = hasPassedReadinessChecks(readiness, [
+    'identity.name', 'identity.city', 'operation.checkin', 'operation.checkout', 'contact.primary',
+  ]);
   const publishedAreas = [informationReady, enabledServices > 0, enabledDepartments > 0, enabledPolicies > 0, eligibleAnnouncements > 0, eligibleBanners.length > 0].filter(Boolean).length;
   const languageRows = translationResults.flatMap(({ data }) => data ?? []);
   const languages = ['PT', ...(languageRows.some(({ language }) => language === 'en') ? ['EN'] : []), ...(languageRows.some(({ language }) => language === 'es') ? ['ES'] : [])];
