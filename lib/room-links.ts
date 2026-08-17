@@ -3,6 +3,7 @@ import type { Database } from '@/types/database';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { classifyProductHostname, PRODUCT_ROOT_DOMAIN } from '@/lib/product-domain';
 import { isRoomToken } from '@/lib/security/identifiers';
+import { isHotelModuleEnabled } from '@/lib/server-entitlements';
 
 export type HotelRoomLink = Database['public']['Tables']['hotel_room_links']['Row'];
 type PublicHotel = Database['public']['Tables']['hotels']['Row'];
@@ -63,8 +64,16 @@ export async function findActiveRoomLinkByToken(roomToken: string) {
   }
 
   if (!data) return null;
-  const { hotels: _hotelLifecycle, ...roomLink } = data;
-  return roomLink;
+  if (!(await isHotelModuleEnabled(data.hotel_id, 'rooms.qr'))) return null;
+  return {
+    id: data.id,
+    hotel_id: data.hotel_id,
+    room_number: data.room_number,
+    label: data.label,
+    room_token: data.room_token,
+    restaurant_menu_url: data.restaurant_menu_url,
+    is_active: data.is_active,
+  };
 }
 
 export async function findHotelById(hotelId: string) {
@@ -92,7 +101,7 @@ export async function resolveRoomRestaurantMenuUrl(params: {
   hotelId: string;
   roomToken: string;
 }) {
-  if (!isRoomToken(params.roomToken)) return { kind: 'invalid' as const };
+  if (!isRoomToken(params.roomToken) || !(await isHotelModuleEnabled(params.hotelId, 'rooms.qr'))) return { kind: 'invalid' as const };
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('hotel_room_links')
@@ -134,7 +143,7 @@ export async function resolveActiveRoomContextForHotel(params: {
   hotelId: string;
   roomToken: string;
 }) {
-  if (!isRoomToken(params.roomToken)) return null;
+  if (!isRoomToken(params.roomToken) || !(await isHotelModuleEnabled(params.hotelId, 'rooms.qr'))) return null;
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('hotel_room_links')

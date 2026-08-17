@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
+import { requireHotelModule } from '@/lib/admin-entitlements';
 import {
   readCheckboxBoolean,
   readNullableString,
@@ -54,7 +55,7 @@ function validateBannerWindow({
 }
 
 export async function createPromotionalBannerAction(formData: FormData) {
-  const { user } = await requireAdminAccess('operador');
+  const { user } = await requireAdminAccess('operador'); await requireHotelModule('content.banners');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const title = readTrimmedString(formData, 'title');
@@ -155,7 +156,7 @@ export async function createPromotionalBannerAction(formData: FormData) {
 }
 
 export async function deletePromotionalBannerAction(formData: FormData) {
-  const { user } = await requireAdminAccess('operador');
+  const { user } = await requireAdminAccess('operador'); await requireHotelModule('content.banners');
   const supabase = await createClient();
   const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
@@ -239,7 +240,7 @@ export async function deletePromotionalBannerAction(formData: FormData) {
 }
 
 export async function togglePromotionalBannerAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.banners');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -298,7 +299,7 @@ export async function togglePromotionalBannerAction(formData: FormData) {
 }
 
 export async function retranslatePromotionalBannerAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.banners');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');

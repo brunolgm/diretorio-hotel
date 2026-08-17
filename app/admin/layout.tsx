@@ -5,6 +5,7 @@ import { MobileMenu } from '@/components/admin/mobile-menu';
 import { requireAdminAccess } from '@/lib/auth';
 import { getAdminThemeStyle, resolveAdminTheme } from '@/lib/admin-theme';
 import { getAdminNavigationForRole } from '@/lib/admin-navigation';
+import { getCurrentHotelEntitlements } from '@/lib/admin-entitlements';
 import { createClient } from '@/lib/supabase/server';
 
 interface AdminLayoutProps {
@@ -20,7 +21,8 @@ async function signOut() {
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
   const { profile } = await requireAdminAccess('visualizador');
-  const navGroups = getAdminNavigationForRole(profile.normalizedRole);
+  const enabledModules = await getCurrentHotelEntitlements();
+  const navGroups = getAdminNavigationForRole(profile.normalizedRole, enabledModules);
   const supabase = await createClient();
   const { data: hotel } = await supabase
     .from('hotels')

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, Building2, ExternalLink, ImageIcon, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Building2, ExternalLink, ImageIcon, Puzzle, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { AdminConfirmAction } from '@/components/admin/confirm-action';
 import { FeedbackToast } from '@/components/feedback-toast';
@@ -9,11 +9,13 @@ import {
   getPlatformHotelStatusLabel,
   PLATFORM_HOTEL_BRANDS,
 } from '@/lib/platform-governance';
-import { getPlatformHotelDetail } from '@/lib/platform-queries';
+import { getPlatformHotelDetail, getPlatformHotelModules } from '@/lib/platform-queries';
+import { MODULE_CATALOG, MODULE_GROUP_LABELS, type ModuleGroup } from '@/lib/modules/catalog';
 import { isUuid } from '@/lib/security/identifiers';
 import {
   updatePlatformHotelBrandAction,
   updatePlatformHotelStatusAction,
+  updatePlatformHotelModuleAction,
 } from './actions';
 
 type PageParams = Promise<{ id: string }>;
@@ -43,12 +45,17 @@ export default async function PlatformHotelDetailPage({
 
   const hotel = await getPlatformHotelDetail(id);
   if (!hotel) notFound();
+  const hotelModules = await getPlatformHotelModules(id);
 
   const transitions = getAllowedPlatformHotelStatusTransitions(hotel.platformStatus);
   const brandChoices = [
     { value: '', label: 'Sem bandeira' },
     ...PLATFORM_HOTEL_BRANDS,
   ].filter((brand) => (brand.value || null) !== hotel.brandCode);
+  const moduleState = new Map(hotelModules.map((module) => [module.moduleKey, module.isEnabled]));
+  const groups = (Object.keys(MODULE_GROUP_LABELS) as ModuleGroup[]).map((group) => ({
+    group, modules: MODULE_CATALOG.filter((module) => module.group === group),
+  }));
 
   return (
     <div className="space-y-6">
@@ -56,6 +63,33 @@ export default async function PlatformHotelDetailPage({
         success={readFeedback(feedback.success)}
         error={readFeedback(feedback.error)}
       />
+
+      <section className="rounded-[30px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70 md:p-8">
+        <div className="flex items-center gap-3">
+          <Puzzle className="h-5 w-5 text-slate-600" aria-hidden="true" />
+          <div><h2 className="text-xl font-semibold text-slate-950">Módulos e funcionalidades</h2><p className="mt-1 text-sm text-slate-600">Direitos operacionais deste hotel, independentes do lifecycle.</p></div>
+        </div>
+        <div className="mt-6 space-y-7">
+          {groups.map(({ group, modules }) => (
+            <div key={group}>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">{MODULE_GROUP_LABELS[group]}</h3>
+              <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                {modules.map((module) => {
+                  const enabled = moduleState.get(module.key) === true;
+                  const required = module.key === 'core.directory';
+                  const comingSoon = module.availability === 'coming_soon';
+                  return <article key={module.key} className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200 p-4 sm:flex-row sm:items-center">
+                    <div><div className="flex flex-wrap items-center gap-2"><p className="font-semibold text-slate-950">{module.name}</p><span className={comingSoon ? 'rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700' : enabled ? 'rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700' : 'rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600'}>{comingSoon ? 'Em breve' : enabled ? 'Habilitado' : 'Desabilitado'}</span></div><p className="mt-1 text-sm leading-5 text-slate-600">{module.description}</p></div>
+                    {comingSoon ? null : required ? <span className="shrink-0 text-xs font-semibold text-slate-500">Obrigatório</span> : enabled ? (
+                      <AdminConfirmAction action={updatePlatformHotelModuleAction} title={`Desabilitar ${module.name}?`} description="Desabilitar não remove os dados existentes. O módulo deixa de ficar disponível no painel do hotel." triggerLabel="Desabilitar" confirmLabel="Confirmar desativação" pendingLabel="Atualizando..." tone="warning" hiddenFields={[{name:'hotel_id',value:hotel.id},{name:'module_key',value:module.key},{name:'enabled',value:'false'}]} />
+                    ) : <form action={updatePlatformHotelModuleAction}><input type="hidden" name="hotel_id" value={hotel.id}/><input type="hidden" name="module_key" value={module.key}/><input type="hidden" name="enabled" value="true"/><button className="h-11 rounded-2xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50">Habilitar</button></form>}
+                  </article>;
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="rounded-[30px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70 md:p-8">
         <Link

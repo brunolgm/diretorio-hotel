@@ -4,6 +4,7 @@ import { isJsonContentType, readUtf8BodyWithLimit } from '@/lib/security/http';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createPublicClient } from '@/lib/supabase/public';
 import type { Database } from '@/types/database';
+import { isHotelModuleEnabled } from '@/lib/server-entitlements';
 
 export async function POST(request: NextRequest) {
   if (!isJsonContentType(request.headers.get('content-type'))) {
@@ -36,6 +37,10 @@ export async function POST(request: NextRequest) {
 
     if (hotelError || !hotel) {
       return NextResponse.json({ error: 'Evento inv\u00e1lido.' }, { status: 400 });
+    }
+
+    if (!(await isHotelModuleEnabled(hotel.id, 'analytics.basic'))) {
+      return NextResponse.json({ error: 'Evento inválido.' }, { status: 400 });
     }
 
     const insertPayload: Database['public']['Tables']['hotel_analytics_events']['Insert'] = {

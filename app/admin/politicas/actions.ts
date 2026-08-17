@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
+import { requireHotelModule } from '@/lib/admin-entitlements';
 import { readCheckboxBoolean, readNullableString, readTrimmedString } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
 import {
@@ -16,7 +17,7 @@ import { createClient } from '@/lib/supabase/server';
 import { isUuid } from '@/lib/security/identifiers';
 
 export async function createPolicyAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.policies');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const title = readTrimmedString(formData, 'title');
@@ -78,7 +79,7 @@ export async function createPolicyAction(formData: FormData) {
 }
 
 export async function deletePolicyAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.policies');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -130,7 +131,7 @@ export async function deletePolicyAction(formData: FormData) {
 }
 
 export async function togglePolicyAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.policies');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -183,7 +184,7 @@ export async function togglePolicyAction(formData: FormData) {
 }
 
 export async function retranslatePolicyAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.policies');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');

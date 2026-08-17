@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
+import { requireHotelModule } from '@/lib/admin-entitlements';
 import { readTrimmedString } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
 import {
@@ -21,7 +22,7 @@ import { isUuid } from '@/lib/security/identifiers';
 import { recordAdminAuditEvent } from '@/lib/audit';
 
 export async function uploadPromotionalBannerImageAction(formData: FormData) {
-  const { user } = await requireAdminAccess('operador');
+  const { user } = await requireAdminAccess('operador'); await requireHotelModule('content.banners');
   const supabase = await createClient();
   const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();

@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
+import { requireHotelModule } from '@/lib/admin-entitlements';
 import {
   readCheckboxBoolean,
   readNullableString,
@@ -21,7 +22,7 @@ import { createClient } from '@/lib/supabase/server';
 import { isUuid } from '@/lib/security/identifiers';
 
 export async function createDepartmentAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.departments');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const name = readTrimmedString(formData, 'name');
@@ -93,7 +94,7 @@ export async function createDepartmentAction(formData: FormData) {
 }
 
 export async function deleteDepartmentAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.departments');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -145,7 +146,7 @@ export async function deleteDepartmentAction(formData: FormData) {
 }
 
 export async function toggleDepartmentAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.departments');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
@@ -198,7 +199,7 @@ export async function toggleDepartmentAction(formData: FormData) {
 }
 
 export async function retranslateDepartmentAction(formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.departments');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');

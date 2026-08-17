@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
+import { requireHotelModule } from '@/lib/admin-entitlements';
 import {
   readCheckboxBoolean,
   readNullableString,
@@ -20,7 +21,7 @@ import { isUuid } from '@/lib/security/identifiers';
 import type { Database } from '@/types/database';
 
 export async function updateDepartmentAction(id: string, formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.departments');
   if (!isUuid(id)) {
     redirect('/admin/departamentos?error=Departamento%20inv%C3%A1lido');
   }

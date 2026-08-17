@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
+import { requireHotelModule } from '@/lib/admin-entitlements';
 import { readCheckboxBoolean, readNullableString, readTrimmedString } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
 import {
@@ -45,7 +46,7 @@ function validateAnnouncementWindow({
 }
 
 export async function updateAnnouncementAction(id: string, formData: FormData) {
-  await requireAdminAccess('operador');
+  await requireAdminAccess('operador'); await requireHotelModule('content.announcements');
 
   if (!isUuid(id)) {
     redirect('/admin/comunicados?error=Comunicado%20inv%C3%A1lido');

@@ -144,6 +144,13 @@ export interface Database {
         Relationships: [];
       };
 
+      hotel_module_entitlements: {
+        Row: { hotel_id: string; module_key: string; is_enabled: boolean; enabled_at: string | null; enabled_by: string | null; disabled_at: string | null; disabled_by: string | null; created_at: string; updated_at: string };
+        Insert: { hotel_id: string; module_key: string; is_enabled?: boolean; enabled_at?: string | null; enabled_by?: string | null; disabled_at?: string | null; disabled_by?: string | null; created_at?: string; updated_at?: string };
+        Update: { hotel_id?: string; module_key?: string; is_enabled?: boolean; enabled_at?: string | null; enabled_by?: string | null; disabled_at?: string | null; disabled_by?: string | null; created_at?: string; updated_at?: string };
+        Relationships: [];
+      };
+
       hotel_sections: {
         Row: {
           id: string;
@@ -813,6 +820,22 @@ export interface Database {
       };
     };
     Functions: {
+      get_current_hotel_modules: {
+        Args: Record<PropertyKey, never>;
+        Returns: { module_key: string; is_enabled: boolean }[];
+      };
+      get_platform_hotel_modules: {
+        Args: { p_hotel_id: string };
+        Returns: { module_key: string; is_enabled: boolean; enabled_at: string | null; disabled_at: string | null }[];
+      };
+      update_platform_hotel_module: {
+        Args: { p_hotel_id: string; p_module_key: string; p_enabled: boolean };
+        Returns: { module_key: string; is_enabled: boolean; enabled_at: string | null; disabled_at: string | null }[];
+      };
+      is_hotel_module_enabled: {
+        Args: { p_hotel_id: string; p_module_key: string };
+        Returns: boolean;
+      };
       get_current_platform_access: {
         Args: Record<PropertyKey, never>;
         Returns: {
