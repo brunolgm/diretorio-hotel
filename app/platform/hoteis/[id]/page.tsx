@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, Building2, ExternalLink, ImageIcon, Puzzle, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Building2, CheckCircle2, ExternalLink, ImageIcon, Puzzle, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { AdminConfirmAction } from '@/components/admin/confirm-action';
 import { FeedbackToast } from '@/components/feedback-toast';
@@ -40,6 +40,7 @@ export default async function PlatformHotelDetailPage({
   searchParams: PageSearchParams;
 }) {
   const [{ id }, feedback] = await Promise.all([params, searchParams]);
+  const onboardingCreated = feedback.created === '1';
 
   if (!isUuid(id)) notFound();
 
@@ -63,6 +64,8 @@ export default async function PlatformHotelDetailPage({
         success={readFeedback(feedback.success)}
         error={readFeedback(feedback.error)}
       />
+
+      {onboardingCreated ? <section className="rounded-[28px] border border-emerald-200 bg-emerald-50 p-6"><div className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" /><div><h2 className="font-semibold text-emerald-950">Próximos passos</h2><ul className="mt-2 grid gap-1 text-sm leading-6 text-emerald-900 sm:grid-cols-2"><li>Revisar a identidade do hotel</li><li>Confirmar os módulos habilitados</li><li>Orientar o administrador inicial</li><li>Acompanhar a preparação no /admin</li><li>Ativar somente quando estiver pronto</li></ul></div></div></section> : null}
 
       <section className="rounded-[30px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70 md:p-8">
         <div className="flex items-center gap-3">

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Building2, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Building2, ChevronLeft, ChevronRight, Plus, Search } from 'lucide-react';
 import {
   listPlatformHotels,
   normalizePlatformDirectoryParams,
@@ -50,9 +50,7 @@ export default async function PlatformHotelsPage({
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
           LibGuest Platform
         </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
-          Diretório de hotéis
-        </h1>
+        <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><h1 className="text-3xl font-semibold tracking-tight text-slate-950">Diretório de hotéis</h1><Link href="/platform/hoteis/novo" className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 text-sm font-semibold text-white hover:bg-slate-800"><Plus className="h-4 w-4" />Novo hotel</Link></div>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
           Consulta global read-only com dados institucionais mínimos. Credenciais, conteúdo
           operacional, usuários, tokens e analytics não fazem parte deste contrato.

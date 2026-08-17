@@ -45,6 +45,20 @@ export const MODULE_CATALOG: readonly ModuleDefinition[] = [
   { key: 'audit.access_logs', name: 'Logs de acesso', group: 'governance', availability: 'coming_soon', description: 'Consulta operacional futura de acessos.' },
 ] as const;
 
+export const BASELINE_MODULE_KEYS = [
+  'core.directory',
+  'content.services',
+  'content.departments',
+  'content.policies',
+  'content.announcements',
+  'content.banners',
+  'rooms.qr',
+  'content.languages',
+  'experience.appearance',
+  'experience.preview',
+  'analytics.basic',
+] as const satisfies readonly ModuleKey[];
+
 const MODULE_KEY_SET = new Set<string>(MODULE_KEYS);
 
 export function isModuleKey(value: string): value is ModuleKey { return MODULE_KEY_SET.has(value); }

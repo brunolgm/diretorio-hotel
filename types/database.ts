@@ -820,6 +820,10 @@ export interface Database {
       };
     };
     Functions: {
+      create_platform_hotel_onboarding: {
+        Args: { p_name: string; p_city: string; p_slug: string; p_subdomain: string; p_brand_code: string | null; p_theme_preset: string | null; p_admin_user_id: string; p_admin_email: string; p_admin_full_name: string };
+        Returns: { hotel_id: string; platform_status: string; admin_user_id: string }[];
+      };
       get_current_hotel_modules: {
         Args: Record<PropertyKey, never>;
         Returns: { module_key: string; is_enabled: boolean }[];
