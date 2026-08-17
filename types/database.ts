@@ -828,6 +828,14 @@ export interface Database {
         Args: Record<PropertyKey, never>;
         Returns: { module_key: string; is_enabled: boolean }[];
       };
+      get_current_hotel_readiness: {
+        Args: Record<PropertyKey, never>;
+        Returns: { hotel_id: string; platform_status: string; ready_to_activate: boolean; blocking_count: number; warning_count: number; check_key: string; severity: string; passed: boolean }[];
+      };
+      get_platform_hotel_readiness: {
+        Args: { p_hotel_id: string };
+        Returns: { hotel_id: string; platform_status: string; ready_to_activate: boolean; blocking_count: number; warning_count: number; check_key: string; severity: string; passed: boolean }[];
+      };
       get_platform_hotel_modules: {
         Args: { p_hotel_id: string };
         Returns: { module_key: string; is_enabled: boolean; enabled_at: string | null; disabled_at: string | null }[];

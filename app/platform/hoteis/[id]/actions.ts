@@ -77,12 +77,24 @@ export async function updatePlatformHotelStatusAction(formData: FormData) {
   }
 
   const supabase = await createClient();
+  if (currentStatus === 'draft' && nextStatus === 'active') {
+    const { data: readinessRows, error: readinessError } = await supabase.rpc(
+      'get_platform_hotel_readiness',
+      { p_hotel_id: hotelId }
+    );
+    if (readinessError || !readinessRows?.[0]?.ready_to_activate) {
+      redirect(feedbackUrl(hotelId, 'error', 'Este hotel ainda possui pendências bloqueantes.'));
+    }
+  }
   const { error } = await supabase.rpc('update_platform_hotel_status', {
     p_hotel_id: hotelId,
     p_status: nextStatus,
   });
 
   if (error) {
+    if (error.message.includes('platform_hotel_not_ready')) {
+      redirect(feedbackUrl(hotelId, 'error', 'Este hotel ainda possui pendências bloqueantes.'));
+    }
     redirect(
       feedbackUrl(
         hotelId,
