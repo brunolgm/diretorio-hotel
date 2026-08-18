@@ -35,6 +35,7 @@ test('guards every modular route on the server', () => {
   const routes: Record<string, string> = {
     experiencia: 'core.directory', turismo: 'content.tourism', cardapio: 'fb.menu',
     idiomas: 'content.languages', logs: 'audit.access_logs', servicos: 'content.services',
+    analytics: 'analytics.basic',
     departamentos: 'content.departments', politicas: 'content.policies',
     comunicados: 'content.announcements', banners: 'content.banners', apartamentos: 'rooms.qr',
   };

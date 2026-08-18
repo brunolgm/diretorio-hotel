@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   BedDouble,
+  BarChart3,
   BookOpenText,
   Building2,
   ConciergeBell,
@@ -71,6 +72,8 @@ function NavIcon({
       return <Languages className={className} />;
     case 'logs':
       return <FileClock className={className} />;
+    case 'analytics':
+      return <BarChart3 className={className} />;
     case 'dashboard':
     default:
       return <LayoutDashboard className={className} />;

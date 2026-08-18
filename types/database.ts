@@ -410,6 +410,7 @@ export interface Database {
           language: string | null;
           target_url: string | null;
           department_id: string | null;
+          service_id: string | null;
           metadata: Json;
           created_at: string;
         };
@@ -422,6 +423,7 @@ export interface Database {
           language?: string | null;
           target_url?: string | null;
           department_id?: string | null;
+          service_id?: string | null;
           metadata?: Json;
           created_at?: string;
         };
@@ -434,6 +436,7 @@ export interface Database {
           language?: string | null;
           target_url?: string | null;
           department_id?: string | null;
+          service_id?: string | null;
           metadata?: Json;
           created_at?: string;
         };
@@ -451,6 +454,13 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: 'hotels';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'hotel_analytics_events_service_hotel_fkey';
+            columns: ['service_id', 'hotel_id'];
+            isOneToOne: false;
+            referencedRelation: 'hotel_sections';
+            referencedColumns: ['id', 'hotel_id'];
           }
         ];
       };
@@ -827,6 +837,10 @@ export interface Database {
       get_current_hotel_modules: {
         Args: Record<PropertyKey, never>;
         Returns: { module_key: string; is_enabled: boolean }[];
+      };
+      get_current_hotel_analytics: {
+        Args: { p_period: string };
+        Returns: Json;
       };
       get_current_hotel_readiness: {
         Args: Record<PropertyKey, never>;

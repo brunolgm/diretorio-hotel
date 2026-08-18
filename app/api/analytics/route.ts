@@ -47,11 +47,12 @@ export async function POST(request: NextRequest) {
       hotel_id: hotel.id,
       hotel_slug: payload.hotelSlug,
       event_type: payload.eventType,
-      session_id: payload.sessionId,
+      session_id: null,
       language: payload.language,
-      target_url: payload.targetUrl,
+      target_url: null,
       department_id: payload.departmentId,
-      metadata: payload.metadata,
+      service_id: payload.serviceId,
+      metadata: {},
     };
 
     if (payload.departmentId) {
@@ -63,6 +64,19 @@ export async function POST(request: NextRequest) {
         .maybeSingle();
 
       if (departmentError || !department) {
+        return NextResponse.json({ error: 'Evento inv\u00e1lido.' }, { status: 400 });
+      }
+    }
+
+    if (payload.serviceId) {
+      const { data: service, error: serviceError } = await supabase
+        .from('hotel_sections')
+        .select('id')
+        .eq('id', payload.serviceId)
+        .eq('hotel_id', hotel.id)
+        .maybeSingle();
+
+      if (serviceError || !service) {
         return NextResponse.json({ error: 'Evento inv\u00e1lido.' }, { status: 400 });
       }
     }
