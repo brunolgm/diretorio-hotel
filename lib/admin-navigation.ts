@@ -5,7 +5,7 @@ export type AdminNavGroupKey = 'principal' | 'guest_experience' | 'management';
 export type AdminNavIcon =
   | 'dashboard' | 'hotel' | 'services' | 'rooms' | 'departments' | 'policies'
   | 'announcements' | 'banners' | 'users' | 'settings' | 'experience'
-  | 'menu' | 'tourism' | 'languages' | 'logs';
+  | 'menu' | 'tourism' | 'languages' | 'logs' | 'analytics';
 
 export interface AdminNavigationItem {
   href: string;
@@ -56,6 +56,7 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationGroup[] = [
   },
   {
     key: 'management', label: '', items: [
+      item({ href: '/admin/analytics', label: 'Analytics', icon: 'analytics', moduleKey: 'analytics.basic', requiredRole: 'visualizador' }),
       item({ href: '/admin/idiomas', label: 'Idiomas', icon: 'languages', moduleKey: 'content.languages', requiredRole: 'visualizador' }),
       item({ href: '/admin/logs', label: 'Logs de Acesso', icon: 'logs', moduleKey: 'audit.access_logs', requiredRole: 'administrador' }),
     ],

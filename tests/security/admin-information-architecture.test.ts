@@ -27,7 +27,7 @@ test('organizes the sidebar into the approved information architecture', () => {
     'Experiência Pública', 'Banners', 'Serviços', 'Departamentos',
     'Cardápio (F&B)', 'Turismo', 'Comunicados', 'Informações', 'Políticas',
   ]);
-  assert.deepEqual(ADMIN_NAVIGATION[2].items.map(({ label }) => label), ['Idiomas', 'Logs de Acesso']);
+  assert.deepEqual(ADMIN_NAVIGATION[2].items.map(({ label }) => label), ['Analytics', 'Idiomas', 'Logs de Acesso']);
   for (const item of ADMIN_NAVIGATION.flatMap(({ items }) => items)) {
     assert.ok(item.requiredRole);
     assert.ok(item.availability);
@@ -58,6 +58,7 @@ test('keeps every existing admin route and adds only approved foundations', () =
     'app/admin/comunicados/page.tsx', 'app/admin/banners/page.tsx', 'app/admin/usuarios/page.tsx',
     'app/admin/experiencia/page.tsx', 'app/admin/configuracoes/page.tsx', 'app/admin/cardapio/page.tsx',
     'app/admin/turismo/page.tsx', 'app/admin/idiomas/page.tsx', 'app/admin/logs/page.tsx',
+    'app/admin/analytics/page.tsx',
   ];
   for (const route of routes) assert.ok(existsSync(join(root, route)), route);
 });

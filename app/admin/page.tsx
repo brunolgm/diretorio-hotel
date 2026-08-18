@@ -1,38 +1,30 @@
 import Link from 'next/link';
 import {
-  ArrowDownRight,
   ArrowRight,
-  ArrowUpRight,
   Building2,
   Clock3,
   ConciergeBell,
   Eye,
   Hotel,
-  Languages,
-  MessageCircle,
-  Minus,
   MousePointerClick,
   ShieldCheck,
 } from 'lucide-react';
 import {
-  AdminFilterBar,
   AdminInfoBadge,
   AdminLinkButton,
   AdminPageHero,
-  AdminPrimaryButton,
   AdminQuickArrow,
   AdminSectionTitle,
-  AdminSelect,
   AdminStatCard,
   AdminSurface,
 } from '@/components/admin/ui';
 import { HotelReadinessChecklist } from '@/components/readiness/hotel-readiness-checklist';
+import { hasHotelModule } from '@/lib/admin-entitlements';
+import { buildAnalyticsComparison } from '@/lib/analytics-pro';
+import { getCurrentHotelAnalytics } from '@/lib/analytics-queries';
 import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { getHotelReadinessNextSteps } from '@/lib/hotel-readiness';
-import {
-  getAdminHotel,
-  getHotelAnalyticsSummary,
-} from '@/lib/queries';
+import { getAdminHotel } from '@/lib/queries';
 import { getCurrentHotelReadiness } from '@/lib/readiness-queries';
 
 function QuickLink({
@@ -64,109 +56,21 @@ function QuickLink({
   );
 }
 
-interface AdminPageProps {
-  searchParams?: Promise<{
-    range?: string;
-  }>;
-}
-
-function formatAnalyticsDate(value: string) {
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-  }).format(new Date(value));
-}
-
-function getRangeLabel(range: 'today' | '7d' | '30d') {
-  if (range === 'today') return 'Hoje';
-  if (range === '30d') return 'Últimos 30 dias';
-  return 'Últimos 7 dias';
-}
-
-function getRangeWindowLabel(range: 'today' | '7d' | '30d', since: string) {
-  if (range === 'today') return 'Eventos registrados desde o início de hoje.';
-  return `Eventos registrados desde ${formatAnalyticsDate(since)}.`;
-}
-
-function getComparisonLabel(range: 'today' | '7d' | '30d') {
-  if (range === 'today') return 'ontem';
-  if (range === '30d') return '30 dias anteriores';
-  return '7 dias anteriores';
-}
-
-function getLanguageLabel(language: 'pt' | 'en' | 'es') {
-  if (language === 'en') return 'English';
-  if (language === 'es') return 'Español';
-  return 'Português';
-}
-
-function ComparisonPill({
-  delta,
-  previous,
-}: {
-  delta: number;
-  previous: number;
-}) {
-  const isUp = delta > 0;
-  const isDown = delta < 0;
-
-  return (
-    <span
-      className={[
-        'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium',
-        isUp
-          ? 'bg-emerald-100 text-emerald-700'
-          : isDown
-            ? 'bg-amber-100 text-amber-700'
-            : 'bg-slate-100 text-slate-600',
-      ].join(' ')}
-    >
-      {isUp ? (
-        <ArrowUpRight className="h-3.5 w-3.5" />
-      ) : isDown ? (
-        <ArrowDownRight className="h-3.5 w-3.5" />
-      ) : (
-        <Minus className="h-3.5 w-3.5" />
-      )}
-      {delta === 0 ? 'Estável' : `${delta > 0 ? '+' : ''}${delta}`}
-      <span className="text-[11px] opacity-80">vs {previous}</span>
-    </span>
-  );
-}
-
-export default async function AdminPage({ searchParams }: AdminPageProps) {
+export default async function AdminPage() {
   const { profile } = await requireAdminAccess('visualizador');
-  const hotel = await getAdminHotel();
-  const params = searchParams ? await searchParams : {};
-  const [analytics, readiness] = await Promise.all([
-    getHotelAnalyticsSummary(params?.range),
+  const [hotel, readiness, analyticsEnabled] = await Promise.all([
+    getAdminHotel(),
     getCurrentHotelReadiness(),
+    hasHotelModule('analytics.basic'),
   ]);
-  const comparisonLabel = getComparisonLabel(analytics.range);
+  const analytics = analyticsEnabled ? await getCurrentHotelAnalytics('7d') : null;
   const canManageHotel = hasMinimumRole(profile.normalizedRole, 'editor');
   const canManageUsers = hasMinimumRole(profile.normalizedRole, 'administrador');
-  const topLanguage = analytics.languageUsage.find((item) => item.count > 0) || null;
-  const topAction = analytics.topActions.find((item) => item.count > 0) || null;
-  const topDepartment = analytics.departmentUsage[0] || null;
-  const primaryContactInteractions =
-    analytics.whatsappClicks + analytics.bookingClicks + analytics.websiteClicks;
   const readinessNextSteps = getHotelReadinessNextSteps(readiness);
-  const analyticsReadout =
-    analytics.totalEvents > 0
-      ? [
-          `${analytics.pageViews} visualizações públicas foram registradas no período selecionado.`,
-          primaryContactInteractions > 0
-            ? `${primaryContactInteractions} interações de contato ou reserva indicam interesse mais próximo de ação.`
-            : 'Ainda não houve interações suficientes em contato ou reserva para leitura de intenção.',
-          topDepartment
-            ? `${topDepartment.name} lidera entre os departamentos mais consultados pelos hóspedes neste período.`
-            : 'Ainda não há cliques suficientes em departamentos para destacar uma preferência clara.',
-        ]
-      : [
-          'Ainda não há eventos suficientes neste período para leitura gerencial.',
-          'Assim que a experiência pública receber acessos e cliques, este bloco mostrará sinais mais úteis para gestão.',
-          'Use estes números como indicadores de comportamento do hóspede, não como relatório financeiro.',
-        ];
+  const externalClicks = analytics ? buildAnalyticsComparison(
+    analytics.metrics.whatsappClicks.current + analytics.metrics.bookingWebsiteClicks.current,
+    analytics.metrics.whatsappClicks.previous + analytics.metrics.bookingWebsiteClicks.previous
+  ) : null;
 
   return (
     <main className="space-y-6">
@@ -224,194 +128,34 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </div>
       </AdminSurface>
 
-      <AdminSurface>
+      {analytics && externalClicks ? <AdminSurface>
         <AdminSectionTitle
-          eyebrow="Analytics público"
-          title="Uso da experiência pública"
-          description="Interações registradas na experiência pública; não representa resultado financeiro."
-          action={
-            <AdminInfoBadge>
-              <AdminQuickArrow />
-              {getRangeLabel(analytics.range)}
-            </AdminInfoBadge>
-          }
+          eyebrow="Analytics básico"
+          title="Uso da experiência nos últimos 7 dias"
+          description="Resumo comportamental; cliques externos não representam conversão financeira."
+          action={<AdminLinkButton href="/admin/analytics"><AdminQuickArrow />Ver analytics completo</AdminLinkButton>}
         />
-
-        <AdminFilterBar className="mt-5">
-          <AdminSelect aria-label="Selecionar período dos analytics" name="range" defaultValue={analytics.range} className="md:w-[220px]">
-            <option value="today">Hoje</option>
-            <option value="7d">Últimos 7 dias</option>
-            <option value="30d">Últimos 30 dias</option>
-          </AdminSelect>
-          <AdminPrimaryButton type="submit" className="h-11 px-4">
-            Aplicar
-          </AdminPrimaryButton>
-          {analytics.range !== '7d' ? (
-            <AdminLinkButton href="/admin" className="h-11 px-4">
-              Limpar
-            </AdminLinkButton>
-          ) : null}
-        </AdminFilterBar>
-
-        <p className="mt-4 text-xs text-slate-500">
-          {getRangeWindowLabel(analytics.range, analytics.since)} Comparação com {comparisonLabel}.
-        </p>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
           <AdminStatCard
             icon={<Eye className="h-5 w-5" />}
-            title="Visualizações públicas"
-            value={String(analytics.pageViews)}
-            description="Acessos registrados"
-          />
-          <AdminStatCard
-            icon={<MessageCircle className="h-5 w-5" />}
-            title="Cliques em WhatsApp"
-            value={String(analytics.whatsappClicks)}
-            description="Contatos iniciados"
+            title="Visualizações"
+            value={String(analytics.metrics.pageViews.current)}
+            description={`Anterior: ${analytics.metrics.pageViews.previous}`}
           />
           <AdminStatCard
             icon={<MousePointerClick className="h-5 w-5" />}
-            title="Reservas e site"
-            value={String(analytics.bookingAndWebsiteClicks)}
-            description="Cliques externos"
+            title="Ações"
+            value={String(analytics.metrics.engagements.current)}
+            description={`Anterior: ${analytics.metrics.engagements.previous}`}
           />
           <AdminStatCard
-            icon={<Languages className="h-5 w-5" />}
-            title="Trocas de idioma"
-            value={String(analytics.languageSelections)}
-            description="Seleções manuais"
+            icon={<MousePointerClick className="h-5 w-5" />}
+            title="Cliques externos"
+            value={String(externalClicks.current)}
+            description={`Anterior: ${externalClicks.previous}`}
           />
         </div>
-
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <ComparisonPill
-            delta={analytics.comparison.pageViews.delta}
-            previous={analytics.comparison.pageViews.previous}
-          />
-          <ComparisonPill
-            delta={analytics.comparison.whatsappClicks.delta}
-            previous={analytics.comparison.whatsappClicks.previous}
-          />
-          <ComparisonPill
-            delta={analytics.comparison.bookingAndWebsiteClicks.delta}
-            previous={analytics.comparison.bookingAndWebsiteClicks.previous}
-          />
-          <ComparisonPill
-            delta={analytics.comparison.languageSelections.delta}
-            previous={analytics.comparison.languageSelections.previous}
-          />
-        </div>
-
-        <div className="mt-5 grid gap-4 xl:grid-cols-[0.8fr,1.2fr]">
-          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-            <p className="text-sm font-semibold text-slate-900">Leitura gerencial do período</p>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
-              {analytics.totalEvents > 0
-                ? `${analytics.totalEvents} eventos registrados no período.`
-                : 'Sem eventos suficientes no período.'}
-            </p>
-
-            <ul className="mt-3 space-y-2 text-xs leading-5 text-slate-600">
-              {analyticsReadout.map((item) => (
-                <li key={item} className="flex gap-2">
-                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-slate-400" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">Idiomas mais usados</p>
-                </div>
-                <AdminInfoBadge>
-                  {topLanguage ? getLanguageLabel(topLanguage.language) : 'Sem destaque'}
-                </AdminInfoBadge>
-              </div>
-              <div className="mt-3 space-y-2">
-                {analytics.languageUsage.some((item) => item.count > 0) ? (
-                  analytics.languageUsage.map((item) => (
-                    <div
-                      key={item.language}
-                      className="flex items-center justify-between gap-4 rounded-lg bg-white px-3 py-2.5 text-sm ring-1 ring-slate-200/70"
-                    >
-                      <span className="font-medium text-slate-700">
-                        {getLanguageLabel(item.language)}
-                      </span>
-                      <span className="font-semibold text-slate-950">{item.count}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-lg bg-white px-3 py-4 text-sm text-slate-500 ring-1 ring-slate-200/70">
-                    Sem visualizações por idioma neste período.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">Ações com mais engajamento</p>
-                </div>
-                <AdminInfoBadge>{topAction ? topAction.label : 'Sem destaque'}</AdminInfoBadge>
-              </div>
-              <div className="mt-3 space-y-2">
-                {analytics.topActions.some((item) => item.count > 0) ? (
-                  analytics.topActions.map((item) => (
-                    <div
-                      key={item.eventType}
-                      className="flex items-center justify-between gap-4 rounded-lg bg-white px-3 py-2.5 text-sm ring-1 ring-slate-200/70"
-                    >
-                      <span className="font-medium text-slate-700">{item.label}</span>
-                      <span className="font-semibold text-slate-950">{item.count}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-lg bg-white px-3 py-4 text-sm text-slate-500 ring-1 ring-slate-200/70">
-                    Sem ações suficientes para ranking.
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold text-slate-900">
-                  Departamentos mais consultados
-                </p>
-              </div>
-              <AdminInfoBadge>{topDepartment ? topDepartment.name : 'Sem destaque'}</AdminInfoBadge>
-            </div>
-            <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-              {analytics.departmentUsage.length ? (
-                analytics.departmentUsage.map((item) => (
-                  <div
-                    key={item.departmentId}
-                    className="flex items-center justify-between gap-4 rounded-lg bg-white px-3 py-2.5 text-sm ring-1 ring-slate-200/70"
-                  >
-                    <span className="font-medium text-slate-700">{item.name}</span>
-                    <span className="font-semibold text-slate-950">{item.count}</span>
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-lg bg-white px-3 py-4 text-sm text-slate-500 ring-1 ring-slate-200/70">
-                  Sem cliques em departamentos neste período.
-                </div>
-              )}
-            </div>
-          </div>
-
-        </div>
-      </AdminSurface>
+      </AdminSurface> : null}
 
       <section className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-4">
         {canManageHotel ? (

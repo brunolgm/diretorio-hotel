@@ -1,4 +1,3 @@
-import type { Json } from '@/types/database';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
 export const ANALYTICS_EVENT_TYPES = [
@@ -8,39 +7,30 @@ export const ANALYTICS_EVENT_TYPES = [
   'website_click',
   'booking_click',
   'department_click',
+  'service_view',
 ] as const;
 
 export type AnalyticsEventType = (typeof ANALYTICS_EVENT_TYPES)[number];
 
-export type AnalyticsMetadata = Record<string, Json | undefined>;
-
 export const ANALYTICS_LIMITS = {
   bodyBytes: 8 * 1024,
   hotelSlug: 80,
-  sessionId: 64,
-  targetUrl: 2048,
-  metadataKeys: 1,
-  metadataString: 120,
 } as const;
 
 export interface AnalyticsEventPayload {
   hotelSlug: string;
   eventType: AnalyticsEventType;
-  sessionId?: string | null;
   language: SupportedPublicLanguage;
-  targetUrl?: string | null;
   departmentId?: string | null;
-  metadata?: AnalyticsMetadata;
+  serviceId?: string | null;
 }
 
 export interface ValidatedAnalyticsPayload {
   hotelSlug: string;
   eventType: AnalyticsEventType;
-  sessionId: string | null;
   language: SupportedPublicLanguage;
-  targetUrl: string | null;
   departmentId: string | null;
-  metadata: { label?: string };
+  serviceId: string | null;
 }
 
 export type AnalyticsPayloadValidation =
@@ -50,18 +40,9 @@ export type AnalyticsPayloadValidation =
 const ANALYTICS_PAYLOAD_KEYS = new Set([
   'hotelSlug',
   'eventType',
-  'sessionId',
   'language',
-  'targetUrl',
   'departmentId',
-  'metadata',
-]);
-
-const CLICK_EVENT_TYPES = new Set<AnalyticsEventType>([
-  'whatsapp_click',
-  'website_click',
-  'booking_click',
-  'department_click',
+  'serviceId',
 ]);
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -85,39 +66,6 @@ function readOptionalBoundedString(
   const normalized = value.trim();
   if (!normalized || normalized.length > maxLength) return undefined;
   return normalized;
-}
-
-function validateMetadata(value: unknown): { label?: string } | null {
-  if (value === undefined || value === null) return {};
-  if (!isPlainObject(value)) return null;
-
-  const keys = Object.keys(value);
-  if (keys.length > ANALYTICS_LIMITS.metadataKeys || keys.some((key) => key !== 'label')) {
-    return null;
-  }
-
-  if (value.label === undefined || value.label === null) return {};
-  if (typeof value.label !== 'string') return null;
-  const label = value.label.trim();
-  if (!label || label.length > ANALYTICS_LIMITS.metadataString) return null;
-  return { label };
-}
-
-function validateTargetUrl(value: unknown) {
-  const normalized = readOptionalBoundedString(value, ANALYTICS_LIMITS.targetUrl);
-  if (normalized === undefined) return undefined;
-  if (normalized === null) return null;
-
-  try {
-    const url = new URL(normalized);
-    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) {
-      return undefined;
-    }
-    url.hash = '';
-    return url.toString();
-  } catch {
-    return undefined;
-  }
 }
 
 export function validateAnalyticsPayload(value: unknown): AnalyticsPayloadValidation {
@@ -144,20 +92,14 @@ export function validateAnalyticsPayload(value: unknown): AnalyticsPayloadValida
     return { ok: false, reason: 'language' };
   }
 
-  const sessionId = readOptionalBoundedString(value.sessionId, ANALYTICS_LIMITS.sessionId);
-  if (
-    sessionId === undefined ||
-    (sessionId !== null && !/^[a-zA-Z0-9_-]+$/.test(sessionId))
-  ) {
-    return { ok: false, reason: 'session_id' };
-  }
-
-  const targetUrl = validateTargetUrl(value.targetUrl);
-  if (targetUrl === undefined) return { ok: false, reason: 'target_url' };
-
   const departmentId = readOptionalBoundedString(value.departmentId, 36);
   if (departmentId === undefined || (departmentId !== null && !isUuid(departmentId))) {
     return { ok: false, reason: 'department_id' };
+  }
+
+  const serviceId = readOptionalBoundedString(value.serviceId, 36);
+  if (serviceId === undefined || (serviceId !== null && !isUuid(serviceId))) {
+    return { ok: false, reason: 'service_id' };
   }
 
   if (value.eventType === 'department_click' && !departmentId) {
@@ -166,26 +108,21 @@ export function validateAnalyticsPayload(value: unknown): AnalyticsPayloadValida
   if (value.eventType !== 'department_click' && departmentId) {
     return { ok: false, reason: 'department_forbidden' };
   }
-  if (CLICK_EVENT_TYPES.has(value.eventType) && !targetUrl) {
-    return { ok: false, reason: 'target_required' };
+  if (value.eventType === 'service_view' && !serviceId) {
+    return { ok: false, reason: 'service_required' };
   }
-  if (!CLICK_EVENT_TYPES.has(value.eventType) && targetUrl) {
-    return { ok: false, reason: 'target_forbidden' };
+  if (value.eventType !== 'service_view' && serviceId) {
+    return { ok: false, reason: 'service_forbidden' };
   }
-
-  const metadata = validateMetadata(value.metadata);
-  if (!metadata) return { ok: false, reason: 'metadata' };
 
   return {
     ok: true,
     value: {
       hotelSlug,
       eventType: value.eventType,
-      sessionId,
       language: value.language,
-      targetUrl,
       departmentId,
-      metadata,
+      serviceId,
     },
   };
 }

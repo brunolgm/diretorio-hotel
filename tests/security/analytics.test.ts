@@ -13,14 +13,10 @@ test('accepts an official website_click payload', () => {
   const result = validateAnalyticsPayload({
     hotelSlug: HOTEL_SLUG,
     eventType: 'website_click',
-    sessionId: 'synthetic_session_01',
     language: 'pt',
-    targetUrl: 'https://example.test/oferta#hero',
-    metadata: { label: 'Hero website button' },
   });
 
   assert.equal(result.ok, true);
-  if (result.ok) assert.equal(result.value.targetUrl, 'https://example.test/oferta');
 });
 
 test('rejects legacy events and unknown hotelId fields', () => {
@@ -42,6 +38,8 @@ test('rejects legacy events and unknown hotelId fields', () => {
 test('rejects deep metadata, unexpected fields and inconsistent department usage', () => {
   const base = { hotelSlug: HOTEL_SLUG, eventType: 'page_view', language: 'pt' };
   assert.equal(validateAnalyticsPayload({ ...base, metadata: { label: { nested: true } } }).ok, false);
+  assert.equal(validateAnalyticsPayload({ ...base, targetUrl: 'https://example.test/?reservation=secret' }).ok, false);
+  assert.equal(validateAnalyticsPayload({ ...base, sessionId: 'visitor-identifier' }).ok, false);
   assert.equal(validateAnalyticsPayload({ ...base, unexpected: true }).ok, false);
   assert.equal(validateAnalyticsPayload({ ...base, departmentId: DEPARTMENT_ID }).ok, false);
   assert.equal(
@@ -49,10 +47,20 @@ test('rejects deep metadata, unexpected fields and inconsistent department usage
       hotelSlug: HOTEL_SLUG,
       eventType: 'department_click',
       language: 'pt',
-      targetUrl: 'https://example.test/contact',
     }).ok,
     false
   );
+});
+
+test('accepts a service view only with one validated service id', () => {
+  assert.equal(validateAnalyticsPayload({
+    hotelSlug: HOTEL_SLUG,
+    eventType: 'service_view',
+    language: 'en',
+    serviceId: DEPARTMENT_ID,
+  }).ok, true);
+  assert.equal(validateAnalyticsPayload({ hotelSlug: HOTEL_SLUG, eventType: 'service_view', language: 'en' }).ok, false);
+  assert.equal(validateAnalyticsPayload({ ...({ hotelSlug: HOTEL_SLUG, eventType: 'page_view', language: 'pt' }), serviceId: DEPARTMENT_ID }).ok, false);
 });
 
 test('rejects oversized bodies before JSON parsing', async () => {
