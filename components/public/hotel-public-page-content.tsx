@@ -33,6 +33,7 @@ import type {
   PublicHotelSection,
 } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
+import type { ExperienceBlockKey, ExperienceLayoutBlock } from '@/lib/experience-layout';
 import { shouldPreferHotelSubdomainRoot } from '@/lib/public-routes';
 import { getServiceDestination } from '@/lib/service-destinations';
 
@@ -301,6 +302,7 @@ export function HotelPublicPageContent({
   sections,
   departments,
   policies,
+  layout,
   language,
   domainContext,
   hasFallbackContent,
@@ -313,6 +315,7 @@ export function HotelPublicPageContent({
   sections: PublicHotelSection[];
   departments: PublicHotelDepartment[];
   policies: PublicHotelPolicy[];
+  layout: ExperienceLayoutBlock[];
   language: SupportedPublicLanguage;
   domainContext: DomainContext;
   hasFallbackContent: boolean;
@@ -337,6 +340,13 @@ export function HotelPublicPageContent({
       hotelSlug: hotel.slug,
       hotelSubdomain: hotel.subdomain,
     });
+  const layoutByKey = new Map(layout.map((block) => [block.blockKey, block]));
+  const isBlockVisible = (key: ExperienceBlockKey) => layoutByKey.get(key)?.isEnabled ?? true;
+  const blockStyle = (key: ExperienceBlockKey) => ({ order: layoutByKey.get(key)?.position ?? 99 });
+  const hasContact = Boolean(hotel.website_url || hotel.booking_url || whatsappHref);
+  const departmentPosition = layoutByKey.get('departments')?.position ?? 6;
+  const policyPosition = layoutByKey.get('policies')?.position ?? 7;
+  const pairOperationalBlocks = Math.abs(departmentPosition - policyPosition) === 1;
 
   if (isNovotelExperience) {
     return (
@@ -348,6 +358,7 @@ export function HotelPublicPageContent({
           sections,
           departments,
           policies,
+          layout,
           hasFallbackContent,
         }}
         language={language}
@@ -360,7 +371,7 @@ export function HotelPublicPageContent({
   if (isGrandMercureExperience) {
     return (
       <GrandMercurePublicHome
-        pageData={{ hotel, banners, announcements, sections, departments, policies, hasFallbackContent }}
+        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -371,7 +382,7 @@ export function HotelPublicPageContent({
   if (isMercureExperience) {
     return (
       <MercurePublicHome
-        pageData={{ hotel, banners, announcements, sections, departments, policies, hasFallbackContent }}
+        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -388,9 +399,10 @@ export function HotelPublicPageContent({
     >
       <PublicAnalytics hotelSlug={hotel.slug} language={language} />
 
-      <div className="mx-auto max-w-6xl px-4 py-6 pb-28 md:px-6 md:py-8 md:pb-8">
+      <div className="mx-auto flex max-w-6xl flex-col px-4 py-6 pb-28 md:px-6 md:py-8 md:pb-8">
         <section
           className="hotel-theme-hero relative overflow-hidden p-6 md:p-10"
+          style={blockStyle('hero')}
         >
           <div className="hotel-theme-hero-overlay pointer-events-none absolute inset-0" />
 
@@ -533,19 +545,19 @@ export function HotelPublicPageContent({
         </section>
 
         {hasFallbackContent ? (
-          <section className="mt-4 rounded-[24px] border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 shadow-[0_16px_35px_-30px_rgba(120,53,15,0.35)]">
+          <section style={blockStyle('hero')} className="mt-4 rounded-[24px] border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 shadow-[0_16px_35px_-30px_rgba(120,53,15,0.35)]">
             {copy.fallbackNotice}
           </section>
         ) : null}
 
-        {banners.length ? (
-          <section className="mt-8">
+        {isBlockVisible('banners') && banners.length ? (
+          <section className="mt-8" style={blockStyle('banners')}>
             <PromotionalBannerCarousel banners={banners} language={language} />
           </section>
         ) : null}
 
-        {announcements.length ? (
-          <section className="mt-8">
+        {isBlockVisible('announcements') && announcements.length ? (
+          <section className="mt-8" style={blockStyle('announcements')}>
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
@@ -574,7 +586,7 @@ export function HotelPublicPageContent({
           </section>
         ) : null}
 
-        <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {isBlockVisible('quick_info') ? <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4" style={blockStyle('quick_info')}>
           <QuickInfoCard
             icon={Coffee}
             title={copy.breakfast}
@@ -599,9 +611,9 @@ export function HotelPublicPageContent({
             value={hotel.checkout_time || copy.notInformed}
             helper={copy.standardExit}
           />
-        </section>
+        </section> : null}
 
-        <section className="mt-8" id="servicos">
+        {isBlockVisible('services') && sections.length ? <section className="mt-8" id="servicos" style={blockStyle('services')}>
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
@@ -617,8 +629,7 @@ export function HotelPublicPageContent({
             </div>
           </div>
 
-          {sections.length ? (
-            <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
               {sections.map((item) => (
                 <SectionCard
                   key={item.id}
@@ -630,17 +641,11 @@ export function HotelPublicPageContent({
                   preferSubdomainRoot={useSubdomainRoot}
                 />
               ))}
-            </div>
-          ) : (
-            <div className="hotel-theme-surface rounded-[var(--hotel-card-radius)] border border-dashed border-[color:var(--hotel-border)] p-10 text-center shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)]">
-              <p className="hotel-theme-heading text-base font-semibold">{copy.noServicesTitle}</p>
-              <p className="hotel-theme-muted mt-2 text-sm leading-6">{copy.noServicesDescription}</p>
-            </div>
-          )}
-        </section>
+          </div>
+        </section> : null}
 
-        <section className="mt-10 grid gap-6 xl:grid-cols-[1fr,1fr]">
-          <div>
+        {((isBlockVisible('departments') && departments.length) || (isBlockVisible('policies') && policies.length)) ? <section className={pairOperationalBlocks ? "mt-10 grid gap-6 xl:grid-cols-[1fr,1fr]" : "contents"} style={pairOperationalBlocks ? { order: Math.min(departmentPosition, policyPosition) } : undefined}>
+          {isBlockVisible('departments') && departments.length ? <div className={pairOperationalBlocks ? undefined : "mt-10"} style={blockStyle('departments')}>
             <div className="mb-5">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
                 {copy.support}
@@ -650,21 +655,14 @@ export function HotelPublicPageContent({
               </h2>
             </div>
 
-            {departments.length ? (
-              <div className="space-y-4">
+            <div className="space-y-4">
                 {departments.map((item) => (
                   <DepartmentCard key={item.id} item={item} copy={copy} />
                 ))}
-              </div>
-            ) : (
-              <div className="hotel-theme-surface rounded-[var(--hotel-card-radius)] border border-dashed border-[color:var(--hotel-border)] p-10 text-center shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)]">
-                <p className="hotel-theme-heading text-base font-semibold">{copy.noChannelsTitle}</p>
-                <p className="hotel-theme-muted mt-2 text-sm leading-6">{copy.noChannelsDescription}</p>
-              </div>
-            )}
-          </div>
+            </div>
+          </div> : null}
 
-          <div>
+          {isBlockVisible('policies') && policies.length ? <div className={pairOperationalBlocks ? undefined : "mt-10"} style={blockStyle('policies')}>
             <div className="mb-5">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
                 {copy.importantInfo}
@@ -674,22 +672,15 @@ export function HotelPublicPageContent({
               </h2>
             </div>
 
-            {policies.length ? (
-              <div className="space-y-4">
+            <div className="space-y-4">
                 {policies.map((item) => (
                   <PolicyCard key={item.id} item={item} copy={copy} />
                 ))}
-              </div>
-            ) : (
-              <div className="hotel-theme-surface rounded-[var(--hotel-card-radius)] border border-dashed border-[color:var(--hotel-border)] p-10 text-center shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)]">
-                <p className="hotel-theme-heading text-base font-semibold">{copy.noPoliciesTitle}</p>
-                <p className="hotel-theme-muted mt-2 text-sm leading-6">{copy.noPoliciesDescription}</p>
-              </div>
-            )}
-          </div>
-        </section>
+            </div>
+          </div> : null}
+        </section> : null}
 
-        <section className="hotel-theme-help mt-10 rounded-[var(--hotel-banner-radius)] border border-[color:var(--hotel-footer-border)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] md:p-8">
+        {isBlockVisible('contact') && hasContact ? <section style={blockStyle('contact')} className="hotel-theme-help mt-10 rounded-[var(--hotel-banner-radius)] border border-[color:var(--hotel-footer-border)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-2xl">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-section-label)]">
@@ -750,9 +741,9 @@ export function HotelPublicPageContent({
               ) : null}
             </div>
           </div>
-        </section>
+        </section> : null}
 
-        <section className="hotel-theme-signature mt-7 rounded-[var(--hotel-card-radius)] border border-[color:var(--hotel-footer-border)] px-6 py-5 text-sm shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)] backdrop-blur md:mt-8">
+        <section style={{ order: 100 }} className="hotel-theme-signature mt-7 rounded-[var(--hotel-card-radius)] border border-[color:var(--hotel-footer-border)] px-6 py-5 text-sm shadow-[0_18px_45px_-36px_rgba(15,23,42,0.22)] backdrop-blur md:mt-8">
           <div className="flex justify-center md:justify-end">
             <p className="font-medium tracking-[0.01em]">
               LibGuest

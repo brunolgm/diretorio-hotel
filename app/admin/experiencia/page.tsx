@@ -1,13 +1,13 @@
-import { AdminEmptyState } from '@/components/admin/ui';
+import Link from 'next/link';
 import { ExperienceHeader } from '@/components/admin/experience/experience-header';
 import { ExperienceMetrics } from '@/components/admin/experience/experience-metrics';
 import { EXPERIENCE_TABS, ExperienceTabs } from '@/components/admin/experience/experience-tabs';
-import { HomeCompositionCard, type HomeCompositionItem } from '@/components/admin/experience/home-composition-card';
-import { MainBannerPreview } from '@/components/admin/experience/main-banner-preview';
+import { HomeCompositionCard } from '@/components/admin/experience/home-composition-card';
 import { PublicExperiencePreview } from '@/components/admin/experience/public-experience-preview';
-import { QuickTips } from '@/components/admin/experience/quick-tips';
 import { requireAdminAccess } from '@/lib/auth';
-import { hasHotelModule, requireHotelModule } from '@/lib/admin-entitlements';
+import { getCurrentHotelEntitlements, requireHotelModule } from '@/lib/admin-entitlements';
+import { hasMinimumRole } from '@/lib/app-roles';
+import { getCurrentHotelExperienceLayout } from '@/lib/experience-layout-queries';
 import { getAdminHotel } from '@/lib/queries';
 import { hasPassedReadinessChecks } from '@/lib/hotel-readiness';
 import { getCurrentHotelReadiness } from '@/lib/readiness-queries';
@@ -38,9 +38,15 @@ function formatLastUpdate(value: string | null, now: Date) {
 export default async function AdminExperiencePage({ searchParams }: ExperiencePageProps) {
   const { profile } = await requireAdminAccess('visualizador');
   const params = searchParams ? await searchParams : {};
-  const previewEnabled = await hasHotelModule('experience.preview');
+  const enabledModules = await getCurrentHotelEntitlements();
+  const previewEnabled = enabledModules.has('experience.preview');
+  const compositionEnabled = enabledModules.has('experience.navigation');
+  const appearanceEnabled = enabledModules.has('experience.appearance');
   if (params.tab === 'preview' && !previewEnabled) await requireHotelModule('experience.preview');
-  const activeTab = EXPERIENCE_TABS.some(({ key }) => key === params.tab) ? params.tab! : 'visao-geral';
+  if ((!params.tab || params.tab === 'composicao') && !compositionEnabled) await requireHotelModule('experience.navigation');
+  if (params.tab === 'aparencia' && !appearanceEnabled) await requireHotelModule('experience.appearance');
+  const activeTab = EXPERIENCE_TABS.some(({ key }) => key === params.tab) ? params.tab! : 'composicao';
+  const layout = compositionEnabled ? await getCurrentHotelExperienceLayout() : [];
   const hotel = await getAdminHotel();
   const supabase = await createClient();
   const [readiness, services, departments, policies, announcements, banners] = await Promise.all([
@@ -85,13 +91,7 @@ export default async function AdminExperiencePage({ searchParams }: ExperiencePa
   const timestamps = [hotel.updated_at, ...sources.flatMap(({ data }) => (data ?? []).map(({ updated_at }) => updated_at))].filter((value): value is string => Boolean(value));
   const latestUpdate = timestamps.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null;
   const publicUrl = `/hotel/${encodeURIComponent(hotel.slug)}`;
-  const mainBanner = eligibleBanners[0] ?? null;
-  const compositionItems: HomeCompositionItem[] = [
-    { title: 'Saudação e Marca', description: 'Identidade e informações do hotel', href: '/admin/hotel', status: informationReady ? 'Ativo' : 'Sem conteúdo', icon: 'brand' },
-    { title: 'Atalhos Principais', description: 'Serviços e acessos rápidos', href: '/admin/servicos', status: enabledServices + enabledDepartments > 0 ? 'Ativo' : 'Sem conteúdo', icon: 'shortcuts' },
-    { title: 'Banner Promocional', description: 'Carrossel de destaques', href: '/admin/banners', status: eligibleBanners.length > 0 ? 'Ativo' : 'Sem conteúdo', icon: 'banner' },
-    { title: 'Contato / Ajuda', description: 'Canais informados pelo hotel', href: '/admin/hotel', status: hotel.whatsapp_number || hotel.website_url || hotel.booking_url ? 'Ativo' : 'Sem conteúdo', icon: 'contact' },
-  ];
+  const previewVersion = layout.map((block) => `${block.blockKey}:${block.position}:${block.isEnabled}`).join('|');
   const dateLabel = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'America/Sao_Paulo' }).format(now);
   const timeLabel = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }).format(now);
 
@@ -100,7 +100,7 @@ export default async function AdminExperiencePage({ searchParams }: ExperiencePa
       <ExperienceHeader hotelName={hotel.name} publicUrl={publicUrl} dateLabel={dateLabel} timeLabel={timeLabel} />
       <ExperienceMetrics status={statusCopy[hotel.platform_status]} lastUpdated={formatLastUpdate(latestUpdate, now)} languages={languages} publishedAreas={publishedAreas} totalAreas={6} featuredItems={eligibleBanners.length} />
       <ExperienceTabs activeTab={activeTab} previewEnabled={previewEnabled} />
-      {activeTab === 'visao-geral' ? <><div className={previewEnabled ? "grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3 xl:grid-cols-[minmax(280px,30fr)_minmax(390px,43fr)_minmax(260px,27fr)]" : "grid min-w-0 gap-3 xl:grid-cols-2"}><HomeCompositionCard items={compositionItems} additionalCount={6} /><MainBannerPreview banner={mainBanner ? { title: mainBanner.title, subtitle: mainBanner.subtitle, imageUrl: mainBanner.image_url, ctaLabel: mainBanner.cta_label } : null} position={mainBanner ? 1 : 0} total={eligibleBanners.length} />{previewEnabled ? <PublicExperiencePreview publicUrl={publicUrl} hotelName={hotel.name} /> : null}</div><QuickTips /></> : activeTab === 'preview' ? <PublicExperiencePreview publicUrl={publicUrl} hotelName={hotel.name} /> : <section className="rounded-[12px] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5"><AdminEmptyState title={`${EXPERIENCE_TABS.find(({ key }) => key === activeTab)?.label} em preparação`} description="Esta área já ocupa seu lugar na arquitetura, mas ainda não possui controles ou persistência. Nenhuma configuração fictícia foi adicionada." /></section>}
+      {activeTab === 'composicao' ? <div className={previewEnabled ? "grid min-w-0 gap-4 xl:grid-cols-[minmax(340px,1fr)_minmax(430px,1.15fr)]" : "min-w-0"}><HomeCompositionCard layout={layout} enabledModules={enabledModules} canEdit={hasMinimumRole(profile.normalizedRole,'editor')} />{previewEnabled ? <PublicExperiencePreview publicUrl={publicUrl} hotelName={hotel.name} previewVersion={previewVersion} /> : null}</div> : activeTab === 'preview' ? <PublicExperiencePreview publicUrl={publicUrl} hotelName={hotel.name} previewVersion={previewVersion} /> : <section className="rounded-[12px] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5"><h2 className="text-base font-bold text-[var(--admin-text-strong)]">Aparência</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--admin-muted)]">A composição não altera a bandeira ou o tema. Continue usando os controles já existentes de identidade e mídia do hotel.</p><Link href="/admin/hotel" className="mt-4 inline-flex rounded-xl bg-[var(--admin-accent)] px-4 py-2.5 text-sm font-semibold text-white">Abrir aparência do hotel</Link></section>}
     </main>
   );
 }

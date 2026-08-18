@@ -13,8 +13,9 @@ test('keeps one shared canonical 19-key module catalog', () => {
   assert.deepEqual(MODULE_CATALOG.map(({ key }) => key).sort(), [...MODULE_KEYS].sort());
   assert.doesNotMatch(read('lib', 'modules', 'catalog.ts'), /supabase|hotel_id|platform_status/i);
   assert.equal(MODULE_CATALOG.find(({ key }) => key === 'experience.preview')?.availability, 'available');
+  assert.equal(MODULE_CATALOG.find(({ key }) => key === 'experience.navigation')?.availability, 'available');
   assert.deepEqual(MODULE_CATALOG.filter(({ availability }) => availability === 'coming_soon').map(({ key }) => key), [
-    'experience.navigation', 'experience.seo', 'fb.menu', 'content.tourism',
+    'experience.seo', 'fb.menu', 'content.tourism',
     'analytics.advanced', 'integrations.thex', 'integrations.opera', 'audit.access_logs',
   ]);
 });
@@ -45,8 +46,10 @@ test('guards every modular route on the server', () => {
   assert.match(read('lib', 'admin-entitlements.ts'), /get_current_hotel_modules/);
   assert.match(read('lib', 'admin-entitlements.ts'), /redirect\('\/admin\/modulo-indisponivel'\)/);
   const experience = read('app', 'admin', 'experiencia', 'page.tsx');
-  assert.match(experience, /hasHotelModule\('experience\.preview'\)/);
+  assert.match(experience, /enabledModules\.has\('experience\.preview'\)/);
   assert.match(experience, /requireHotelModule\('experience\.preview'\)/);
+  assert.match(experience, /enabledModules\.has\('experience\.navigation'\)/);
+  assert.match(experience, /requireHotelModule\('experience\.navigation'\)/);
 });
 
 test('platform module governance uses only narrow RPCs and canonical input', () => {

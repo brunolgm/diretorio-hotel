@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Monitor, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export function PublicExperiencePreview({ publicUrl, hotelName }: { publicUrl: string; hotelName: string }) {
+export function PublicExperiencePreview({ publicUrl, hotelName, previewVersion = 'default' }: { publicUrl: string; hotelName: string; previewVersion?: string }) {
   const [mode, setMode] = useState<'mobile' | 'desktop'>('mobile');
 
   return (
@@ -17,7 +17,7 @@ export function PublicExperiencePreview({ publicUrl, hotelName }: { publicUrl: s
       <div className="admin-scrollbar-hidden mt-4 flex min-h-[380px] justify-center overflow-auto rounded-[12px] bg-[var(--admin-surface-muted)] p-3">
         <div className={cn('relative overflow-hidden bg-white transition-all', mode === 'mobile' ? 'h-[360px] w-[200px] rounded-[26px] border-[6px] border-slate-800 shadow-md' : 'h-[360px] w-[680px] max-w-none rounded-lg border border-[var(--admin-border)]')}>
           {mode === 'mobile' ? <span className="absolute left-1/2 top-1 z-10 h-2 w-12 -translate-x-1/2 rounded-full bg-slate-800" /> : null}
-          <iframe key={mode} src={publicUrl} title={`Pré-visualização pública de ${hotelName}`} sandbox="allow-forms allow-popups allow-same-origin allow-scripts" className={cn('origin-top-left border-0 bg-white', mode === 'mobile' ? 'h-[700px] w-[390px] scale-[0.482]' : 'h-[720px] w-[1360px] scale-50')} />
+          <iframe key={`${mode}:${previewVersion}`} src={publicUrl} title={`Pré-visualização pública de ${hotelName}`} sandbox="allow-forms allow-popups allow-same-origin allow-scripts" className={cn('origin-top-left border-0 bg-white', mode === 'mobile' ? 'h-[700px] w-[390px] scale-[0.482]' : 'h-[720px] w-[1360px] scale-50')} />
         </div>
       </div>
     </section>

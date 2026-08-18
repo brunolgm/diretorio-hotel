@@ -50,13 +50,13 @@ test('validates every onboarding contract and explicit draft confirmation', () =
   assert.equal(validatePlatformOnboardingForm(unconfirmed).ok, false);
 });
 
-test('keeps the canonical eleven-module baseline available-only', () => {
-  assert.equal(BASELINE_MODULE_KEYS.length, 11);
-  assert.equal(new Set(BASELINE_MODULE_KEYS).size, 11);
+test('keeps the canonical twelve-module baseline available-only', () => {
+  assert.equal(BASELINE_MODULE_KEYS.length, 12);
+  assert.equal(new Set(BASELINE_MODULE_KEYS).size, 12);
   for (const key of BASELINE_MODULE_KEYS) {
     assert.equal(MODULE_CATALOG.find((module) => module.key === key)?.availability, 'available');
   }
-  assert.equal(MODULE_CATALOG.filter((module) => module.availability === 'coming_soon').length, 8);
+  assert.equal(MODULE_CATALOG.filter((module) => module.availability === 'coming_soon').length, 7);
 });
 
 test('compensates an Auth invite only when the database transaction fails', async () => {
@@ -152,7 +152,7 @@ test('renders the five-step review flow without automatic activation', () => {
   for (const label of ['Identidade', 'Endereço', 'Módulos', 'Administrador', 'Revisão']) assert.match(form, new RegExp(label));
   assert.match(form, /reportValidity/);
   assert.match(form, /Em breve/);
-  assert.match(form, /11 habilitados/);
+  assert.match(form, /BASELINE_MODULE_KEYS\.length/);
   assert.match(form, /Lifecycle inicial/);
   assert.match(action, /Hotel criado em preparação/);
   assert.match(action, /redirect\(`\/platform\/hoteis\/\$\{provisioning\.hotelId\}/);

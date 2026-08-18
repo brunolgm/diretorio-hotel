@@ -303,6 +303,7 @@ export default async function Home({ searchParams }: HomePageProps) {
         sections={pageData.sections}
         departments={pageData.departments}
         policies={pageData.policies}
+        layout={pageData.layout}
         language={language}
         domainContext={domainContext}
         hasFallbackContent={pageData.hasFallbackContent}

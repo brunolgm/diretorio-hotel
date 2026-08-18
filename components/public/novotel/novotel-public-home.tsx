@@ -46,6 +46,9 @@ export function NovotelPublicHome({
   preferSubdomainRoot: boolean;
 }) {
   const { hotel, banners } = pageData;
+  const layoutByKey = new Map(pageData.layout.map((block) => [block.blockKey, block]));
+  const visible = (key: 'quick_info' | 'banners' | 'contact') => layoutByKey.get(key)?.isEnabled ?? true;
+  const order = (key: 'hero' | 'quick_info' | 'banners' | 'contact') => layoutByKey.get(key)?.position ?? 99;
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const buildAreaHref = (area: PublicHotelAreaKey) =>
@@ -95,8 +98,8 @@ export function NovotelPublicHome({
     >
       <PublicAnalytics hotelSlug={hotel.slug} language={language} />
 
-      <div className="mx-auto max-w-7xl md:px-6 md:py-8">
-        <section className="relative min-h-[320px] overflow-hidden rounded-b-[34px] bg-[var(--hotel-hero-background)] px-6 pt-5 pb-14 text-white shadow-[0_30px_70px_-38px_rgba(0,43,92,0.72)] md:min-h-[540px] md:rounded-[34px] md:px-12 md:py-10">
+      <div className="mx-auto flex max-w-7xl flex-col md:px-6 md:py-8">
+        <section style={{ order: order('hero') }} className="relative min-h-[320px] overflow-hidden rounded-b-[34px] bg-[var(--hotel-hero-background)] px-6 pt-5 pb-14 text-white shadow-[0_30px_70px_-38px_rgba(0,43,92,0.72)] md:min-h-[540px] md:rounded-[34px] md:px-12 md:py-10">
           <NovotelHeroBackdrop imageUrl={hotel.hero_image_url} imageAlt={hotel.name} />
 
           <div className="relative flex min-h-[260px] flex-col md:min-h-[460px]">
@@ -121,7 +124,7 @@ export function NovotelPublicHome({
           </div>
         </section>
 
-        <section className="relative z-10 -mt-6 grid grid-cols-2 gap-2 px-4 md:-mt-10 md:gap-5 md:px-10 xl:grid-cols-3">
+        {visible('quick_info') ? <section style={{ order: order('quick_info') }} className="relative z-10 -mt-6 grid grid-cols-2 gap-2 px-4 md:-mt-10 md:gap-5 md:px-10 xl:grid-cols-3">
           {cards.map((card) => {
             const Icon = card.icon;
             return (
@@ -143,13 +146,13 @@ export function NovotelPublicHome({
               </a>
             );
           })}
-        </section>
+        </section> : null}
 
-        <section className="mt-5 px-4 md:mt-8 md:px-10">
+        {visible('banners') ? <section style={{ order: order('banners') }} className="mt-5 px-4 md:mt-8 md:px-10">
           <PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback />
-        </section>
+        </section> : null}
 
-        <section className="mx-4 mt-4 rounded-[22px] bg-white p-4 shadow-[0_14px_36px_-24px_rgba(0,43,92,0.3)] ring-1 ring-slate-100 md:mx-10 md:mt-6 md:p-5">
+        {visible('contact') ? <section style={{ order: order('contact') }} className="mx-4 mt-4 rounded-[22px] bg-white p-4 shadow-[0_14px_36px_-24px_rgba(0,43,92,0.3)] ring-1 ring-slate-100 md:mx-10 md:mt-6 md:p-5">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#0052B4] text-white md:h-14 md:w-14">
               <CircleHelp className="h-7 w-7" aria-hidden="true" />
@@ -173,9 +176,9 @@ export function NovotelPublicHome({
               <MessageCircle className="h-7 w-7" aria-hidden="true" />
             </a>
           </div>
-        </section>
+        </section> : null}
 
-        <footer className="px-6 pt-6 pb-8 text-center text-xs font-medium text-slate-500 md:py-8">
+        <footer style={{ order: 100 }} className="px-6 pt-6 pb-8 text-center text-xs font-medium text-slate-500 md:py-8">
           Powered by LibGuest
         </footer>
       </div>

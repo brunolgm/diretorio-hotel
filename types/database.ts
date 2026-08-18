@@ -151,6 +151,15 @@ export interface Database {
         Relationships: [];
       };
 
+      hotel_experience_layout: {
+        Row: { hotel_id: string; block_key: string; is_enabled: boolean; position: number; updated_at: string; updated_by: string | null };
+        Insert: { hotel_id: string; block_key: string; is_enabled?: boolean; position: number; updated_at?: string; updated_by?: string | null };
+        Update: { hotel_id?: string; block_key?: string; is_enabled?: boolean; position?: number; updated_at?: string; updated_by?: string | null };
+        Relationships: [
+          { foreignKeyName: 'hotel_experience_layout_hotel_id_fkey'; columns: ['hotel_id']; isOneToOne: false; referencedRelation: 'hotels'; referencedColumns: ['id'] },
+        ];
+      };
+
       hotel_sections: {
         Row: {
           id: string;
@@ -837,6 +846,22 @@ export interface Database {
       get_current_hotel_modules: {
         Args: Record<PropertyKey, never>;
         Returns: { module_key: string; is_enabled: boolean }[];
+      };
+      get_current_hotel_experience_layout: {
+        Args: Record<PropertyKey, never>;
+        Returns: { block_key: string; is_enabled: boolean; block_position: number }[];
+      };
+      get_public_hotel_experience_layout: {
+        Args: { p_hotel_id: string };
+        Returns: { block_key: string; is_enabled: boolean; block_position: number }[];
+      };
+      update_current_hotel_experience_block: {
+        Args: { p_block_key: string; p_enabled: boolean };
+        Returns: { block_key: string; is_enabled: boolean; block_position: number }[];
+      };
+      reorder_current_hotel_experience_blocks: {
+        Args: { p_block_keys: string[] };
+        Returns: { block_key: string; is_enabled: boolean; block_position: number }[];
       };
       get_current_hotel_analytics: {
         Args: { p_period: string };

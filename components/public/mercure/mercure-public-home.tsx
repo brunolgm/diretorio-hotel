@@ -46,6 +46,9 @@ export function MercurePublicHome({
   preferSubdomainRoot: boolean;
 }) {
   const { hotel, banners } = pageData;
+  const layoutByKey = new Map(pageData.layout.map((block) => [block.blockKey, block]));
+  const visible = (key: 'quick_info' | 'banners' | 'contact') => layoutByKey.get(key)?.isEnabled ?? true;
+  const order = (key: 'hero' | 'quick_info' | 'banners' | 'contact') => layoutByKey.get(key)?.position ?? 99;
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const areaHref = (area: PublicHotelAreaKey) =>
@@ -127,8 +130,8 @@ export function MercurePublicHome({
       <PublicAnalytics hotelSlug={hotel.slug} language={language} />
       <div className="mercure-page-floral pointer-events-none fixed inset-0" aria-hidden="true" />
 
-      <div className="relative mx-auto max-w-[1240px] md:px-6 md:py-7">
-        <section className="mercure-hero relative min-h-[430px] overflow-hidden rounded-b-[34px] border-b border-[#52204f]/8 bg-[#fbf7f8] md:min-h-[540px] md:rounded-[34px] md:border">
+      <div className="relative mx-auto flex max-w-[1240px] flex-col md:px-6 md:py-7">
+        <section style={{ order: order('hero') }} className="mercure-hero relative min-h-[430px] overflow-hidden rounded-b-[34px] border-b border-[#52204f]/8 bg-[#fbf7f8] md:min-h-[540px] md:rounded-[34px] md:border">
           <div className="mercure-hero-floral pointer-events-none absolute inset-0" aria-hidden="true" />
           <div className="mercure-hero-media absolute inset-y-0 right-0 w-[78%] md:w-[64%]">
             <Image
@@ -167,7 +170,7 @@ export function MercurePublicHome({
           </div>
         </section>
 
-        <section className="mercure-access-grid relative z-20 -mt-6 grid grid-cols-2 gap-3 px-3 md:-mt-8 md:grid-cols-3 md:gap-5 md:px-10 lg:px-14">
+        {visible('quick_info') ? <section style={{ order: order('quick_info') }} className="mercure-access-grid relative z-20 -mt-6 grid grid-cols-2 gap-3 px-3 md:-mt-8 md:grid-cols-3 md:gap-5 md:px-10 lg:px-14">
           {cards.map((card) => {
             const Icon = card.icon;
 
@@ -191,13 +194,13 @@ export function MercurePublicHome({
               </a>
             );
           })}
-        </section>
+        </section> : null}
 
-        <div className="mt-4 px-3 md:mt-7 md:px-10 lg:px-14">
+        {visible('banners') ? <div style={{ order: order('banners') }} className="mt-4 px-3 md:mt-7 md:px-10 lg:px-14">
           <MercurePromotionalBanner banners={banners} language={language} />
-        </div>
+        </div> : null}
 
-        <section className="mercure-help-card mx-3 mt-4 flex min-h-[84px] items-center gap-3 rounded-[20px] border border-[#52204f]/7 bg-[#fffdfd] p-3.5 shadow-[0_16px_38px_-27px_rgba(61,23,60,.3)] md:mx-10 md:mt-6 md:min-h-[104px] md:gap-5 md:rounded-[26px] md:p-5 lg:mx-14">
+        {visible('contact') ? <section style={{ order: order('contact') }} className="mercure-help-card mx-3 mt-4 flex min-h-[84px] items-center gap-3 rounded-[20px] border border-[#52204f]/7 bg-[#fffdfd] p-3.5 shadow-[0_16px_38px_-27px_rgba(61,23,60,.3)] md:mx-10 md:mt-6 md:min-h-[104px] md:gap-5 md:rounded-[26px] md:p-5 lg:mx-14">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#71386e] text-white md:h-16 md:w-16">
             <Headphones className="h-7 w-7 md:h-9 md:w-9" strokeWidth={1.7} aria-hidden="true" />
           </div>
@@ -223,9 +226,9 @@ export function MercurePublicHome({
           >
             <MessageCircle className="h-7 w-7 md:h-9 md:w-9" strokeWidth={1.8} aria-hidden="true" />
           </a>
-        </section>
+        </section> : null}
 
-        <footer className="px-6 pt-6 pb-5 text-center text-[10px] font-medium tracking-[.18em] text-[#685d64] md:py-8 md:text-xs">
+        <footer style={{ order: 100 }} className="px-6 pt-6 pb-5 text-center text-[10px] font-medium tracking-[.18em] text-[#685d64] md:py-8 md:text-xs">
           Powered by <span className="tracking-normal text-[#52204f]">LibGuest</span>
         </footer>
       </div>

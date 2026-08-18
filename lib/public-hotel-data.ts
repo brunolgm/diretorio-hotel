@@ -1,4 +1,5 @@
 import { createPublicClient } from '@/lib/supabase/public';
+import { normalizeExperienceLayout, type ExperienceLayoutBlock } from '@/lib/experience-layout';
 import { normalizeHotelSubdomainInput } from '@/lib/hotel-subdomain';
 import { type SupportedPublicLanguage } from '@/lib/public-language';
 import type { Database } from '@/types/database';
@@ -30,6 +31,7 @@ export interface PublicHotelPageData {
   sections: PublicHotelSection[];
   departments: PublicHotelDepartment[];
   policies: PublicHotelPolicy[];
+  layout: ExperienceLayoutBlock[];
   hasFallbackContent: boolean;
 }
 
@@ -97,6 +99,7 @@ async function getPublicHotelPageDataForHotel(
     { data: sections, error: sectionsError },
     { data: departments, error: departmentsError },
     { data: policies, error: policiesError },
+    { data: layoutRows, error: layoutError },
   ] = await Promise.all([
     supabase
       .from('hotel_promotional_banners')
@@ -131,6 +134,7 @@ async function getPublicHotelPageDataForHotel(
       .eq('hotel_id', hotel.id)
       .eq('enabled', true)
       .order('created_at', { ascending: true }),
+    supabase.rpc('get_public_hotel_experience_layout', { p_hotel_id: hotel.id }),
   ]);
 
   if (bannersError) {
@@ -147,6 +151,9 @@ async function getPublicHotelPageDataForHotel(
   }
   if (policiesError) {
     console.error('Failed to load hotel policies:', policiesError);
+  }
+  if (layoutError) {
+    console.error('Failed to load hotel experience layout:', layoutError);
   }
 
   const typedBanners = ((banners || []) as PublicHotelPromotionalBanner[])
@@ -360,6 +367,7 @@ async function getPublicHotelPageDataForHotel(
     sections: displaySections,
     departments: displayDepartments,
     policies: displayPolicies,
+    layout: normalizeExperienceLayout(layoutRows),
     hasFallbackContent,
   } satisfies PublicHotelPageData;
 }
