@@ -33,7 +33,7 @@ export const MODULE_CATALOG: readonly ModuleDefinition[] = [
   { key: 'rooms.qr', name: 'Apartamentos e QR', group: 'operations', availability: 'available', description: 'Links por apartamento e contexto por QR.' },
   { key: 'content.languages', name: 'Idiomas', group: 'content', availability: 'available', description: 'Conteúdo traduzido em PT, EN e ES.' },
   { key: 'experience.appearance', name: 'Aparência', group: 'experience', availability: 'available', description: 'Identidade visual e tema da experiência.' },
-  { key: 'experience.navigation', name: 'Navegação', group: 'experience', availability: 'coming_soon', description: 'Composição futura da navegação pública.' },
+  { key: 'experience.navigation', name: 'Composição', group: 'experience', availability: 'available', description: 'Ordem e visibilidade dos blocos da experiência pública.' },
   { key: 'experience.preview', name: 'Pré-visualização', group: 'experience', availability: 'available', description: 'Preview público real executado em sandbox.' },
   { key: 'experience.seo', name: 'SEO e compartilhamento', group: 'experience', availability: 'coming_soon', description: 'Metadados e compartilhamento futuros.' },
   { key: 'fb.menu', name: 'Cardápio (F&B)', group: 'content', availability: 'coming_soon', description: 'Módulo futuro de alimentos e bebidas.' },
@@ -55,6 +55,7 @@ export const BASELINE_MODULE_KEYS = [
   'rooms.qr',
   'content.languages',
   'experience.appearance',
+  'experience.navigation',
   'experience.preview',
   'analytics.basic',
 ] as const satisfies readonly ModuleKey[];
