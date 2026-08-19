@@ -752,7 +752,7 @@ export function HotelPublicPageContent({
         </section>
       </div>
 
-      {whatsappHref ? (
+      {isBlockVisible('contact') && whatsappHref ? (
         <a
           href={whatsappHref}
           target="_blank"

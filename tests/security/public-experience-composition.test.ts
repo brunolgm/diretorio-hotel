@@ -5,11 +5,15 @@ import test from 'node:test';
 import {
   EXPERIENCE_BLOCK_CATALOG,
   EXPERIENCE_BLOCK_KEYS,
+  getComposedExperienceBlockKeys,
   getDefaultExperienceLayout,
   getRenderableExperienceLayout,
   normalizeExperienceLayout,
 } from '../../lib/experience-layout.ts';
 import { BASELINE_MODULE_KEYS, MODULE_CATALOG } from '../../lib/modules/catalog.ts';
+import { getGrandMercurePropertyLabel, isGrandMercureRioCopacabanaProperty } from '../../lib/grand-mercure-property.ts';
+import { resolveHotelTheme } from '../../lib/hotel-theme.ts';
+import { getThemedCardGridLayout } from '../../lib/themed-card-grid.ts';
 
 const root = process.cwd();
 const read = (...parts: string[]) => readFileSync(join(root,...parts),'utf8');
@@ -33,6 +37,23 @@ test('normalizes missing layout safely and composes visibility with entitlements
   assert.equal(hiddenHero.find((block) => block.blockKey==='hero')?.isEnabled,true);
   const renderable = getRenderableExperienceLayout(getDefaultExperienceLayout(),new Set(['core.directory','content.banners']));
   assert.deepEqual(renderable.map((block) => block.blockKey),['hero','banners','quick_info','contact']);
+});
+
+test('composes public blocks in configured order and excludes hidden or unavailable content', () => {
+  const layout = normalizeExperienceLayout([
+    { block_key:'contact',is_enabled:true,block_position:1 },
+    { block_key:'hero',is_enabled:true,block_position:8 },
+    { block_key:'quick_info',is_enabled:false,block_position:3 },
+    { block_key:'banners',is_enabled:true,block_position:4 },
+    { block_key:'announcements',is_enabled:true,block_position:5 },
+    { block_key:'services',is_enabled:false,block_position:6 },
+    { block_key:'departments',is_enabled:true,block_position:7 },
+    { block_key:'policies',is_enabled:true,block_position:2 },
+  ]);
+  assert.deepEqual(
+    getComposedExperienceBlockKeys(layout,new Set(['hero','contact','quick_info','banners','services'])),
+    ['hero','contact','banners'],
+  );
 });
 
 test('promotes navigation to available and the canonical twelve-module baseline', () => {
@@ -92,8 +113,111 @@ test('public resolution uses one narrow layout RPC and never reads the table dir
   assert.doesNotMatch(data,/from\('hotel_experience_layout'\)/);
   assert.match(generic,/layoutByKey/);
   assert.match(generic,/isBlockVisible/);
-  assert.match(branded,/layoutByKey/);
-  assert.match(branded,/style=\{\{ order:/);
+  assert.match(branded,/ExperienceBlockComposer/);
+  assert.doesNotMatch(branded,/style=\{\{ order:/);
+});
+
+test('all branded homes render only through the canonical compositor', () => {
+  const homes = ['grand-mercure/grand-mercure-public-home.tsx','mercure/mercure-public-home.tsx','novotel/novotel-public-home.tsx'];
+  for (const path of homes) {
+    const source = read('components','public',...path.split('/'));
+    assert.match(source,/ExperienceBlockComposer/);
+    for (const key of EXPERIENCE_BLOCK_KEYS) assert.match(source,new RegExp(`${key}:`));
+    assert.doesNotMatch(source,/style=\{\{ order:|order\('banners'\) \+ 0\.5/);
+    assert.doesNotMatch(source,/editorialMenuTitle|editorialTourismTitle|areaHref\('cardapio'\)|areaHref\('turismo'\)/);
+  }
+  const grandMercure = read('components','public','grand-mercure','grand-mercure-public-home.tsx');
+  const composerIndex = grandMercure.indexOf('<ExperienceBlockComposer');
+  const editorialIndex = grandMercure.indexOf('<GrandMercureBrazilianPillars');
+  const supportIndex = grandMercure.indexOf('{supportStrip}');
+  const footerIndex = grandMercure.indexOf('<footer');
+  assert.ok(composerIndex < editorialIndex);
+  assert.ok(editorialIndex < supportIndex);
+  assert.ok(supportIndex < footerIndex);
+  assert.match(grandMercure,/showRioCopacabanaEditorial \? <GrandMercureBrazilianPillars/);
+  assert.doesNotMatch(grandMercure.match(/banners:[\s\S]*?announcements:/)?.[0] || '',/GrandMercureBrazilianPillars|showRioCopacabanaEditorial/);
+  assert.match(read('components','public','hotel-public-page-content.tsx'),/isBlockVisible\('contact'\) && whatsappHref/);
+});
+
+test('preserves each approved brand presentation while composition remains shared', () => {
+  const grandMercure = read('components','public','grand-mercure','grand-mercure-public-home.tsx');
+  const mercure = read('components','public','mercure','mercure-public-home.tsx');
+  const novotel = read('components','public','novotel','novotel-public-home.tsx');
+
+  assert.match(grandMercure,/grand-mercure-access-grid grid gap-2/);
+  assert.match(grandMercure,/min-h-\[158px\][\s\S]*md:min-h-\[240px\]/);
+  assert.match(grandMercure,/ChevronDown/);
+  assert.match(grandMercure,/grand-mercure-banner-zone[\s\S]*PromotionalBannerCarousel/);
+  assert.match(grandMercure,/showEmptyFallback/);
+
+  assert.match(mercure,/mercure-access-grid[\s\S]*cardGrid\.containerClassName/);
+  assert.match(mercure,/mercure-access-card[\s\S]*md:min-h-\[224px\]/);
+  assert.match(novotel,/cardGrid\.containerClassName/);
+  assert.match(novotel,/ChevronRight/);
+
+  const branded = `${grandMercure}\n${mercure}\n${novotel}`;
+  assert.doesNotMatch(branded,/BrandHomeAccessBlock|brand-home-access-block/);
+  assert.doesNotMatch(branded,/editorialMenuTitle|editorialTourismTitle|areaHref\('cardapio'\)|areaHref\('turismo'\)/);
+});
+
+test('builds compact filler-free themed grids for every supported cardinality', () => {
+  const expectedDesktopRows = [[1],[2],[3],[2,2],[3,2],[3,3]];
+  for (let cardCount = 1; cardCount <= 6; cardCount += 1) {
+    const grandMercureGrid = getThemedCardGridLayout(cardCount,3);
+    const twoColumnMobileGrid = getThemedCardGridLayout(cardCount,2);
+    assert.deepEqual(grandMercureGrid.desktopRows,expectedDesktopRows[cardCount - 1]);
+    assert.deepEqual(twoColumnMobileGrid.desktopRows,expectedDesktopRows[cardCount - 1]);
+    assert.equal(grandMercureGrid.singleCard,cardCount === 1);
+    assert.equal(twoColumnMobileGrid.singleCard,cardCount === 1);
+  }
+
+  assert.match(getThemedCardGridLayout(2,3).containerClassName,/md:grid-cols-2/);
+  assert.match(getThemedCardGridLayout(3,3).containerClassName,/md:grid-cols-3/);
+  assert.match(getThemedCardGridLayout(4,3).containerClassName,/md:grid-cols-2/);
+  assert.match(getThemedCardGridLayout(5,3).containerClassName,/md:grid-cols-6/);
+  assert.match(getThemedCardGridLayout(5,3).itemClassName(3),/md:col-start-2/);
+  assert.match(getThemedCardGridLayout(5,3).itemClassName(4),/md:col-start-4/);
+  assert.match(getThemedCardGridLayout(6,3).containerClassName,/md:grid-cols-3/);
+
+  assert.match(getThemedCardGridLayout(6,3).containerClassName,/grid-cols-3/);
+  assert.match(getThemedCardGridLayout(6,2).containerClassName,/^grid-cols-2/);
+  assert.match(getThemedCardGridLayout(3,2).itemClassName(2),/col-start-2/);
+  assert.doesNotMatch(read('lib','themed-card-grid.ts'),/placeholder|filler|visibility:\s*hidden|opacity-0/);
+});
+
+test('keeps the Grand Mercure theme reusable and scopes the Rio editorial extension to one property', () => {
+  const rioProperty = { brand_code:'grand-mercure',slug:'grandmercureriocopacabana' };
+  const futureGrandMercure = { brand_code:'grand-mercure',slug:'grandmercurefuturehotel' };
+  assert.equal(resolveHotelTheme(rioProperty.brand_code,null).preset,'grand-mercure');
+  assert.equal(resolveHotelTheme(futureGrandMercure.brand_code,null).preset,'grand-mercure');
+  assert.equal(isGrandMercureRioCopacabanaProperty(rioProperty),true);
+  assert.equal(isGrandMercureRioCopacabanaProperty(futureGrandMercure),false);
+
+  const hiddenBanners = normalizeExperienceLayout([
+    { block_key:'hero',is_enabled:true,block_position:1 },
+    { block_key:'banners',is_enabled:false,block_position:2 },
+  ]);
+  const reorderedBanners = normalizeExperienceLayout([
+    { block_key:'hero',is_enabled:true,block_position:1 },
+    { block_key:'quick_info',is_enabled:true,block_position:2 },
+    { block_key:'announcements',is_enabled:true,block_position:3 },
+    { block_key:'services',is_enabled:true,block_position:4 },
+    { block_key:'departments',is_enabled:true,block_position:5 },
+    { block_key:'policies',is_enabled:true,block_position:6 },
+    { block_key:'contact',is_enabled:true,block_position:7 },
+    { block_key:'banners',is_enabled:true,block_position:8 },
+  ]);
+  assert.doesNotMatch(getComposedExperienceBlockKeys(hiddenBanners).join(','),/banners/);
+  assert.equal(isGrandMercureRioCopacabanaProperty(rioProperty),true);
+  assert.equal(getComposedExperienceBlockKeys(reorderedBanners).at(-1),'banners');
+  assert.equal(isGrandMercureRioCopacabanaProperty(rioProperty),true);
+
+  assert.equal(getGrandMercurePropertyLabel('Grand Mercure Rio de Janeiro Copacabana'),'RIO DE JANEIRO COPACABANA');
+  assert.equal(getGrandMercurePropertyLabel('Grand Mercure São Paulo Ibirapuera'),'SÃO PAULO IBIRAPUERA');
+  assert.doesNotMatch(read('components','public','grand-mercure','grand-mercure-brand-signature.tsx'),/RIO DE JANEIRO COPACABANA/);
+  for (const path of ['mercure/mercure-public-home.tsx','novotel/novotel-public-home.tsx']) {
+    assert.doesNotMatch(read('components','public',...path.split('/')),/GrandMercureBrazilianPillars|showRioCopacabanaEditorial/);
+  }
 });
 
 test('centralizes new-hotel defaults without changing readiness or analytics', () => {

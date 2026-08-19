@@ -32,7 +32,7 @@ export function NovotelMobileNavigation({
       aria-label={ariaLabel}
       className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-100 bg-white/96 pb-[env(safe-area-inset-bottom)] shadow-[0_-14px_34px_-26px_rgba(15,23,42,0.35)] backdrop-blur-xl min-[1025px]:hidden"
     >
-      <div className="mx-auto grid min-h-[60px] max-w-[430px] grid-cols-5 px-1 py-1.5">
+      <div className="mx-auto grid min-h-[60px] max-w-[430px] px-1 py-1.5" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
         {items.map((item) => {
           const Icon = ICONS[item.key];
           const isActive = item.key === activeItem;
