@@ -39,6 +39,7 @@ export async function moveExperienceBlockAction(formData: FormData) {
   const currentIndex = layout.findIndex((block) => block.blockKey === blockKey);
   const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
   if (currentIndex < 0 || targetIndex < 0 || targetIndex >= layout.length) return;
+  if (blockKey === 'hero' || layout[targetIndex]?.blockKey === 'hero') return;
   const orderedKeys = layout.map((block) => block.blockKey);
   [orderedKeys[currentIndex],orderedKeys[targetIndex]] = [orderedKeys[targetIndex],orderedKeys[currentIndex]];
   const supabase = await createClient();

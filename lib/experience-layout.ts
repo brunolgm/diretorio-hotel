@@ -67,7 +67,11 @@ export function normalizeExperienceLayout(
       isEnabled: definition.required ? true : row?.is_enabled ?? definition.defaultEnabled,
       position: row?.block_position ?? definition.defaultPosition,
     };
-  }).sort((a, b) => a.position - b.position);
+  }).sort((a, b) => {
+    if (a.blockKey === 'hero') return -1;
+    if (b.blockKey === 'hero') return 1;
+    return a.position - b.position;
+  });
 }
 
 export function getRenderableExperienceLayout(
@@ -79,4 +83,18 @@ export function getRenderableExperienceLayout(
     const definition = EXPERIENCE_BLOCK_CATALOG.find((block) => block.key === item.blockKey)!;
     return enabledModules.has(definition.requiredModule);
   });
+}
+
+export function getComposedExperienceBlockKeys(
+  layout: ExperienceLayoutBlock[],
+  renderableKeys: ReadonlySet<ExperienceBlockKey> = new Set(EXPERIENCE_BLOCK_KEYS)
+) {
+  return [...layout]
+    .sort((a, b) => {
+      if (a.blockKey === 'hero') return -1;
+      if (b.blockKey === 'hero') return 1;
+      return a.position - b.position;
+    })
+    .filter((block) => block.isEnabled && renderableKeys.has(block.blockKey))
+    .map((block) => block.blockKey);
 }
