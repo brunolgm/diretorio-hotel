@@ -37,7 +37,7 @@ export function GrandMercureBrazilianPillars({ language }: { language: Supported
 
   return (
     <section
-      className="grand-mercure-brazilian-pillars relative mx-3 mt-4 overflow-hidden rounded-[20px] border border-[#dfd2c0] bg-[#fffdf9] shadow-[0_16px_36px_-28px_rgba(56,45,29,.42)] md:mx-8 md:mt-6 md:rounded-[24px] lg:mx-14"
+      className="grand-mercure-brazilian-pillars relative mx-3 mt-4 overflow-hidden rounded-[20px] border border-[#dfd2c0] bg-[#fffdf9] shadow-[0_16px_36px_-28px_rgba(56,45,29,.42)] md:mx-8 md:mt-7 md:rounded-[24px] lg:mx-14"
       aria-label={sectionLabel}
     >
       <div className="relative z-10 grid grid-cols-2 md:grid-cols-4">
@@ -45,10 +45,10 @@ export function GrandMercureBrazilianPillars({ language }: { language: Supported
           const Icon = pillar.icon;
 
           return (
-            <article key={pillar.title} className="flex min-h-[164px] flex-col items-center px-3 pt-6 pb-8 text-center md:min-h-[180px] md:px-5 md:pt-8 md:pb-10">
+            <article key={pillar.title} className="flex min-h-[164px] flex-col items-center px-3 pt-6 pb-8 text-center md:min-h-[180px] md:px-5 md:pt-8 md:pb-11">
               <Icon className="h-7 w-7 text-[#b27e27] md:h-8 md:w-8" strokeWidth={1.45} aria-hidden="true" />
               <h2 className="mt-3 text-[11px] font-semibold leading-4 text-[#2d2a27] md:text-sm">{pillar.title}</h2>
-              <p className="mt-2 text-[9px] leading-[1.55] text-[#625b53] min-[390px]:text-[10px] md:text-xs md:leading-5">{pillar.description}</p>
+              <p className="mt-2 text-[9px] leading-[1.55] text-[#6f675e] min-[390px]:text-[10px] md:text-xs md:leading-5">{pillar.description}</p>
             </article>
           );
         })}

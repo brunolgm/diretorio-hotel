@@ -107,35 +107,49 @@ test('renders functional mobile-safe composition tabs and refreshable preview', 
 test('public resolution uses one narrow layout RPC and never reads the table directly', () => {
   const data = read('lib','public-hotel-data.ts');
   const generic = read('components','public','hotel-public-page-content.tsx');
+  const composer = read('components','public','experience-block-composer.tsx');
   const branded = ['grand-mercure/grand-mercure-public-home.tsx','mercure/mercure-public-home.tsx','novotel/novotel-public-home.tsx']
     .map((path) => read('components','public',...path.split('/'))).join('\n');
   assert.match(data,/rpc\('get_public_hotel_experience_layout'/);
   assert.doesNotMatch(data,/from\('hotel_experience_layout'\)/);
   assert.match(generic,/layoutByKey/);
   assert.match(generic,/isBlockVisible/);
-  assert.match(branded,/ExperienceBlockComposer/);
+  assert.match(branded,/layout\.some\(\(block\) => block\.blockKey === key && block\.isEnabled\)/);
   assert.doesNotMatch(branded,/style=\{\{ order:/);
+  assert.match(composer,/getComposedExperienceBlockKeys/);
+  assert.doesNotMatch(composer,/blockGroup|Segment|grid|margin|grand-mercure|mercure|novotel/i);
 });
 
-test('all branded homes render only through the canonical compositor', () => {
+test('keeps theme presentation local while canonical layout governs visibility', () => {
   const homes = ['grand-mercure/grand-mercure-public-home.tsx','mercure/mercure-public-home.tsx','novotel/novotel-public-home.tsx'];
   for (const path of homes) {
     const source = read('components','public',...path.split('/'));
-    assert.match(source,/ExperienceBlockComposer/);
-    for (const key of EXPERIENCE_BLOCK_KEYS) assert.match(source,new RegExp(`${key}:`));
+    assert.doesNotMatch(source,/ExperienceBlockComposer|blockGroup|getComposedExperienceBlockSegments/);
+    assert.match(source,/enabled\('banners'\) && banners\.length > 0/);
+    assert.match(source,/enabled\('contact'\)/);
     assert.doesNotMatch(source,/style=\{\{ order:|order\('banners'\) \+ 0\.5/);
     assert.doesNotMatch(source,/editorialMenuTitle|editorialTourismTitle|areaHref\('cardapio'\)|areaHref\('turismo'\)/);
   }
+
   const grandMercure = read('components','public','grand-mercure','grand-mercure-public-home.tsx');
-  const composerIndex = grandMercure.indexOf('<ExperienceBlockComposer');
+  const heroIndex = grandMercure.indexOf('{hero}');
+  const gridIndex = grandMercure.indexOf('{cardGridSection}');
+  const highlightsIndex = grandMercure.indexOf('{highlights}');
   const editorialIndex = grandMercure.indexOf('<GrandMercureBrazilianPillars');
   const supportIndex = grandMercure.indexOf('{supportStrip}');
   const footerIndex = grandMercure.indexOf('<footer');
-  assert.ok(composerIndex < editorialIndex);
+  assert.ok(heroIndex < gridIndex);
+  assert.ok(gridIndex < highlightsIndex);
+  assert.ok(highlightsIndex < editorialIndex);
   assert.ok(editorialIndex < supportIndex);
   assert.ok(supportIndex < footerIndex);
+  assert.match(grandMercure,/grand-mercure-scroll-region mx-auto max-w-\[1280px\]/);
+  assert.doesNotMatch(grandMercure,/grand-mercure-scroll-region[^"\n]*\bflex\b|grand-mercure-scroll-region[^"\n]*flex-col/);
+  assert.equal((grandMercure.match(/grand-mercure-access-grid/g) ?? []).length,1);
+  assert.match(grandMercure,/const hero = <section[\s\S]*?LanguageSwitcher[\s\S]*?<\/section>;/);
+  assert.match(grandMercure,/showHighlights \? <section[\s\S]*?PromotionalBannerCarousel/);
   assert.match(grandMercure,/showRioCopacabanaEditorial \? <GrandMercureBrazilianPillars/);
-  assert.doesNotMatch(grandMercure.match(/banners:[\s\S]*?announcements:/)?.[0] || '',/GrandMercureBrazilianPillars|showRioCopacabanaEditorial/);
+  assert.doesNotMatch(grandMercure.match(/const highlights[\s\S]*?const supportStrip/)?.[0] || '',/GrandMercureBrazilianPillars/);
   assert.match(read('components','public','hotel-public-page-content.tsx'),/isBlockVisible\('contact'\) && whatsappHref/);
 });
 
@@ -145,14 +159,23 @@ test('preserves each approved brand presentation while composition remains share
   const novotel = read('components','public','novotel','novotel-public-home.tsx');
 
   assert.match(grandMercure,/grand-mercure-access-grid grid gap-2/);
-  assert.match(grandMercure,/min-h-\[158px\][\s\S]*md:min-h-\[240px\]/);
+  assert.match(grandMercure,/min-h-\[178px\][\s\S]*min-\[360px\]:min-h-\[190px\][\s\S]*md:min-h-\[240px\]/);
   assert.match(grandMercure,/ChevronDown/);
-  assert.match(grandMercure,/grand-mercure-banner-zone[\s\S]*PromotionalBannerCarousel/);
-  assert.match(grandMercure,/showEmptyFallback/);
+  assert.match(grandMercure,/grand-mercure-carioca-featured-banner[\s\S]*PromotionalBannerCarousel/);
+  assert.doesNotMatch(grandMercure,/showEmptyFallback|ctaHref|areaHref\('turismo'\)/);
 
+  assert.match(mercure,/getThemedCardGridLayout\(cards\.length, 2, 'md'\)/);
   assert.match(mercure,/mercure-access-grid[\s\S]*cardGrid\.containerClassName/);
+  assert.match(mercure,/cardGrid\.itemClassName\(index\)/);
   assert.match(mercure,/mercure-access-card[\s\S]*md:min-h-\[224px\]/);
+  assert.equal((mercure.match(/mercure-access-grid/g) ?? []).length,1);
+  assert.equal((mercure.match(/-mt-6/g) ?? []).length,1);
+  assert.match(novotel,/getThemedCardGridLayout\(cards\.length, 2, 'xl'\)/);
   assert.match(novotel,/cardGrid\.containerClassName/);
+  assert.match(novotel,/cardGrid\.itemClassName\(index\)/);
+  assert.doesNotMatch(novotel,/md:grid-cols-3/);
+  assert.equal((novotel.match(/-mt-6/g) ?? []).length,1);
+  assert.equal((novotel.match(/md:-mt-10/g) ?? []).length,1);
   assert.match(novotel,/ChevronRight/);
 
   const branded = `${grandMercure}\n${mercure}\n${novotel}`;
@@ -160,29 +183,252 @@ test('preserves each approved brand presentation while composition remains share
   assert.doesNotMatch(branded,/editorialMenuTitle|editorialTourismTitle|areaHref\('cardapio'\)|areaHref\('turismo'\)/);
 });
 
-test('builds compact filler-free themed grids for every supported cardinality', () => {
+test('centers incomplete Novotel and Mercure rows from one to six renderable cards', () => {
   const expectedDesktopRows = [[1],[2],[3],[2,2],[3,2],[3,3]];
+  const expectedMobileContainers = [
+    'grid-cols-1',
+    'grid-cols-2',
+    'grid-cols-4',
+    'grid-cols-2',
+    'grid-cols-4',
+    'grid-cols-2',
+  ];
+  const expectedDesktopContainers = [
+    'grid-cols-1',
+    'grid-cols-2',
+    'grid-cols-3',
+    'grid-cols-2',
+    'grid-cols-6',
+    'grid-cols-3',
+  ];
+
   for (let cardCount = 1; cardCount <= 6; cardCount += 1) {
-    const grandMercureGrid = getThemedCardGridLayout(cardCount,3);
-    const twoColumnMobileGrid = getThemedCardGridLayout(cardCount,2);
-    assert.deepEqual(grandMercureGrid.desktopRows,expectedDesktopRows[cardCount - 1]);
-    assert.deepEqual(twoColumnMobileGrid.desktopRows,expectedDesktopRows[cardCount - 1]);
-    assert.equal(grandMercureGrid.singleCard,cardCount === 1);
-    assert.equal(twoColumnMobileGrid.singleCard,cardCount === 1);
+    const mercureGrid = getThemedCardGridLayout(cardCount,2,'md');
+    const novotelGrid = getThemedCardGridLayout(cardCount,2,'xl');
+
+    for (const grid of [mercureGrid,novotelGrid]) {
+      assert.deepEqual(grid.desktopRows,expectedDesktopRows[cardCount - 1]);
+      assert.equal(grid.singleCard,cardCount === 1);
+      assert.match(grid.containerClassName,new RegExp(`^${expectedMobileContainers[cardCount - 1]}\\b`));
+    }
+    assert.match(mercureGrid.containerClassName,new RegExp(`md:${expectedDesktopContainers[cardCount - 1]}\\b`));
+    assert.match(novotelGrid.containerClassName,new RegExp(`xl:${expectedDesktopContainers[cardCount - 1]}\\b`));
+    assert.doesNotMatch(novotelGrid.containerClassName,/md:grid-cols-3/);
+
+    const mercurePlacements = Array.from({ length: cardCount },(_,index) => mercureGrid.itemClassName(index));
+    const novotelPlacements = Array.from({ length: cardCount },(_,index) => novotelGrid.itemClassName(index));
+    assert.equal(mercurePlacements.length,cardCount);
+    assert.equal(novotelPlacements.length,cardCount);
+    assert.doesNotMatch(mercurePlacements.join(' '),/(?:^|:)order-/);
+    assert.doesNotMatch(novotelPlacements.join(' '),/(?:^|:)order-/);
   }
 
-  assert.match(getThemedCardGridLayout(2,3).containerClassName,/md:grid-cols-2/);
-  assert.match(getThemedCardGridLayout(3,3).containerClassName,/md:grid-cols-3/);
-  assert.match(getThemedCardGridLayout(4,3).containerClassName,/md:grid-cols-2/);
-  assert.match(getThemedCardGridLayout(5,3).containerClassName,/md:grid-cols-6/);
-  assert.match(getThemedCardGridLayout(5,3).itemClassName(3),/md:col-start-2/);
-  assert.match(getThemedCardGridLayout(5,3).itemClassName(4),/md:col-start-4/);
-  assert.match(getThemedCardGridLayout(6,3).containerClassName,/md:grid-cols-3/);
+  for (const breakpoint of ['md','xl'] as const) {
+    const threeCards = getThemedCardGridLayout(3,2,breakpoint);
+    assert.match(threeCards.itemClassName(0),/^col-span-2/);
+    assert.match(threeCards.itemClassName(1),/^col-span-2/);
+    assert.match(threeCards.itemClassName(2),/col-span-2 col-start-2/);
+    assert.doesNotMatch(threeCards.itemClassName(2),/col-span-4/);
+    assert.match(threeCards.itemClassName(2),new RegExp(`${breakpoint}:col-span-1 ${breakpoint}:col-start-auto`));
 
-  assert.match(getThemedCardGridLayout(6,3).containerClassName,/grid-cols-3/);
-  assert.match(getThemedCardGridLayout(6,2).containerClassName,/^grid-cols-2/);
-  assert.match(getThemedCardGridLayout(3,2).itemClassName(2),/col-start-2/);
+    const fiveCards = getThemedCardGridLayout(5,2,breakpoint);
+    assert.match(fiveCards.itemClassName(4),/col-span-2 col-start-2/);
+    assert.match(fiveCards.itemClassName(3),new RegExp(`${breakpoint}:col-span-2 ${breakpoint}:col-start-2`));
+    assert.match(fiveCards.itemClassName(4),new RegExp(`${breakpoint}:col-span-2 ${breakpoint}:col-start-4`));
+  }
+
+  assert.throws(() => getThemedCardGridLayout(0,2),/themed_card_grid_count_invalid/);
+  assert.throws(() => getThemedCardGridLayout(7,2),/themed_card_grid_count_invalid/);
   assert.doesNotMatch(read('lib','themed-card-grid.ts'),/placeholder|filler|visibility:\s*hidden|opacity-0/);
+});
+
+test('renders grids only from filtered cards and keeps theme boundaries isolated', () => {
+  const grandMercure = read('components','public','grand-mercure','grand-mercure-public-home.tsx');
+  const mercure = read('components','public','mercure','mercure-public-home.tsx');
+  const novotel = read('components','public','novotel','novotel-public-home.tsx');
+  const styles = read('app','globals.css');
+
+  for (const source of [mercure,novotel]) {
+    assert.match(source,/\.filter\(\(card\) => enabled\(card\.blockKey\)\)\.sort/);
+    assert.match(source,/const cardGrid = cards\.length \? getThemedCardGridLayout/);
+    assert.match(source,/const cardGridSection = cardGrid \?/);
+    assert.match(source,/cards\.map\(\(card, index\)/);
+    assert.doesNotMatch(source,/placeholder|filler|opacity-0|invisible/);
+    assert.doesNotMatch(source,/(?:^|:)order-/);
+    assert.doesNotMatch(source,/editorialMenuTitle|editorialTourismTitle|areaHref\('cardapio'\)|areaHref\('turismo'\)/);
+  }
+
+  assert.match(mercure,/getThemedCardGridLayout\(cards\.length, 2, 'md'\)/);
+  assert.match(novotel,/getThemedCardGridLayout\(cards\.length, 2, 'xl'\)/);
+  assert.doesNotMatch(mercure,/xl:grid-cols|#0052B4|#002F6C/);
+  assert.doesNotMatch(novotel,/mercure-access-grid|mercure-access-card|#71386e/);
+  assert.doesNotMatch(styles,/themed-card-grid|novotel-card-grid|mercure-card-grid/);
+
+  assert.match(grandMercure,/getThemedCardGridLayout\(cards\.length, 2\)/);
+  assert.match(grandMercure,/grand-mercure-access-grid grid gap-2/);
+});
+
+test('keeps Novotel and Mercure content surrounding the grid unchanged and in place', () => {
+  const novotel = read('components','public','novotel','novotel-public-home.tsx');
+  const mercure = read('components','public','mercure','mercure-public-home.tsx');
+
+  assert.match(novotel,/const hero = <section[\s\S]*NovotelHeroBackdrop[\s\S]*NovotelBrandSignature[\s\S]*copy\.novotelHeroDescription/);
+  assert.match(novotel,/showHighlights \? <section[\s\S]*PromotionalBannerCarousel banners=\{banners\}/);
+  assert.match(novotel,/const supportCard = enabled\('contact'\) \? <section[\s\S]*CircleHelp[\s\S]*Novotel help card/);
+  assert.match(novotel,/NovotelMobileNavigation items=\{navigationItems\}/);
+  assert.ok(novotel.indexOf('{hero}') < novotel.indexOf('{cardGridSection}'));
+  assert.ok(novotel.indexOf('{cardGridSection}') < novotel.indexOf('{highlights}'));
+  assert.ok(novotel.indexOf('{highlights}') < novotel.indexOf('{supportCard}'));
+  assert.ok(novotel.indexOf('{supportCard}') < novotel.indexOf('<footer'));
+
+  assert.match(mercure,/const hero = <section[\s\S]*MercureBrandSignature[\s\S]*copy\.mercureHeroDescription/);
+  assert.match(mercure,/showHighlights \? <div[\s\S]*MercurePromotionalBanner banners=\{banners\}/);
+  assert.match(mercure,/const supportCard = enabled\('contact'\) \? <section[\s\S]*Headphones[\s\S]*Mercure help card/);
+  assert.match(mercure,/MercureBottomDock items=\{navigationItems\}/);
+  assert.ok(mercure.indexOf('{hero}') < mercure.indexOf('{cardGridSection}'));
+  assert.ok(mercure.indexOf('{cardGridSection}') < mercure.indexOf('{highlights}'));
+  assert.ok(mercure.indexOf('{highlights}') < mercure.indexOf('{supportCard}'));
+  assert.ok(mercure.indexOf('{supportCard}') < mercure.indexOf('<footer'));
+});
+
+test('renders image-free public banners as intentional themed editorial content', () => {
+  const carousel = read('components','public','promotional-banner-carousel.tsx');
+  const styles = read('app','globals.css');
+  const grandMercure = read('components','public','grand-mercure','grand-mercure-public-home.tsx');
+  const mercure = read('components','public','mercure','mercure-public-home.tsx');
+  const novotel = read('components','public','novotel','novotel-public-home.tsx');
+  const fallbackStart = carousel.indexOf('<article className="hotel-theme-banner hotel-theme-banner-fallback overflow-hidden');
+  const fallbackEnd = carousel.indexOf('export function PromotionalBannerCarousel');
+  const fallback = carousel.slice(fallbackStart,fallbackEnd);
+
+  assert.ok(fallbackStart >= 0 && fallbackEnd > fallbackStart);
+  assert.doesNotMatch(carousel,/Imagem opcional não configurada|ImageIcon/);
+  assert.doesNotMatch(fallback,/periodLabel|activeUntil|activeDuringPeriod|hotel-theme-banner-missing-image/);
+  assert.match(fallback,/hotel-theme-banner-eyebrow/);
+  assert.match(fallback,/<h2 className="mt-3 text-2xl font-semibold tracking-\[-0\.02em\] md:text-\[2rem\]">/);
+  assert.doesNotMatch(fallback,/<h2[^>]*text-white|<p[^>]*text-slate/);
+  assert.match(fallback,/banner\.subtitle \|\| copy\.fallback/);
+
+  assert.match(fallback,/banner\.cta_url \? \([\s\S]*href=\{banner\.cta_url\}[\s\S]*target="_blank"[\s\S]*rel="noreferrer"/);
+  assert.match(fallback,/hotel-theme-banner-cta[\s\S]*focus-visible:ring-2[\s\S]*\{ctaLabel\}[\s\S]*ExternalLink/);
+  assert.match(carousel,/const periodLabel = getPeriodLabel\(banner, language, copy\);[\s\S]*if \(banner\.image_url\)[\s\S]*\{periodLabel\}/);
+
+  assert.match(styles,/\.hotel-theme-page\[data-hotel-theme="grand-mercure"\] \.hotel-theme-banner-fallback > div \{[\s\S]*?background: linear-gradient\(120deg, #fffdf9[\s\S]*?color: #39342e !important/);
+  assert.match(styles,/\.hotel-theme-page\[data-hotel-theme="grand-mercure"\] \.hotel-theme-banner-fallback h2,[\s\S]*?color: #51483e !important/);
+  assert.match(grandMercure,/PromotionalBannerCarousel banners=\{banners\} language=\{language\}/);
+  assert.match(mercure,/MercurePromotionalBanner banners=\{banners\} language=\{language\}/);
+  assert.match(novotel,/PromotionalBannerCarousel banners=\{banners\} language=\{language\}/);
+});
+
+test('removes the temporary Grand Mercure diagnostics', () => {
+  const loader = read('lib','public-hotel-data.ts');
+  const home = read('components','public','grand-mercure','grand-mercure-public-home.tsx');
+  assert.doesNotMatch(`${loader}\n${home}`,/\[GM DEBUG\]|\[GM HOME DEBUG\]/);
+});
+
+test('keeps Mercure mobile card copy readable and removes help-card compositing at the source', () => {
+  const mercure = read('components','public','mercure','mercure-public-home.tsx');
+  const grandMercure = read('components','public','grand-mercure','grand-mercure-public-home.tsx');
+  const novotel = read('components','public','novotel','novotel-public-home.tsx');
+  const styles = read('app','globals.css');
+  const descriptionClassName = mercure.match(/<p className="([^"]+)">\{card\.description\}<\/p>/)?.[1] ?? '';
+  const helpCardClassName = mercure.match(/const supportCard = enabled\('contact'\) \? <section className="([^"]+)"/)?.[1] ?? '';
+  const helpCardSource = mercure.match(/const supportCard =[\s\S]*?<\/section> : null;/)?.[0] ?? '';
+
+  assert.match(descriptionClassName,/\bmax-md:w-full\b/);
+  assert.match(descriptionClassName,/\bmax-md:min-w-0\b/);
+  assert.doesNotMatch(descriptionClassName,/(?:^|\s)(?:md:)?w-full(?:\s|$)/);
+  assert.match(descriptionClassName,/(?:^|\s)max-w-\[180px\](?:\s|$)/);
+  assert.match(descriptionClassName,/\bbreak-words\b/);
+  assert.match(descriptionClassName,/\bwhitespace-normal\b/);
+  assert.doesNotMatch(descriptionClassName,/whitespace-nowrap|truncate|line-clamp|overflow-hidden/);
+
+  assert.match(helpCardClassName,/\boverflow-visible\b/);
+  assert.doesNotMatch(helpCardClassName,/mercure-help-card|backdrop-filter/);
+  assert.doesNotMatch(helpCardClassName,/(?:^|\s)-(?:mt|translate-y)-|absolute|(?:^|\s)h-\[/);
+  assert.match(helpCardClassName,/max-md:relative max-md:z-10 max-md:isolate/);
+  assert.doesNotMatch(helpCardClassName,/(?:^|\s)(?:relative|z-10|isolate|md:relative|md:z-10|md:isolate)(?:\s|$)/);
+  assert.doesNotMatch(helpCardSource,/::before|::after|before:|after:|absolute|overflow-hidden|backdrop-filter/);
+  assert.equal((helpCardSource.match(/shrink-0/g) ?? []).length,2);
+
+  assert.match(mercure,/getThemedCardGridLayout\(cards\.length, 2, 'md'\)/);
+  assert.equal(getThemedCardGridLayout(2,2,'md').containerClassName,'grid-cols-2 md:grid-cols-2');
+  assert.match(helpCardClassName,/md:mx-10 md:mt-6 md:min-h-\[104px\] md:gap-5 md:rounded-\[26px\] md:p-5/);
+  assert.match(styles,/\.mercure-public-home\[data-hotel-theme="mercure"\] \.mercure-access-card,[\s\S]*?\.mercure-help-card \{[\s\S]*?backdrop-filter: blur\(2px\)/);
+  assert.match(mercure,/mercure-access-card group/);
+
+  assert.match(grandMercure,/grand-mercure-access-grid grid gap-2/);
+  assert.match(novotel,/getThemedCardGridLayout\(cards\.length, 2, 'xl'\)/);
+  assert.doesNotMatch(`${grandMercure}\n${novotel}`,/mercure-help-card|whitespace-normal text-\[11px\]/);
+});
+
+test('keeps Novotel final content clear of the fixed mobile dock', () => {
+  const novotel = read('components','public','novotel','novotel-public-home.tsx');
+  const dock = read('components','public','novotel','novotel-mobile-navigation.tsx');
+  const grandMercure = read('components','public','grand-mercure','grand-mercure-public-home.tsx');
+  const supportCardClassName = novotel.match(/const supportCard = enabled\('contact'\) \? <section className="([^"]+)"/)?.[1] ?? '';
+
+  assert.match(novotel,/pb-\[calc\(61px\+env\(safe-area-inset-bottom\)\+5rem\)\] min-\[1025px\]:pb-12/);
+  assert.doesNotMatch(novotel,/61px\+env\(safe-area-inset-bottom\)\+4rem/);
+  assert.doesNotMatch(novotel,/pb-\[calc\(7\.5rem\+env\(safe-area-inset-bottom\)\)\]/);
+  assert.match(dock,/fixed inset-x-0 bottom-0/);
+  assert.match(dock,/border-t/);
+  assert.match(dock,/pb-\[env\(safe-area-inset-bottom\)\]/);
+  assert.match(dock,/min-h-\[60px\]/);
+  assert.match(dock,/min-\[1025px\]:hidden/);
+  assert.match(supportCardClassName,/mx-4 mt-4/);
+  assert.doesNotMatch(supportCardClassName,/pb-|mb-|translate-y/);
+  assert.ok(novotel.indexOf('{supportCard}') < novotel.indexOf('<footer'));
+  assert.match(novotel,/getThemedCardGridLayout\(cards\.length, 2, 'xl'\)/);
+  assert.doesNotMatch(grandMercure,/61px\+env\(safe-area-inset-bottom\)\+5rem/);
+});
+
+test('preserves the approved Grand Mercure grid class contract', () => {
+  const expected = [
+    { container:'grid-cols-1 md:grid-cols-1',items:[''] },
+    { container:'grid-cols-2 md:grid-cols-2',items:['',''] },
+    { container:'grid-cols-4 md:grid-cols-3',items:['col-span-2 md:col-span-1 md:col-start-auto','col-span-2 md:col-span-1 md:col-start-auto','col-span-2 col-start-2 md:col-span-1 md:col-start-auto'] },
+    { container:'grid-cols-2 md:grid-cols-2',items:['','','',''] },
+    { container:'grid-cols-4 md:grid-cols-6',items:['col-span-2 md:col-span-2 md:col-start-auto','col-span-2 md:col-span-2 md:col-start-auto','col-span-2 md:col-span-2 md:col-start-auto','col-span-2 md:col-span-2 md:col-start-2','col-span-2 col-start-2 md:col-span-2 md:col-start-4'] },
+    { container:'grid-cols-2 md:grid-cols-3',items:['','','','','',''] },
+  ];
+
+  for (let cardCount = 1; cardCount <= 6; cardCount += 1) {
+    const grid = getThemedCardGridLayout(cardCount,2);
+    assert.equal(grid.containerClassName,expected[cardCount - 1].container);
+    assert.deepEqual(
+      Array.from({ length: cardCount },(_,index) => grid.itemClassName(index).split(/\s+/).filter(Boolean)),
+      expected[cardCount - 1].items.map((classes) => classes.split(/\s+/).filter(Boolean)),
+    );
+  }
+});
+
+test('keeps the Rio editorial section natural, mobile-safe and independent from highlights', () => {
+  const grandMercure = read('components','public','grand-mercure','grand-mercure-public-home.tsx');
+  const pillars = read('components','public','grand-mercure','grand-mercure-brazilian-pillars.tsx');
+  const styles = read('app','globals.css');
+  const dock = read('components','public','grand-mercure','grand-mercure-mobile-navigation.tsx');
+
+  assert.match(pillars,/grid grid-cols-2 md:grid-cols-4/);
+  assert.equal((pillars.match(/title:/g) ?? []).length,12);
+  for (const title of ['Gastronomia Local','Vistas Inesquec\u00edveis','Cultura Carioca','Hospitalidade Brasileira']) {
+    assert.match(pillars,new RegExp(title));
+  }
+  const sectionClassName = pillars.match(/className="grand-mercure-brazilian-pillars([^"]*)"/)?.[1] ?? '';
+  assert.doesNotMatch(sectionClassName,/(?:^|\s)(?:h-|max-h-)\[[^\]]+\]/);
+  assert.match(pillars,/grand-mercure-promenade/);
+  assert.match(grandMercure,/enabled\('banners'\) && banners\.length > 0/);
+  assert.match(grandMercure,/showHighlights \? <section/);
+  assert.match(grandMercure,/showRioCopacabanaEditorial \? <GrandMercureBrazilianPillars/);
+  assert.doesNotMatch(grandMercure,/showHighlights\s*&&[\s\S]{0,120}GrandMercureBrazilianPillars/);
+  assert.ok(grandMercure.indexOf('{highlights}') < grandMercure.indexOf('{showRioCopacabanaEditorial ? <GrandMercureBrazilianPillars'));
+
+  assert.match(styles,/--grand-mercure-dock-height:\s*94px/);
+  assert.match(styles,/height:\s*calc\(100dvh - var\(--grand-mercure-dock-height\) - env\(safe-area-inset-bottom\)\)/);
+  assert.match(styles,/\.grand-mercure-scroll-region\s*\{[\s\S]*?padding-bottom:\s*3rem;[\s\S]*?scroll-padding-bottom:\s*3rem;/);
+  assert.doesNotMatch(styles,/padding-bottom:\s*calc\(var\(--grand-mercure-dock-height\)/);
+  assert.match(dock,/pb-\[env\(safe-area-inset-bottom\)\]/);
+  assert.match(dock,/min-\[1025px\]:hidden/);
 });
 
 test('keeps the Grand Mercure theme reusable and scopes the Rio editorial extension to one property', () => {

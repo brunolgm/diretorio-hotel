@@ -21,13 +21,13 @@ Composição controla somente ordem e visibilidade. Ela não altera conteúdo, i
 
 Footer LibGuest, seletor de idioma, analytics e navegação móvel são estruturais e ficam fora da composição. Não existem variants nesta sprint: os temas atuais não apresentam uma necessidade uniforme que justifique esse contrato. HTML, CSS, JavaScript e labels livres não são persistidos.
 
-Todos os temas percorrem o layout normalizado pelo mesmo compositor. Nos temas editoriais de bandeira, cada conteúdo canônico mantém sua apresentação visual própria e pertence a uma das oito chaves. No tema default, os oito blocos continuam materializados diretamente na home.
+Todos os temas percorrem o layout normalizado, mas o compositor não impõe uma árvore visual comum. Nos temas editoriais de bandeira, o layout define entitlement, visibilidade e a ordem interna dos acessos; cada tema preserva sua própria macroestrutura. No tema default, os oito blocos continuam materializados diretamente na home.
 
 O compositor não fornece apresentação visual. Grand Mercure, Mercure e Novotel preservam seus Heroes, grids de atalhos, Destaques e faixas de suporte próprios. Dentro dos grids, os acessos disponíveis são filtrados por conteúdo, entitlement e visibilidade e seguem a ordem lógica do layout; `fb.menu` e `content.tourism` não produzem atalhos enquanto indisponíveis.
 
-As grades temáticas são calculadas somente depois dessa filtragem. No desktop, 1 card fica centralizado e limitado em largura; 2 e 3 cards formam uma linha; 4 formam 2×2; 5 formam 3+2 com a segunda linha centralizada; 6 formam 3×2. Não são criados fillers ou células invisíveis. No mobile, Grand Mercure preserva até três colunas e Mercure/Novotel preservam duas, centralizando a última linha ímpar sem reservar conteúdo inexistente.
+As grades temáticas são calculadas somente depois dessa filtragem. No desktop, 1 card fica centralizado e limitado em largura; 2 e 3 cards formam uma linha; 4 formam 2×2; 5 formam 3+2 com a segunda linha centralizada; 6 formam 3×2. Não são criados fillers ou células invisíveis. No mobile, os três temas usam duas colunas e centralizam a última linha ímpar sem reservar conteúdo inexistente. Novotel preserva sua transição histórica para três colunas somente em `xl`.
 
-`grand-mercure` permanece uma única identidade reutilizável. Cor, tipografia, ornamentos, estrutura e componentes gerais são compartilhados por qualquer hotel da bandeira. A extensão editorial carioca não é um bloco canônico nem conteúdo promocional: no Grand Mercure Rio de Janeiro Copacabana ela é renderizada depois do compositor e antes da faixa estrutural de suporte e do footer/dock. Assim, ocultar ou reordenar `banners` não afeta a extensão e nenhum segundo tema ou preset específico do Rio é necessário.
+`grand-mercure` permanece uma única identidade reutilizável. Cor, tipografia, ornamentos, estrutura e componentes gerais são compartilhados por qualquer hotel da bandeira. Sua home usa fluxo DOM natural — Hero, grade temática única, Destaques quando houver banners renderizáveis, extensão editorial da propriedade, suporte e footer/dock — sem `flex order`. A extensão carioca não é um bloco canônico nem conteúdo promocional; ocultar `banners` remove somente Destaques e nenhum segundo tema ou preset específico do Rio é necessário.
 
 A propriedade é reconhecida pelo `slug` canônico `grandmercureriocopacabana`. Não existe UUID estável versionado para ela; entre os campos disponíveis, o slug é a identidade única usada pelo roteamento público. O nome exibido não participa da decisão, o subdomínio permanece um alias de acesso e o `brand_code` continua responsável apenas pela seleção normal do tema Grand Mercure.
 
@@ -43,7 +43,7 @@ Os atalhos de Cardápio e Turismo não são renderizados na home nem no dock enq
 - hero sempre habilitado;
 - `updated_by` e `updated_at` para rastreabilidade.
 
-A migration semeia oito linhas para todo hotel existente. O default do tema LibGuest reproduz a ordem anterior. Hotéis Mercure, Novotel e Grand Mercure recebem a ordem editorial anterior como baseline, e o compositor intercala os demais blocos renderizáveis exatamente nas posições persistidas. Nenhum conteúdo é reescrito.
+A migration semeia oito linhas para todo hotel existente. O default do tema LibGuest reproduz a ordem anterior. Nos temas editoriais, o contrato persistido filtra os conteúdos permitidos sem fragmentar os grids ou substituir a apresentação própria da bandeira. Nenhum conteúdo é reescrito.
 
 Se linhas estiverem ausentes, RPCs e TypeScript completam o catálogo com defaults seguros. Blocos opcionais sem conteúdo são omitidos na home default, evitando estados vazios desnecessários.
 

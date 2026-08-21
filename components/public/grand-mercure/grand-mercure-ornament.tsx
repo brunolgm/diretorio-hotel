@@ -15,6 +15,9 @@ export function GrandMercureGlobalMandala({ internal = false }: { internal?: boo
       className={`grand-mercure-global-mandala ${internal ? 'grand-mercure-global-mandala-internal' : ''}`}
       style={style}
       aria-hidden="true"
-    />
+    >
+      <span className="grand-mercure-global-mandala-art grand-mercure-global-mandala-left" />
+      <span className="grand-mercure-global-mandala-art grand-mercure-global-mandala-right" />
+    </div>
   );
 }
