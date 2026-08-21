@@ -1,7 +1,6 @@
 import type { ElementType } from 'react';
 import Image from 'next/image';
 import { BellRing, Headphones, Info, Megaphone, MessageCircle } from 'lucide-react';
-import { ExperienceBlockComposer } from '@/components/public/experience-block-composer';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import type { DomainContext } from '@/lib/domain-context';
@@ -44,15 +43,15 @@ export function MercurePublicHome({ pageData, language, domainContext, preferSub
     ...(announcements.length ? [{ blockKey: 'announcements' as const, area: 'comunicados' as const, title: copy.editorialAnnouncementsTitle, description: copy.mercureAnnouncementsDescription, icon: Megaphone }] : []),
     ...(sections.length ? [{ blockKey: 'services' as const, area: 'servicos' as const, title: copy.editorialServicesTitle, description: copy.mercureServicesDescription, icon: BellRing }] : []),
   ].filter((card) => enabled(card.blockKey)).sort((a, b) => position(a.blockKey) - position(b.blockKey));
-  const cardGrid = cards.length ? getThemedCardGridLayout(cards.length, 2) : null;
+  const cardGrid = cards.length ? getThemedCardGridLayout(cards.length, 2, 'md') : null;
+  const showHighlights = enabled('banners') && banners.length > 0;
   const navigationItems = [
     { key: 'home' as const, href: homeHref, label: copy.navigationHome },
     ...(enabled('services') && sections.length ? [{ key: 'services' as const, href: areaHref('servicos'), label: copy.navigationServices }] : []),
     ...(enabled('quick_info') ? [{ key: 'information' as const, href: areaHref('informacoes'), label: copy.navigationInformation }] : []),
     ...(enabled('contact') ? [{ key: 'contact' as const, href: areaHref('contato'), label: copy.navigationContact }] : []),
   ];
-  const blocks = {
-    hero: <section className="mercure-hero relative min-h-[430px] overflow-hidden rounded-b-[34px] border-b border-[#52204f]/8 bg-[#fbf7f8] md:min-h-[540px] md:rounded-[34px] md:border">
+  const hero = <section className="mercure-hero relative min-h-[430px] overflow-hidden rounded-b-[34px] border-b border-[#52204f]/8 bg-[#fbf7f8] md:min-h-[540px] md:rounded-[34px] md:border">
       <div className="mercure-hero-floral pointer-events-none absolute inset-0" aria-hidden="true" />
       <div className="mercure-hero-media absolute inset-y-0 right-0 w-[78%] md:w-[64%]">
         <Image src={heroImage} alt={hotel.hero_image_url ? hotel.name : ''} fill unoptimized={Boolean(hotel.hero_image_url)} className="object-cover object-[65%_center] md:object-[62%_center]" sizes="(min-width: 768px) 790px, 78vw" priority />
@@ -66,31 +65,29 @@ export function MercurePublicHome({ pageData, language, domainContext, preferSub
           <p className="mt-2 whitespace-pre-line text-[15px] leading-6 text-[#52204f] md:mt-3 md:text-xl md:leading-8">{copy.mercureHeroDescription}</p>
         </div>
       </div>
-    </section>,
-    quick_info: cardGrid ? <section className={`mercure-access-grid relative z-20 -mt-6 grid gap-3 px-3 md:-mt-8 md:gap-5 md:px-10 lg:px-14 ${cardGrid.containerClassName} ${cardGrid.singleCard ? 'mx-auto w-full max-w-lg' : ''}`}>
+    </section>;
+  const cardGridSection = cardGrid ? <section className={`mercure-access-grid relative z-20 -mt-6 grid gap-3 px-3 md:-mt-8 md:gap-5 md:px-10 lg:px-14 ${cardGrid.containerClassName} ${cardGrid.singleCard ? 'mx-auto w-full max-w-lg' : ''}`}>
       {cards.map((card, index) => { const Icon = card.icon; return <a key={card.area} href={areaHref(card.area)} className={`mercure-access-card group flex min-h-[166px] min-w-0 flex-col items-center justify-center overflow-hidden rounded-[19px] border border-[#52204f]/7 bg-[#fffdfd] px-3 py-5 text-center shadow-[0_16px_38px_-25px_rgba(61,23,60,.3)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_44px_-25px_rgba(61,23,60,.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#71386e] focus-visible:ring-offset-2 md:min-h-[224px] md:rounded-[26px] md:px-6 md:py-7 ${cardGrid.itemClassName(index)}`}>
         <Icon className="h-12 w-12 shrink-0 text-[#52204f] md:h-16 md:w-16" strokeWidth={1.55} aria-hidden="true" />
         <h2 className="mt-3 break-words text-sm leading-5 font-semibold text-[#52204f] min-[390px]:text-[15px] md:mt-5 md:text-xl">{card.title}</h2>
-        <p className="mt-1 max-w-[180px] text-[11px] leading-[15px] text-[#685d64] min-[390px]:text-xs min-[390px]:leading-4 md:mt-2 md:text-sm md:leading-5">{card.description}</p>
+        <p className="mt-1 max-w-[180px] break-words whitespace-normal text-[11px] leading-[15px] text-[#685d64] max-md:w-full max-md:min-w-0 min-[390px]:text-xs min-[390px]:leading-4 md:mt-2 md:text-sm md:leading-5">{card.description}</p>
       </a>; })}
-    </section> : null,
-    banners: <div className="mt-4 px-3 md:mt-7 md:px-10 lg:px-14"><MercurePromotionalBanner banners={banners} language={language} /></div>,
-    announcements: null,
-    services: null,
-    departments: null,
-    policies: null,
-    contact: <section className="mercure-help-card mx-3 mt-4 flex min-h-[84px] items-center gap-3 rounded-[20px] border border-[#52204f]/7 bg-[#fffdfd] p-3.5 shadow-[0_16px_38px_-27px_rgba(61,23,60,.3)] md:mx-10 md:mt-6 md:min-h-[104px] md:gap-5 md:rounded-[26px] md:p-5 lg:mx-14">
+    </section> : null;
+  const highlights = showHighlights ? <div className="mt-4 px-3 md:mt-7 md:px-10 lg:px-14"><MercurePromotionalBanner banners={banners} language={language} /></div> : null;
+  const supportCard = enabled('contact') ? <section className="mx-3 mt-4 flex min-h-[84px] items-center gap-3 overflow-visible rounded-[20px] border border-[#52204f]/7 bg-[#fffdfd] p-3.5 shadow-[0_16px_38px_-27px_rgba(61,23,60,.3)] max-md:relative max-md:z-10 max-md:isolate md:mx-10 md:mt-6 md:min-h-[104px] md:gap-5 md:rounded-[26px] md:p-5 lg:mx-14">
       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#71386e] text-white md:h-16 md:w-16"><Headphones className="h-7 w-7 md:h-9 md:w-9" strokeWidth={1.7} aria-hidden="true" /></div>
       <div className="min-w-0 flex-1"><h2 className="text-sm font-semibold text-[#52204f] md:text-xl">{copy.helpTitle}</h2><p className="mt-0.5 text-[10px] leading-4 text-[#685d64] min-[360px]:text-[11px] md:text-sm md:leading-5">{whatsappHref ? copy.helpWhatsappDescription : copy.mercureContactDescription}</p></div>
       <a href={helpHref} target={whatsappHref ? '_blank' : undefined} rel={whatsappHref ? 'noreferrer' : undefined} aria-label={whatsappHref ? copy.whatsappSupport : copy.editorialContactTitle} data-analytics-event={whatsappHref ? 'whatsapp_click' : undefined} data-analytics-target-url={whatsappHref || undefined} data-analytics-label={whatsappHref ? 'Mercure help card' : undefined} className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white shadow-[0_14px_28px_-18px_rgba(15,23,42,.5)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 md:h-16 md:w-16 ${whatsappHref ? 'bg-[#25d366] focus-visible:ring-[#25d366]' : 'bg-[#71386e] focus-visible:ring-[#71386e]'}`}><MessageCircle className="h-7 w-7 md:h-9 md:w-9" strokeWidth={1.8} aria-hidden="true" /></a>
-    </section>,
-  };
+    </section> : null;
 
   return <main className="hotel-theme-page mercure-public-home min-h-screen pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-10" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
     <PublicAnalytics hotelSlug={hotel.slug} language={language} />
     <div className="mercure-page-floral pointer-events-none fixed inset-0" aria-hidden="true" />
     <div className="relative mx-auto flex max-w-[1240px] flex-col md:px-6 md:py-7">
-      <ExperienceBlockComposer layout={layout} blocks={blocks} />
+      {hero}
+      {cardGridSection}
+      {highlights}
+      {supportCard}
       <footer className="px-6 pt-6 pb-5 text-center text-[10px] font-medium tracking-[.18em] text-[#685d64] md:py-8 md:text-xs">Powered by <span className="tracking-normal text-[#52204f]">LibGuest</span></footer>
     </div>
     <MercureBottomDock items={navigationItems} activeItem="home" ariaLabel={copy.navigationLabel} />

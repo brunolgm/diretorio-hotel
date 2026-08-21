@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, ExternalLink, ImageIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 import type { PublicHotelPromotionalBanner } from '@/lib/public-hotel-data';
 
@@ -155,40 +155,30 @@ function BannerSlide({
 
         <div className="relative flex h-full flex-col justify-between gap-6">
           <div className="max-w-2xl">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-200/92">
+            <p className="hotel-theme-banner-eyebrow text-[11px] font-semibold uppercase tracking-[0.24em]">
               {copy.eyebrow}
             </p>
-            <h3 className="mt-3 text-2xl font-semibold tracking-[-0.02em] text-white md:text-[2rem]">
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.02em] md:text-[2rem]">
               {banner.title}
-            </h3>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-100/92 md:text-[15px]">
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 md:text-[15px]">
               {banner.subtitle || copy.fallback}
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="hotel-theme-banner-missing-image inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-medium text-slate-200 backdrop-blur">
-                <ImageIcon className="h-3.5 w-3.5" />
-                Imagem opcional não configurada
-              </span>
-              <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-300">
-                {periodLabel}
-              </p>
-            </div>
-
-            {banner.cta_url ? (
+          {banner.cta_url ? (
+            <div className="flex justify-end">
               <a
                 href={banner.cta_url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-white px-4 text-sm font-medium text-slate-950 shadow-[0_12px_28px_-18px_rgba(255,255,255,0.42)] transition hover:-translate-y-0.5 hover:bg-slate-100"
+                className="hotel-theme-banner-cta inline-flex h-11 items-center justify-center rounded-2xl bg-white px-4 text-sm font-medium text-slate-950 shadow-[0_12px_28px_-18px_rgba(255,255,255,0.42)] transition hover:-translate-y-0.5 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
               >
                 {ctaLabel}
                 <ExternalLink className="ml-2 h-4 w-4" />
               </a>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </article>
