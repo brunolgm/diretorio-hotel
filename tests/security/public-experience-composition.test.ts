@@ -13,6 +13,7 @@ import {
 import { BASELINE_MODULE_KEYS, MODULE_CATALOG } from '../../lib/modules/catalog.ts';
 import { getGrandMercurePropertyLabel, isGrandMercureRioCopacabanaProperty } from '../../lib/grand-mercure-property.ts';
 import { resolveHotelTheme } from '../../lib/hotel-theme.ts';
+import { getPublicHighlightsState } from '../../lib/public-highlights.ts';
 import { getThemedCardGridLayout } from '../../lib/themed-card-grid.ts';
 
 const root = process.cwd();
@@ -125,7 +126,7 @@ test('keeps theme presentation local while canonical layout governs visibility',
   for (const path of homes) {
     const source = read('components','public',...path.split('/'));
     assert.doesNotMatch(source,/ExperienceBlockComposer|blockGroup|getComposedExperienceBlockSegments/);
-    assert.match(source,/enabled\('banners'\) && banners\.length > 0/);
+    assert.match(source,/getPublicHighlightsState\(enabled\('banners'\), banners\.length\)/);
     assert.match(source,/enabled\('contact'\)/);
     assert.doesNotMatch(source,/style=\{\{ order:|order\('banners'\) \+ 0\.5/);
     assert.doesNotMatch(source,/editorialMenuTitle|editorialTourismTitle|areaHref\('cardapio'\)|areaHref\('turismo'\)/);
@@ -162,7 +163,8 @@ test('preserves each approved brand presentation while composition remains share
   assert.match(grandMercure,/min-h-\[178px\][\s\S]*min-\[360px\]:min-h-\[190px\][\s\S]*md:min-h-\[240px\]/);
   assert.match(grandMercure,/ChevronDown/);
   assert.match(grandMercure,/grand-mercure-carioca-featured-banner[\s\S]*PromotionalBannerCarousel/);
-  assert.doesNotMatch(grandMercure,/showEmptyFallback|ctaHref|areaHref\('turismo'\)/);
+  assert.match(grandMercure,/PromotionalBannerCarousel banners=\{banners\} language=\{language\} showEmptyFallback/);
+  assert.doesNotMatch(grandMercure,/ctaHref|areaHref\('turismo'\)/);
 
   assert.match(mercure,/getThemedCardGridLayout\(cards\.length, 2, 'md'\)/);
   assert.match(mercure,/mercure-access-grid[\s\S]*cardGrid\.containerClassName/);
@@ -320,6 +322,47 @@ test('renders image-free public banners as intentional themed editorial content'
   assert.match(novotel,/PromotionalBannerCarousel banners=\{banners\} language=\{language\}/);
 });
 
+test('keeps Highlights visible while enabled and delegates empty presentation to the themed fallback', () => {
+  const carousel = read('components','public','promotional-banner-carousel.tsx');
+  const grandMercure = read('components','public','grand-mercure','grand-mercure-public-home.tsx');
+  const mercure = read('components','public','mercure','mercure-public-home.tsx');
+  const novotel = read('components','public','novotel','novotel-public-home.tsx');
+  const generic = read('components','public','hotel-public-page-content.tsx');
+  const emptyStart = carousel.indexOf('if (!banners.length)');
+  const emptyEnd = carousel.indexOf('if (banners.length === 1)');
+  const emptyFallback = carousel.slice(emptyStart,emptyEnd);
+
+  assert.equal(getPublicHighlightsState(true,1),'content');
+  assert.equal(getPublicHighlightsState(true,0),'empty');
+  assert.equal(getPublicHighlightsState(false,0),'hidden');
+  assert.equal(getPublicHighlightsState(false,1),'hidden');
+
+  for (const source of [grandMercure,mercure,novotel]) {
+    assert.match(source,/getPublicHighlightsState\(enabled\('banners'\), banners\.length\)/);
+    assert.match(source,/const showHighlights = highlightsState !== 'hidden'/);
+    assert.doesNotMatch(source,/enabled\('banners'\) && banners\.length/);
+  }
+  assert.match(grandMercure,/showHighlights \? <section[\s\S]*showEmptyFallback/);
+  assert.match(novotel,/showHighlights \? <section[\s\S]*showEmptyFallback/);
+  assert.match(mercure,/highlightsState === 'content' \? <MercurePromotionalBanner[\s\S]*PromotionalBannerCarousel[\s\S]*showEmptyFallback/);
+  assert.match(generic,/getPublicHighlightsState\(isBlockVisible\('banners'\), banners\.length\)/);
+  assert.match(generic,/highlightsState !== 'hidden' \? \([\s\S]*PromotionalBannerCarousel banners=\{banners\} language=\{language\} showEmptyFallback/);
+
+  assert.ok(emptyStart >= 0 && emptyEnd > emptyStart);
+  assert.match(emptyFallback,/if \(!showEmptyFallback\) return null/);
+  assert.match(emptyFallback,/copy\.emptyTitle/);
+  assert.match(emptyFallback,/copy\.emptyDescription/);
+  assert.match(carousel,/emptyTitle: 'Hotel highlights'[\s\S]*emptyTitle: 'Destacados del hotel'[\s\S]*emptyTitle: 'Destaques do hotel'/);
+  assert.match(carousel,/emptyDescription: 'New experiences will be shared here soon\.'[\s\S]*emptyDescription: 'Pronto se publicar[\s\S]*emptyDescription: 'Novas experi/);
+  assert.doesNotMatch(emptyFallback,/Imagem opcional|periodLabel|activeUntil|activeDuringPeriod|cta_url|hotel-theme-banner-cta/);
+  assert.doesNotMatch(emptyFallback,/#003B7A|#005DA8|#0877BE|text-blue|text-white/);
+  assert.match(emptyFallback,/var\(--hotel-surface-muted\)/);
+  assert.match(emptyFallback,/var\(--hotel-text\)/);
+  assert.match(emptyFallback,/hotel-theme-muted/);
+  assert.match(emptyFallback,/var\(--hotel-accent\)/);
+  assert.match(emptyFallback,/var\(--hotel-border\)/);
+});
+
 test('removes the temporary Grand Mercure diagnostics', () => {
   const loader = read('lib','public-hotel-data.ts');
   const home = read('components','public','grand-mercure','grand-mercure-public-home.tsx');
@@ -417,7 +460,7 @@ test('keeps the Rio editorial section natural, mobile-safe and independent from 
   const sectionClassName = pillars.match(/className="grand-mercure-brazilian-pillars([^"]*)"/)?.[1] ?? '';
   assert.doesNotMatch(sectionClassName,/(?:^|\s)(?:h-|max-h-)\[[^\]]+\]/);
   assert.match(pillars,/grand-mercure-promenade/);
-  assert.match(grandMercure,/enabled\('banners'\) && banners\.length > 0/);
+  assert.match(grandMercure,/getPublicHighlightsState\(enabled\('banners'\), banners\.length\)/);
   assert.match(grandMercure,/showHighlights \? <section/);
   assert.match(grandMercure,/showRioCopacabanaEditorial \? <GrandMercureBrazilianPillars/);
   assert.doesNotMatch(grandMercure,/showHighlights\s*&&[\s\S]{0,120}GrandMercureBrazilianPillars/);

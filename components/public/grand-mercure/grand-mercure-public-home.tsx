@@ -11,6 +11,7 @@ import type { DomainContext } from '@/lib/domain-context';
 import { getGrandMercurePropertyLabel, isGrandMercureRioCopacabanaProperty } from '@/lib/grand-mercure-property';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { getPublicCopy } from '@/lib/public-copy';
+import { getPublicHighlightsState } from '@/lib/public-highlights';
 import type { PublicHotelPageData } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 import { buildPublicHotelAreaHref, buildPublicHotelHref, type PublicHotelAreaKey } from '@/lib/public-routes';
@@ -51,7 +52,8 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
     ...(sections.length ? [{ blockKey: 'services' as const, area: 'servicos' as const, title: copy.editorialServicesTitle, description: copy.editorialServicesDescription, icon: ConciergeBell }] : []),
   ].filter((card) => enabled(card.blockKey)).sort((a, b) => position(a.blockKey) - position(b.blockKey));
   const cardGrid = cards.length ? getThemedCardGridLayout(cards.length, 2) : null;
-  const showHighlights = enabled('banners') && banners.length > 0;
+  const highlightsState = getPublicHighlightsState(enabled('banners'), banners.length);
+  const showHighlights = highlightsState !== 'hidden';
   const navigationItems = [
     { key: 'home' as const, href: homeHref, label: copy.navigationHome },
     ...(enabled('services') && sections.length ? [{ key: 'services' as const, href: areaHref('servicos'), label: copy.navigationServices }] : []),
@@ -78,7 +80,7 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
         <ChevronDown className="mt-auto h-4 w-4 text-[#b18134] transition group-hover:translate-y-0.5" strokeWidth={1.7} />
       </a>; })}
     </section> : null;
-  const highlights = showHighlights ? <section className={`grand-mercure-banner-zone mt-5 px-3 md:mt-8 md:px-8 lg:px-14 ${showRioCopacabanaEditorial ? 'grand-mercure-carioca-featured-banner' : ''}`}><PromotionalBannerCarousel banners={banners} language={language} /></section> : null;
+  const highlights = showHighlights ? <section className={`grand-mercure-banner-zone mt-5 px-3 md:mt-8 md:px-8 lg:px-14 ${showRioCopacabanaEditorial ? 'grand-mercure-carioca-featured-banner' : ''}`}><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></section> : null;
   const supportStrip = enabled('contact') ? <section className="grand-mercure-help-zone grand-mercure-last-content relative mx-3 mt-5 flex min-h-[82px] items-center gap-3 rounded-[20px] border border-[#dfd2c0] bg-[#fffdf9] py-4 pr-16 pl-4 shadow-[0_12px_30px_-24px_rgba(56,45,29,.42)] md:mx-8 md:mt-7 md:min-h-[96px] md:px-7 lg:mx-14">
       <CircleHelp className="h-7 w-7 shrink-0 text-[#b38234]" strokeWidth={1.4} />
       <p className="max-w-2xl text-xs leading-5 text-[#756b60] md:text-base">{grandCopy.help}</p>
