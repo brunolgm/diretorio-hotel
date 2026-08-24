@@ -2,10 +2,12 @@ import type { ElementType } from 'react';
 import Image from 'next/image';
 import { BellRing, Headphones, Info, Megaphone, MessageCircle } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
+import { PromotionalBannerCarousel } from '@/components/public/promotional-banner-carousel';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import type { DomainContext } from '@/lib/domain-context';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { getPublicCopy } from '@/lib/public-copy';
+import { getPublicHighlightsState } from '@/lib/public-highlights';
 import type { PublicHotelPageData } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 import { buildPublicHotelAreaHref, buildPublicHotelHref, type PublicHotelAreaKey } from '@/lib/public-routes';
@@ -44,7 +46,8 @@ export function MercurePublicHome({ pageData, language, domainContext, preferSub
     ...(sections.length ? [{ blockKey: 'services' as const, area: 'servicos' as const, title: copy.editorialServicesTitle, description: copy.mercureServicesDescription, icon: BellRing }] : []),
   ].filter((card) => enabled(card.blockKey)).sort((a, b) => position(a.blockKey) - position(b.blockKey));
   const cardGrid = cards.length ? getThemedCardGridLayout(cards.length, 2, 'md') : null;
-  const showHighlights = enabled('banners') && banners.length > 0;
+  const highlightsState = getPublicHighlightsState(enabled('banners'), banners.length);
+  const showHighlights = highlightsState !== 'hidden';
   const navigationItems = [
     { key: 'home' as const, href: homeHref, label: copy.navigationHome },
     ...(enabled('services') && sections.length ? [{ key: 'services' as const, href: areaHref('servicos'), label: copy.navigationServices }] : []),
@@ -73,7 +76,7 @@ export function MercurePublicHome({ pageData, language, domainContext, preferSub
         <p className="mt-1 max-w-[180px] break-words whitespace-normal text-[11px] leading-[15px] text-[#685d64] max-md:w-full max-md:min-w-0 min-[390px]:text-xs min-[390px]:leading-4 md:mt-2 md:text-sm md:leading-5">{card.description}</p>
       </a>; })}
     </section> : null;
-  const highlights = showHighlights ? <div className="mt-4 px-3 md:mt-7 md:px-10 lg:px-14"><MercurePromotionalBanner banners={banners} language={language} /></div> : null;
+  const highlights = showHighlights ? <div className="mt-4 px-3 md:mt-7 md:px-10 lg:px-14">{highlightsState === 'content' ? <MercurePromotionalBanner banners={banners} language={language} /> : <div className="[--hotel-accent:var(--mercure-plum-medium)] [--hotel-border:rgba(82,32,79,.14)] [--hotel-surface-muted:linear-gradient(145deg,var(--mercure-warm-white)_0%,var(--mercure-rose)_100%)] [--hotel-text:var(--mercure-plum)] [--hotel-text-muted:var(--mercure-text-muted)]"><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></div>}</div> : null;
   const supportCard = enabled('contact') ? <section className="mx-3 mt-4 flex min-h-[84px] items-center gap-3 overflow-visible rounded-[20px] border border-[#52204f]/7 bg-[#fffdfd] p-3.5 shadow-[0_16px_38px_-27px_rgba(61,23,60,.3)] max-md:relative max-md:z-10 max-md:isolate md:mx-10 md:mt-6 md:min-h-[104px] md:gap-5 md:rounded-[26px] md:p-5 lg:mx-14">
       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#71386e] text-white md:h-16 md:w-16"><Headphones className="h-7 w-7 md:h-9 md:w-9" strokeWidth={1.7} aria-hidden="true" /></div>
       <div className="min-w-0 flex-1"><h2 className="text-sm font-semibold text-[#52204f] md:text-xl">{copy.helpTitle}</h2><p className="mt-0.5 text-[10px] leading-4 text-[#685d64] min-[360px]:text-[11px] md:text-sm md:leading-5">{whatsappHref ? copy.helpWhatsappDescription : copy.mercureContactDescription}</p></div>

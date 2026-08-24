@@ -24,6 +24,7 @@ import { ServiceIcon } from '@/components/service-icon';
 import type { DomainContext } from '@/lib/domain-context';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { getPublicCopy } from '@/lib/public-copy';
+import { getPublicHighlightsState } from '@/lib/public-highlights';
 import type {
   PublicHotelAnnouncement,
   PublicHotel,
@@ -342,6 +343,7 @@ export function HotelPublicPageContent({
     });
   const layoutByKey = new Map(layout.map((block) => [block.blockKey, block]));
   const isBlockVisible = (key: ExperienceBlockKey) => layoutByKey.get(key)?.isEnabled ?? true;
+  const highlightsState = getPublicHighlightsState(isBlockVisible('banners'), banners.length);
   const blockStyle = (key: ExperienceBlockKey) => ({ order: layoutByKey.get(key)?.position ?? 99 });
   const hasContact = Boolean(hotel.website_url || hotel.booking_url || whatsappHref);
   const departmentPosition = layoutByKey.get('departments')?.position ?? 6;
@@ -550,9 +552,9 @@ export function HotelPublicPageContent({
           </section>
         ) : null}
 
-        {isBlockVisible('banners') && banners.length ? (
+        {highlightsState !== 'hidden' ? (
           <section className="mt-8" style={blockStyle('banners')}>
-            <PromotionalBannerCarousel banners={banners} language={language} />
+            <PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback />
           </section>
         ) : null}
 

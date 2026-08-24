@@ -202,16 +202,16 @@ export function PromotionalBannerCarousel({
 
     return (
       <article className="hotel-theme-banner hotel-theme-banner-fallback hotel-theme-banner-empty overflow-hidden border border-[color:var(--hotel-border)] shadow-[0_28px_65px_-42px_rgba(15,23,42,0.4)]">
-        <div className="relative min-h-[240px] overflow-hidden bg-[linear-gradient(145deg,#003B7A_0%,#005DA8_58%,#0877BE_100%)] px-6 py-7 text-white md:min-h-[320px] md:px-9 md:py-10">
-          <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_36%)]" />
+        <div className="relative min-h-[240px] overflow-hidden bg-[image:var(--hotel-surface-muted)] px-6 py-7 text-[color:var(--hotel-text)] md:min-h-[320px] md:px-9 md:py-10">
+          <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--hotel-accent-soft-strong),transparent_36%)]" />
           <div className="relative flex min-h-[190px] max-w-xl flex-col justify-end md:min-h-[240px]">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-100">
+            <p className="hotel-theme-banner-eyebrow text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--hotel-accent)]">
               {copy.eyebrow}
             </p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white md:text-4xl">
+            <h2 className="hotel-theme-banner-title hotel-theme-heading mt-3 text-2xl font-semibold tracking-tight md:text-4xl">
               {copy.emptyTitle}
             </h2>
-            <p className="mt-3 text-sm leading-6 text-blue-50 md:text-base">
+            <p className="hotel-theme-banner-description hotel-theme-muted mt-3 text-sm leading-6 md:text-base">
               {copy.emptyDescription}
             </p>
           </div>

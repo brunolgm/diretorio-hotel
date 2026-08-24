@@ -10,6 +10,7 @@ import type { DomainContext } from '@/lib/domain-context';
 import { getHotelPublicDisplayName } from '@/lib/hotel-public-identity';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { getPublicCopy } from '@/lib/public-copy';
+import { getPublicHighlightsState } from '@/lib/public-highlights';
 import type { PublicHotelPageData } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 import { buildPublicHotelAreaHref, buildPublicHotelHref, type PublicHotelAreaKey } from '@/lib/public-routes';
@@ -43,7 +44,8 @@ export function NovotelPublicHome({ pageData, language, domainContext, preferSub
     ...(sections.length ? [{ blockKey: 'services' as const, area: 'servicos' as const, title: copy.editorialServicesTitle, description: copy.editorialServicesDescription, icon: ConciergeBell }] : []),
   ].filter((card) => enabled(card.blockKey)).sort((a, b) => position(a.blockKey) - position(b.blockKey));
   const cardGrid = cards.length ? getThemedCardGridLayout(cards.length, 2, 'xl') : null;
-  const showHighlights = enabled('banners') && banners.length > 0;
+  const highlightsState = getPublicHighlightsState(enabled('banners'), banners.length);
+  const showHighlights = highlightsState !== 'hidden';
   const navigationItems = [
     { key: 'home' as const, href: homeHref, label: copy.navigationHome },
     ...(enabled('services') && sections.length ? [{ key: 'services' as const, href: areaHref('servicos'), label: copy.navigationServices }] : []),
@@ -65,7 +67,7 @@ export function NovotelPublicHome({ pageData, language, domainContext, preferSub
         <ChevronRight className="h-4 w-4 shrink-0 text-[#003B7A] transition group-hover:translate-x-0.5 md:h-5 md:w-5" aria-hidden="true" />
       </a>; })}
     </section> : null;
-  const highlights = showHighlights ? <section className="mt-5 px-4 md:mt-8 md:px-10"><PromotionalBannerCarousel banners={banners} language={language} /></section> : null;
+  const highlights = showHighlights ? <section className="mt-5 px-4 md:mt-8 md:px-10"><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></section> : null;
   const supportCard = enabled('contact') ? <section className="mx-4 mt-4 rounded-[22px] bg-white p-4 shadow-[0_14px_36px_-24px_rgba(0,43,92,0.3)] ring-1 ring-slate-100 md:mx-10 md:mt-6 md:p-5">
       <div className="flex items-center gap-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#0052B4] text-white md:h-14 md:w-14"><CircleHelp className="h-7 w-7" aria-hidden="true" /></div>
