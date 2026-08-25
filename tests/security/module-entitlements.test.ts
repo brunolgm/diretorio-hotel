@@ -7,16 +7,33 @@ import { MODULE_CATALOG, MODULE_KEYS } from '../../lib/modules/catalog.ts';
 const root = process.cwd();
 const read = (...parts: string[]) => readFileSync(join(root, ...parts), 'utf8');
 
-test('keeps one shared canonical 19-key module catalog', () => {
-  assert.equal(MODULE_KEYS.length, 19);
-  assert.equal(new Set(MODULE_KEYS).size, 19);
+test('keeps one shared canonical 20-key module catalog', () => {
+  assert.equal(MODULE_KEYS.length, 20);
+  assert.equal(new Set(MODULE_KEYS).size, 20);
   assert.deepEqual(MODULE_CATALOG.map(({ key }) => key).sort(), [...MODULE_KEYS].sort());
   assert.doesNotMatch(read('lib', 'modules', 'catalog.ts'), /supabase|hotel_id|platform_status/i);
   assert.equal(MODULE_CATALOG.find(({ key }) => key === 'experience.preview')?.availability, 'available');
   assert.equal(MODULE_CATALOG.find(({ key }) => key === 'experience.navigation')?.availability, 'available');
+  assert.deepEqual(MODULE_CATALOG.find(({ key }) => key === 'travel.flights'), {
+    key: 'travel.flights',
+    name: 'Central de Voos',
+    group: 'operations',
+    availability: 'available',
+    description: 'Ajude o hóspede a acompanhar seu voo e organizar a saída do hotel.',
+  });
   assert.deepEqual(MODULE_CATALOG.filter(({ availability }) => availability === 'coming_soon').map(({ key }) => key), [
     'experience.seo', 'fb.menu', 'content.tourism',
     'analytics.advanced', 'integrations.thex', 'integrations.opera', 'audit.access_logs',
+  ]);
+});
+
+test('adds travel.flights without changing the existing nineteen module contracts', () => {
+  assert.deepEqual(MODULE_KEYS.filter((key) => key !== 'travel.flights'), [
+    'core.directory', 'content.services', 'content.departments', 'content.policies',
+    'content.announcements', 'content.banners', 'rooms.qr', 'content.languages',
+    'experience.appearance', 'experience.navigation', 'experience.preview', 'experience.seo',
+    'fb.menu', 'content.tourism', 'analytics.basic', 'analytics.advanced',
+    'integrations.thex', 'integrations.opera', 'audit.access_logs',
   ]);
 });
 
