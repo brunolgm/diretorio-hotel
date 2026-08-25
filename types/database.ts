@@ -144,6 +144,152 @@ export interface Database {
         Relationships: [];
       };
 
+      airports: {
+        Row: {
+          id: string;
+          iata_code: string;
+          icao_code: string | null;
+          name: string;
+          city: string;
+          country_code: string;
+          timezone: string;
+          latitude: number;
+          longitude: number;
+          official_departures_url: string | null;
+          official_arrivals_url: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          iata_code: string;
+          icao_code?: string | null;
+          name: string;
+          city: string;
+          country_code: string;
+          timezone: string;
+          latitude: number;
+          longitude: number;
+          official_departures_url?: string | null;
+          official_arrivals_url?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          iata_code?: string;
+          icao_code?: string | null;
+          name?: string;
+          city?: string;
+          country_code?: string;
+          timezone?: string;
+          latitude?: number;
+          longitude?: number;
+          official_departures_url?: string | null;
+          official_arrivals_url?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+
+      hotel_airports: {
+        Row: {
+          hotel_id: string;
+          airport_id: string;
+          sort_order: number;
+          is_active: boolean;
+          estimated_transfer_minutes: number | null;
+          domestic_lead_minutes: number | null;
+          international_lead_minutes: number | null;
+          safety_margin_minutes: number | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          hotel_id: string;
+          airport_id: string;
+          sort_order: number;
+          is_active?: boolean;
+          estimated_transfer_minutes?: number | null;
+          domestic_lead_minutes?: number | null;
+          international_lead_minutes?: number | null;
+          safety_margin_minutes?: number | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          hotel_id?: string;
+          airport_id?: string;
+          sort_order?: number;
+          is_active?: boolean;
+          estimated_transfer_minutes?: number | null;
+          domestic_lead_minutes?: number | null;
+          international_lead_minutes?: number | null;
+          safety_margin_minutes?: number | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          { foreignKeyName: 'hotel_airports_hotel_id_fkey'; columns: ['hotel_id']; isOneToOne: false; referencedRelation: 'hotels'; referencedColumns: ['id'] },
+          { foreignKeyName: 'hotel_airports_airport_id_fkey'; columns: ['airport_id']; isOneToOne: false; referencedRelation: 'airports'; referencedColumns: ['id'] },
+        ];
+      };
+
+      hotel_flight_settings: {
+        Row: {
+          hotel_id: string;
+          home_card_enabled: boolean;
+          transfer_enabled: boolean;
+          wake_up_enabled: boolean;
+          breakfast_box_enabled: boolean;
+          reception_enabled: boolean;
+          official_links_enabled: boolean;
+          departure_planning_enabled: boolean;
+          home_card_title: string | null;
+          home_card_description: string | null;
+          departure_notice: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          hotel_id: string;
+          home_card_enabled?: boolean;
+          transfer_enabled?: boolean;
+          wake_up_enabled?: boolean;
+          breakfast_box_enabled?: boolean;
+          reception_enabled?: boolean;
+          official_links_enabled?: boolean;
+          departure_planning_enabled?: boolean;
+          home_card_title?: string | null;
+          home_card_description?: string | null;
+          departure_notice?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          hotel_id?: string;
+          home_card_enabled?: boolean;
+          transfer_enabled?: boolean;
+          wake_up_enabled?: boolean;
+          breakfast_box_enabled?: boolean;
+          reception_enabled?: boolean;
+          official_links_enabled?: boolean;
+          departure_planning_enabled?: boolean;
+          home_card_title?: string | null;
+          home_card_description?: string | null;
+          departure_notice?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          { foreignKeyName: 'hotel_flight_settings_hotel_id_fkey'; columns: ['hotel_id']; isOneToOne: true; referencedRelation: 'hotels'; referencedColumns: ['id'] },
+        ];
+      };
+
       hotel_module_entitlements: {
         Row: { hotel_id: string; module_key: string; is_enabled: boolean; enabled_at: string | null; enabled_by: string | null; disabled_at: string | null; disabled_by: string | null; created_at: string; updated_at: string };
         Insert: { hotel_id: string; module_key: string; is_enabled?: boolean; enabled_at?: string | null; enabled_by?: string | null; disabled_at?: string | null; disabled_by?: string | null; created_at?: string; updated_at?: string };
