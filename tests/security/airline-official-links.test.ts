@@ -63,7 +63,7 @@ test('keeps the airport fallback as a safe external anchor and creates no networ
   const manager = readFileSync(join(root, 'components', 'public', 'guest-flight-manager.tsx'), 'utf8');
   const center = readFileSync(join(root, 'components', 'public', 'hotel-public-flight-center.tsx'), 'utf8');
   const source = `${catalog}\n${manager}\n${center}`;
-  assert.ok(manager.includes('airportOfficialLinks.find((item) => item.iataCode === flight.departureAirport)'));
+  assert.ok(manager.includes('airportOptions.find((item) => item.iataCode === flight.departureAirport)'));
   assert.match(manager, /target="_blank"/);
   assert.match(manager, /rel="noreferrer"/);
   assert.match(center, /airport\.officialDeparturesUrl \|\| airport\.officialArrivalsUrl/);
