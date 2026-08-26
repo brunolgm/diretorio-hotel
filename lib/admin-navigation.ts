@@ -5,7 +5,7 @@ export type AdminNavGroupKey = 'principal' | 'guest_experience' | 'management';
 export type AdminNavIcon =
   | 'dashboard' | 'hotel' | 'services' | 'rooms' | 'departments' | 'policies'
   | 'announcements' | 'banners' | 'users' | 'settings' | 'experience'
-  | 'menu' | 'tourism' | 'languages' | 'logs' | 'analytics';
+  | 'menu' | 'tourism' | 'languages' | 'logs' | 'analytics' | 'flights';
 
 export interface AdminNavigationItem {
   href: string;
@@ -50,6 +50,7 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationGroup[] = [
       item({ href: '/admin/cardapio', label: 'Cardápio (F&B)', icon: 'menu', moduleKey: 'fb.menu', requiredRole: 'visualizador' }),
       item({ href: '/admin/turismo', label: 'Turismo', icon: 'tourism', moduleKey: 'content.tourism', requiredRole: 'visualizador' }),
       item({ href: '/admin/comunicados', label: 'Comunicados', icon: 'announcements', moduleKey: 'content.announcements', requiredRole: 'visualizador' }),
+      item({ href: '/admin/voos', label: 'Central de Voos', icon: 'flights', moduleKey: 'travel.flights', requiredRole: 'visualizador' }),
       item({ href: '/admin/hotel', label: 'Informações', icon: 'hotel', requiredRole: 'editor' }),
       item({ href: '/admin/politicas', label: 'Políticas', icon: 'policies', moduleKey: 'content.policies', requiredRole: 'visualizador' }),
     ],

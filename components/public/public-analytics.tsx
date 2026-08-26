@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import type { AnalyticsEventType } from '@/lib/analytics';
+import { isFlightServiceAnalyticsAction, type AnalyticsEventType } from '@/lib/analytics';
+import { sendPublicAnalyticsEvent } from '@/lib/public-analytics-client';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
 const EVENT_TIMESTAMP_PREFIX = 'guestdesk_public_event_ts:';
@@ -13,6 +14,7 @@ interface PublicAnalyticsProps {
   hotelSlug: string;
   language: SupportedPublicLanguage;
   serviceId?: string;
+  pageEventType?: 'page_view' | 'flight_center_view';
 }
 
 function getCooldownForEvent(eventType: AnalyticsEventType) {
@@ -44,49 +46,25 @@ function shouldTrackEvent(dedupeKey: string, cooldownMs: number) {
   return true;
 }
 
-function sendAnalyticsEvent(payload: {
-  hotelSlug: string;
-  eventType: AnalyticsEventType;
-  language: SupportedPublicLanguage;
-  departmentId?: string | null;
-  serviceId?: string | null;
-}) {
-  const body = JSON.stringify(payload);
-
-  if (navigator.sendBeacon) {
-    const blob = new Blob([body], { type: 'application/json' });
-    navigator.sendBeacon('/api/analytics', blob);
-    return;
-  }
-
-  void fetch('/api/analytics', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body,
-    keepalive: true,
-  });
-}
-
 export function PublicAnalytics({
   hotelSlug,
   language,
   serviceId,
+  pageEventType = 'page_view',
 }: PublicAnalyticsProps) {
   useEffect(() => {
-    const pageViewKey = `page_view:${hotelSlug}:${language}`;
+    const pageViewKey = `${pageEventType}:${hotelSlug}:${language}`;
 
     if (shouldTrackEvent(pageViewKey, PAGE_VIEW_COOLDOWN_MS)) {
-      sendAnalyticsEvent({
+      sendPublicAnalyticsEvent({
         hotelSlug,
-        eventType: 'page_view',
+        eventType: pageEventType,
         language,
       });
     }
 
     if (serviceId && shouldTrackEvent(`service_view:${hotelSlug}:${serviceId}`, PAGE_VIEW_COOLDOWN_MS)) {
-      sendAnalyticsEvent({ hotelSlug, eventType: 'service_view', language, serviceId });
+      sendPublicAnalyticsEvent({ hotelSlug, eventType: 'service_view', language, serviceId });
     }
 
     function handleClick(event: MouseEvent) {
@@ -111,6 +89,10 @@ export function PublicAnalytics({
       const nextLanguage =
         (trackedElement.dataset.analyticsLanguage as SupportedPublicLanguage | undefined) ||
         language;
+      const analyticsAction = trackedElement.dataset.analyticsAction;
+      const action = analyticsAction && isFlightServiceAnalyticsAction(analyticsAction)
+        ? analyticsAction
+        : null;
 
       if (eventType === 'language_selected' && nextLanguage === language) {
         return;
@@ -121,17 +103,19 @@ export function PublicAnalytics({
         hotelSlug,
         nextLanguage,
         trackedElement.dataset.analyticsDepartmentId || '',
+        action || '',
       ].join(':');
 
       if (!shouldTrackEvent(dedupeKey, getCooldownForEvent(eventType))) {
         return;
       }
 
-      sendAnalyticsEvent({
+      sendPublicAnalyticsEvent({
         hotelSlug,
         eventType,
         language: nextLanguage,
         departmentId: trackedElement.dataset.analyticsDepartmentId || null,
+        ...(action ? { action } : {}),
       });
     }
 
@@ -140,7 +124,7 @@ export function PublicAnalytics({
     return () => {
       document.removeEventListener('click', handleClick);
     };
-  }, [hotelSlug, language, serviceId]);
+  }, [hotelSlug, language, pageEventType, serviceId]);
 
   return null;
 }

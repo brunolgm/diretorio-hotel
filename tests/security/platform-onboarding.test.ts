@@ -56,6 +56,7 @@ test('keeps the canonical twelve-module baseline available-only', () => {
   for (const key of BASELINE_MODULE_KEYS) {
     assert.equal(MODULE_CATALOG.find((module) => module.key === key)?.availability, 'available');
   }
+  assert.equal((BASELINE_MODULE_KEYS as readonly string[]).includes('travel.flights'), false);
   assert.equal(MODULE_CATALOG.filter((module) => module.availability === 'coming_soon').length, 7);
 });
 
@@ -152,6 +153,8 @@ test('renders the five-step review flow without automatic activation', () => {
   for (const label of ['Identidade', 'Endereço', 'Módulos', 'Administrador', 'Revisão']) assert.match(form, new RegExp(label));
   assert.match(form, /reportValidity/);
   assert.match(form, /Em breve/);
+  assert.match(form, /module\.availability === 'coming_soon'/);
+  assert.match(form, /Opcional/);
   assert.match(form, /BASELINE_MODULE_KEYS\.length/);
   assert.match(form, /Lifecycle inicial/);
   assert.match(action, /Hotel criado em preparação/);

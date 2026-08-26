@@ -8,9 +8,25 @@ export const ANALYTICS_EVENT_TYPES = [
   'booking_click',
   'department_click',
   'service_view',
+  'flight_center_view',
+  'flight_saved',
+  'flight_removed',
+  'flight_official_link_click',
+  'flight_calendar_download',
+  'flight_route_open',
+  'flight_service_action',
 ] as const;
 
 export type AnalyticsEventType = (typeof ANALYTICS_EVENT_TYPES)[number];
+
+export const FLIGHT_SERVICE_ANALYTICS_ACTIONS = [
+  'transfer',
+  'wake_up',
+  'breakfast_box',
+  'reception',
+] as const;
+
+export type FlightServiceAnalyticsAction = (typeof FLIGHT_SERVICE_ANALYTICS_ACTIONS)[number];
 
 export const ANALYTICS_LIMITS = {
   bodyBytes: 8 * 1024,
@@ -23,6 +39,7 @@ export interface AnalyticsEventPayload {
   language: SupportedPublicLanguage;
   departmentId?: string | null;
   serviceId?: string | null;
+  action?: FlightServiceAnalyticsAction | null;
 }
 
 export interface ValidatedAnalyticsPayload {
@@ -31,6 +48,7 @@ export interface ValidatedAnalyticsPayload {
   language: SupportedPublicLanguage;
   departmentId: string | null;
   serviceId: string | null;
+  action: FlightServiceAnalyticsAction | null;
 }
 
 export type AnalyticsPayloadValidation =
@@ -43,6 +61,7 @@ const ANALYTICS_PAYLOAD_KEYS = new Set([
   'language',
   'departmentId',
   'serviceId',
+  'action',
 ]);
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -115,6 +134,19 @@ export function validateAnalyticsPayload(value: unknown): AnalyticsPayloadValida
     return { ok: false, reason: 'service_forbidden' };
   }
 
+  const action = value.action === undefined || value.action === null || value.action === ''
+    ? null
+    : typeof value.action === 'string' && (FLIGHT_SERVICE_ANALYTICS_ACTIONS as readonly string[]).includes(value.action)
+      ? value.action as FlightServiceAnalyticsAction
+      : undefined;
+  if (action === undefined) return { ok: false, reason: 'action' };
+  if (value.eventType === 'flight_service_action' && !action) {
+    return { ok: false, reason: 'action_required' };
+  }
+  if (value.eventType !== 'flight_service_action' && action) {
+    return { ok: false, reason: 'action_forbidden' };
+  }
+
   return {
     ok: true,
     value: {
@@ -123,10 +155,15 @@ export function validateAnalyticsPayload(value: unknown): AnalyticsPayloadValida
       language: value.language,
       departmentId,
       serviceId,
+      action,
     },
   };
 }
 
 export function isAnalyticsEventType(value: string): value is AnalyticsEventType {
   return (ANALYTICS_EVENT_TYPES as readonly string[]).includes(value);
+}
+
+export function isFlightServiceAnalyticsAction(value: string): value is FlightServiceAnalyticsAction {
+  return (FLIGHT_SERVICE_ANALYTICS_ACTIONS as readonly string[]).includes(value);
 }

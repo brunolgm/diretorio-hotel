@@ -52,6 +52,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
       departments={pageData.departments}
       policies={pageData.policies}
       layout={pageData.layout}
+      flightHomeCard={pageData.flightHomeCard}
       language={language}
       domainContext={domainContext}
       hasFallbackContent={pageData.hasFallbackContent}

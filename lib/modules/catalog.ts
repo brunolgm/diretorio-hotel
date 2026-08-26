@@ -3,7 +3,7 @@ export const MODULE_KEYS = [
   'content.announcements', 'content.banners', 'rooms.qr', 'content.languages',
   'experience.appearance', 'experience.navigation', 'experience.preview', 'experience.seo',
   'fb.menu', 'content.tourism', 'analytics.basic', 'analytics.advanced',
-  'integrations.thex', 'integrations.opera', 'audit.access_logs',
+  'travel.flights', 'integrations.thex', 'integrations.opera', 'audit.access_logs',
 ] as const;
 
 export type ModuleKey = (typeof MODULE_KEYS)[number];
@@ -40,6 +40,7 @@ export const MODULE_CATALOG: readonly ModuleDefinition[] = [
   { key: 'content.tourism', name: 'Turismo', group: 'content', availability: 'coming_soon', description: 'Conteúdo futuro de turismo local.' },
   { key: 'analytics.basic', name: 'Analytics básico', group: 'analytics', availability: 'available', description: 'Indicadores operacionais atuais.' },
   { key: 'analytics.advanced', name: 'Analytics avançado', group: 'analytics', availability: 'coming_soon', description: 'Análises avançadas futuras.' },
+  { key: 'travel.flights', name: 'Central de Voos', group: 'operations', availability: 'available', description: 'Ajude o hóspede a acompanhar seu voo e organizar a saída do hotel.' },
   { key: 'integrations.thex', name: 'Integração TheX', group: 'integrations', availability: 'coming_soon', description: 'Integração futura com TheX.' },
   { key: 'integrations.opera', name: 'Integração Opera', group: 'integrations', availability: 'coming_soon', description: 'Integração futura com Opera.' },
   { key: 'audit.access_logs', name: 'Logs de acesso', group: 'governance', availability: 'coming_soon', description: 'Consulta operacional futura de acessos.' },

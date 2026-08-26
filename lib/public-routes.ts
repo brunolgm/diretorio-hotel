@@ -117,3 +117,21 @@ export function buildPublicHotelAreaHref({
 
   return `${path}${buildLanguageQuery(language)}`;
 }
+
+export function buildPublicHotelFlightCenterHref({
+  slug,
+  language,
+  domainContext,
+  preferSubdomainRoot = false,
+}: {
+  slug: string;
+  language: SupportedPublicLanguage;
+  domainContext?: DomainContext | null;
+  preferSubdomainRoot?: boolean;
+}) {
+  const path = preferSubdomainRoot && isHotelSubdomainContext(domainContext)
+    ? '/explorar/voos'
+    : `/hotel/${slug}/explorar/voos`;
+
+  return `${path}${buildLanguageQuery(language)}`;
+}

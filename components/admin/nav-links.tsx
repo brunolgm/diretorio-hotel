@@ -16,6 +16,7 @@ import {
   LayoutDashboard,
   Megaphone,
   Map,
+  Plane,
   Settings,
   ShieldCheck,
   Users,
@@ -74,6 +75,8 @@ function NavIcon({
       return <FileClock className={className} />;
     case 'analytics':
       return <BarChart3 className={className} />;
+    case 'flights':
+      return <Plane className={className} />;
     case 'dashboard':
     default:
       return <LayoutDashboard className={className} />;

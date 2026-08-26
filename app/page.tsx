@@ -304,6 +304,7 @@ export default async function Home({ searchParams }: HomePageProps) {
         departments={pageData.departments}
         policies={pageData.policies}
         layout={pageData.layout}
+        flightHomeCard={pageData.flightHomeCard}
         language={language}
         domainContext={domainContext}
         hasFallbackContent={pageData.hasFallbackContent}
