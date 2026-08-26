@@ -67,7 +67,7 @@ test('keeps the airport fallback as a safe external anchor and creates no networ
   assert.match(manager, /target="_blank"/);
   assert.match(manager, /rel="noreferrer"/);
   assert.match(center, /airport\.officialDeparturesUrl \|\| airport\.officialArrivalsUrl/);
-  assert.doesNotMatch(source, /fetch\(|XMLHttpRequest|iframe|supabase|roomToken|data-analytics/i);
+  assert.doesNotMatch(source, /fetch\(|XMLHttpRequest|iframe|supabase|roomToken/i);
 });
 
 test('centralizes official-channel feedback copy in PT, EN and ES', () => {

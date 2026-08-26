@@ -22,6 +22,7 @@ import {
   type SavedGuestFlight,
 } from '@/lib/guest-flight-storage';
 import { getPublicFlightCenterCopy } from '@/lib/public-flight-center-copy';
+import { sendPublicAnalyticsEvent } from '@/lib/public-analytics-client';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
 const EMPTY_DRAFT: GuestFlightDraft = {
@@ -55,8 +56,9 @@ function formatFlightDate(date: string, language: SupportedPublicLanguage) {
   }).format(new Date(Date.UTC(year, month - 1, day, 12)));
 }
 
-export function GuestFlightManager({ hotelId, language, airportOptions }: {
+export function GuestFlightManager({ hotelId, hotelSlug, language, airportOptions }: {
   hotelId: string;
+  hotelSlug: string;
   language: SupportedPublicLanguage;
   airportOptions: Array<{ iataCode: string; name: string; city: string; officialUrl: string | null }>;
 }) {
@@ -103,16 +105,18 @@ export function GuestFlightManager({ hotelId, language, airportOptions }: {
     setDraft(draftFromFlight(result.flight));
     setErrors({});
     setEditingOverride(false);
+    sendPublicAnalyticsEvent({ hotelSlug, eventType: 'flight_saved', language });
   }
 
   function remove() {
-    removeGuestFlight(hotelId);
+    const removed = removeGuestFlight(hotelId);
     setDraft(EMPTY_DRAFT);
     setErrors({});
     setStorageError(false);
     setOfficialMessage(null);
     setCalendarMessage(null);
     setEditingOverride(true);
+    if (removed) sendPublicAnalyticsEvent({ hotelSlug, eventType: 'flight_removed', language });
   }
 
   if (flight && !editing) {
@@ -167,6 +171,7 @@ export function GuestFlightManager({ hotelId, language, airportOptions }: {
               href={officialUrl}
               target="_blank"
               rel="noreferrer"
+              data-analytics-event="flight_official_link_click"
               onClick={officialAirline && !officialAirline.supportsFlightNumberInUrl ? () => {
                 setOfficialMessage(null);
                 void copyOfficialFlightReference(navigator.clipboard, flight.airlineCode, flight.flightNumber)
@@ -177,16 +182,23 @@ export function GuestFlightManager({ hotelId, language, airportOptions }: {
             {calendarFile ? <button
               type="button"
               onClick={() => {
-                const blobUrl = URL.createObjectURL(new Blob([calendarFile.content], { type: calendarFile.mimeType }));
-                const anchor = document.createElement('a');
-                anchor.href = blobUrl;
-                anchor.download = calendarFile.fileName;
-                anchor.hidden = true;
-                document.body.append(anchor);
-                anchor.click();
-                anchor.remove();
-                window.setTimeout(() => URL.revokeObjectURL(blobUrl), 0);
-                setCalendarMessage(copy.calendarDownloaded);
+                try {
+                  const blobUrl = URL.createObjectURL(new Blob([calendarFile.content], { type: calendarFile.mimeType }));
+                  const anchor = document.createElement('a');
+                  anchor.href = blobUrl;
+                  anchor.download = calendarFile.fileName;
+                  anchor.hidden = true;
+                  document.body.append(anchor);
+                  anchor.click();
+                  anchor.remove();
+                  if (typeof URL.revokeObjectURL === 'function') {
+                    window.setTimeout(() => URL.revokeObjectURL(blobUrl), 0);
+                  }
+                  setCalendarMessage(copy.calendarDownloaded);
+                  sendPublicAnalyticsEvent({ hotelSlug, eventType: 'flight_calendar_download', language });
+                } catch {
+                  setCalendarMessage(copy.calendarUnavailable);
+                }
               }}
               className="inline-flex min-h-12 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-4 text-center text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"
             ><CalendarPlus className="mr-2 h-4 w-4 shrink-0" aria-hidden="true" />{copy.addToCalendar}</button> : null}
@@ -194,6 +206,7 @@ export function GuestFlightManager({ hotelId, language, airportOptions }: {
               href={airportRouteUrl}
               target="_blank"
               rel="noreferrer"
+              data-analytics-event="flight_route_open"
               className="inline-flex min-h-12 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-4 text-center text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"
             ><MapPinned className="mr-2 h-4 w-4 shrink-0" aria-hidden="true" />{copy.openAirportRoute}</a> : null}
           </div>

@@ -19,6 +19,63 @@ test('accepts an official website_click payload', () => {
   assert.equal(result.ok, true);
 });
 
+test('accepts only the closed Flight Center event and service-action catalogs', () => {
+  for (const eventType of [
+    'flight_center_view', 'flight_saved', 'flight_removed', 'flight_official_link_click',
+    'flight_calendar_download', 'flight_route_open',
+  ]) {
+    assert.equal(validateAnalyticsPayload({ hotelSlug: HOTEL_SLUG, eventType, language: 'pt' }).ok, true);
+  }
+  for (const action of ['transfer', 'wake_up', 'breakfast_box', 'reception']) {
+    assert.equal(validateAnalyticsPayload({
+      hotelSlug: HOTEL_SLUG,
+      eventType: 'flight_service_action',
+      language: 'en',
+      action,
+    }).ok, true);
+  }
+  assert.equal(validateAnalyticsPayload({
+    hotelSlug: HOTEL_SLUG,
+    eventType: 'flight_service_action',
+    language: 'pt',
+  }).ok, false);
+  assert.equal(validateAnalyticsPayload({
+    hotelSlug: HOTEL_SLUG,
+    eventType: 'flight_service_action',
+    language: 'pt',
+    action: 'other',
+  }).ok, false);
+  assert.equal(validateAnalyticsPayload({
+    hotelSlug: HOTEL_SLUG,
+    eventType: 'flight_saved',
+    language: 'pt',
+    action: 'transfer',
+  }).ok, false);
+});
+
+test('rejects every itinerary, guest and room field from the real payload shape', () => {
+  const sensitiveFields = {
+    flightNumber: '3910', airlineCode: 'LA', airlineName: 'Airline',
+    departureAirport: 'GIG', arrivalAirport: 'REC', departureDate: '2026-08-27',
+    scheduledDepartureTime: '19:40', roomToken: 'secret', room: '101', guest: 'Guest',
+    confirmation: 'ABC123',
+  };
+  for (const [key, value] of Object.entries(sensitiveFields)) {
+    const result = validateAnalyticsPayload({
+      hotelSlug: HOTEL_SLUG,
+      eventType: 'flight_saved',
+      language: 'pt',
+      [key]: value,
+    });
+    assert.equal(result.ok, false, `sensitive analytics key accepted: ${key}`);
+  }
+  const valid = validateAnalyticsPayload({ hotelSlug: HOTEL_SLUG, eventType: 'flight_saved', language: 'es' });
+  assert.equal(valid.ok, true);
+  if (valid.ok) assert.deepEqual(Object.keys(valid.value).sort(), [
+    'action', 'departmentId', 'eventType', 'hotelSlug', 'language', 'serviceId',
+  ]);
+});
+
 test('rejects legacy events and unknown hotelId fields', () => {
   assert.equal(
     validateAnalyticsPayload({ hotelSlug: HOTEL_SLUG, eventType: 'banner_click', language: 'pt' }).ok,

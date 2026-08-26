@@ -114,7 +114,7 @@ test('uses isolated client components without backend calls or false operational
   const homeCard = readFileSync(join(root, 'components', 'public', 'public-flight-home-card.tsx'), 'utf8');
   const homeCardContent = readFileSync(join(root, 'components', 'public', 'public-flight-home-card-content.tsx'), 'utf8');
   const source = `${storage}\n${manager}\n${homeCard}\n${homeCardContent}`;
-  assert.doesNotMatch(source, /fetch\(|supabase|server action|roomToken|room_links|data-analytics/i);
+  assert.doesNotMatch(source, /fetch\(|supabase|server action|roomToken|room_links/i);
   assert.doesNotMatch(source, /No horário|Atrasado|Cancelado|Embarcando|Terminal|Portão|On time|Delayed|Cancelled|Boarding|Gate/i);
   assert.match(manager, /useSyncExternalStore\(subscribe, getSnapshot, \(\) => null\)/);
   assert.match(homeCardContent, /useSyncExternalStore\(subscribe, getSnapshot, \(\) => null\)/);

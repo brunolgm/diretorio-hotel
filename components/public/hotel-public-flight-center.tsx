@@ -21,7 +21,9 @@ import { MercureAreaHero } from '@/components/public/mercure/mercure-area-hero';
 import { MercureBottomDock } from '@/components/public/mercure/mercure-bottom-dock';
 import { NovotelAreaHero } from '@/components/public/novotel/novotel-area-hero';
 import { NovotelMobileNavigation } from '@/components/public/novotel/novotel-mobile-navigation';
+import { PublicAnalytics } from '@/components/public/public-analytics';
 import type { DomainContext } from '@/lib/domain-context';
+import type { FlightServiceAnalyticsAction } from '@/lib/analytics';
 import { buildHotelServiceActionDestination } from '@/lib/flight-center-actions';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { getPublicFlightCenterActionGridLayout } from '@/lib/public-flight-center-layout';
@@ -76,6 +78,7 @@ function OfficialLinks({
             href={link.href}
             target="_blank"
             rel="noopener noreferrer"
+            data-analytics-event="flight_official_link_click"
             className="inline-flex min-h-11 items-center rounded-[14px] bg-[var(--hotel-accent)] px-4 text-sm font-semibold text-[color:var(--hotel-accent-foreground)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"
           >
             {link.label}<ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
@@ -148,11 +151,11 @@ export function HotelPublicFlightCenter({
   const navigationItems = getCanonicalPublicNavigationKeys(navigationAvailability)
     .map((key) => navigationItemsByKey[key]);
   const actionItems = [
-    settings.transferEnabled ? { label: copy.transfer, icon: BusFront, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.transferRequestMessage }) } : null,
-    settings.wakeUpEnabled ? { label: copy.wakeUp, icon: AlarmClock, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.wakeUpRequestMessage }) } : null,
-    settings.breakfastBoxEnabled ? { label: copy.breakfastBox, icon: Coffee, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.breakfastBoxRequestMessage }) } : null,
-    settings.receptionEnabled ? { label: copy.reception, icon: MessageCircle, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.receptionRequestMessage }) } : null,
-  ].filter((item): item is { label: string; icon: typeof BusFront; href: string; isExternal: boolean } => Boolean(item));
+    settings.transferEnabled ? { action: 'transfer' as const, label: copy.transfer, icon: BusFront, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.transferRequestMessage }) } : null,
+    settings.wakeUpEnabled ? { action: 'wake_up' as const, label: copy.wakeUp, icon: AlarmClock, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.wakeUpRequestMessage }) } : null,
+    settings.breakfastBoxEnabled ? { action: 'breakfast_box' as const, label: copy.breakfastBox, icon: Coffee, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.breakfastBoxRequestMessage }) } : null,
+    settings.receptionEnabled ? { action: 'reception' as const, label: copy.reception, icon: MessageCircle, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.receptionRequestMessage }) } : null,
+  ].filter((item): item is { action: FlightServiceAnalyticsAction; label: string; icon: typeof BusFront; href: string; isExternal: boolean } => Boolean(item));
   const actionGrid = getPublicFlightCenterActionGridLayout(actionItems.length);
   const showPlanning = settings.departurePlanningEnabled && (
     Boolean(settings.departureNotice) || airports.some((airport) =>
@@ -190,6 +193,7 @@ export function HotelPublicFlightCenter({
 
   return (
     <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : 'pb-10'}`} style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+      <PublicAnalytics hotelSlug={hotel.slug} language={language} pageEventType="flight_center_view" />
       {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
       <div className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
         {hero}
@@ -204,7 +208,7 @@ export function HotelPublicFlightCenter({
 
         <section className={`mt-5 space-y-5 ${isGrandMercure ? 'grand-mercure-last-content mb-8 md:mb-4' : isNovotel || isMercure ? 'mb-8 md:mb-4' : ''}`}>
           {tab === 'meu-voo' ? (
-            <GuestFlightManager hotelId={hotel.id} language={language} airportOptions={flightAirportOptions} />
+            <GuestFlightManager hotelId={hotel.id} hotelSlug={hotel.slug} language={language} airportOptions={flightAirportOptions} />
           ) : (
             <div className="space-y-4">
               <div><h2 className="text-2xl font-semibold text-[color:var(--hotel-primary)]">{listTitle}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{listDescription}</p></div>
@@ -233,7 +237,7 @@ export function HotelPublicFlightCenter({
           ) : null}
 
           {actionGrid ? (
-            <section><h2 className="text-xl font-semibold text-[color:var(--hotel-primary)]">{copy.actionsTitle}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{copy.actionsDescription}</p><div className={`mt-4 ${actionGrid.containerClassName}`}>{actionItems.map((action, index) => { const ActionIcon = action.icon; return <a key={action.label} href={action.href} target={action.isExternal ? '_blank' : undefined} rel={action.isExternal ? 'noopener noreferrer' : undefined} className={`hotel-public-content-card rounded-[20px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-4 shadow-[var(--hotel-card-shadow)] ${actionGrid.itemClassNames[index]}`.trim()}><ActionIcon className="h-6 w-6 text-[color:var(--hotel-accent)]" /><h3 className="mt-3 font-semibold text-[color:var(--hotel-primary)]">{action.label}</h3><p className="mt-2 flex items-center text-xs text-[color:var(--hotel-text-muted)]">{copy.contactHotel}<ArrowUpRight className="ml-1 h-3.5 w-3.5" /></p></a>; })}</div></section>
+            <section><h2 className="text-xl font-semibold text-[color:var(--hotel-primary)]">{copy.actionsTitle}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{copy.actionsDescription}</p><div className={`mt-4 ${actionGrid.containerClassName}`}>{actionItems.map((action, index) => { const ActionIcon = action.icon; return <a key={action.label} href={action.href} target={action.isExternal ? '_blank' : undefined} rel={action.isExternal ? 'noopener noreferrer' : undefined} data-analytics-event="flight_service_action" data-analytics-action={action.action} className={`hotel-public-content-card rounded-[20px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-4 shadow-[var(--hotel-card-shadow)] ${actionGrid.itemClassNames[index]}`.trim()}><ActionIcon className="h-6 w-6 text-[color:var(--hotel-accent)]" /><h3 className="mt-3 font-semibold text-[color:var(--hotel-primary)]">{action.label}</h3><p className="mt-2 flex items-center text-xs text-[color:var(--hotel-text-muted)]">{copy.contactHotel}<ArrowUpRight className="ml-1 h-3.5 w-3.5" /></p></a>; })}</div></section>
           ) : null}
         </section>
 

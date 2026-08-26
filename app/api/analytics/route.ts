@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       target_url: null,
       department_id: payload.departmentId,
       service_id: payload.serviceId,
-      metadata: {},
+      metadata: payload.action ? { action: payload.action } : {},
     };
 
     if (payload.departmentId) {

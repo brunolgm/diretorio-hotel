@@ -128,7 +128,7 @@ test('keeps ingestion private, explicit and hotel-isolated', () => {
   assert.match(route,/from\('public_hotels'\)[\s\S]*\.eq\('slug', payload\.hotelSlug\)/);
   assert.match(route,/\.eq\('hotel_id', hotel\.id\)/);
   assert.match(route,/target_url: null/);
-  assert.match(route,/metadata: \{\}/);
+  assert.match(route,/metadata: payload\.action \? \{ action: payload\.action \} : \{\}/);
   assert.match(route,/session_id: null/);
   assert.doesNotMatch(client,/sessionId:|getSessionId|randomUUID|targetUrl:|metadata:/);
 });

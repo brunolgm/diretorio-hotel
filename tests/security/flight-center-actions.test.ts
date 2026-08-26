@@ -137,9 +137,9 @@ test('keeps disabled hotel actions hidden and reuses the adaptive grid without f
   }
 });
 
-test('keeps all utility actions client-side and outside room identity or analytics', () => {
+test('keeps all utility actions client-side and outside room identity or sensitive analytics', () => {
   const source = `${manager}\n${center}\n${actions}`;
-  assert.doesNotMatch(source, /fetch\(|XMLHttpRequest|supabase|roomToken|room_links|data-analytics|dangerouslySetInnerHTML|<iframe/i);
+  assert.doesNotMatch(source, /fetch\(|XMLHttpRequest|supabase|roomToken|room_links|dangerouslySetInnerHTML|<iframe/i);
   assert.match(manager, /new Blob\(\[calendarFile\.content\]/);
   assert.match(manager, /target="_blank"/);
   assert.match(manager, /rel="noreferrer"/);
@@ -150,7 +150,7 @@ test('centralizes complete Stage 8 copy in PT, EN and ES', () => {
   for (const language of ['pt', 'en', 'es'] as const) {
     const copy = getPublicFlightCenterCopy(language);
     for (const key of [
-      'addToCalendar', 'calendarDownloaded', 'openAirportRoute', 'transfer', 'wakeUp',
+      'addToCalendar', 'calendarDownloaded', 'calendarUnavailable', 'openAirportRoute', 'transfer', 'wakeUp',
       'breakfastBox', 'reception', 'contactHotel', 'checkAvailability',
     ] as const) assert.ok(copy[key].trim());
   }
