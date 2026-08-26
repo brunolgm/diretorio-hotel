@@ -2,6 +2,7 @@ import type { ElementType } from 'react';
 import { BellRing, ChevronDown, CircleHelp, ConciergeBell, Info, MessageCircle } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { PromotionalBannerCarousel } from '@/components/public/promotional-banner-carousel';
+import { PublicFlightHomeCard } from '@/components/public/public-flight-home-card';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import { GrandMercureBrandSignature } from './grand-mercure-brand-signature';
 import { GrandMercureBrazilianPillars } from './grand-mercure-brazilian-pillars';
@@ -34,7 +35,7 @@ function getGrandMercureCopy(language: SupportedPublicLanguage) {
 export function GrandMercurePublicHome({ pageData, language, domainContext, preferSubdomainRoot }: {
   pageData: PublicHotelPageData; language: SupportedPublicLanguage; domainContext: DomainContext; preferSubdomainRoot: boolean;
 }) {
-  const { hotel, banners, announcements, sections, layout } = pageData;
+  const { hotel, banners, announcements, sections, layout, flightHomeCard } = pageData;
   const copy = getPublicCopy(language);
   const grandCopy = getGrandMercureCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
@@ -81,6 +82,7 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
       </a>; })}
     </section> : null;
   const highlights = showHighlights ? <section className={`grand-mercure-banner-zone mt-5 px-3 md:mt-8 md:px-8 lg:px-14 ${showRioCopacabanaEditorial ? 'grand-mercure-carioca-featured-banner' : ''}`}><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></section> : null;
+  const flightCard = flightHomeCard ? <PublicFlightHomeCard card={flightHomeCard} hotelSlug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} variant="grand-mercure" /> : null;
   const supportStrip = enabled('contact') ? <section className="grand-mercure-help-zone grand-mercure-last-content relative mx-3 mt-5 flex min-h-[82px] items-center gap-3 rounded-[20px] border border-[#dfd2c0] bg-[#fffdf9] py-4 pr-16 pl-4 shadow-[0_12px_30px_-24px_rgba(56,45,29,.42)] md:mx-8 md:mt-7 md:min-h-[96px] md:px-7 lg:mx-14">
       <CircleHelp className="h-7 w-7 shrink-0 text-[#b38234]" strokeWidth={1.4} />
       <p className="max-w-2xl text-xs leading-5 text-[#756b60] md:text-base">{grandCopy.help}</p>
@@ -95,6 +97,7 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
     <div className="grand-mercure-scroll-region mx-auto max-w-[1280px] md:px-6 md:py-7">
       {hero}
       {cardGridSection}
+      {flightCard}
       {highlights}
       {showRioCopacabanaEditorial ? <GrandMercureBrazilianPillars language={language} /> : null}
       {supportStrip}

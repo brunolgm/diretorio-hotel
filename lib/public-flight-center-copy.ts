@@ -20,6 +20,7 @@ export function getPublicFlightCenterCopy(language: SupportedPublicLanguage) {
     transferTime: 'Estimated travel time', minutes: (value: number) => `${value} min`, officialDepartures: 'Official departures', officialArrivals: 'Official arrivals', combinedOfficial: 'Official departures and arrivals', officialSource: 'External official channel', noOfficialLink: 'No official link is available for this airport.',
     planningTitle: 'Plan your departure in advance', planningDescription: 'These references are estimates configured by the hotel. Allow for traffic and confirm details with the airline and airport.', domesticLead: 'Recommended domestic lead time', internationalLead: 'Recommended international lead time', safetyMargin: 'Additional margin',
     actionsTitle: 'Hotel services', actionsDescription: 'Contact the hotel through an existing channel. No request is created automatically.', transfer: 'Transfer', wakeUp: 'Wake-up call', breakfastBox: 'Breakfast to go', reception: 'Front desk', contactHotel: 'Contact hotel',
+    homeCardTitle: 'Track your flight', homeCardDescription: 'Check your flight and organize your departure from the hotel.', homeCardCta: 'Open Flight Center',
   };
   if (language === 'es') return {
     back: 'Volver al inicio', title: 'Central de Vuelos', description: 'Enlaces oficiales de aeropuertos y orientaciones para planificar su salida.',
@@ -31,6 +32,7 @@ export function getPublicFlightCenterCopy(language: SupportedPublicLanguage) {
     transferTime: 'Tiempo estimado de traslado', minutes: (value: number) => `${value} min`, officialDepartures: 'Salidas oficiales', officialArrivals: 'Llegadas oficiales', combinedOfficial: 'Salidas y llegadas oficiales', officialSource: 'Canal oficial externo', noOfficialLink: 'No hay un enlace oficial disponible para este aeropuerto.',
     planningTitle: 'Planifique su salida con anticipación', planningDescription: 'Estas referencias son estimaciones configuradas por el hotel. Considere el tráfico y confirme los detalles con la aerolínea y el aeropuerto.', domesticLead: 'Anticipación nacional recomendada', internationalLead: 'Anticipación internacional recomendada', safetyMargin: 'Margen adicional',
     actionsTitle: 'Servicios del hotel', actionsDescription: 'Contacte al hotel mediante un canal existente. No se crea ninguna solicitud automáticamente.', transfer: 'Transfer', wakeUp: 'Despertador', breakfastBox: 'Desayuno para llevar', reception: 'Recepción', contactHotel: 'Contactar al hotel',
+    homeCardTitle: 'Siga su vuelo', homeCardDescription: 'Consulte su vuelo y organice su salida del hotel.', homeCardCta: 'Abrir Central de Vuelos',
   };
   return {
     back: 'Voltar ao início', title: 'Central de Voos', description: 'Canais oficiais dos aeroportos e orientações úteis para planejar sua saída.',
@@ -42,5 +44,6 @@ export function getPublicFlightCenterCopy(language: SupportedPublicLanguage) {
     transferTime: 'Tempo estimado de deslocamento', minutes: (value: number) => `${value} min`, officialDepartures: 'Partidas oficiais', officialArrivals: 'Chegadas oficiais', combinedOfficial: 'Partidas e chegadas oficiais', officialSource: 'Canal oficial externo', noOfficialLink: 'Não há link oficial disponível para este aeroporto.',
     planningTitle: 'Planeje sua saída com antecedência', planningDescription: 'Estas referências são estimativas configuradas pelo hotel. Considere o trânsito e confirme os detalhes com a companhia aérea e o aeroporto.', domesticLead: 'Antecedência nacional recomendada', internationalLead: 'Antecedência internacional recomendada', safetyMargin: 'Margem adicional',
     actionsTitle: 'Serviços do hotel', actionsDescription: 'Fale com o hotel por um canal já existente. Nenhuma solicitação é criada automaticamente.', transfer: 'Transfer', wakeUp: 'Despertar', breakfastBox: 'Café da manhã para viagem', reception: 'Recepção', contactHotel: 'Falar com o hotel',
+    homeCardTitle: 'Acompanhe seu voo', homeCardDescription: 'Consulte seu voo e organize sua saída do hotel.', homeCardCta: 'Abrir Central de Voos',
   };
 }

@@ -1034,6 +1034,13 @@ export interface Database {
           departure_notice: string | null;
         }[];
       };
+      get_public_hotel_flight_home_card: {
+        Args: { p_hotel_id: string };
+        Returns: {
+          home_card_title: string | null;
+          home_card_description: string | null;
+        }[];
+      };
       get_current_hotel_analytics: {
         Args: { p_period: string };
         Returns: Json;

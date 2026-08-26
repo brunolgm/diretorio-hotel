@@ -30,6 +30,7 @@ type PublicHotelPromotionalBannerTranslation =
 
 export interface PublicHotelPageData {
   hotel: PublicHotel;
+  flightHomeCard: PublicFlightHomeCard | null;
   banners: PublicHotelPromotionalBanner[];
   announcements: PublicHotelAnnouncement[];
   sections: PublicHotelSection[];
@@ -43,6 +44,14 @@ export interface PublicHotelServiceDetailData {
   hotel: PublicHotel;
   section: PublicHotelSection;
   hasFallbackContent: boolean;
+}
+
+type PublicFlightHomeCardRow =
+  Database['public']['Functions']['get_public_hotel_flight_home_card']['Returns'][number];
+
+export interface PublicFlightHomeCard {
+  title: string | null;
+  description: string | null;
 }
 
 type PublicFlightCenterRow =
@@ -145,6 +154,7 @@ async function getPublicHotelPageDataForHotel(
     { data: departments, error: departmentsError },
     { data: policies, error: policiesError },
     { data: layoutRows, error: layoutError },
+    { data: flightHomeCardRows, error: flightHomeCardError },
   ] = await Promise.all([
     supabase
       .from('hotel_promotional_banners')
@@ -180,6 +190,7 @@ async function getPublicHotelPageDataForHotel(
       .eq('enabled', true)
       .order('created_at', { ascending: true }),
     supabase.rpc('get_public_hotel_experience_layout', { p_hotel_id: hotel.id }),
+    supabase.rpc('get_public_hotel_flight_home_card', { p_hotel_id: hotel.id }),
   ]);
 
   if (bannersError) {
@@ -200,6 +211,9 @@ async function getPublicHotelPageDataForHotel(
   if (layoutError) {
     console.error('Failed to load hotel experience layout:', layoutError);
   }
+  if (flightHomeCardError) {
+    console.error('Failed to load public Flight Center home card:', flightHomeCardError);
+  }
 
   const typedBanners = ((banners || []) as PublicHotelPromotionalBanner[])
     .filter((item) => {
@@ -216,6 +230,7 @@ async function getPublicHotelPageDataForHotel(
   const typedSections = (sections || []) as PublicHotelSection[];
   const typedDepartments = (departments || []) as PublicHotelDepartment[];
   const typedPolicies = (policies || []) as PublicHotelPolicy[];
+  const flightHomeCardRow = ((flightHomeCardRows || []) as PublicFlightHomeCardRow[])[0];
 
   const [
     bannerTranslationsResult,
@@ -407,6 +422,10 @@ async function getPublicHotelPageDataForHotel(
 
   return {
     hotel,
+    flightHomeCard: flightHomeCardRow ? {
+      title: flightHomeCardRow.home_card_title,
+      description: flightHomeCardRow.home_card_description,
+    } : null,
     banners: displayBanners,
     announcements: displayAnnouncements,
     sections: displaySections,

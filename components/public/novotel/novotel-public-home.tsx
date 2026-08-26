@@ -5,6 +5,7 @@ import { NovotelBrandSignature } from '@/components/public/novotel/novotel-brand
 import { NovotelHeroBackdrop } from '@/components/public/novotel/novotel-hero-backdrop';
 import { NovotelMobileNavigation } from '@/components/public/novotel/novotel-mobile-navigation';
 import { PromotionalBannerCarousel } from '@/components/public/promotional-banner-carousel';
+import { PublicFlightHomeCard } from '@/components/public/public-flight-home-card';
 import { PublicAnalytics } from '@/components/public/public-analytics';
 import type { DomainContext } from '@/lib/domain-context';
 import { getHotelPublicDisplayName } from '@/lib/hotel-public-identity';
@@ -27,7 +28,7 @@ type EditorialCard = {
 export function NovotelPublicHome({ pageData, language, domainContext, preferSubdomainRoot }: {
   pageData: PublicHotelPageData; language: SupportedPublicLanguage; domainContext: DomainContext; preferSubdomainRoot: boolean;
 }) {
-  const { hotel, banners, announcements, sections, layout } = pageData;
+  const { hotel, banners, announcements, sections, layout, flightHomeCard } = pageData;
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const areaHref = (area: PublicHotelAreaKey) => buildPublicHotelAreaHref({ slug: hotel.slug, area, language, domainContext, preferSubdomainRoot });
@@ -68,6 +69,7 @@ export function NovotelPublicHome({ pageData, language, domainContext, preferSub
       </a>; })}
     </section> : null;
   const highlights = showHighlights ? <section className="mt-5 px-4 md:mt-8 md:px-10"><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></section> : null;
+  const flightCard = flightHomeCard ? <PublicFlightHomeCard card={flightHomeCard} hotelSlug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} variant="novotel" /> : null;
   const supportCard = enabled('contact') ? <section className="mx-4 mt-4 rounded-[22px] bg-white p-4 shadow-[0_14px_36px_-24px_rgba(0,43,92,0.3)] ring-1 ring-slate-100 md:mx-10 md:mt-6 md:p-5">
       <div className="flex items-center gap-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#0052B4] text-white md:h-14 md:w-14"><CircleHelp className="h-7 w-7" aria-hidden="true" /></div>
@@ -81,6 +83,7 @@ export function NovotelPublicHome({ pageData, language, domainContext, preferSub
     <div className="mx-auto flex max-w-7xl flex-col md:px-6 md:py-8">
       {hero}
       {cardGridSection}
+      {flightCard}
       {highlights}
       {supportCard}
       <footer className="px-6 pt-6 pb-8 text-center text-xs font-medium text-slate-500 md:py-8">Powered by LibGuest</footer>

@@ -20,6 +20,7 @@ import { MercurePublicHome } from '@/components/public/mercure/mercure-public-ho
 import { NovotelPublicHome } from '@/components/public/novotel/novotel-public-home';
 import { PromotionalBannerCarousel } from '@/components/public/promotional-banner-carousel';
 import { PublicAnalytics } from '@/components/public/public-analytics';
+import { PublicFlightHomeCard } from '@/components/public/public-flight-home-card';
 import { ServiceIcon } from '@/components/service-icon';
 import type { DomainContext } from '@/lib/domain-context';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
@@ -32,6 +33,7 @@ import type {
   PublicHotelPolicy,
   PublicHotelPromotionalBanner,
   PublicHotelSection,
+  PublicFlightHomeCard as PublicFlightHomeCardData,
 } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 import type { ExperienceBlockKey, ExperienceLayoutBlock } from '@/lib/experience-layout';
@@ -304,6 +306,7 @@ export function HotelPublicPageContent({
   departments,
   policies,
   layout,
+  flightHomeCard,
   language,
   domainContext,
   hasFallbackContent,
@@ -317,6 +320,7 @@ export function HotelPublicPageContent({
   departments: PublicHotelDepartment[];
   policies: PublicHotelPolicy[];
   layout: ExperienceLayoutBlock[];
+  flightHomeCard: PublicFlightHomeCardData | null;
   language: SupportedPublicLanguage;
   domainContext: DomainContext;
   hasFallbackContent: boolean;
@@ -361,6 +365,7 @@ export function HotelPublicPageContent({
           departments,
           policies,
           layout,
+          flightHomeCard,
           hasFallbackContent,
         }}
         language={language}
@@ -373,7 +378,7 @@ export function HotelPublicPageContent({
   if (isGrandMercureExperience) {
     return (
       <GrandMercurePublicHome
-        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, hasFallbackContent }}
+        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -384,7 +389,7 @@ export function HotelPublicPageContent({
   if (isMercureExperience) {
     return (
       <MercurePublicHome
-        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, hasFallbackContent }}
+        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -550,6 +555,18 @@ export function HotelPublicPageContent({
           <section style={blockStyle('hero')} className="mt-4 rounded-[24px] border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 shadow-[0_16px_35px_-30px_rgba(120,53,15,0.35)]">
             {copy.fallbackNotice}
           </section>
+        ) : null}
+
+        {flightHomeCard ? (
+          <PublicFlightHomeCard
+            card={flightHomeCard}
+            hotelSlug={hotel.slug}
+            language={language}
+            domainContext={domainContext}
+            preferSubdomainRoot={useSubdomainRoot}
+            variant="default"
+            style={blockStyle('banners')}
+          />
         ) : null}
 
         {highlightsState !== 'hidden' ? (
