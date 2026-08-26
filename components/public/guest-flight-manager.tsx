@@ -1,7 +1,12 @@
 'use client';
 
 import { useCallback, useRef, useState, useSyncExternalStore, type FormEvent } from 'react';
-import { AlertTriangle, Info, Pencil, Plane, Trash2 } from 'lucide-react';
+import { AlertTriangle, ExternalLink, Info, Pencil, Plane, Trash2 } from 'lucide-react';
+import {
+  buildAirlineOfficialFlightUrl,
+  copyOfficialFlightReference,
+  resolveAirlineOfficialLink,
+} from '@/lib/airline-official-links';
 import {
   createSavedGuestFlight,
   getSavedGuestFlightSnapshot,
@@ -49,9 +54,10 @@ function formatFlightDate(date: string, language: SupportedPublicLanguage) {
   }).format(new Date(Date.UTC(year, month - 1, day, 12)));
 }
 
-export function GuestFlightManager({ hotelId, language }: {
+export function GuestFlightManager({ hotelId, language, airportOfficialLinks }: {
   hotelId: string;
   language: SupportedPublicLanguage;
+  airportOfficialLinks: Array<{ iataCode: string; officialUrl: string }>;
 }) {
   const copy = getPublicFlightCenterCopy(language);
   const subscribe = useCallback((onStoreChange: () => void) => subscribeToGuestFlight(hotelId, onStoreChange), [hotelId]);
@@ -63,6 +69,7 @@ export function GuestFlightManager({ hotelId, language }: {
   const [draft, setDraft] = useState<GuestFlightDraft>(EMPTY_DRAFT);
   const [errors, setErrors] = useState<GuestFlightValidationErrors>({});
   const [storageError, setStorageError] = useState(false);
+  const [officialMessage, setOfficialMessage] = useState<string | null>(null);
   const fieldRefs = useRef<Partial<Record<GuestFlightField, HTMLInputElement | null>>>({});
 
   function updateField(field: GuestFlightField, value: string) {
@@ -74,6 +81,7 @@ export function GuestFlightManager({ hotelId, language }: {
     setDraft((current) => ({ ...current, [field]: normalized }));
     setErrors((current) => ({ ...current, [field]: undefined }));
     setStorageError(false);
+    setOfficialMessage(null);
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -99,12 +107,18 @@ export function GuestFlightManager({ hotelId, language }: {
     setDraft(EMPTY_DRAFT);
     setErrors({});
     setStorageError(false);
+    setOfficialMessage(null);
     setEditingOverride(true);
   }
 
   if (flight && !editing) {
+    const officialAirline = resolveAirlineOfficialLink(flight.airlineCode);
     const airline = flight.airlineCode || flight.airlineName;
     const identifier = [airline, flight.flightNumber].filter(Boolean).join(' ');
+    const officialAirlineUrl = buildAirlineOfficialFlightUrl(flight.airlineCode, flight.flightNumber);
+    const officialAirportUrl = airportOfficialLinks.find((item) => item.iataCode === flight.departureAirport)?.officialUrl || null;
+    const officialUrl = officialAirlineUrl || officialAirportUrl;
+    const officialActionLabel = officialAirline ? copy.officialAirlineAction : copy.officialAirportAction;
     const departed = hasSavedGuestFlightDeparted(flight);
     return (
       <article className="hotel-public-content-card relative overflow-hidden rounded-[26px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 shadow-[var(--hotel-card-shadow)] sm:p-6 md:p-8" data-saved-guest-flight>
@@ -112,6 +126,7 @@ export function GuestFlightManager({ hotelId, language }: {
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[19px] bg-[var(--hotel-accent-soft)] text-[color:var(--hotel-accent)]"><Plane className="h-7 w-7" aria-hidden="true" /></div>
           <div className="min-w-0 flex-1">
             <p className="break-words text-xl font-semibold text-[color:var(--hotel-primary)] sm:text-2xl">{identifier}</p>
+            {officialAirline ? <p className="mt-1 text-sm text-[color:var(--hotel-text-muted)]">{officialAirline.name}</p> : null}
             <p className="mt-1 text-base font-semibold text-[color:var(--hotel-text)]">{flight.departureAirport} → {flight.arrivalAirport}</p>
           </div>
         </div>
@@ -129,8 +144,24 @@ export function GuestFlightManager({ hotelId, language }: {
           {departed ? <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" /> : <Info className="mt-0.5 h-5 w-5 shrink-0 text-[color:var(--hotel-accent)]" aria-hidden="true" />}
           {departed ? copy.pastFlightWarning : copy.officialCheckNotice}
         </p>
-        <div className="mt-6 flex flex-col gap-2 min-[360px]:flex-row">
-          <button type="button" onClick={() => { setDraft(draftFromFlight(flight)); setEditingOverride(true); }} className="inline-flex min-h-11 items-center justify-center rounded-[14px] bg-[var(--hotel-accent)] px-5 text-sm font-semibold text-[color:var(--hotel-accent-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"><Pencil className="mr-2 h-4 w-4" aria-hidden="true" />{copy.editFlight}</button>
+        {officialUrl ? <div className="mt-6">
+          <a
+            href={officialUrl}
+            target="_blank"
+            rel="noreferrer"
+            onClick={officialAirline && !officialAirline.supportsFlightNumberInUrl ? () => {
+              setOfficialMessage(null);
+              void copyOfficialFlightReference(navigator.clipboard, flight.airlineCode, flight.flightNumber)
+                .then((copied) => setOfficialMessage(copied ? copy.flightNumberCopied : copy.clipboardUnavailable));
+            } : undefined}
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-[14px] bg-[var(--hotel-accent)] px-5 text-center text-sm font-semibold text-[color:var(--hotel-accent-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2 sm:w-auto"
+          >
+            {officialActionLabel}<ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
+          </a>
+          <p className="mt-2 min-h-5 text-xs leading-5 text-[color:var(--hotel-text-muted)]" role="status" aria-live="polite">{officialMessage}</p>
+        </div> : null}
+        <div className={`${officialUrl ? 'mt-3' : 'mt-6'} flex flex-col gap-2 min-[360px]:flex-row`}>
+          <button type="button" onClick={() => { setDraft(draftFromFlight(flight)); setOfficialMessage(null); setEditingOverride(true); }} className="inline-flex min-h-11 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-5 text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"><Pencil className="mr-2 h-4 w-4" aria-hidden="true" />{copy.editFlight}</button>
           <button type="button" onClick={remove} className="inline-flex min-h-11 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-5 text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"><Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />{copy.removeFlight}</button>
         </div>
       </article>

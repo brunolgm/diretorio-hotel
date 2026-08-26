@@ -85,7 +85,7 @@ test('renders no invented flight status and clearly attributes external sources'
 });
 
 test('delegates My flight to isolated device storage without future integrations', () => {
-  assert.match(component, /<GuestFlightManager hotelId=\{hotel\.id\} language=\{language\} \/>/);
+  assert.match(component, /<GuestFlightManager hotelId=\{hotel\.id\} language=\{language\} airportOfficialLinks=\{airportOfficialLinks\} \/>/);
   assert.doesNotMatch(`${component}\n${slugRoute}\n${subdomainRoute}`, /sessionStorage|\.ics|FlightAware|flight status api|roomToken/i);
 });
 

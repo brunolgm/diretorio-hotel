@@ -164,6 +164,10 @@ export function HotelPublicFlightCenter({
   );
   const listTitle = tab === 'chegadas' ? copy.arrivalsTitle : copy.departuresTitle;
   const listDescription = tab === 'chegadas' ? copy.arrivalsDescription : copy.departuresDescription;
+  const airportOfficialLinks = airports.flatMap((airport) => {
+    const officialUrl = airport.officialDeparturesUrl || airport.officialArrivalsUrl;
+    return officialUrl ? [{ iataCode: airport.iataCode, officialUrl }] : [];
+  });
 
   const hero = isNovotel ? (
     <NovotelAreaHero hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={copy.back} title={copy.title} description={copy.description} icon={Plane} />
@@ -200,7 +204,7 @@ export function HotelPublicFlightCenter({
 
         <section className={`mt-5 space-y-5 ${isGrandMercure ? 'grand-mercure-last-content mb-8 md:mb-4' : isNovotel || isMercure ? 'mb-8 md:mb-4' : ''}`}>
           {tab === 'meu-voo' ? (
-            <GuestFlightManager hotelId={hotel.id} language={language} />
+            <GuestFlightManager hotelId={hotel.id} language={language} airportOfficialLinks={airportOfficialLinks} />
           ) : (
             <div className="space-y-4">
               <div><h2 className="text-2xl font-semibold text-[color:var(--hotel-primary)]">{listTitle}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{listDescription}</p></div>
