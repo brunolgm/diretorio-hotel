@@ -4,6 +4,8 @@ import {
   PRIMARY_PRODUCT_ROOT_DOMAIN,
   SUPPORTED_PRODUCT_ROOT_DOMAINS,
 } from '@/lib/product-domain';
+import { getLocalDevelopmentSubdomain, splitHostAndPort } from '@/lib/domain-host';
+import { validateHotelSubdomain } from '@/lib/hotel-subdomain';
 
 export type DomainContextKind =
   | 'localhost'
@@ -38,18 +40,6 @@ function normalizeRawHost(host: string | null | undefined) {
   return normalized ? normalized.replace(/\.$/, '') : null;
 }
 
-function splitHostAndPort(host: string | null) {
-  if (!host) {
-    return { hostname: null, port: null };
-  }
-
-  const [hostname, port] = host.split(':');
-  return {
-    hostname: hostname || null,
-    port: port || null,
-  };
-}
-
 function isLocalHostname(hostname: string | null) {
   if (!hostname) {
     return false;
@@ -58,8 +48,7 @@ function isLocalHostname(hostname: string | null) {
   return (
     hostname === 'localhost' ||
     hostname === '127.0.0.1' ||
-    hostname === '0.0.0.0' ||
-    hostname.endsWith('.localhost')
+    hostname === '0.0.0.0'
   );
 }
 
@@ -111,6 +100,27 @@ export function resolveDomainContext(
       subdomain: null,
       isProductRoot: false,
       isPotentialHotelSubdomain: false,
+      shouldUseSlugFallback: true,
+      isFutureCustomDomainCandidate: false,
+      isLegacyProductDomain: false,
+    };
+  }
+
+  const localSubdomain = getLocalDevelopmentSubdomain(hostname);
+  const localSubdomainValidation = validateHotelSubdomain(localSubdomain);
+
+  if (localSubdomain && localSubdomainValidation.isValid) {
+    return {
+      rawHost: rawHost ?? null,
+      host,
+      hostname,
+      port,
+      kind: 'product-subdomain',
+      productRootDomain: PRIMARY_PRODUCT_ROOT_DOMAIN,
+      matchedProductRootDomain: 'localhost',
+      subdomain: localSubdomainValidation.normalizedValue,
+      isProductRoot: false,
+      isPotentialHotelSubdomain: true,
       shouldUseSlugFallback: true,
       isFutureCustomDomainCandidate: false,
       isLegacyProductDomain: false,

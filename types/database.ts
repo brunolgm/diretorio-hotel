@@ -1013,6 +1013,27 @@ export interface Database {
         Args: { p_airport_ids: string[] };
         Returns: { airport_id: string; sort_order: number }[];
       };
+      get_public_hotel_flight_center: {
+        Args: { p_hotel_id: string };
+        Returns: {
+          airport_iata_code: string;
+          airport_name: string;
+          airport_city: string;
+          official_departures_url: string | null;
+          official_arrivals_url: string | null;
+          estimated_transfer_minutes: number | null;
+          domestic_lead_minutes: number | null;
+          international_lead_minutes: number | null;
+          safety_margin_minutes: number | null;
+          departure_planning_enabled: boolean;
+          transfer_enabled: boolean;
+          wake_up_enabled: boolean;
+          breakfast_box_enabled: boolean;
+          reception_enabled: boolean;
+          official_links_enabled: boolean;
+          departure_notice: string | null;
+        }[];
+      };
       get_current_hotel_analytics: {
         Args: { p_period: string };
         Returns: Json;

@@ -2,6 +2,10 @@ import { createPublicClient } from '@/lib/supabase/public';
 import { normalizeExperienceLayout, type ExperienceLayoutBlock } from '@/lib/experience-layout';
 import { normalizeHotelSubdomainInput } from '@/lib/hotel-subdomain';
 import { type SupportedPublicLanguage } from '@/lib/public-language';
+import {
+  getPublicNavigationAvailability,
+  type PublicNavigationAvailability,
+} from '@/lib/public-navigation';
 import type { Database } from '@/types/database';
 
 type SupabaseClient = ReturnType<typeof createPublicClient>;
@@ -39,6 +43,47 @@ export interface PublicHotelServiceDetailData {
   hotel: PublicHotel;
   section: PublicHotelSection;
   hasFallbackContent: boolean;
+}
+
+type PublicFlightCenterRow =
+  Database['public']['Functions']['get_public_hotel_flight_center']['Returns'][number];
+
+export interface PublicFlightCenterAirport {
+  iataCode: string;
+  name: string;
+  city: string;
+  officialDeparturesUrl: string | null;
+  officialArrivalsUrl: string | null;
+  estimatedTransferMinutes: number | null;
+  domesticLeadMinutes: number | null;
+  internationalLeadMinutes: number | null;
+  safetyMarginMinutes: number | null;
+}
+
+export interface PublicFlightCenterData {
+  hotel: PublicHotel;
+  airports: PublicFlightCenterAirport[];
+  navigationAvailability: PublicNavigationAvailability;
+  settings: {
+    departurePlanningEnabled: boolean;
+    transferEnabled: boolean;
+    wakeUpEnabled: boolean;
+    breakfastBoxEnabled: boolean;
+    receptionEnabled: boolean;
+    officialLinksEnabled: boolean;
+    departureNotice: string | null;
+  };
+}
+
+function normalizePublicHttpsUrl(value: string | null) {
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' ? url.toString() : null;
+  } catch {
+    return null;
+  }
 }
 
 async function getHotelBySlugWithClient(supabase: SupabaseClient, slug: string) {
@@ -432,6 +477,97 @@ async function getPublicHotelServiceDetailDataForHotel(
   } satisfies PublicHotelServiceDetailData;
 }
 
+async function getPublicFlightCenterDataForHotel(
+  supabase: SupabaseClient,
+  hotel: PublicHotel
+) {
+  const { data, error } = await supabase.rpc('get_public_hotel_flight_center', {
+    p_hotel_id: hotel.id,
+  });
+
+  if (error) {
+    console.error('Failed to load public Flight Center:', error);
+    return null;
+  }
+
+  const rows = (data || []) as PublicFlightCenterRow[];
+  const firstRow = rows[0];
+  if (!firstRow) return null;
+
+  const [
+    servicesModule,
+    menuModule,
+    sectionsResult,
+    menuSectionsResult,
+    layoutResult,
+  ] = await Promise.all([
+    supabase.rpc('is_hotel_module_enabled', {
+      p_hotel_id: hotel.id,
+      p_module_key: 'content.services',
+    }),
+    supabase.rpc('is_hotel_module_enabled', {
+      p_hotel_id: hotel.id,
+      p_module_key: 'fb.menu',
+    }),
+    supabase
+      .from('hotel_sections')
+      .select('id', { count: 'exact', head: true })
+      .eq('hotel_id', hotel.id)
+      .eq('enabled', true),
+    supabase
+      .from('hotel_sections')
+      .select('id', { count: 'exact', head: true })
+      .eq('hotel_id', hotel.id)
+      .eq('enabled', true)
+      .eq('service_action_type', 'room_restaurant_menu'),
+    supabase.rpc('get_public_hotel_experience_layout', {
+      p_hotel_id: hotel.id,
+    }),
+  ]);
+
+  const navigationErrors = [
+    servicesModule.error,
+    menuModule.error,
+    sectionsResult.error,
+    menuSectionsResult.error,
+    layoutResult.error,
+  ].filter(Boolean);
+  if (navigationErrors.length) {
+    console.error('Failed to load public navigation availability:', navigationErrors);
+  }
+
+  return {
+    hotel,
+    navigationAvailability: getPublicNavigationAvailability({
+      layout: normalizeExperienceLayout(layoutResult.data),
+      servicesModuleEnabled: servicesModule.data === true,
+      servicesContentCount: sectionsResult.count || 0,
+      menuModuleEnabled: menuModule.data === true,
+      menuContentCount: menuSectionsResult.count || 0,
+    }),
+    airports: rows.map((row) => ({
+      iataCode: row.airport_iata_code,
+      name: row.airport_name,
+      city: row.airport_city,
+      officialDeparturesUrl: normalizePublicHttpsUrl(row.official_departures_url),
+      officialArrivalsUrl: normalizePublicHttpsUrl(row.official_arrivals_url),
+      estimatedTransferMinutes: row.estimated_transfer_minutes,
+      domesticLeadMinutes: row.domestic_lead_minutes,
+      internationalLeadMinutes: row.international_lead_minutes,
+      safetyMarginMinutes: row.safety_margin_minutes,
+    })),
+    settings: {
+      departurePlanningEnabled: firstRow.departure_planning_enabled,
+      transferEnabled: firstRow.transfer_enabled,
+      wakeUpEnabled: firstRow.wake_up_enabled,
+      breakfastBoxEnabled: firstRow.breakfast_box_enabled,
+      receptionEnabled: firstRow.reception_enabled,
+      officialLinksEnabled: firstRow.official_links_enabled,
+      departureNotice: firstRow.departure_notice,
+    },
+  } satisfies PublicFlightCenterData;
+}
+
 export async function getPublicHotelPageDataBySlug(
   slug: string,
   language: SupportedPublicLanguage
@@ -488,4 +624,18 @@ export async function getPublicHotelServiceDetailDataBySubdomain(
   }
 
   return getPublicHotelServiceDetailDataForHotel(supabase, hotel, serviceId, language);
+}
+
+export async function getPublicFlightCenterDataBySlug(slug: string) {
+  const supabase = createPublicClient();
+  const hotel = await getHotelBySlugWithClient(supabase, slug);
+  if (!hotel) return null;
+  return getPublicFlightCenterDataForHotel(supabase, hotel);
+}
+
+export async function getPublicFlightCenterDataBySubdomain(subdomain: string) {
+  const supabase = createPublicClient();
+  const hotel = await getHotelBySubdomainWithClient(supabase, subdomain);
+  if (!hotel) return null;
+  return getPublicFlightCenterDataForHotel(supabase, hotel);
 }
