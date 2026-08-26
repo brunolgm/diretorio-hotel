@@ -4,7 +4,8 @@ begin;
 do $$ declare nullable_instance boolean; begin
   if to_regclass('public.airports') is null
     or to_regclass('public.hotel_airports') is null
-    or to_regclass('public.hotel_flight_settings') is null then
+    or to_regclass('public.hotel_flight_settings') is null
+    or to_regprocedure('public.reorder_current_hotel_airports(uuid[])') is null then
     raise exception '51 configuration behavior: migration missing';
   end if;
   select is_nullable='YES' into strict nullable_instance
@@ -70,18 +71,21 @@ id,'authenticated','authenticated',email,'',now(),
 from (values
   ('51210000-0000-4000-8000-000000000001'::uuid,'s51c-editor-a@example.invalid'),
   ('51210000-0000-4000-8000-000000000002'::uuid,'s51c-editor-b@example.invalid'),
-  ('51210000-0000-4000-8000-000000000003'::uuid,'s51c-editor-c@example.invalid')
+  ('51210000-0000-4000-8000-000000000003'::uuid,'s51c-editor-c@example.invalid'),
+  ('51210000-0000-4000-8000-000000000004'::uuid,'s51c-viewer-a@example.invalid')
 ) users(id,email);
 
 delete from public.profiles where id=any(array[
   '51210000-0000-4000-8000-000000000001',
   '51210000-0000-4000-8000-000000000002',
-  '51210000-0000-4000-8000-000000000003'
+  '51210000-0000-4000-8000-000000000003',
+  '51210000-0000-4000-8000-000000000004'
 ]::uuid[]);
 insert into public.profiles(id,email,full_name,role,hotel_id,is_active) values
   ('51210000-0000-4000-8000-000000000001','s51c-editor-a@example.invalid','S51C Editor A','editor','51200000-0000-4000-8000-000000000001',true),
   ('51210000-0000-4000-8000-000000000002','s51c-editor-b@example.invalid','S51C Editor B','editor','51200000-0000-4000-8000-000000000002',true),
-  ('51210000-0000-4000-8000-000000000003','s51c-editor-c@example.invalid','S51C Editor C','editor','51200000-0000-4000-8000-000000000003',true);
+  ('51210000-0000-4000-8000-000000000003','s51c-editor-c@example.invalid','S51C Editor C','editor','51200000-0000-4000-8000-000000000003',true),
+  ('51210000-0000-4000-8000-000000000004','s51c-viewer-a@example.invalid','S51C Viewer A','visualizador','51200000-0000-4000-8000-000000000001',true);
 
 -- Global airport catalog mutation is server-only, not a browser privilege.
 set local role service_role;
@@ -189,6 +193,52 @@ do $$ declare affected integer; begin
   end;
 end $$;
 
+-- Reordering is one transaction, preserves the unique position contract and audits the change.
+select * from public.reorder_current_hotel_airports(array[
+  '51230000-0000-4000-8000-000000000002',
+  '51230000-0000-4000-8000-000000000001'
+]::uuid[]);
+do $$ begin
+  if (select sort_order from public.hotel_airports where airport_id='51230000-0000-4000-8000-000000000002')<>1
+    or (select sort_order from public.hotel_airports where airport_id='51230000-0000-4000-8000-000000000001')<>2 then
+    raise exception '51 configuration behavior: atomic reorder did not preserve unique order';
+  end if;
+end $$;
+
+reset role;
+do $$ begin
+  if not exists(
+    select 1 from public.admin_audit_log
+    where hotel_id='51200000-0000-4000-8000-000000000001'
+      and actor_user_id='51210000-0000-4000-8000-000000000001'
+      and action='flight.airports_reordered'
+  ) then
+    raise exception '51 configuration behavior: airport reorder audit missing';
+  end if;
+end $$;
+
+-- A viewer may read the same hotel configuration but cannot mutate it or reorder it.
+set local role authenticated;
+select set_config('request.jwt.claim.sub','51210000-0000-4000-8000-000000000004',true);
+do $$ declare affected integer; begin
+  if (select count(*) from public.hotel_airports)<>2
+    or not exists(select 1 from public.hotel_flight_settings) then
+    raise exception '51 configuration behavior: viewer could not read own hotel configuration';
+  end if;
+  update public.hotel_flight_settings set home_card_enabled=false
+  where hotel_id='51200000-0000-4000-8000-000000000001';
+  get diagnostics affected=row_count;
+  if affected<>0 then raise exception '51 configuration behavior: viewer updated settings'; end if;
+  begin
+    perform * from public.reorder_current_hotel_airports(array[
+      '51230000-0000-4000-8000-000000000001',
+      '51230000-0000-4000-8000-000000000002'
+    ]::uuid[]);
+    raise exception '51 configuration behavior: viewer reordered airports';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+
 -- A hotel without the entitlement cannot observe server-maintained settings.
 select set_config('request.jwt.claim.sub','51210000-0000-4000-8000-000000000003',true);
 do $$ declare affected integer; begin
@@ -207,6 +257,7 @@ do $$ begin
   begin perform * from public.airports; raise exception '51 configuration behavior: anon read airports'; exception when insufficient_privilege then null; end;
   begin perform * from public.hotel_airports; raise exception '51 configuration behavior: anon read hotel_airports'; exception when insufficient_privilege then null; end;
   begin perform * from public.hotel_flight_settings; raise exception '51 configuration behavior: anon read hotel_flight_settings'; exception when insufficient_privilege then null; end;
+  begin perform * from public.reorder_current_hotel_airports(array['51230000-0000-4000-8000-000000000001']::uuid[]); raise exception '51 configuration behavior: anon reordered airports'; exception when insufficient_privilege then null; end;
 end $$;
 
 rollback;

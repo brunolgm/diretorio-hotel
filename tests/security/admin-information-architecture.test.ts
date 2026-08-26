@@ -16,7 +16,7 @@ test('defines the canonical module catalog with unique typed keys', () => {
     'content.announcements', 'content.banners', 'rooms.qr', 'content.languages',
     'experience.appearance', 'experience.navigation', 'experience.preview', 'experience.seo',
     'fb.menu', 'content.tourism', 'analytics.basic', 'analytics.advanced',
-    'integrations.thex', 'integrations.opera', 'audit.access_logs',
+    'travel.flights', 'integrations.thex', 'integrations.opera', 'audit.access_logs',
   ]) assert.ok(ADMIN_MODULE_KEYS.includes(requiredKey as (typeof ADMIN_MODULE_KEYS)[number]));
 });
 
@@ -25,7 +25,7 @@ test('organizes the sidebar into the approved information architecture', () => {
   assert.deepEqual(ADMIN_NAVIGATION[0].items.map(({ label }) => label), ['Dashboard', 'Unidades', 'Usuários', 'Configurações']);
   assert.deepEqual(ADMIN_NAVIGATION[1].items.map(({ label }) => label), [
     'Experiência Pública', 'Banners', 'Serviços', 'Departamentos',
-    'Cardápio (F&B)', 'Turismo', 'Comunicados', 'Informações', 'Políticas',
+    'Cardápio (F&B)', 'Turismo', 'Comunicados', 'Central de Voos', 'Informações', 'Políticas',
   ]);
   assert.deepEqual(ADMIN_NAVIGATION[2].items.map(({ label }) => label), ['Analytics', 'Idiomas', 'Logs de Acesso']);
   for (const item of ADMIN_NAVIGATION.flatMap(({ items }) => items)) {
@@ -58,7 +58,7 @@ test('keeps every existing admin route and adds only approved foundations', () =
     'app/admin/comunicados/page.tsx', 'app/admin/banners/page.tsx', 'app/admin/usuarios/page.tsx',
     'app/admin/experiencia/page.tsx', 'app/admin/configuracoes/page.tsx', 'app/admin/cardapio/page.tsx',
     'app/admin/turismo/page.tsx', 'app/admin/idiomas/page.tsx', 'app/admin/logs/page.tsx',
-    'app/admin/analytics/page.tsx',
+    'app/admin/analytics/page.tsx', 'app/admin/voos/page.tsx',
   ];
   for (const route of routes) assert.ok(existsSync(join(root, route)), route);
 });

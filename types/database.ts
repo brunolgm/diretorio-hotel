@@ -1009,6 +1009,10 @@ export interface Database {
         Args: { p_block_keys: string[] };
         Returns: { block_key: string; is_enabled: boolean; block_position: number }[];
       };
+      reorder_current_hotel_airports: {
+        Args: { p_airport_ids: string[] };
+        Returns: { airport_id: string; sort_order: number }[];
+      };
       get_current_hotel_analytics: {
         Args: { p_period: string };
         Returns: Json;
