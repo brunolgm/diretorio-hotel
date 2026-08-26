@@ -10,6 +10,7 @@ const migration = read('supabase', 'migrations', '202608250005_51_public_flight_
 const matrix = read('supabase', 'tests', '51_public_flight_home_card_behavioral_matrix.sql');
 const data = read('lib', 'public-hotel-data.ts');
 const card = read('components', 'public', 'public-flight-home-card.tsx');
+const cardContent = read('components', 'public', 'public-flight-home-card-content.tsx');
 const genericHome = read('components', 'public', 'hotel-public-page-content.tsx');
 const grandMercureHome = read('components', 'public', 'grand-mercure', 'grand-mercure-public-home.tsx');
 const mercureHome = read('components', 'public', 'mercure', 'mercure-public-home.tsx');
@@ -75,7 +76,7 @@ test('keeps one accessible responsive component with a themed variant for every 
   assert.match(genericHome, /variant="default"/);
 });
 
-test('adds no dock item, preserves the Carioca section and introduces no flight-status state', () => {
+test('adds no dock item, preserves the Carioca section and introduces no verified flight-status state', () => {
   for (const dock of [
     read('components', 'public', 'grand-mercure', 'grand-mercure-mobile-navigation.tsx'),
     read('components', 'public', 'mercure', 'mercure-bottom-dock.tsx'),
@@ -83,7 +84,9 @@ test('adds no dock item, preserves the Carioca section and introduces no flight-
   ]) assert.doesNotMatch(dock, /flight|voos|plane/i);
   assert.match(grandMercureHome, /GrandMercureBrazilianPillars/);
   assert.match(grandMercureHome, /showRioCopacabanaEditorial/);
-  assert.doesNotMatch(card, /localStorage|flight status|countdown|atras|airport|aeroporto|terminal|gate|portão/i);
+  assert.doesNotMatch(`${card}\n${cardContent}`, /countdown|atras|terminal|gate|portão|fetch\(|supabase/i);
+  assert.match(cardContent, /getSavedGuestFlightSnapshot\(hotelId\)/);
+  assert.match(cardContent, /copy\.statusNotVerified/);
 });
 
 test('does not change the established adaptive grid contracts', () => {

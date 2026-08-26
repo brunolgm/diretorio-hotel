@@ -6,7 +6,6 @@ import {
   Clock3,
   Coffee,
   ExternalLink,
-  Info,
   MessageCircle,
   Plane,
   PlaneLanding,
@@ -16,6 +15,7 @@ import {
 import { GrandMercureAreaHero } from '@/components/public/grand-mercure/grand-mercure-area-hero';
 import { GrandMercureMobileNavigation } from '@/components/public/grand-mercure/grand-mercure-mobile-navigation';
 import { GrandMercureGlobalMandala } from '@/components/public/grand-mercure/grand-mercure-ornament';
+import { GuestFlightManager } from '@/components/public/guest-flight-manager';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { MercureAreaHero } from '@/components/public/mercure/mercure-area-hero';
 import { MercureBottomDock } from '@/components/public/mercure/mercure-bottom-dock';
@@ -200,19 +200,7 @@ export function HotelPublicFlightCenter({
 
         <section className={`mt-5 space-y-5 ${isGrandMercure ? 'grand-mercure-last-content mb-8 md:mb-4' : isNovotel || isMercure ? 'mb-8 md:mb-4' : ''}`}>
           {tab === 'meu-voo' ? (
-            <article className="hotel-public-content-card relative overflow-hidden rounded-[26px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-6 shadow-[var(--hotel-card-shadow)] md:p-8">
-              <div className="flex h-14 w-14 items-center justify-center rounded-[19px] bg-[var(--hotel-accent-soft)] text-[color:var(--hotel-accent)]"><Plane className="h-7 w-7" /></div>
-              <h2 className="mt-5 text-2xl font-semibold text-[color:var(--hotel-primary)]">{copy.myFlightTitle}</h2>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-[color:var(--hotel-text-muted)]">{copy.myFlightDescription}</p>
-              <details className="group mt-6 max-w-xl">
-                <summary className="inline-flex min-h-11 cursor-pointer list-none items-center rounded-[14px] bg-[var(--hotel-accent)] px-5 text-sm font-semibold text-[color:var(--hotel-accent-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2">{copy.addFlight}</summary>
-                <div className="mt-4 rounded-[18px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface-muted)] p-4">
-                  <label htmlFor="flight-number" className="text-sm font-medium text-[color:var(--hotel-primary)]">{copy.flightNumber}</label>
-                  <input id="flight-number" type="text" autoComplete="off" placeholder={copy.flightPlaceholder} aria-describedby="flight-preparation-notice" className="mt-2 h-11 w-full rounded-[13px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-4 text-sm text-[color:var(--hotel-text)] outline-none focus:ring-2 focus:ring-[var(--hotel-accent)]" />
-                  <p id="flight-preparation-notice" className="mt-3 flex gap-2 text-xs leading-5 text-[color:var(--hotel-text-muted)]"><Info className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--hotel-accent)]" />{copy.preparationNotice}</p>
-                </div>
-              </details>
-            </article>
+            <GuestFlightManager hotelId={hotel.id} language={language} />
           ) : (
             <div className="space-y-4">
               <div><h2 className="text-2xl font-semibold text-[color:var(--hotel-primary)]">{listTitle}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{listDescription}</p></div>

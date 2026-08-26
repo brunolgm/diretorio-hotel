@@ -560,6 +560,7 @@ export function HotelPublicPageContent({
         {flightHomeCard ? (
           <PublicFlightHomeCard
             card={flightHomeCard}
+            hotelId={hotel.id}
             hotelSlug={hotel.slug}
             language={language}
             domainContext={domainContext}

@@ -69,7 +69,7 @@ export function NovotelPublicHome({ pageData, language, domainContext, preferSub
       </a>; })}
     </section> : null;
   const highlights = showHighlights ? <section className="mt-5 px-4 md:mt-8 md:px-10"><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></section> : null;
-  const flightCard = flightHomeCard ? <PublicFlightHomeCard card={flightHomeCard} hotelSlug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} variant="novotel" /> : null;
+  const flightCard = flightHomeCard ? <PublicFlightHomeCard card={flightHomeCard} hotelId={hotel.id} hotelSlug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} variant="novotel" /> : null;
   const supportCard = enabled('contact') ? <section className="mx-4 mt-4 rounded-[22px] bg-white p-4 shadow-[0_14px_36px_-24px_rgba(0,43,92,0.3)] ring-1 ring-slate-100 md:mx-10 md:mt-6 md:p-5">
       <div className="flex items-center gap-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#0052B4] text-white md:h-14 md:w-14"><CircleHelp className="h-7 w-7" aria-hidden="true" /></div>

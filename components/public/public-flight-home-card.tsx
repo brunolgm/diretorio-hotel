@@ -1,4 +1,4 @@
-import { ArrowRight, PlaneTakeoff } from 'lucide-react';
+import { PublicFlightHomeCardContent } from '@/components/public/public-flight-home-card-content';
 import type { DomainContext } from '@/lib/domain-context';
 import { getPublicFlightCenterCopy } from '@/lib/public-flight-center-copy';
 import type { PublicFlightHomeCard } from '@/lib/public-hotel-data';
@@ -51,6 +51,7 @@ const variantStyles: Record<FlightHomeCardVariant, {
 
 export function PublicFlightHomeCard({
   card,
+  hotelId,
   hotelSlug,
   language,
   domainContext,
@@ -59,6 +60,7 @@ export function PublicFlightHomeCard({
   style,
 }: {
   card: PublicFlightHomeCard;
+  hotelId: string;
   hotelSlug: string;
   language: SupportedPublicLanguage;
   domainContext: DomainContext;
@@ -84,19 +86,16 @@ export function PublicFlightHomeCard({
         aria-label={`${copy.homeCardCta}: ${title}`}
         className={`group flex min-w-0 items-center gap-3 overflow-hidden rounded-[22px] border p-4 transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:gap-5 sm:p-5 ${styles.link}`}
       >
-        <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[17px] border sm:h-14 sm:w-14 ${styles.icon}`}>
-          <PlaneTakeoff className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className={`block break-words text-base font-semibold leading-5 sm:text-lg ${styles.title}`}>{title}</span>
-          <span className={`mt-1 block break-words text-xs leading-5 sm:text-sm ${styles.description}`}>{description}</span>
-          <span className={`mt-2 inline-flex items-center text-xs font-semibold sm:hidden ${styles.cta}`}>
-            {copy.homeCardCta}<ArrowRight className="ml-1.5 h-4 w-4" aria-hidden="true" />
-          </span>
-        </span>
-        <span className={`hidden shrink-0 items-center text-sm font-semibold sm:inline-flex ${styles.cta}`}>
-          {copy.homeCardCta}<ArrowRight className="ml-2 h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden="true" />
-        </span>
+        <PublicFlightHomeCardContent
+          hotelId={hotelId}
+          language={language}
+          fallbackTitle={title}
+          fallbackDescription={description}
+          iconClassName={styles.icon}
+          titleClassName={styles.title}
+          descriptionClassName={styles.description}
+          ctaClassName={styles.cta}
+        />
       </a>
     </section>
   );

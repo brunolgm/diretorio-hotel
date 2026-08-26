@@ -84,10 +84,9 @@ test('renders no invented flight status and clearly attributes external sources'
   assert.equal(normalizePublicFlightCenterTab('unknown'), 'meu-voo');
 });
 
-test('keeps My flight explicitly non-persistent in this stage', () => {
-  assert.match(component, /<details/);
-  assert.match(component, /autoComplete="off"/);
-  assert.doesNotMatch(`${component}\n${slugRoute}\n${subdomainRoute}`, /localStorage|sessionStorage|\.ics|FlightAware|flight status api/i);
+test('delegates My flight to isolated device storage without future integrations', () => {
+  assert.match(component, /<GuestFlightManager hotelId=\{hotel\.id\} language=\{language\} \/>/);
+  assert.doesNotMatch(`${component}\n${slugRoute}\n${subdomainRoute}`, /sessionStorage|\.ics|FlightAware|flight status api|roomToken/i);
 });
 
 test('does not add flights to any mobile dock or touch room identity', () => {
