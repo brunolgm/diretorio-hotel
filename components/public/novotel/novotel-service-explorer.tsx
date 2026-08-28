@@ -8,6 +8,7 @@ export type NovotelServiceExplorerItem = {
   id: string;
   title: string;
   content: string | null;
+  operationalHours: string | null;
   category: string | null;
   icon: string | null;
   cta: string | null;
@@ -107,6 +108,9 @@ export function NovotelServiceExplorer({
                 </div>
               </div>
               <p className="mt-4 whitespace-pre-line break-words text-[15px] leading-6 text-[color:var(--hotel-text-muted)]">{item.content}</p>
+              {item.operationalHours ? (
+                <p className="mt-2 text-sm font-semibold leading-6 text-[color:var(--hotel-primary)]">{item.operationalHours}</p>
+              ) : null}
               {item.href ? (
                 <div className="mt-auto flex justify-end pt-5">
                   <span className="sr-only">{labels.actionAvailable}</span>

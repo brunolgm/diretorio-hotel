@@ -40,6 +40,11 @@ import {
   type PublicHotelAreaKey,
 } from '@/lib/public-routes';
 import { getServiceDestination } from '@/lib/service-destinations';
+import {
+  getServiceCanonicalHours,
+  getServiceEditorialContent,
+  isBreakfastOperationalSection,
+} from '@/lib/service-operational';
 
 function getAreaCopy(language: SupportedPublicLanguage) {
   if (language === 'en') {
@@ -112,10 +117,14 @@ function ServiceList({
   preferSubdomainRoot: boolean;
   openLabel: string;
 }) {
+  const copy = getPublicCopy(language);
   return (
     <div className="hotel-public-content-grid grid gap-4 md:grid-cols-2">
       {sections.map((section) => {
         const destination = getServiceDestination(section, pageData.hotel.slug, language, domainContext, { preferSubdomainRoot });
+        const editorialContent = getServiceEditorialContent(section);
+        const canonicalHours = getServiceCanonicalHours(section, pageData.hotel.breakfast_hours);
+        const isBreakfast = isBreakfastOperationalSection(section);
         return (
           <article key={section.id} className="hotel-public-content-card rounded-[24px] bg-white p-5 shadow-[0_18px_42px_-32px_rgba(0,43,92,0.26)] ring-1 ring-[color:var(--hotel-border)]">
             <div className="flex items-start gap-4">
@@ -125,7 +134,12 @@ function ServiceList({
               <div className="min-w-0 flex-1">
                 <h2 className="break-words text-lg font-semibold text-[color:var(--hotel-primary)]">{section.title}</h2>
                 {section.category ? <p className="mt-1 text-xs font-medium uppercase tracking-[0.12em] text-[color:var(--hotel-accent)]">{section.category}</p> : null}
-                <p className="mt-3 whitespace-pre-line break-words text-sm leading-6 text-[color:var(--hotel-text-muted)]">{section.content}</p>
+                <p className="mt-3 whitespace-pre-line break-words text-sm leading-6 text-[color:var(--hotel-text-muted)]">{editorialContent}</p>
+                {isBreakfast ? (
+                  <p className="mt-2 text-sm font-medium leading-6 text-[color:var(--hotel-primary)]">
+                    {copy.serviceHours}: {canonicalHours || copy.notInformed}
+                  </p>
+                ) : null}
                 {destination ? (
                   <a href={destination.href} target={destination.isExternal ? '_blank' : undefined} rel={destination.isExternal ? 'noreferrer' : undefined} className="mt-4 inline-flex min-h-11 items-center rounded-[14px] bg-[var(--hotel-accent)] px-4 text-sm font-semibold text-[color:var(--hotel-accent-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2">
                     {section.cta || openLabel}
@@ -200,10 +214,14 @@ export function HotelPublicAreaContent({
     const destination = getServiceDestination(section, hotel.slug, language, domainContext, {
       preferSubdomainRoot,
     });
+    const canonicalHours = getServiceCanonicalHours(section, hotel.breakfast_hours);
     return {
       id: section.id,
       title: section.title,
-      content: section.content,
+      content: getServiceEditorialContent(section) ?? null,
+      operationalHours: isBreakfastOperationalSection(section)
+        ? `${copy.serviceHours}: ${canonicalHours || copy.notInformed}`
+        : null,
       category: section.category,
       icon: section.icon,
       cta: section.cta,

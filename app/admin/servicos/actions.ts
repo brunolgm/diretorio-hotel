@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { requireAdminAccess } from '@/lib/auth';
+import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { requireHotelModule } from '@/lib/admin-entitlements';
 import {
   readCheckboxBoolean,
@@ -13,6 +13,7 @@ import {
 } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
 import { normalizeServiceActionType } from '@/lib/service-action-types';
+import { parseServiceOperationalKey } from '@/lib/service-operational';
 import { normalizeServiceCategory, resolveServiceIconName } from '@/lib/service-options';
 import {
   buildFeedbackRedirect,
@@ -25,7 +26,7 @@ import { createClient } from '@/lib/supabase/server';
 import { isUuid } from '@/lib/security/identifiers';
 
 export async function createSectionAction(formData: FormData) {
-  await requireAdminAccess('operador'); await requireHotelModule('content.services');
+  const { profile } = await requireAdminAccess('operador'); await requireHotelModule('content.services');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const title = readTrimmedString(formData, 'title');
@@ -33,6 +34,19 @@ export async function createSectionAction(formData: FormData) {
   const serviceActionType = normalizeServiceActionType(
     readNullableString(formData, 'service_action_type')
   );
+  const canManageOperationalKey = hasMinimumRole(profile.normalizedRole, 'editor');
+  let operationalKey;
+  try {
+    operationalKey = parseServiceOperationalKey(
+      readNullableString(formData, 'operational_key')
+    );
+  } catch {
+    redirect('/admin/servicos?error=Fun%C3%A7%C3%A3o%20operacional%20inv%C3%A1lida');
+  }
+
+  if (formData.has('operational_key') && !canManageOperationalKey) {
+    redirect('/admin/servicos?error=Acesso%20insuficiente%20para%20alterar%20a%20fun%C3%A7%C3%A3o%20operacional');
+  }
   const urlInput = readNullableString(formData, 'url');
   const url = readOptionalUrl(formData, 'url');
 
@@ -57,6 +71,7 @@ export async function createSectionAction(formData: FormData) {
     url,
     category: normalizeServiceCategory(readNullableString(formData, 'category')),
     service_action_type: serviceActionType,
+    operational_key: operationalKey,
     enabled: readCheckboxBoolean(formData, 'enabled'),
     sort_order: Math.max(0, readNumber(formData, 'sort_order', 0)),
   };

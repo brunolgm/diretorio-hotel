@@ -39,6 +39,11 @@ import type { SupportedPublicLanguage } from '@/lib/public-language';
 import type { ExperienceBlockKey, ExperienceLayoutBlock } from '@/lib/experience-layout';
 import { shouldPreferHotelSubdomainRoot } from '@/lib/public-routes';
 import { getServiceDestination } from '@/lib/service-destinations';
+import {
+  getServiceCanonicalHours,
+  getServiceEditorialContent,
+  isBreakfastOperationalSection,
+} from '@/lib/service-operational';
 
 function SectionIcon({
   iconName,
@@ -131,6 +136,7 @@ function AnnouncementCard({
 function SectionCard({
   item,
   hotelSlug,
+  breakfastHours,
   language,
   copy,
   domainContext,
@@ -138,6 +144,7 @@ function SectionCard({
 }: {
   item: PublicHotelSection;
   hotelSlug: string;
+  breakfastHours: string | null;
   language: SupportedPublicLanguage;
   copy: ReturnType<typeof getPublicCopy>;
   domainContext: DomainContext;
@@ -146,6 +153,9 @@ function SectionCard({
   const destination = getServiceDestination(item, hotelSlug, language, domainContext, {
     preferSubdomainRoot,
   });
+  const editorialContent = getServiceEditorialContent(item);
+  const canonicalHours = getServiceCanonicalHours(item, breakfastHours);
+  const isBreakfast = isBreakfastOperationalSection(item);
 
   return (
     <div className="hotel-theme-card min-w-0 overflow-hidden p-5 transition hover:-translate-y-0.5 hover:shadow-[0_26px_55px_-36px_rgba(15,23,42,0.32)]">
@@ -168,8 +178,13 @@ function SectionCard({
           </div>
 
           <p className="hotel-theme-muted mt-3 min-w-0 line-clamp-2 break-words [overflow-wrap:anywhere] text-sm leading-6 md:line-clamp-4 md:leading-7">
-            {item.content || copy.serviceInfoUnavailable}
+            {editorialContent || copy.serviceInfoUnavailable}
           </p>
+          {isBreakfast ? (
+            <p className="hotel-theme-heading mt-2 text-sm font-medium leading-6">
+              {copy.serviceHours}: {canonicalHours || copy.notInformed}
+            </p>
+          ) : null}
 
           {destination ? (
             <div className="mt-4 min-w-0 overflow-hidden">
@@ -655,6 +670,7 @@ export function HotelPublicPageContent({
                   key={item.id}
                   item={item}
                   hotelSlug={hotel.slug}
+                  breakfastHours={hotel.breakfast_hours}
                   language={language}
                   copy={copy}
                   domainContext={domainContext}

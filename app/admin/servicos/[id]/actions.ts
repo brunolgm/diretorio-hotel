@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { requireAdminAccess } from '@/lib/auth';
+import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { requireHotelModule } from '@/lib/admin-entitlements';
 import {
   readCheckboxBoolean,
@@ -13,6 +13,7 @@ import {
 } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
 import { normalizeServiceActionType } from '@/lib/service-action-types';
+import { parseServiceOperationalKey } from '@/lib/service-operational';
 import { normalizeServiceCategory, resolveServiceIconName } from '@/lib/service-options';
 import {
   buildFeedbackRedirect,
@@ -24,7 +25,7 @@ import { isUuid } from '@/lib/security/identifiers';
 import type { Database } from '@/types/database';
 
 export async function updateSectionAction(id: string, formData: FormData) {
-  await requireAdminAccess('operador'); await requireHotelModule('content.services');
+  const { profile } = await requireAdminAccess('operador'); await requireHotelModule('content.services');
   if (!isUuid(id)) {
     redirect('/admin/servicos?error=Servi%C3%A7o%20inv%C3%A1lido');
   }
@@ -36,6 +37,19 @@ export async function updateSectionAction(id: string, formData: FormData) {
   const serviceActionType = normalizeServiceActionType(
     readNullableString(formData, 'service_action_type')
   );
+  const canManageOperationalKey = hasMinimumRole(profile.normalizedRole, 'editor');
+  let operationalKey;
+  try {
+    operationalKey = parseServiceOperationalKey(
+      readNullableString(formData, 'operational_key')
+    );
+  } catch {
+    redirect(`/admin/servicos/${id}?error=Fun%C3%A7%C3%A3o%20operacional%20inv%C3%A1lida`);
+  }
+
+  if (formData.has('operational_key') && !canManageOperationalKey) {
+    redirect(`/admin/servicos/${id}?error=Acesso%20insuficiente%20para%20alterar%20a%20fun%C3%A7%C3%A3o%20operacional`);
+  }
   const urlInput = readNullableString(formData, 'url');
   const url = readOptionalUrl(formData, 'url');
 
@@ -62,6 +76,10 @@ export async function updateSectionAction(id: string, formData: FormData) {
     enabled: readCheckboxBoolean(formData, 'enabled'),
     sort_order: Math.max(0, readNumber(formData, 'sort_order', 0)),
   };
+
+  if (canManageOperationalKey) {
+    payload.operational_key = operationalKey;
+  }
 
   const { data: updatedSection, error } = await supabase
     .from('hotel_sections')

@@ -44,6 +44,7 @@ import {
   getServiceActionTypeLabel,
   SERVICE_ACTION_TYPE_OPTIONS,
 } from '@/lib/service-action-types';
+import { SERVICE_OPERATIONAL_KEY_OPTIONS } from '@/lib/service-operational';
 import { buildServiceCategoryOptions } from '@/lib/service-options';
 import {
   getAvailableTranslationLanguages,
@@ -80,6 +81,7 @@ export default async function AdminServicesPage({
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const canManageServices = hasMinimumRole(profile.normalizedRole, 'operador');
+  const canManageOperationalKey = hasMinimumRole(profile.normalizedRole, 'editor');
   const params = searchParams ? await searchParams : {};
   const success = params?.success;
   const errorMessage = params?.error;
@@ -263,6 +265,22 @@ export default async function AdminServicesPage({
                     ]}
                   />
                 </AdminField>
+
+                {canManageOperationalKey ? (
+                  <AdminField label="Função operacional">
+                    <AdminSelect name="operational_key" defaultValue="">
+                      <option value="">Nenhuma</option>
+                      {SERVICE_OPERATIONAL_KEY_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </AdminSelect>
+                    <AdminHelpText>
+                      Vincula este serviço a uma informação operacional oficial do hotel.
+                    </AdminHelpText>
+                  </AdminField>
+                ) : null}
 
                 <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                   <AdminField label="Texto do botão">

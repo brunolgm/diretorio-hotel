@@ -17,11 +17,12 @@ import {
   AdminTextInput,
   AdminTextarea,
 } from '@/components/admin/ui';
-import { requireAdminAccess } from '@/lib/auth';
+import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
 import {
   SERVICE_ACTION_TYPE_OPTIONS,
 } from '@/lib/service-action-types';
+import { SERVICE_OPERATIONAL_KEY_OPTIONS } from '@/lib/service-operational';
 import { buildServiceCategoryOptions } from '@/lib/service-options';
 import {
   getRetranslationHelpText,
@@ -40,7 +41,7 @@ interface PageProps {
 }
 
 export default async function EditServicePage({ params, searchParams }: PageProps) {
-  await requireAdminAccess('operador');
+  const { profile } = await requireAdminAccess('operador');
   const { id } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const success = resolvedSearchParams?.success;
@@ -77,6 +78,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
   const serviceCategoryOptions = buildServiceCategoryOptions(
     (hotelSectionCategories || []).map((item) => item.category)
   );
+  const canManageOperationalKey = hasMinimumRole(profile.normalizedRole, 'editor');
 
   return (
     <main className="space-y-6">
@@ -151,6 +153,25 @@ export default async function EditServicePage({ params, searchParams }: PageProp
                 <p>Cardápio por apartamento: usa o QR do apartamento para abrir o cardápio correto.</p>
               </div>
             </AdminField>
+
+            {canManageOperationalKey ? (
+              <AdminField label="Função operacional">
+                <AdminSelect
+                  name="operational_key"
+                  defaultValue={section.operational_key || ''}
+                >
+                  <option value="">Nenhuma</option>
+                  {SERVICE_OPERATIONAL_KEY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </AdminSelect>
+                <p className="mt-2 text-xs leading-5 text-slate-500">
+                  Café da manhã usa o horário oficial cadastrado nas informações do hotel.
+                </p>
+              </AdminField>
+            ) : null}
 
             <AdminField label="Descrição" className="md:col-span-2">
               <AdminTextarea

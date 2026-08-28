@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckCircle2, Hotel, MapPin, Sparkles } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Coffee, Hotel, MapPin, Sparkles } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { GrandMercureMobileNavigation } from '@/components/public/grand-mercure/grand-mercure-mobile-navigation';
 import { GrandMercureGlobalMandala } from '@/components/public/grand-mercure/grand-mercure-ornament';
@@ -11,6 +11,11 @@ import { getPublicCopy } from '@/lib/public-copy';
 import type { PublicHotel, PublicHotelSection } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 import { buildPublicHotelAreaHref, buildPublicHotelHref, shouldPreferHotelSubdomainRoot } from '@/lib/public-routes';
+import {
+  getServiceCanonicalHours,
+  getServiceEditorialContent,
+  isBreakfastOperationalSection,
+} from '@/lib/service-operational';
 import { MIN_SERVICE_DETAIL_CONTENT_LENGTH } from '@/lib/service-destinations';
 
 type RoomRestaurantState = 'missing-context' | 'missing-menu' | 'invalid-context';
@@ -63,6 +68,9 @@ export function HotelServiceDetailContent({
   const backHref = buildHotelBackHref(hotel.slug, language, domainContext, useSubdomainRoot);
   const grandMercureServicesHref = buildPublicHotelAreaHref({ slug: hotel.slug, area: 'servicos', language, domainContext, preferSubdomainRoot: useSubdomainRoot });
   const homeHref = buildPublicHotelHref({ slug: hotel.slug, language, domainContext, preferSubdomainRoot: useSubdomainRoot });
+  const isBreakfastService = isBreakfastOperationalSection(section);
+  const editorialContent = getServiceEditorialContent(section);
+  const canonicalServiceHours = getServiceCanonicalHours(section, hotel.breakfast_hours);
   const grandMercureNavigationItems = [
     { key: 'home' as const, href: homeHref, label: copy.navigationHome },
     { key: 'services' as const, href: grandMercureServicesHref, label: copy.navigationServices },
@@ -229,8 +237,22 @@ export function HotelServiceDetailContent({
               {copy.fullInformation}
             </h2>
             <p className="hotel-theme-muted mt-4 whitespace-pre-line break-words [overflow-wrap:anywhere] text-sm leading-8 md:text-base">
-              {section.content}
+              {editorialContent}
             </p>
+
+            {isBreakfastService ? (
+              <div className="mt-6 flex items-start gap-3 rounded-2xl border border-[color:var(--hotel-border)] bg-[var(--hotel-accent-soft)] px-4 py-3">
+                <Coffee className="mt-0.5 h-5 w-5 shrink-0 text-[color:var(--hotel-accent)]" />
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-[0.14em] text-[color:var(--hotel-section-label)]">
+                    {copy.breakfast}
+                  </p>
+                  <p className="hotel-theme-heading mt-1 text-sm font-semibold md:text-base">
+                    {canonicalServiceHours || copy.notInformed}
+                  </p>
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">

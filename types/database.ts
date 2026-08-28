@@ -317,6 +317,7 @@ export interface Database {
           url: string | null;
           category: string | null;
           service_action_type: 'standard' | 'external_url' | 'room_restaurant_menu';
+          operational_key: 'breakfast' | null;
           enabled: boolean | null;
           sort_order: number | null;
           created_at: string | null;
@@ -332,6 +333,7 @@ export interface Database {
           url?: string | null;
           category?: string | null;
           service_action_type?: 'standard' | 'external_url' | 'room_restaurant_menu';
+          operational_key?: 'breakfast' | null;
           enabled?: boolean | null;
           sort_order?: number | null;
           created_at?: string | null;
@@ -347,6 +349,7 @@ export interface Database {
           url?: string | null;
           category?: string | null;
           service_action_type?: 'standard' | 'external_url' | 'room_restaurant_menu';
+          operational_key?: 'breakfast' | null;
           enabled?: boolean | null;
           sort_order?: number | null;
           created_at?: string | null;
