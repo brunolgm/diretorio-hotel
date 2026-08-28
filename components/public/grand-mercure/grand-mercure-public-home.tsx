@@ -1,6 +1,8 @@
 import type { ElementType } from 'react';
 import { BellRing, ChevronDown, CircleHelp, ConciergeBell, Info, MessageCircle } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
+import { GptMakerWebChat } from '@/components/public/gptmaker-webchat';
+import { LibGuestAiChat } from '@/components/public/libguest-ai-chat';
 import { PromotionalBannerCarousel } from '@/components/public/promotional-banner-carousel';
 import { PublicFlightHomeCard } from '@/components/public/public-flight-home-card';
 import { PublicAnalytics } from '@/components/public/public-analytics';
@@ -9,8 +11,10 @@ import { GrandMercureBrazilianPillars } from './grand-mercure-brazilian-pillars'
 import { GrandMercureMobileNavigation } from './grand-mercure-mobile-navigation';
 import { GrandMercureGlobalMandala } from './grand-mercure-ornament';
 import type { DomainContext } from '@/lib/domain-context';
+import { getAiChatPocMode, isAiChatPilotHotel } from '@/lib/assistant-chat-poc';
 import { getGrandMercurePropertyLabel, isGrandMercureRioCopacabanaProperty } from '@/lib/grand-mercure-property';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
+import { buildPublicAiContext } from '@/lib/public-ai-context';
 import { getPublicCopy } from '@/lib/public-copy';
 import { getPublicHighlightsState } from '@/lib/public-highlights';
 import type { PublicHotelPageData } from '@/lib/public-hotel-data';
@@ -41,6 +45,11 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const propertyLabel = getGrandMercurePropertyLabel(hotel.name);
   const showRioCopacabanaEditorial = isGrandMercureRioCopacabanaProperty(hotel);
+  const aiChatPocMode = getAiChatPocMode();
+  const isChatPilot = isAiChatPilotHotel(hotel.slug);
+  const webChatContext = isChatPilot && aiChatPocMode === 'widget'
+    ? buildPublicAiContext({ pageData, language })
+    : null;
   const areaHref = (area: PublicHotelAreaKey) => buildPublicHotelAreaHref({ slug: hotel.slug, area, language, domainContext, preferSubdomainRoot });
   const homeHref = buildPublicHotelHref({ slug: hotel.slug, language, domainContext, preferSubdomainRoot });
   const whatsappHref = hotel.whatsapp_number ? `https://wa.me/${String(hotel.whatsapp_number).replace(/\D/g, '')}` : null;
@@ -93,6 +102,8 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
 
   return <main className="hotel-theme-page grand-mercure-dock-layout min-h-screen" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
     <PublicAnalytics hotelSlug={hotel.slug} language={language} />
+    {isChatPilot && aiChatPocMode === 'native' ? <LibGuestAiChat hotelSlug={hotel.slug} language={language} variant="grand-mercure" /> : null}
+    {webChatContext ? <GptMakerWebChat language={language} additionalContext={webChatContext} /> : null}
     <GrandMercureGlobalMandala />
     <div className="grand-mercure-scroll-region mx-auto max-w-[1280px] md:px-6 md:py-7">
       {hero}
