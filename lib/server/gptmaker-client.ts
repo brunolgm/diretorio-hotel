@@ -16,6 +16,7 @@ export type GptMakerErrorKind =
   | 'timeout'
   | 'authentication'
   | 'rate_limited'
+  | 'invalid_response'
   | 'upstream';
 
 export class GptMakerError extends Error {
@@ -54,14 +55,14 @@ export class GptMakerClient implements AssistantConversationClient {
   async addContext(input: { contextId: string; prompt: string; role: 'user' }) {
     const response = await this.post('add-message', input);
     if (!isSuccessfulGptMakerAcknowledgement(response)) {
-      throw new GptMakerError('upstream');
+      throw new GptMakerError('invalid_response');
     }
   }
 
   async converse(input: { contextId: string; prompt: string }) {
     const response = await this.post('conversation', input);
     const message = parseGptMakerAnswer(response);
-    if (!message) throw new GptMakerError('upstream');
+    if (!message) throw new GptMakerError('invalid_response');
     return message;
   }
 
@@ -97,7 +98,7 @@ export class GptMakerClient implements AssistantConversationClient {
       try {
         return await response.json() as unknown;
       } catch {
-        throw new GptMakerError('upstream');
+        throw new GptMakerError('invalid_response');
       }
     } catch (error) {
       if (error instanceof GptMakerError) throw error;

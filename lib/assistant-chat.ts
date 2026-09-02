@@ -3,12 +3,18 @@ import type { PublicHotelPageData } from './public-hotel-data.ts';
 import type { SupportedPublicLanguage } from './public-language.ts';
 import {
   applyAssistantClassification,
+  getAssistantClassificationConfidenceBand,
   routeAssistantMessage,
   shouldCallAI,
   type AssistantClassification,
   type AssistantRouteCategory,
   type AssistantUsageTrace,
 } from './assistant-router/index.ts';
+import type {
+  AssistantAnalyticsCapability,
+  AssistantAnalyticsClassifierConfidenceBand,
+  AssistantAnalyticsHousekeepingRequestType,
+} from './server/assistant-analytics/types.ts';
 import {
   buildHumanHandoffChatResponse,
   buildHousekeepingClarificationRetryResponse,
@@ -85,7 +91,21 @@ export interface AssistantChatDependencies {
     message: string;
   }): Promise<{ answer: string; action: AssistantAction | null } | null>;
   allowGeneralTourismAi?: boolean;
+  monotonicNow?(): number;
 }
+
+export interface AssistantChatAnalyticsMetadata {
+  hotelId: string;
+  privacyBlocked: boolean;
+  capability: AssistantAnalyticsCapability | null;
+  housekeepingRequestType: AssistantAnalyticsHousekeepingRequestType | null;
+  classifierIntent: AssistantClassification['intent'] | null;
+  classifierConfidenceBand: AssistantAnalyticsClassifierConfidenceBand | null;
+  classifierLatencyMs: number | null;
+  fullAiLatencyMs: number | null;
+}
+
+export const ASSISTANT_CHAT_ANALYTICS = Symbol('assistantChatAnalytics');
 
 export interface AssistantChatResult {
   answer: string;
@@ -95,6 +115,28 @@ export interface AssistantChatResult {
   assistantRoute: AssistantRouteCategory;
   usageTrace: AssistantUsageTrace;
   recommendationSource?: TourismRecommendationSource;
+  [ASSISTANT_CHAT_ANALYTICS]?: AssistantChatAnalyticsMetadata;
+}
+
+export class AssistantChatExecutionError extends Error {
+  readonly analytics: AssistantChatAnalyticsMetadata;
+  readonly assistantRoute: AssistantRouteCategory;
+  readonly usageTrace: AssistantUsageTrace;
+  readonly upstreamCause: unknown;
+
+  constructor(
+    analytics: AssistantChatAnalyticsMetadata,
+    assistantRoute: AssistantRouteCategory,
+    usageTrace: AssistantUsageTrace,
+    upstreamCause: unknown
+  ) {
+    super('Assistant execution failed');
+    this.name = 'AssistantChatExecutionError';
+    this.analytics = analytics;
+    this.assistantRoute = assistantRoute;
+    this.usageTrace = usageTrace;
+    this.upstreamCause = upstreamCause;
+  }
 }
 
 const CLARIFICATION_CANCELLED_COPY: Record<SupportedPublicLanguage, string> = {
@@ -199,43 +241,100 @@ export async function runAssistantChat(
   payload: AssistantChatPayload,
   dependencies: AssistantChatDependencies
 ): Promise<AssistantChatResult | null> {
-  if (containsExplicitAssistantPii(payload.message)) {
-    const pageData = await dependencies.getPageDataBySlug(payload.hotelSlug, payload.language);
-    if (!pageData || pageData.hotel.slug !== payload.hotelSlug) return null;
+  const now = dependencies.monotonicNow ?? (() => performance.now());
+  const privacyBlocked = containsExplicitAssistantPii(payload.message);
+  const initialDecision = privacyBlocked
+    ? null
+    : routeAssistantMessage({
+        message: payload.message,
+        uiLanguage: payload.language,
+        ...(payload.pendingRequest ? { pendingRequest: payload.pendingRequest } : {}),
+      });
+  const resolvedLanguage = !initialDecision
+    ? payload.language
+    : initialDecision.mode === 'deterministic'
+      ? initialDecision.detectedLanguage ?? payload.pendingRequest?.language ?? payload.language
+      : initialDecision.mode === 'clarification'
+        ? initialDecision.detectedLanguage
+        : initialDecision.mode === 'capability'
+          ? initialDecision.detectedLanguage ?? payload.language
+          : payload.language;
+  const initialPageData = await dependencies.getPageDataBySlug(payload.hotelSlug, resolvedLanguage);
+  if (!initialPageData || initialPageData.hotel.slug !== payload.hotelSlug) return null;
+  const resolvedPageData = initialPageData;
+  const getResolvedPageData = (slug: string, language: SupportedPublicLanguage) =>
+    slug === payload.hotelSlug && language === resolvedLanguage
+      ? Promise.resolve(resolvedPageData)
+      : dependencies.getPageDataBySlug(slug, language);
+  let classifierStatus: ClassifierCallStatus = 'none';
+  let classifierIntent: AssistantClassification['intent'] | null = null;
+  let classifierConfidenceBand: AssistantAnalyticsClassifierConfidenceBand | null = null;
+  let classifierLatencyMs: number | null = null;
+  let fullAiLatencyMs: number | null = null;
+
+  function finalize(
+    result: AssistantChatResult,
+    details: {
+      privacyBlocked?: boolean;
+      capability?: AssistantAnalyticsCapability | null;
+      housekeepingRequestType?: AssistantAnalyticsHousekeepingRequestType | null;
+    } = {}
+  ) {
+    Object.defineProperty(result, ASSISTANT_CHAT_ANALYTICS, {
+      enumerable: false,
+      value: {
+        hotelId: resolvedPageData.hotel.id,
+        privacyBlocked: details.privacyBlocked ?? false,
+        capability: details.capability ?? null,
+        housekeepingRequestType: details.housekeepingRequestType ?? null,
+        classifierIntent,
+        classifierConfidenceBand,
+        classifierLatencyMs,
+        fullAiLatencyMs,
+      } satisfies AssistantChatAnalyticsMetadata,
+    });
+    return result;
+  }
+
+  if (privacyBlocked) {
     const contact = resolveReceptionContactFromPublicData({
       input: { hotelSlug: payload.hotelSlug, language: payload.language },
-      pageData,
+      pageData: initialPageData,
     });
     const contactAction = buildReceptionContactChatResponse(contact, payload.language).action;
-    return {
+    return finalize({
       answer: ASSISTANT_PRIVACY_COPY[payload.language],
       action: contactAction,
       pendingRequest: null,
       responseLanguage: payload.language,
       assistantRoute: 'deterministic',
       usageTrace: buildUsageTrace('none', 0),
-    };
+    }, { privacyBlocked: true });
   }
 
-  let classifierStatus: ClassifierCallStatus = 'none';
-  let decision = routeAssistantMessage({
-    message: payload.message,
-    uiLanguage: payload.language,
-    ...(payload.pendingRequest ? { pendingRequest: payload.pendingRequest } : {}),
-  });
+  let decision = initialDecision!;
 
   if (decision.mode === 'classification') {
     let classification: AssistantClassification | null = null;
     if (dependencies.classifyMessage) {
+      classifierStatus = 'failed';
+      const classifierStartedAt = now();
       try {
         classification = await dependencies.classifyMessage(
           decision.message.original,
           payload.contextId
         );
         classifierStatus = classification ? 'succeeded' : 'failed';
+        classifierIntent = classification?.intent ?? null;
+        classifierConfidenceBand = classification
+          ? getAssistantClassificationConfidenceBand(classification.confidence)
+          : 'invalid';
       } catch {
         classification = null;
         classifierStatus = 'failed';
+        classifierConfidenceBand = 'invalid';
+      } finally {
+        classifierLatencyMs = Math.max(0, Math.round(now() - classifierStartedAt));
       }
     }
     decision = applyAssistantClassification({
@@ -249,25 +348,25 @@ export async function runAssistantChat(
     case 'deterministic': {
       const responseLanguage = decision.detectedLanguage ??
         payload.pendingRequest?.language ?? payload.language;
-      const pageData = await dependencies.getPageDataBySlug(payload.hotelSlug, responseLanguage);
+      const pageData = await getResolvedPageData(payload.hotelSlug, responseLanguage);
       if (!pageData || pageData.hotel.slug !== payload.hotelSlug) return null;
-      return {
+      return finalize({
         answer: CLARIFICATION_CANCELLED_COPY[responseLanguage],
         action: null,
         pendingRequest: null,
         responseLanguage,
         assistantRoute: decision.assistantRoute,
         usageTrace: buildUsageTrace(classifierStatus, 0),
-      };
+      });
     }
 
     case 'clarification': {
-      const pageData = await dependencies.getPageDataBySlug(
+      const pageData = await getResolvedPageData(
         payload.hotelSlug,
         decision.detectedLanguage
       );
       if (!pageData || pageData.hotel.slug !== payload.hotelSlug) return null;
-      return {
+      return finalize({
         ...(decision.resolution.kind === 'resolved'
           ? buildPreparedHousekeepingChatResponse(
               decision.resolution.request,
@@ -279,12 +378,17 @@ export async function runAssistantChat(
             )),
         assistantRoute: decision.assistantRoute,
         usageTrace: buildUsageTrace(classifierStatus, 0),
-      };
+      }, {
+        capability: 'housekeeping_request',
+        housekeepingRequestType: decision.resolution.kind === 'resolved'
+          ? decision.resolution.request.requestType
+          : 'towels',
+      });
     }
 
     case 'capability': {
       const capabilityLanguage = decision.detectedLanguage ?? payload.language;
-      const contactDependencies = { getPageDataBySlug: dependencies.getPageDataBySlug };
+      const contactDependencies = { getPageDataBySlug: getResolvedPageData };
 
       switch (decision.capability) {
         case 'human_handoff': {
@@ -292,7 +396,7 @@ export async function runAssistantChat(
             { hotelSlug: payload.hotelSlug, language: capabilityLanguage },
             contactDependencies
           );
-          return {
+          return finalize({
             ...buildHumanHandoffChatResponse(
               contact,
               capabilityLanguage,
@@ -302,7 +406,7 @@ export async function runAssistantChat(
             responseLanguage: capabilityLanguage,
             assistantRoute: decision.assistantRoute,
             usageTrace: buildUsageTrace(classifierStatus, 0),
-          };
+          }, { capability: 'human_handoff' });
         }
 
         case 'reception_contact': {
@@ -310,13 +414,13 @@ export async function runAssistantChat(
             { hotelSlug: payload.hotelSlug, language: capabilityLanguage },
             contactDependencies
           );
-          return {
+          return finalize({
             ...buildReceptionContactChatResponse(contact, capabilityLanguage),
             pendingRequest: null,
             responseLanguage: capabilityLanguage,
             assistantRoute: decision.assistantRoute,
             usageTrace: buildUsageTrace(classifierStatus, 0),
-          };
+          }, { capability: 'reception_contact' });
         }
 
         case 'housekeeping_contact': {
@@ -324,26 +428,29 @@ export async function runAssistantChat(
             { hotelSlug: payload.hotelSlug, language: capabilityLanguage },
             contactDependencies
           );
-          return {
+          return finalize({
             ...buildHousekeepingContactChatResponse(contact, capabilityLanguage),
             pendingRequest: null,
             responseLanguage: capabilityLanguage,
             assistantRoute: decision.assistantRoute,
             usageTrace: buildUsageTrace(classifierStatus, 0),
-          };
+          }, { capability: 'housekeeping_contact' });
         }
 
         case 'housekeeping_request': {
-          const pageData = await dependencies.getPageDataBySlug(
+          const pageData = await getResolvedPageData(
             payload.hotelSlug,
             capabilityLanguage
           );
           if (!pageData || pageData.hotel.slug !== payload.hotelSlug) return null;
-          return {
+          return finalize({
             ...buildPreparedHousekeepingChatResponse(decision.request, capabilityLanguage),
             assistantRoute: decision.assistantRoute,
             usageTrace: buildUsageTrace(classifierStatus, 0),
-          };
+          }, {
+            capability: 'housekeeping_request',
+            housekeepingRequestType: decision.request.requestType,
+          });
         }
       }
     }
@@ -355,8 +462,7 @@ export async function runAssistantChat(
 
   if (!shouldCallAI(decision)) return null;
 
-  const pageData = await dependencies.getPageDataBySlug(payload.hotelSlug, payload.language);
-  if (!pageData) return null;
+  const pageData = initialPageData;
 
   if (decision.mode === 'tourism' && dependencies.getTourismRecommendations) {
     const curated = await dependencies.getTourismRecommendations({
@@ -365,7 +471,7 @@ export async function runAssistantChat(
       message: payload.message,
     });
     if (curated) {
-      return {
+      return finalize({
         answer: curated.answer,
         action: curated.action,
         pendingRequest: null,
@@ -373,7 +479,7 @@ export async function runAssistantChat(
         assistantRoute: decision.assistantRoute,
         recommendationSource: 'libguest_curated',
         usageTrace: buildUsageTrace(classifierStatus, 0),
-      };
+      });
     }
   }
 
@@ -392,7 +498,7 @@ export async function runAssistantChat(
       }),
       payload.language
     ).action;
-    return {
+    return finalize({
       answer: buildUnavailableTourismResponse(payload.language),
       action: contactAction,
       pendingRequest: null,
@@ -400,14 +506,14 @@ export async function runAssistantChat(
       assistantRoute: decision.assistantRoute,
       recommendationSource,
       usageTrace: buildUsageTrace(classifierStatus, 0),
-    };
+    });
   }
 
   const curatedHotelRestaurant = decision.mode === 'ai'
     ? resolvePublishedHotelRestaurantResponse(decision.message, pageData)
     : null;
   if (curatedHotelRestaurant) {
-    return {
+    return finalize({
       answer: curatedHotelRestaurant,
       action: null,
       pendingRequest: null,
@@ -415,22 +521,42 @@ export async function runAssistantChat(
       assistantRoute: 'deterministic',
       recommendationSource: 'libguest_curated',
       usageTrace: buildUsageTrace(classifierStatus, 0),
-    };
+    });
   }
 
   const context = buildPublicAiContext({ pageData, language: payload.language });
-  const client = dependencies.createClient();
-
-  await client.addContext({
-    contextId: payload.contextId,
-    prompt: context,
-    role: 'user',
-  });
-
-  const modelAnswer = await client.converse({
-    contextId: payload.contextId,
-    prompt: payload.message,
-  });
+  const fullAiStartedAt = now();
+  let modelAnswer: string;
+  try {
+    const client = dependencies.createClient();
+    await client.addContext({
+      contextId: payload.contextId,
+      prompt: context,
+      role: 'user',
+    });
+    modelAnswer = await client.converse({
+      contextId: payload.contextId,
+      prompt: payload.message,
+    });
+  } catch (error) {
+    fullAiLatencyMs = Math.max(0, Math.round(now() - fullAiStartedAt));
+    throw new AssistantChatExecutionError(
+      {
+        hotelId: initialPageData.hotel.id,
+        privacyBlocked: false,
+        capability: null,
+        housekeepingRequestType: null,
+        classifierIntent,
+        classifierConfidenceBand,
+        classifierLatencyMs,
+        fullAiLatencyMs,
+      },
+      decision.assistantRoute,
+      buildUsageTrace(classifierStatus, 1),
+      error
+    );
+  }
+  fullAiLatencyMs = Math.max(0, Math.round(now() - fullAiStartedAt));
 
   const generalTourismResponse = decision.mode === 'tourism'
     ? resolveGeneralAiTourismResponse(modelAnswer, payload.language)
@@ -445,7 +571,7 @@ export async function runAssistantChat(
       ).action
     : null;
 
-  return {
+  return finalize({
     answer: generalTourismResponse?.answer ?? removeModelProvidedUrls(modelAnswer),
     action: tourismFallbackAction,
     pendingRequest: null,
@@ -455,5 +581,5 @@ export async function runAssistantChat(
       ? { recommendationSource: generalTourismResponse.source }
       : {}),
     usageTrace: buildUsageTrace(classifierStatus, 1),
-  };
+  });
 }

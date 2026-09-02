@@ -197,7 +197,9 @@ test('keeps credentials and GPTMaker transport server-only with a closed timeout
 test('uses only public hotel page data and never persists assistant messages', () => {
   assert.match(routeSource, /getPublicHotelPageDataBySlug/);
   assert.match(read('lib', 'assistant-chat.ts'), /buildPublicAiContext\(\{ pageData/);
-  assert.doesNotMatch(routeSource, /hotelId|roomToken|createAdminClient|\.from\(|\.insert\(|\.upsert\(/);
+  assert.doesNotMatch(routeSource, /roomToken|createAdminClient|\.from\(|\.insert\(|\.upsert\(/);
+  assert.match(routeSource, /hotelScope:[\s\S]*hotelId: analytics\.hotelId/);
+  assert.doesNotMatch(routeSource, /NextResponse\.json\(\{[\s\S]{0,200}(?:hotelId|usageTrace|assistantRoute)/);
   assert.doesNotMatch(clientSource, /supabase|hotel\.id|wifi_password|administrative/i);
   assert.doesNotMatch(contextSource, /wifi_password|internal_notes|created_by/);
   assert.match(routeSource, /NextResponse\.json\(\{[\s\S]*answer: result\.answer,[\s\S]*action: result\.action,[\s\S]*pendingRequest: result\.pendingRequest,[\s\S]*responseLanguage: result\.responseLanguage/);
