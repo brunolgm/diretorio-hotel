@@ -1,4 +1,11 @@
 import type { SupportedPublicLanguage } from './public-language.ts';
+import { containsExplicitAssistantPii } from './assistant-privacy.ts';
+import {
+  parseAssistantAction,
+  parseHousekeepingPendingRequest,
+  type AssistantAction,
+  type HousekeepingPendingRequest,
+} from './assistant-tools/types.ts';
 
 export const ASSISTANT_SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 export const ASSISTANT_SESSION_STORAGE_PREFIX = 'libguest:assistant:';
@@ -17,6 +24,8 @@ export interface AssistantChatMessage {
   role: 'user' | 'assistant';
   text: string;
   createdAt: string;
+  action?: AssistantAction;
+  language?: SupportedPublicLanguage;
 }
 
 export interface AssistantStoredSession {
@@ -36,6 +45,7 @@ export interface AssistantChatRequestPayload {
   language: SupportedPublicLanguage;
   contextId: string;
   message: string;
+  pendingRequest?: HousekeepingPendingRequest;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -70,6 +80,8 @@ export function createAssistantSession(
 
 function parseMessage(value: unknown): AssistantChatMessage | null {
   if (!isRecord(value)) return null;
+  const keys = Object.keys(value).sort();
+  if (keys.some((key) => !['action', 'createdAt', 'id', 'language', 'role', 'text'].includes(key))) return null;
   if (
     typeof value.id !== 'string' ||
     !CONTEXT_ID_PATTERN.test(value.id) ||
@@ -82,7 +94,38 @@ function parseMessage(value: unknown): AssistantChatMessage | null {
   ) {
     return null;
   }
-  return value as unknown as AssistantChatMessage;
+  const messageLanguage = 'language' in value && value.language !== undefined
+    ? value.language
+    : null;
+  if (
+    messageLanguage !== null &&
+    (value.role !== 'assistant' ||
+      typeof messageLanguage !== 'string' ||
+      !LANGUAGES.has(messageLanguage as SupportedPublicLanguage))
+  ) {
+    return null;
+  }
+  const language = messageLanguage as SupportedPublicLanguage | null;
+  if ('action' in value && value.action !== undefined) {
+    if (value.role !== 'assistant') return null;
+    const action = parseAssistantAction(value.action);
+    if (!action) return null;
+    return {
+      id: value.id,
+      role: value.role,
+      text: value.text,
+      createdAt: value.createdAt,
+      action,
+      ...(language ? { language } : {}),
+    };
+  }
+  return {
+    id: value.id,
+    role: value.role,
+    text: value.text,
+    createdAt: value.createdAt,
+    ...(language ? { language } : {}),
+  };
 }
 
 export function parseAssistantStoredSession(
@@ -152,12 +195,21 @@ export function saveAssistantSession(
     contextId: session.contextId,
     language: session.language,
     timestamp: session.timestamp,
-    messages: session.messages.slice(-ASSISTANT_STORED_MESSAGE_LIMIT).map((message) => ({
-      id: message.id,
-      role: message.role,
-      text: sanitizeAssistantStoredText(message.text),
-      createdAt: message.createdAt,
-    })),
+    messages: session.messages.slice(-ASSISTANT_STORED_MESSAGE_LIMIT).map((message) => {
+      const action = message.role === 'assistant' && message.action
+        ? parseAssistantAction(message.action)
+        : null;
+      return {
+        id: message.id,
+        role: message.role,
+        text: sanitizeAssistantStoredText(message.text),
+        createdAt: message.createdAt,
+        ...(action ? { action } : {}),
+        ...(message.role === 'assistant' && message.language && LANGUAGES.has(message.language)
+          ? { language: message.language }
+          : {}),
+      };
+    }),
   };
   try {
     storage.setItem(getAssistantSessionStorageKey(hotelSlug), JSON.stringify(safeSession));
@@ -167,10 +219,18 @@ export function saveAssistantSession(
 }
 
 export function buildAssistantChatRequest(payload: AssistantChatRequestPayload) {
+  const pendingRequest = payload.pendingRequest
+    ? parseHousekeepingPendingRequest(payload.pendingRequest)
+    : null;
   return {
     hotelSlug: payload.hotelSlug,
     language: payload.language,
     contextId: payload.contextId,
-    message: sanitizeAssistantStoredText(payload.message),
+    message: payload.message,
+    ...(pendingRequest ? { pendingRequest } : {}),
   };
+}
+
+export function shouldPersistAssistantUserMessage(message: string) {
+  return !containsExplicitAssistantPii(message);
 }

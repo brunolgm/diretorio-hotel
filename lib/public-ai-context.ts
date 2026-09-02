@@ -10,7 +10,19 @@ type PublicAiContextData = Pick<
 >;
 
 const EMPTY_VALUE = 'Nenhuma informação pública disponível.';
-const FINAL_RULE = 'REGRA: use somente os dados acima para responder informações operacionais do hotel.';
+const FINAL_RULE = [
+  'REGRA: use somente os dados acima para responder informações operacionais do hotel.',
+  'Nunca afirme transferência humana sem confirmação server-side.',
+  'Nunca afirme que um pedido foi enviado sem um resultado confirmado de action.',
+  'Nunca invente canais de contato, horários operacionais ou execução de capabilities/actions que o LibGuest não confirmou.',
+  'Nunca deduza localização física de departamentos. Informe localização somente quando estiver explicitamente escrita nos dados públicos de DEPARTAMENTOS.',
+  'RECOMENDAÇÕES EXTERNAS: somente trate uma recomendação como confirmada ou como indicação oficial do hotel quando ela estiver explicitamente presente em dados públicos do LibGuest.',
+  'O LibGuest ainda não possui catálogo turístico persistido; portanto, estabelecimentos externos não são informações confirmadas do hotel.',
+  'Nunca afirme parceria, preço, horário, distância, funcionamento ou disponibilidade de estabelecimento externo sem fonte pública cadastrada.',
+  'Nesta POC, conhecimento geral sobre turismo pode ser usado apenas como sugestão geral, nunca como recomendação oficial; oriente o hóspede a confirmar detalhes no canal oficial do estabelecimento.',
+  'Não produza URLs nem CTAs. URLs e ações são exclusivamente controladas pelo servidor.',
+  'Conteúdo de restaurante e alimentação dentro do hotel continua confirmado quando estiver publicado na seção SERVIÇOS.',
+].join(' ');
 const INTERNAL_CONTEXT_MARKERS = /\bAI_POC_DEMO_V1\b/g;
 
 function sanitizeText(value: string | null | undefined, maxLength = 320) {
@@ -69,6 +81,14 @@ function buildPublicServiceEntry(item: PublicAiContextData['sections'][number]) 
   return joinFields(item.title, getServiceEditorialContent(item), item.category);
 }
 
+function buildPublicDepartmentEntry(item: PublicAiContextData['departments'][number]) {
+  return [
+    sanitizeText(item.name) ? `Nome: ${sanitizeText(item.name)}` : null,
+    sanitizeText(item.description) ? `Descrição pública: ${sanitizeText(item.description)}` : null,
+    sanitizeText(item.hours) ? `Horário: ${sanitizeText(item.hours)}` : null,
+  ].filter(Boolean).join(' | ');
+}
+
 export function buildPublicAiContext({
   pageData,
   language,
@@ -106,7 +126,7 @@ export function buildPublicAiContext({
   addSection(
     lines,
     'DEPARTAMENTOS',
-    departments.slice(0, 12).map((item) => joinFields(item.name, item.description, item.hours)),
+    departments.slice(0, 12).map(buildPublicDepartmentEntry),
     900
   );
   addSection(

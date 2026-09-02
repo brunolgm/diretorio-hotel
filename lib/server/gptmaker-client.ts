@@ -5,6 +5,7 @@ import {
   parseGptMakerAnswer,
   type AssistantConversationClient,
 } from '../assistant-chat.ts';
+import { resolveDedicatedClassifierAgentId } from '../gptmaker-agent-selection.ts';
 
 const GPTMAKER_BASE_URL = 'https://api.gptmaker.ai';
 const DEFAULT_TIMEOUT_MS = 10_000;
@@ -112,5 +113,21 @@ export function createGptMakerClientFromEnvironment() {
   return new GptMakerClient({
     apiKey: process.env.GPTMAKER_API_KEY ?? '',
     agentId: process.env.GPTMAKER_AGENT_ID ?? '',
+  });
+}
+
+export function createGptMakerClassifierClientFromEnvironment(
+  environment: NodeJS.ProcessEnv = process.env
+) {
+  const classifierAgentId = resolveGptMakerClassifierAgentId(environment);
+  const apiKey = (environment.GPTMAKER_API_KEY ?? '').trim();
+  if (!apiKey || !classifierAgentId) return null;
+  return new GptMakerClient({ apiKey, agentId: classifierAgentId });
+}
+
+export function resolveGptMakerClassifierAgentId(environment: NodeJS.ProcessEnv) {
+  return resolveDedicatedClassifierAgentId({
+    mayaAgentId: environment.GPTMAKER_AGENT_ID,
+    classifierAgentId: environment.GPTMAKER_CLASSIFIER_AGENT_ID,
   });
 }

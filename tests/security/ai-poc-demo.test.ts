@@ -111,6 +111,38 @@ test('builds bounded public-only context without identifiers, secrets or adminis
   assert.ok(context.length <= PUBLIC_AI_CONTEXT_MAX_LENGTH);
 });
 
+test('forbids inferred department locations when public data has no location', () => {
+  const data = publicPageData('Hotel A', 'Serviço A');
+  data.departments = [{
+    name: 'Recepção',
+    description: 'Atendimento aos hóspedes',
+    hours: '24 horas',
+  }];
+
+  const context = buildPublicAiContext({ pageData: data as never, language: 'pt' });
+
+  assert.match(context, /Nome: Recepção/);
+  assert.match(context, /Descrição pública: Atendimento aos hóspedes/);
+  assert.match(context, /Horário: 24 horas/);
+  assert.match(context, /Nunca deduza localização física de departamentos/);
+  assert.match(context, /somente quando estiver explicitamente escrita nos dados públicos de DEPARTAMENTOS/);
+  assert.doesNotMatch(context, /lobby|térreo|andar/i);
+});
+
+test('keeps an explicitly registered department location available to the model', () => {
+  const data = publicPageData('Hotel A', 'Serviço A');
+  data.departments = [{
+    name: 'Recepção',
+    description: 'Localização: ao lado da entrada principal.',
+    hours: '24 horas',
+  }];
+
+  const context = buildPublicAiContext({ pageData: data as never, language: 'en' });
+
+  assert.match(context, /Descrição pública: Localização: ao lado da entrada principal\./);
+  assert.match(context, /Nunca deduza localização física de departamentos/);
+});
+
 test('uses the current public breakfast_hours without retaining a stale service schedule', () => {
   const data = publicPageData('Grand Mercure Rio de Janeiro Copacabana', '[DEMO] Café da manhã');
   data.hotel.breakfast_hours = '[DEMO] Horário público atualizado';

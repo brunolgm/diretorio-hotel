@@ -133,14 +133,16 @@ test('resolves current public data by slug and adds context before conversation'
       resolved = [slug, language];
       return publicPageData() as never;
     },
-    client: {
-      async addContext(input) {
-        calls.push({ operation: 'add-message', input });
-      },
-      async converse(input) {
-        calls.push({ operation: 'conversation', input });
-        return '  O café começa às 6h30.  ';
-      },
+    createClient() {
+      return {
+        async addContext(input) {
+          calls.push({ operation: 'add-message', input });
+        },
+        async converse(input) {
+          calls.push({ operation: 'conversation', input });
+          return '  O café começa às 6h30.  ';
+        },
+      };
     },
   });
 
@@ -152,7 +154,19 @@ test('resolves current public data by slug and adds context before conversation'
   assert.equal(calls[1].input.prompt, VALID_PAYLOAD.message);
   assert.match(calls[0].input.prompt, /Hotel Teste|HOTEL-GUEST|6h30/);
   assert.doesNotMatch(calls[0].input.prompt, /50200000|SECRET-WIFI-PASSWORD|INTERNAL-ADMIN-DATA/);
-  assert.deepEqual(result, { answer: '  O café começa às 6h30.  ' });
+  assert.deepEqual(result, {
+    answer: '  O café começa às 6h30.  ',
+    action: null,
+    pendingRequest: null,
+    responseLanguage: 'pt',
+    assistantRoute: 'ai',
+    usageTrace: {
+      resolutionPath: 'direct_ai',
+      classifierCalls: 0,
+      fullAiCalls: 1,
+      totalUpstreamCalls: 1,
+    },
+  });
 });
 
 test('fails closed for success=false, invalid and empty GPTMaker responses', () => {
@@ -183,9 +197,9 @@ test('keeps credentials and GPTMaker transport server-only with a closed timeout
 test('uses only public hotel page data and never persists assistant messages', () => {
   assert.match(routeSource, /getPublicHotelPageDataBySlug/);
   assert.match(read('lib', 'assistant-chat.ts'), /buildPublicAiContext\(\{ pageData/);
-  assert.doesNotMatch(routeSource, /hotelId|roomToken|createAdminClient|createClient|\.from\(|\.insert\(|\.upsert\(/);
+  assert.doesNotMatch(routeSource, /hotelId|roomToken|createAdminClient|\.from\(|\.insert\(|\.upsert\(/);
   assert.doesNotMatch(clientSource, /supabase|hotel\.id|wifi_password|administrative/i);
   assert.doesNotMatch(contextSource, /wifi_password|internal_notes|created_by/);
-  assert.match(routeSource, /NextResponse\.json\(\{ answer: result\.answer \}\)/);
+  assert.match(routeSource, /NextResponse\.json\(\{[\s\S]*answer: result\.answer,[\s\S]*action: result\.action,[\s\S]*pendingRequest: result\.pendingRequest,[\s\S]*responseLanguage: result\.responseLanguage/);
   assert.match(routeSource, /\{ error: 'assistant_unavailable' \}/);
 });

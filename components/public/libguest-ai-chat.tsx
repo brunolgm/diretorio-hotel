@@ -1,12 +1,19 @@
 'use client';
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { Bot, MessageCircle, RefreshCw, RotateCcw, Send, Sparkles, X } from 'lucide-react';
+import { ArrowUpRight, Bot, MessageCircle, RefreshCw, RotateCcw, Send, Sparkles, X } from 'lucide-react';
+import {
+  parseAssistantAction,
+  parseHousekeepingPendingRequest,
+  type AssistantConfirmRequestAction,
+  type HousekeepingPendingRequest,
+} from '@/lib/assistant-tools/types';
 import {
   buildAssistantChatRequest,
   createAssistantSession,
   loadOrCreateAssistantSession,
   saveAssistantSession,
+  shouldPersistAssistantUserMessage,
   type AssistantChatMessage,
   type AssistantStoredSession,
 } from '@/lib/assistant-chat-session';
@@ -15,6 +22,39 @@ import type { SupportedPublicLanguage } from '@/lib/public-language';
 export type LibGuestAiChatVariant = 'grand-mercure' | 'mercure' | 'novotel' | 'default';
 
 const MESSAGE_MAX_LENGTH = 1_500;
+
+const HOUSEKEEPING_REQUEST_COPY = {
+  pt: {
+    request: 'Solicitação',
+    department: 'Governança',
+    item: 'Item',
+    service: 'Serviço',
+    towels: (quantity: number) => `${quantity} toalhas`,
+    cleaning: 'Limpeza do quarto',
+    prepared: 'Solicitação preparada. O envio à equipe será conectado na próxima etapa.',
+    cancelled: 'Solicitação cancelada.',
+  },
+  en: {
+    request: 'Request',
+    department: 'Housekeeping',
+    item: 'Item',
+    service: 'Service',
+    towels: (quantity: number) => `${quantity} towels`,
+    cleaning: 'Room cleaning',
+    prepared: 'Request prepared. Sending it to the team will be connected in the next stage.',
+    cancelled: 'Request cancelled.',
+  },
+  es: {
+    request: 'Solicitud',
+    department: 'Gobernanza',
+    item: 'Ítem',
+    service: 'Servicio',
+    towels: (quantity: number) => `${quantity} toallas`,
+    cleaning: 'Limpieza de la habitación',
+    prepared: 'Solicitud preparada. El envío al equipo se conectará en la próxima etapa.',
+    cancelled: 'Solicitud cancelada.',
+  },
+} as const;
 
 export const LIBGUEST_AI_CHAT_COPY = {
   pt: {
@@ -122,6 +162,54 @@ function newId() {
   return crypto.randomUUID();
 }
 
+function HousekeepingRequestCard({
+  action,
+  language,
+  actionClassName,
+  onComplete,
+}: {
+  action: AssistantConfirmRequestAction;
+  language: SupportedPublicLanguage;
+  actionClassName: string;
+  onComplete: (status: 'prepared' | 'cancelled') => void;
+}) {
+  const requestCopy = HOUSEKEEPING_REQUEST_COPY[language];
+  const request = action.request;
+
+  return (
+    <div className="mt-2 rounded-2xl border border-black/10 bg-white/80 p-3 text-sm shadow-sm">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-current/55">{requestCopy.request}</p>
+      <p className="mt-0.5 font-semibold">{requestCopy.department}</p>
+      <div className="mt-3 rounded-xl bg-black/[0.04] px-3 py-2">
+        <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-current/50">
+          {request.requestType === 'towels' ? requestCopy.item : requestCopy.service}
+        </p>
+        <p className="mt-0.5 font-medium">
+          {request.requestType === 'towels'
+            ? requestCopy.towels(request.quantity)
+            : requestCopy.cleaning}
+        </p>
+      </div>
+      <div className="mt-3 grid gap-2">
+        <button
+          type="button"
+          onClick={() => onComplete('prepared')}
+          className={`min-h-10 rounded-full px-3.5 py-2 font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${actionClassName}`}
+        >
+          {action.label}
+        </button>
+        <button
+          type="button"
+          onClick={() => onComplete('cancelled')}
+          className="min-h-10 rounded-full border border-black/15 px-3.5 py-2 font-semibold transition hover:bg-black/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/40"
+        >
+          {action.cancelLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function LibGuestAiChat({
   hotelSlug,
   language,
@@ -140,6 +228,7 @@ export function LibGuestAiChat({
   const [isSending, setIsSending] = useState(false);
   const [failedMessage, setFailedMessage] = useState<string | null>(null);
   const [failureKind, setFailureKind] = useState<'unavailable' | 'rate_limited' | null>(null);
+  const [pendingRequest, setPendingRequest] = useState<HousekeepingPendingRequest | null>(null);
   const sessionRef = useRef<AssistantStoredSession | null>(null);
   const messagesRef = useRef<AssistantChatMessage[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -208,6 +297,7 @@ export function LibGuestAiChat({
     setInput('');
     setFailedMessage(null);
     setFailureKind(null);
+    setPendingRequest(null);
     saveAssistantSession(window.sessionStorage, hotelSlug, session);
     textareaRef.current?.focus();
   }
@@ -217,15 +307,17 @@ export function LibGuestAiChat({
     const session = sessionRef.current;
     if (!session || !message || message.length > MESSAGE_MAX_LENGTH || isSending || requestControllerRef.current) return;
 
-    if (appendUserMessage) {
+    const persistUserMessage = shouldPersistAssistantUserMessage(message);
+
+    if (appendUserMessage && persistUserMessage) {
       replaceMessages([...messagesRef.current, {
         id: newId(),
         role: 'user',
         text: message,
         createdAt: new Date().toISOString(),
       }]);
-      setInput('');
     }
+    if (appendUserMessage) setInput('');
 
     const controller = new AbortController();
     requestControllerRef.current = controller;
@@ -242,6 +334,7 @@ export function LibGuestAiChat({
           language,
           contextId: session.contextId,
           message,
+          ...(pendingRequest ? { pendingRequest } : {}),
         })),
         signal: controller.signal,
       });
@@ -267,12 +360,35 @@ export function LibGuestAiChat({
       ) {
         throw new Error('assistant_unavailable');
       }
+      const action = 'action' in result && result.action !== null
+        ? parseAssistantAction(result.action)
+        : null;
+      if ('action' in result && result.action !== null && !action) {
+        throw new Error('assistant_invalid_action');
+      }
+      const responseLanguage = 'responseLanguage' in result &&
+        (result.responseLanguage === 'pt' || result.responseLanguage === 'en' || result.responseLanguage === 'es')
+          ? result.responseLanguage
+          : language;
+      const nextPendingRequest = 'pendingRequest' in result && result.pendingRequest !== null
+        ? parseHousekeepingPendingRequest(result.pendingRequest)
+        : null;
+      if (
+        ('pendingRequest' in result && result.pendingRequest !== null && !nextPendingRequest) ||
+        (nextPendingRequest && nextPendingRequest.language !== responseLanguage) ||
+        (nextPendingRequest && action)
+      ) {
+        throw new Error('assistant_invalid_pending_request');
+      }
       replaceMessages([...messagesRef.current, {
         id: newId(),
         role: 'assistant',
         text: result.answer.trim(),
         createdAt: new Date().toISOString(),
+        ...(action ? { action } : {}),
+        ...(action?.type === 'confirm_request' ? { language: responseLanguage } : {}),
       }]);
+      setPendingRequest(nextPendingRequest);
     } catch {
       if (!controller.signal.aborted) {
         setFailedMessage(message);
@@ -282,6 +398,36 @@ export function LibGuestAiChat({
       if (requestControllerRef.current === controller) requestControllerRef.current = null;
       setIsSending(false);
     }
+  }
+
+  function completePreparedRequest(
+    messageId: string,
+    action: AssistantConfirmRequestAction,
+    status: 'prepared' | 'cancelled'
+  ) {
+    const target = messagesRef.current.find(
+      (message) => message.id === messageId && message.action === action
+    );
+    if (!target) return;
+    const responseLanguage = target.language ?? language;
+    const copy = HOUSEKEEPING_REQUEST_COPY[responseLanguage];
+    const messagesWithoutAction = messagesRef.current.map((message) => {
+      if (message.id !== messageId) return message;
+      return {
+        id: message.id,
+        role: message.role,
+        text: message.text,
+        createdAt: message.createdAt,
+        ...(message.language ? { language: message.language } : {}),
+      };
+    });
+    replaceMessages([...messagesWithoutAction, {
+      id: newId(),
+      role: 'assistant',
+      text: status === 'prepared' ? copy.prepared : copy.cancelled,
+      createdAt: new Date().toISOString(),
+      language: responseLanguage,
+    }]);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -329,7 +475,31 @@ export function LibGuestAiChat({
               {messages.map((message) => (
                 <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'items-start gap-2.5'}`}>
                   {message.role === 'assistant' ? <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#b78942]/15 text-[#8a6429]"><Bot className="h-4 w-4" aria-hidden="true" /></div> : null}
-                  <p className={`max-w-[84%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2.5 text-sm leading-6 ${message.role === 'user' ? `rounded-tr-md ${styles.userBubble}` : `rounded-tl-md border ${styles.assistantBubble}`}`}>{message.text}</p>
+                  {message.role === 'assistant' ? (
+                    <div className="max-w-[84%]">
+                      <p className={`whitespace-pre-wrap break-words rounded-2xl rounded-tl-md border px-3.5 py-2.5 text-sm leading-6 ${styles.assistantBubble}`}>{message.text}</p>
+                      {message.action?.type === 'open_url' ? (
+                        <a
+                          href={message.action.url}
+                          target={message.action.url.startsWith('https://') ? '_blank' : undefined}
+                          rel={message.action.url.startsWith('https://') ? 'noreferrer' : undefined}
+                          className={`mt-2 inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${styles.action}`}
+                        >
+                          <span className="min-w-0 break-words">{message.action.label}</span>
+                          <ArrowUpRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        </a>
+                      ) : message.action?.type === 'confirm_request' ? (
+                        <HousekeepingRequestCard
+                          action={message.action}
+                          language={message.language ?? language}
+                          actionClassName={styles.action}
+                          onComplete={(status) => completePreparedRequest(message.id, message.action as AssistantConfirmRequestAction, status)}
+                        />
+                      ) : null}
+                    </div>
+                  ) : (
+                    <p className={`max-w-[84%] whitespace-pre-wrap break-words rounded-2xl rounded-tr-md px-3.5 py-2.5 text-sm leading-6 ${styles.userBubble}`}>{message.text}</p>
+                  )}
                 </div>
               ))}
             </div>

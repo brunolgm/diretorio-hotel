@@ -160,7 +160,7 @@ test('preserves request hardening and the minimal success response', () => {
   assert.match(routeSource, /isJsonContentType/);
   assert.match(routeSource, /ASSISTANT_CHAT_LIMITS\.bodyBytes/);
   assert.match(routeSource, /validateAssistantChatPayload/);
-  assert.match(routeSource, /NextResponse\.json\(\{ answer: result\.answer \}\)/);
+  assert.match(routeSource, /NextResponse\.json\(\{[\s\S]*answer: result\.answer,[\s\S]*action: result\.action,[\s\S]*pendingRequest: result\.pendingRequest,[\s\S]*responseLanguage: result\.responseLanguage/);
   assert.doesNotMatch(routeSource, /error\.message|JSON\.stringify\(error\)/);
 });
 

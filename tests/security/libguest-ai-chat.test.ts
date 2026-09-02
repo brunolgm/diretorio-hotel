@@ -126,6 +126,35 @@ test('persists only the allowlisted shape and redacts recognizable PII', () => {
   assert.doesNotMatch(component, /localStorage|document\.cookie/);
 });
 
+test('persists only allowlisted, revalidated assistant actions', () => {
+  const storage = new MemoryStorage();
+  const session = createAssistantSession('pt', NOW, () => UUID_A);
+  session.messages = [{
+    id: UUID_B,
+    role: 'assistant',
+    text: 'Você pode falar com a recepção por este canal.',
+    createdAt: NOW.toISOString(),
+    action: { type: 'open_url', label: 'Falar com a recepção', url: 'https://wa.me/5521999999999' },
+  }];
+  saveAssistantSession(storage, 'hotel-a', session);
+  const parsed = parseAssistantStoredSession(
+    storage.getItem(getAssistantSessionStorageKey('hotel-a')),
+    'pt',
+    NOW
+  );
+  assert.deepEqual(parsed?.messages[0].action, {
+    type: 'open_url', label: 'Falar com a recepção', url: 'https://wa.me/5521999999999',
+  });
+
+  session.messages[0].action = {
+    type: 'open_url', label: 'Executar', url: 'javascript:alert(1)',
+  };
+  saveAssistantSession(storage, 'hotel-a', session);
+  const raw = storage.getItem(getAssistantSessionStorageKey('hotel-a')) || '';
+  assert.doesNotMatch(raw, /javascript|Executar/);
+  assert.equal(parseAssistantStoredSession(raw, 'pt', NOW)?.messages[0].action, undefined);
+});
+
 test('builds the browser request from only the current public fields', () => {
   const payload = buildAssistantChatRequest({
     hotelSlug: 'hotel-a',
@@ -141,7 +170,7 @@ test('builds the browser request from only the current public fields', () => {
     hotelSlug: 'hotel-a', language: 'pt', contextId: UUID_A,
     message: 'guestName: Bruno, email: guest@example.com, quarto 1204',
   });
-  assert.doesNotMatch(privatePayload.message, /Bruno|guest@example|1204/);
+  assert.equal(privatePayload.message, 'guestName: Bruno, email: guest@example.com, quarto 1204');
   assert.doesNotMatch(component, /hotelId|roomToken|guestName|reservation|pathname|querystring|navigator\./i);
   assert.match(component, /fetch\('\/api\/assistant\/chat'/);
   assert.doesNotMatch(component, /gptmaker\.ai|gptmaker-client|GPTMAKER_API_KEY|Authorization|additionalContext|pageData/);
@@ -192,7 +221,11 @@ test('shows one responsive unlinked AI brand signature for every visual variant'
   assert.match(component, /mercure:[\s\S]*brandingPrimary: 'text-\[#6f2f68\]'/);
   assert.match(component, /novotel:[\s\S]*brandingPrimary: 'text-\[#0052b4\]'/);
   assert.match(component, /default:[\s\S]*brandingPrimary: 'text-\[color:var\(--hotel-accent\)\]'/);
-  assert.doesNotMatch(component, /href=[^\n]*(?:LibGuest AI|Conecta AI)|<a[^>]*>[\s\S]*Powered by/);
+  const brandingMarkup = component.slice(
+    component.indexOf('aria-label="Powered by LibGuest AI • Conecta AI"') - 160,
+    component.indexOf('aria-label="Powered by LibGuest AI • Conecta AI"') + 700
+  );
+  assert.doesNotMatch(brandingMarkup, /<a\b|href=/);
   assert.ok(component.indexOf('Powered by</span>') > component.indexOf("const styles = VARIANT_CLASSES[variant]"));
 });
 

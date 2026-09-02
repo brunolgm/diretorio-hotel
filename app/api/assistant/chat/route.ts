@@ -7,6 +7,7 @@ import {
 import { getPublicHotelPageDataBySlug } from '@/lib/public-hotel-data';
 import { isJsonContentType, readUtf8BodyWithLimit } from '@/lib/security/http';
 import {
+  createGptMakerClassifierClientFromEnvironment,
   createGptMakerClientFromEnvironment,
   GptMakerError,
 } from '@/lib/server/gptmaker-client';
@@ -14,6 +15,7 @@ import {
   consumeAssistantRateLimit,
   resolveAssistantClientIp,
 } from '@/lib/server/assistant-rate-limit';
+import { classifyAssistantMessage } from '@/lib/server/assistant-classifier';
 
 const SAFE_ERROR = { error: 'assistant_unavailable' } as const;
 
@@ -58,13 +60,28 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const classifierClient = createGptMakerClassifierClientFromEnvironment();
     const result = await runAssistantChat(validation.value, {
       getPageDataBySlug: getPublicHotelPageDataBySlug,
-      client: createGptMakerClientFromEnvironment(),
+      createClient: createGptMakerClientFromEnvironment,
+      ...(classifierClient
+        ? {
+            classifyMessage(message: string, guestContextId: string) {
+              return classifyAssistantMessage(message, guestContextId, {
+                createClient: () => classifierClient,
+              });
+            },
+          }
+        : {}),
     });
 
     if (!result) return NextResponse.json(SAFE_ERROR, { status: 404 });
-    return NextResponse.json({ answer: result.answer });
+    return NextResponse.json({
+      answer: result.answer,
+      action: result.action,
+      pendingRequest: result.pendingRequest,
+      responseLanguage: result.responseLanguage,
+    });
   } catch (error) {
     if (error instanceof GptMakerError) {
       const status = error.kind === 'timeout'
