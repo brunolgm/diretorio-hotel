@@ -9,6 +9,84 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      assistant_analytics_events: {
+        Row: {
+          id: string;
+          schema_version: number;
+          occurred_at: string;
+          recorded_at: string;
+          hotel_id: string;
+          language: 'pt' | 'en' | 'es' | null;
+          assistant_route: 'deterministic' | 'capability' | 'clarification' | 'classification' | 'ai';
+          resolution_path: 'deterministic' | 'direct_ai' | 'classifier_to_capability' | 'classifier_to_ai' | 'classifier_failed_to_ai';
+          outcome: 'success' | 'privacy_blocked' | 'rate_limited' | 'hotel_unavailable' | 'assistant_failed' | 'invalid_upstream_response';
+          capability: 'human_handoff' | 'reception_contact' | 'housekeeping_contact' | 'housekeeping_request' | null;
+          housekeeping_request_type: 'towels' | 'room_cleaning' | null;
+          action_type: 'open_url' | 'confirm_request' | null;
+          tourism_source: 'libguest_curated' | 'general_ai' | 'unavailable' | null;
+          classifier_intent: 'human_handoff' | 'reception_contact' | 'housekeeping_contact' | 'housekeeping_request_towels' | 'housekeeping_request_room_cleaning' | 'hotel_information' | 'flight_information' | 'tourism' | 'sales' | 'general_chat' | 'unknown' | null;
+          classifier_confidence_band: 'high' | 'medium' | 'low' | 'invalid' | null;
+          classifier_calls: number;
+          full_ai_calls: number;
+          total_upstream_calls: number;
+          total_latency_ms: number;
+          classifier_latency_ms: number | null;
+          full_ai_latency_ms: number | null;
+        };
+        Insert: {
+          id?: string;
+          schema_version: number;
+          occurred_at: string;
+          recorded_at?: string;
+          hotel_id: string;
+          language?: 'pt' | 'en' | 'es' | null;
+          assistant_route: 'deterministic' | 'capability' | 'clarification' | 'classification' | 'ai';
+          resolution_path: 'deterministic' | 'direct_ai' | 'classifier_to_capability' | 'classifier_to_ai' | 'classifier_failed_to_ai';
+          outcome: 'success' | 'privacy_blocked' | 'rate_limited' | 'hotel_unavailable' | 'assistant_failed' | 'invalid_upstream_response';
+          capability?: 'human_handoff' | 'reception_contact' | 'housekeeping_contact' | 'housekeeping_request' | null;
+          housekeeping_request_type?: 'towels' | 'room_cleaning' | null;
+          action_type?: 'open_url' | 'confirm_request' | null;
+          tourism_source?: 'libguest_curated' | 'general_ai' | 'unavailable' | null;
+          classifier_intent?: 'human_handoff' | 'reception_contact' | 'housekeeping_contact' | 'housekeeping_request_towels' | 'housekeeping_request_room_cleaning' | 'hotel_information' | 'flight_information' | 'tourism' | 'sales' | 'general_chat' | 'unknown' | null;
+          classifier_confidence_band?: 'high' | 'medium' | 'low' | 'invalid' | null;
+          classifier_calls: number;
+          full_ai_calls: number;
+          total_upstream_calls: number;
+          total_latency_ms: number;
+          classifier_latency_ms?: number | null;
+          full_ai_latency_ms?: number | null;
+        };
+        Update: {
+          id?: string;
+          schema_version?: number;
+          occurred_at?: string;
+          recorded_at?: string;
+          hotel_id?: string;
+          language?: 'pt' | 'en' | 'es' | null;
+          assistant_route?: 'deterministic' | 'capability' | 'clarification' | 'classification' | 'ai';
+          resolution_path?: 'deterministic' | 'direct_ai' | 'classifier_to_capability' | 'classifier_to_ai' | 'classifier_failed_to_ai';
+          outcome?: 'success' | 'privacy_blocked' | 'rate_limited' | 'hotel_unavailable' | 'assistant_failed' | 'invalid_upstream_response';
+          capability?: 'human_handoff' | 'reception_contact' | 'housekeeping_contact' | 'housekeeping_request' | null;
+          housekeeping_request_type?: 'towels' | 'room_cleaning' | null;
+          action_type?: 'open_url' | 'confirm_request' | null;
+          tourism_source?: 'libguest_curated' | 'general_ai' | 'unavailable' | null;
+          classifier_intent?: 'human_handoff' | 'reception_contact' | 'housekeeping_contact' | 'housekeeping_request_towels' | 'housekeeping_request_room_cleaning' | 'hotel_information' | 'flight_information' | 'tourism' | 'sales' | 'general_chat' | 'unknown' | null;
+          classifier_confidence_band?: 'high' | 'medium' | 'low' | 'invalid' | null;
+          classifier_calls?: number;
+          full_ai_calls?: number;
+          total_upstream_calls?: number;
+          total_latency_ms?: number;
+          classifier_latency_ms?: number | null;
+          full_ai_latency_ms?: number | null;
+        };
+        Relationships: [{
+          foreignKeyName: 'assistant_analytics_events_hotel_id_fkey';
+          columns: ['hotel_id'];
+          isOneToOne: false;
+          referencedRelation: 'hotels';
+          referencedColumns: ['id'];
+        }];
+      };
       hotels: {
         Row: {
           id: string;
@@ -1046,6 +1124,46 @@ export interface Database {
       };
       get_current_hotel_analytics: {
         Args: { p_period: string };
+        Returns: Json;
+      };
+      record_assistant_analytics_event: {
+        Args: {
+          p_schema_version: number;
+          p_occurred_at: string;
+          p_hotel_id: string;
+          p_language: string | null;
+          p_assistant_route: string;
+          p_resolution_path: string;
+          p_outcome: string;
+          p_capability: string | null;
+          p_housekeeping_request_type: string | null;
+          p_action_type: string | null;
+          p_tourism_source: string | null;
+          p_classifier_intent: string | null;
+          p_classifier_confidence_band: string | null;
+          p_classifier_calls: number;
+          p_full_ai_calls: number;
+          p_total_upstream_calls: number;
+          p_total_latency_ms: number;
+          p_classifier_latency_ms: number | null;
+          p_full_ai_latency_ms: number | null;
+        };
+        Returns: string;
+      };
+      get_hotel_assistant_analytics_summary: {
+        Args: { p_hotel_id: string; p_from: string; p_to: string };
+        Returns: Json;
+      };
+      get_platform_assistant_analytics_summary: {
+        Args: { p_from: string; p_to: string; p_hotel_id?: string | null };
+        Returns: Json;
+      };
+      purge_assistant_analytics_events: {
+        Args: { p_retention_days?: number };
+        Returns: number;
+      };
+      _build_assistant_analytics_summary: {
+        Args: { p_hotel_id: string | null; p_from: string; p_to: string };
         Returns: Json;
       };
       get_current_hotel_readiness: {

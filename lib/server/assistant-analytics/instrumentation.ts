@@ -1,4 +1,4 @@
 import 'server-only';
 
 export * from './validation.ts';
-export { recordAssistantAnalyticsEvent } from './recorder.ts';
+export { recordConfiguredAssistantAnalyticsEvent } from './configured-recorder.ts';

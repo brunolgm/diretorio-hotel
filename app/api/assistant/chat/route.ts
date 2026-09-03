@@ -20,7 +20,7 @@ import {
 import { classifyAssistantMessage } from '@/lib/server/assistant-classifier';
 import {
   clampAssistantAnalyticsLatency,
-  recordAssistantAnalyticsEvent,
+  recordConfiguredAssistantAnalyticsEvent,
   type AssistantAnalyticsEventInput,
 } from '@/lib/server/assistant-analytics';
 
@@ -32,7 +32,7 @@ function elapsedSince(startedAt: number) {
 
 function recordFinalEvent(event: AssistantAnalyticsEventInput) {
   // Deliberately detached: analytics must never delay or alter the guest response.
-  void recordAssistantAnalyticsEvent(event);
+  void recordConfiguredAssistantAnalyticsEvent(event);
 }
 
 export async function POST(request: NextRequest) {

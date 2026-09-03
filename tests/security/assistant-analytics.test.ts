@@ -369,7 +369,7 @@ test('the route has mutually exclusive final record sites and the recorder has n
   assert.doesNotMatch(recorder, /console\./);
 });
 
-test('keeps tourism closed and leaves persistence and browser analytics absent', () => {
+test('keeps tourism closed and the route decoupled from persistence and browser analytics', () => {
   assert.deepEqual(ASSISTANT_ANALYTICS_TOURISM_SOURCES, ['libguest_curated', 'general_ai', 'unavailable']);
   for (const tourismSource of ASSISTANT_ANALYTICS_TOURISM_SOURCES) {
     assert.equal(event({ tourismSource }).tourismSource, tourismSource);

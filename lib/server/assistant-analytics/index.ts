@@ -6,3 +6,5 @@ export * from './validation.ts';
 export * from './recorder.ts';
 export * from './instrumentation.ts';
 export * from './summary.ts';
+export * from './query-contract.ts';
+export * from './queries.ts';
