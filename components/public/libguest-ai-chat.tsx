@@ -34,7 +34,7 @@ const HOUSEKEEPING_REQUEST_COPY = {
     department: 'Governança',
     item: 'Item',
     service: 'Serviço',
-    towels: (quantity: number) => `${quantity} toalhas`,
+    towels: (quantity: number) => `${quantity} ${quantity === 1 ? 'toalha' : 'toalhas'}`,
     cleaning: 'Limpeza do quarto',
     prepared: 'Solicitação preparada localmente. Nada foi enviado ao hotel.',
     cancelled: 'A solicitação em preparação foi descartada. Nada foi enviado ao hotel.',

@@ -150,6 +150,8 @@ const TOWEL_INTENTS: Record<SupportedPublicLanguage, ReadonlySet<string>> = {
   pt: towelIntentPhrases('pt', [
     'preciso de toalha',
     'preciso de toalhas',
+    'preciso de 1 toalha',
+    'preciso de uma toalha',
     'quero toalhas',
   ], (token) => `preciso de ${token} toalhas`),
   en: towelIntentPhrases('en', ['i need towels'], (token) => `i need ${token} towels`),
@@ -182,7 +184,7 @@ const OUT_OF_RANGE_TOWEL_PATTERNS: Record<SupportedPublicLanguage, RegExp> = {
 const COPY = {
   pt: {
     quantityQuestion: 'Quantas toalhas você precisa?',
-    towelsAnswer: (quantity: number) => `Posso preparar uma solicitação de ${quantity} toalhas para a Governança. Deseja confirmar?`,
+    towelsAnswer: (quantity: number) => `Posso preparar uma solicitação de ${quantity} ${quantity === 1 ? 'toalha' : 'toalhas'} para a Governança. Deseja confirmar?`,
     cleaningAnswer: 'Posso preparar uma solicitação de limpeza para a Governança. Deseja confirmar?',
     confirm: 'Confirmar solicitação',
     cancel: 'Cancelar',

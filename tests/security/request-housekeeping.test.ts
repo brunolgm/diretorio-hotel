@@ -76,8 +76,73 @@ test('prepares towels with digits and basic PT, EN and ES number words from one 
   assert.equal(parseHousekeepingTowelQuantity('três', 'pt'), 3);
 });
 
+test('routes natural PT singular towel requests deterministically without upstream calls', async () => {
+  for (const message of ['Preciso de 1 toalha.', 'Preciso de uma toalha.']) {
+    const prepared = prepareHousekeepingRequest(message);
+    assert.deepEqual(prepared?.detection, {
+      intent: 'request_housekeeping', detectedLanguage: 'pt', requestType: 'towels',
+    });
+    assert.deepEqual(prepared?.request, {
+      kind: 'housekeeping', requestType: 'towels', quantity: 1,
+    });
+
+    let classifierCalls = 0;
+    let fullAiCalls = 0;
+    const result = await runAssistantChat({
+      hotelSlug: 'hotel-a', language: 'pt', contextId: CONTEXT_ID, message,
+    }, {
+      async getPageDataBySlug() { return pageData(); },
+      async classifyMessage() { classifierCalls += 1; return null; },
+      createClient() {
+        fullAiCalls += 1;
+        throw new Error('GPTMaker must not be created');
+      },
+    });
+
+    assert.equal(result?.assistantRoute, 'capability');
+    assert.match(result?.answer ?? '', /1 toalha para a Governança/);
+    assert.doesNotMatch(result?.answer ?? '', /1 toalhas/);
+    assert.equal(result?.action?.type, 'confirm_request');
+    if (result?.action?.type === 'confirm_request') {
+      assert.equal(result.action.request.requestType, 'towels');
+      assert.equal(result.action.request.quantity, 1);
+    }
+    assert.equal(result?.pendingRequest, null);
+    assert.equal(classifierCalls, 0);
+    assert.equal(fullAiCalls, 0);
+    assert.deepEqual(result?.usageTrace, {
+      resolutionPath: 'deterministic',
+      classifierCalls: 0,
+      fullAiCalls: 0,
+      totalUpstreamCalls: 0,
+    });
+  }
+});
+
+test('pluralizes PT towel quantity in the response and prepared card copy', () => {
+  const one = buildPreparedHousekeepingChatResponse({
+    kind: 'housekeeping', requestType: 'towels', quantity: 1,
+  }, 'pt');
+  const two = buildPreparedHousekeepingChatResponse({
+    kind: 'housekeeping', requestType: 'towels', quantity: 2,
+  }, 'pt');
+
+  assert.match(one.answer, /1 toalha para a Governança/);
+  assert.doesNotMatch(one.answer, /1 toalhas/);
+  assert.match(two.answer, /2 toalhas para a Governança/);
+  assert.equal(one.action?.type, 'confirm_request');
+  assert.equal(two.action?.type, 'confirm_request');
+  if (one.action?.type === 'confirm_request') assert.equal(one.action.request.quantity, 1);
+  if (two.action?.type === 'confirm_request') assert.equal(two.action.request.quantity, 2);
+
+  assert.match(
+    componentSource,
+    /towels: \(quantity: number\) => `\$\{quantity\} \$\{quantity === 1 \? 'toalha' : 'toalhas'\}`/
+  );
+});
+
 test('asks for clarification and creates no action for absent or out-of-range quantity', () => {
-  for (const message of ['Preciso de toalhas', 'Preciso de 7 toalhas']) {
+  for (const message of ['Preciso de toalha', 'Preciso de toalhas', 'Preciso de 7 toalhas']) {
     const prepared = prepareHousekeepingRequest(message);
     assert.ok(prepared);
     assert.equal(prepared.request.requestType, 'towels');
