@@ -16,6 +16,8 @@ import type {
   AssistantAnalyticsHousekeepingRequestType,
 } from './server/assistant-analytics/types.ts';
 import {
+  applyContactDeclineToAnswer,
+  buildContactDeclinedResponse,
   buildHumanHandoffChatResponse,
   buildHousekeepingClarificationRetryResponse,
   buildHousekeepingContactChatResponse,
@@ -24,6 +26,8 @@ import {
   getHumanHandoffContact,
   getHousekeepingContact,
   getReceptionContact,
+  HOUSEKEEPING_CANCELLATION_UNAVAILABLE_COPY,
+  HOUSEKEEPING_PREPARATION_DISCARDED_COPY,
   parseHousekeepingPendingRequest,
   resolveReceptionContactFromPublicData,
 } from './assistant-tools/index.ts';
@@ -138,12 +142,6 @@ export class AssistantChatExecutionError extends Error {
     this.upstreamCause = upstreamCause;
   }
 }
-
-const CLARIFICATION_CANCELLED_COPY: Record<SupportedPublicLanguage, string> = {
-  pt: 'Tudo bem. A solicita\u00e7\u00e3o de toalhas foi cancelada.',
-  en: 'All right. The towel request was cancelled.',
-  es: 'De acuerdo. La solicitud de toallas fue cancelada.',
-};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -271,6 +269,7 @@ export async function runAssistantChat(
   let classifierConfidenceBand: AssistantAnalyticsClassifierConfidenceBand | null = null;
   let classifierLatencyMs: number | null = null;
   let fullAiLatencyMs: number | null = null;
+  let contactDeclinedLanguage = initialDecision?.contactDeclinedLanguage ?? null;
 
   function finalize(
     result: AssistantChatResult,
@@ -280,7 +279,13 @@ export async function runAssistantChat(
       housekeepingRequestType?: AssistantAnalyticsHousekeepingRequestType | null;
     } = {}
   ) {
-    Object.defineProperty(result, ASSISTANT_CHAT_ANALYTICS, {
+    const publicResult = contactDeclinedLanguage
+      ? {
+          ...result,
+          answer: applyContactDeclineToAnswer(result.answer, contactDeclinedLanguage),
+        }
+      : result;
+    Object.defineProperty(publicResult, ASSISTANT_CHAT_ANALYTICS, {
       enumerable: false,
       value: {
         hotelId: resolvedPageData.hotel.id,
@@ -293,7 +298,7 @@ export async function runAssistantChat(
         fullAiLatencyMs,
       } satisfies AssistantChatAnalyticsMetadata,
     });
-    return result;
+    return publicResult;
   }
 
   if (privacyBlocked) {
@@ -337,11 +342,30 @@ export async function runAssistantChat(
         classifierLatencyMs = Math.max(0, Math.round(now() - classifierStartedAt));
       }
     }
-    decision = applyAssistantClassification({
+    const classifiedDecision = applyAssistantClassification({
       classification,
       message: decision.message,
       uiLanguage: decision.uiLanguage,
     });
+    if (
+      contactDeclinedLanguage &&
+      classifiedDecision.mode === 'capability' &&
+      (classifiedDecision.capability === 'reception_contact' ||
+        classifiedDecision.capability === 'human_handoff')
+    ) {
+      decision = {
+        mode: 'deterministic',
+        assistantRoute: 'deterministic',
+        outcome: 'contact_declined',
+        detectedLanguage: contactDeclinedLanguage,
+        message: classifiedDecision.message,
+      };
+      contactDeclinedLanguage = null;
+    } else {
+      decision = contactDeclinedLanguage
+        ? { ...classifiedDecision, contactDeclinedLanguage }
+        : classifiedDecision;
+    }
   }
 
   switch (decision.mode) {
@@ -351,7 +375,11 @@ export async function runAssistantChat(
       const pageData = await getResolvedPageData(payload.hotelSlug, responseLanguage);
       if (!pageData || pageData.hotel.slug !== payload.hotelSlug) return null;
       return finalize({
-        answer: CLARIFICATION_CANCELLED_COPY[responseLanguage],
+        answer: decision.outcome === 'clarification_cancelled'
+          ? HOUSEKEEPING_PREPARATION_DISCARDED_COPY[responseLanguage]
+          : decision.outcome === 'housekeeping_cancellation_unavailable'
+            ? HOUSEKEEPING_CANCELLATION_UNAVAILABLE_COPY[responseLanguage]
+            : buildContactDeclinedResponse(responseLanguage),
         action: null,
         pendingRequest: null,
         responseLanguage,
@@ -468,7 +496,7 @@ export async function runAssistantChat(
     const curated = await dependencies.getTourismRecommendations({
       hotelSlug: payload.hotelSlug,
       language: payload.language,
-      message: payload.message,
+      message: decision.message.original,
     });
     if (curated) {
       return finalize({
@@ -500,7 +528,7 @@ export async function runAssistantChat(
     ).action;
     return finalize({
       answer: buildUnavailableTourismResponse(payload.language),
-      action: contactAction,
+      action: contactDeclinedLanguage ? null : contactAction,
       pendingRequest: null,
       responseLanguage: payload.language,
       assistantRoute: decision.assistantRoute,
@@ -536,7 +564,7 @@ export async function runAssistantChat(
     });
     modelAnswer = await client.converse({
       contextId: payload.contextId,
-      prompt: payload.message,
+      prompt: decision.message.original,
     });
   } catch (error) {
     fullAiLatencyMs = Math.max(0, Math.round(now() - fullAiStartedAt));
@@ -561,7 +589,8 @@ export async function runAssistantChat(
   const generalTourismResponse = decision.mode === 'tourism'
     ? resolveGeneralAiTourismResponse(modelAnswer, payload.language)
     : null;
-  const tourismFallbackAction = generalTourismResponse?.source === 'unavailable'
+  const tourismFallbackAction = !contactDeclinedLanguage &&
+      generalTourismResponse?.source === 'unavailable'
     ? buildReceptionContactChatResponse(
         resolveReceptionContactFromPublicData({
           input: { hotelSlug: payload.hotelSlug, language: payload.language },

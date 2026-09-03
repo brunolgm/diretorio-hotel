@@ -170,6 +170,6 @@ test('frontend handles 429 in PT, EN and ES without resetting session or automat
   assert.match(componentSource, /Enviaste demasiados mensajes en poco tiempo\. Espera unos instantes e inténtalo de nuevo\./);
   assert.match(componentSource, /response\.status === 429[\s\S]*result\.error === 'rate_limited'/);
   assert.match(componentSource, /setFailureKind\('rate_limited'\)/);
-  assert.match(componentSource, /failureKind === 'rate_limited' \? copy\.rateLimited : copy\.error/);
+  assert.match(componentSource, /failureKind === 'rate_limited'[\s\S]*\? copy\.rateLimited[\s\S]*: resolveAssistantErrorMessage/);
   assert.doesNotMatch(componentSource, /setTimeout\([^)]*sendMessage|setInterval|429[\s\S]{0,200}createAssistantSession/);
 });

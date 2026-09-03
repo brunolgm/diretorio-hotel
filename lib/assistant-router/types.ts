@@ -56,6 +56,7 @@ export type AssistantStrongIntentName =
 interface AssistantRouteDecisionBase {
   assistantRoute: AssistantRouteCategory;
   message: NormalizedAssistantMessage;
+  contactDeclinedLanguage?: SupportedPublicLanguage;
 }
 
 export type AssistantRouteDecision =
@@ -81,7 +82,10 @@ export type AssistantRouteDecision =
   | (AssistantRouteDecisionBase & {
       mode: 'deterministic';
       assistantRoute: 'deterministic';
-      outcome: 'clarification_cancelled';
+      outcome:
+        | 'clarification_cancelled'
+        | 'housekeeping_cancellation_unavailable'
+        | 'contact_declined';
       detectedLanguage: SupportedPublicLanguage | null;
     })
   | (AssistantRouteDecisionBase & {

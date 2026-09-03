@@ -7,6 +7,7 @@ import type {
 } from './types.ts';
 import {
   detectClosedCatalogIntent,
+  normalizeClosedCatalogText,
 } from './intent-detection.ts';
 import {
   getPublicDepartmentContact,
@@ -28,6 +29,7 @@ const RECEPTION_NAMES = new Set([
 const RECEPTION_INTENTS: Record<SupportedPublicLanguage, ReadonlySet<string>> = {
   pt: new Set([
     'quero falar com a recepcao',
+    'agora quero falar com a recepcao',
     'como falo com a recepcao',
     'preciso falar com alguem do hotel',
     'me passa o contato da recepcao',
@@ -37,6 +39,7 @@ const RECEPTION_INTENTS: Record<SupportedPublicLanguage, ReadonlySet<string>> = 
   ]),
   en: new Set([
     'i want to talk to reception',
+    'now i want to talk to reception',
     'i want to speak to reception',
     'front desk contact',
     'how do i contact reception',
@@ -45,11 +48,166 @@ const RECEPTION_INTENTS: Record<SupportedPublicLanguage, ReadonlySet<string>> = 
   ]),
   es: new Set([
     'quiero hablar con recepcion',
+    'ahora quiero hablar con recepcion',
     'contacto de recepcion',
     'como contacto con recepcion',
     'hablar con recepcion',
   ]),
 };
+
+const CONTACT_DECLINE_PREFIXES: Record<SupportedPublicLanguage, readonly string[]> = {
+  pt: [
+    'nao quero falar com a recepcao',
+    'nao quero falar com recepcao',
+    'nao quero contato com a recepcao',
+    'nao quero falar com atendente',
+    'nao quero falar com um atendente',
+    'nao quero falar com uma pessoa',
+    'nao quero atendimento humano',
+    'prefiro nao falar com a recepcao',
+  ],
+  en: [
+    'i don t want to talk to reception',
+    'i dont want to talk to reception',
+    'i do not want to talk to reception',
+    'i don t want to speak to reception',
+    'i dont want to speak to reception',
+    'i do not want to speak to reception',
+    'i don t want to contact the front desk',
+    'i dont want to contact the front desk',
+    'i do not want to contact the front desk',
+    'i don t want to talk to a human',
+    'i dont want to talk to a human',
+    'i do not want to talk to a human',
+    'i don t want a human agent',
+    'i dont want a human agent',
+    'i do not want a human agent',
+  ],
+  es: [
+    'no quiero hablar con recepcion',
+    'no quiero contactar con recepcion',
+    'no quiero hablar con un agente',
+    'no quiero hablar con una persona',
+    'no quiero atencion humana',
+    'prefiero no hablar con recepcion',
+  ],
+};
+
+const OPERATIONAL_CONTACT_RECOMMENDATION_PATTERNS = [
+  /\b(?:fale|converse) com (?:a |o |um |uma )?(?:recepcao|atendente|equipe do hotel)\b/i,
+  /\b(?:entre em contato com|contate|procure|consulte|chame|ligue para|va ate|dirija se a) (?:a |o |um |uma )?(?:recepcao|atendente|equipe do hotel)\b/i,
+  /\b(?:contact|call|ask|visit) (?:the |a )?(?:reception|front desk|human agent|hotel staff)\b/i,
+  /\b(?:talk|speak) to (?:the |a )?(?:reception|front desk|human agent|hotel staff)\b/i,
+  /\b(?:go to|check with|reach out to) (?:the |a )?(?:reception|front desk|human agent|hotel staff)\b/i,
+  /\b(?:contacta|contacte|llama|busca|consulta|consulte|ve a|acude a) (?:la |el |un |una )?(?:recepcion|agente humano|personal del hotel)\b/i,
+  /\bhabla con (?:la |el |un |una )?(?:recepcion|agente humano|personal del hotel)\b/i,
+  /\b(?:vou|estou) (?:te |lhe )?(?:transferir|encaminhar|conectar|transferindo|encaminhando|conectando) (?:voce )?(?:para|com) (?:a |o |um |uma )?(?:recepcao|atendente|equipe do hotel)\b/i,
+  /\bi (?:will|ll|am) (?:transfer|connect|transferring|connecting) you (?:to|with) (?:the |a )?(?:reception|front desk|human agent|hotel staff)\b/i,
+  /\b(?:voy a|estoy) (?:transferirte|conectarte|transfiriendote|conectandote) (?:con|a) (?:la |el |un |una )?(?:recepcion|agente humano|personal del hotel)\b/i,
+] as const;
+
+const CONTACT_DECLINE_COPY = {
+  pt: {
+    standalone: 'Tudo bem. Não vou abrir o contato com a recepção. Como posso ajudar de outra forma?',
+    acknowledgement: 'Tudo bem. Vou respeitar essa preferência nesta interação.',
+    fallback: 'Como posso ajudar de outra forma?',
+  },
+  en: {
+    standalone: 'All right. I will not open contact with the front desk. How else can I help?',
+    acknowledgement: 'All right. I will respect that preference in this interaction.',
+    fallback: 'How else can I help?',
+  },
+  es: {
+    standalone: 'De acuerdo. No abriré el contacto con recepción. ¿Cómo más puedo ayudarte?',
+    acknowledgement: 'De acuerdo. Respetaré esa preferencia en esta interacción.',
+    fallback: '¿Cómo más puedo ayudarte?',
+  },
+} as const;
+
+export interface ContactDeclineDetection {
+  detectedLanguage: SupportedPublicLanguage;
+  remainingMessage: string | null;
+}
+
+function extractOriginalRemainder(message: string, normalizedPrefix: string) {
+  const originalWords = Array.from(message.matchAll(/[\p{L}\p{N}]+/gu));
+  const prefixWordCount = normalizedPrefix.split(' ').length;
+  const finalPrefixWord = originalWords[prefixWordCount - 1];
+  if (!finalPrefixWord || finalPrefixWord.index === undefined) return null;
+  const remainder = message
+    .slice(finalPrefixWord.index + finalPrefixWord[0].length)
+    .replace(/^[\s,;:.!?…—–-]+/u, '')
+    .trim();
+  return remainder || null;
+}
+
+export function detectContactDecline(message: string): ContactDeclineDetection | null {
+  const normalized = normalizeClosedCatalogText(message);
+  for (const language of Object.keys(CONTACT_DECLINE_PREFIXES) as SupportedPublicLanguage[]) {
+    for (const prefix of CONTACT_DECLINE_PREFIXES[language]) {
+      if (normalized === prefix) return { detectedLanguage: language, remainingMessage: null };
+      if (!normalized.startsWith(`${prefix} `)) continue;
+      return {
+        detectedLanguage: language,
+        remainingMessage: extractOriginalRemainder(message, prefix),
+      };
+    }
+  }
+  return null;
+}
+
+export function buildContactDeclinedResponse(language: SupportedPublicLanguage) {
+  return CONTACT_DECLINE_COPY[language].standalone;
+}
+
+function findOperationalContactStart(clause: string) {
+  for (const word of clause.matchAll(/[\p{L}\p{N}]+/gu)) {
+    if (word.index === undefined) continue;
+    const suffix = normalizeClosedCatalogText(clause.slice(word.index));
+    if (OPERATIONAL_CONTACT_RECOMMENDATION_PATTERNS.some((pattern) =>
+      pattern.exec(suffix)?.index === 0
+    )) {
+      return word.index;
+    }
+  }
+  return null;
+}
+
+function preserveFactualClausePrefix(clause: string) {
+  const operationalStart = findOperationalContactStart(clause);
+  if (operationalStart === null) return clause.trim();
+  return clause
+    .slice(0, operationalStart)
+    .trimEnd()
+    .replace(/[\s,;:—–-]+$/u, '')
+    .replace(/\s+(?:mas|but|pero|e|and|y)$/iu, '')
+    .replace(/[\s,;:—–-]+$/u, '')
+    .trim();
+}
+
+function punctuateFactualClause(clause: string) {
+  const factualClause = preserveFactualClausePrefix(clause)
+    .replace(/^\p{Ll}/u, (initial) => initial.toLocaleUpperCase());
+  if (!factualClause || /[.!?]$/u.test(factualClause)) return factualClause;
+  return `${factualClause}.`;
+}
+
+export function applyContactDeclineToAnswer(
+  answer: string,
+  language: SupportedPublicLanguage
+) {
+  const hasOperationalRecommendation = findOperationalContactStart(answer) !== null;
+  const safeSentences = hasOperationalRecommendation
+    ? answer
+        .split(/(?:;\s*|,\s*(?:mas|but|pero)\s+|(?<=[.!?])\s+)/iu)
+        .map(punctuateFactualClause)
+        .filter(Boolean)
+        .join(' ')
+        .trim()
+    : answer.trim();
+  const copy = CONTACT_DECLINE_COPY[language];
+  return `${copy.acknowledgement} ${safeSentences || copy.fallback}`;
+}
 
 const COPY = {
   pt: {

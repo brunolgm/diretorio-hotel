@@ -226,18 +226,30 @@ test('a breakfast question escapes without repeating the towel prompt', async ()
   assert.equal(tracked.calls.converse, 1);
 });
 
-test('explicit cancellation remains deterministic and clears pending state', async () => {
-  const resolution = resolveHousekeepingQuantityClarification('cancelar', PENDING);
-  assert.deepEqual(resolution, { kind: 'cancelled', detectedLanguage: 'pt' });
-  const tracked = trackedDependencies();
-  const result = await runAssistantChat({
-    hotelSlug: 'hotel-a', language: 'pt', contextId: CONTEXT_A,
-    message: 'cancelar', pendingRequest: PENDING,
-  }, tracked.dependencies);
-  assert.equal(result?.assistantRoute, 'deterministic');
-  assert.equal(result?.pendingRequest, null);
-  assert.equal(tracked.calls.classifier, 0);
-  assert.equal(tracked.calls.client, 0);
+test('explicit cancellation in PT, EN and ES remains deterministic and clears pending state', async () => {
+  for (const [message, language] of [
+    ['cancelar', 'pt'],
+    ['never mind', 'en'],
+    ['déjalo', 'es'],
+  ] as const) {
+    const pending = { ...PENDING, language };
+    const resolution = resolveHousekeepingQuantityClarification(message, pending);
+    assert.deepEqual(resolution, { kind: 'cancelled', detectedLanguage: language });
+    const tracked = trackedDependencies();
+    const result = await runAssistantChat({
+      hotelSlug: 'hotel-a', language, contextId: CONTEXT_A,
+      message, pendingRequest: pending,
+    }, tracked.dependencies);
+    assert.equal(result?.assistantRoute, 'deterministic');
+    assert.equal(result?.pendingRequest, null);
+    assert.equal(result?.action, null);
+    assert.match(result?.answer ?? '', /(?:Nada foi enviado|Nothing was sent|No se envió nada)/);
+    assert.deepEqual(result?.usageTrace, {
+      resolutionPath: 'deterministic', classifierCalls: 0, fullAiCalls: 0, totalUpstreamCalls: 0,
+    });
+    assert.equal(tracked.calls.classifier, 0);
+    assert.equal(tracked.calls.client, 0);
+  }
 });
 
 test('new conversation replaces context and clears every previous message and action', () => {

@@ -10,8 +10,13 @@ import {
 } from '@/lib/assistant-tools/types';
 import {
   buildAssistantChatRequest,
+  consumeLocalAssistantInteraction,
   createAssistantSession,
+  findPreparedRequestCancellationTarget,
   loadOrCreateAssistantSession,
+  removePreparedRequestAction,
+  resetLocalAssistantInteraction,
+  resolveAssistantErrorMessage,
   saveAssistantSession,
   shouldPersistAssistantUserMessage,
   type AssistantChatMessage,
@@ -31,8 +36,8 @@ const HOUSEKEEPING_REQUEST_COPY = {
     service: 'Serviço',
     towels: (quantity: number) => `${quantity} toalhas`,
     cleaning: 'Limpeza do quarto',
-    prepared: 'Solicitação preparada. O envio à equipe será conectado na próxima etapa.',
-    cancelled: 'Solicitação cancelada.',
+    prepared: 'Solicitação preparada localmente. Nada foi enviado ao hotel.',
+    cancelled: 'A solicitação em preparação foi descartada. Nada foi enviado ao hotel.',
   },
   en: {
     request: 'Request',
@@ -41,8 +46,8 @@ const HOUSEKEEPING_REQUEST_COPY = {
     service: 'Service',
     towels: (quantity: number) => `${quantity} towels`,
     cleaning: 'Room cleaning',
-    prepared: 'Request prepared. Sending it to the team will be connected in the next stage.',
-    cancelled: 'Request cancelled.',
+    prepared: 'Request prepared locally. Nothing was sent to the hotel.',
+    cancelled: 'The request being prepared was discarded. Nothing was sent to the hotel.',
   },
   es: {
     request: 'Solicitud',
@@ -51,8 +56,8 @@ const HOUSEKEEPING_REQUEST_COPY = {
     service: 'Servicio',
     towels: (quantity: number) => `${quantity} toallas`,
     cleaning: 'Limpieza de la habitación',
-    prepared: 'Solicitud preparada. El envío al equipo se conectará en la próxima etapa.',
-    cancelled: 'Solicitud cancelada.',
+    prepared: 'Solicitud preparada localmente. No se envió nada al hotel.',
+    cancelled: 'La solicitud en preparación fue descartada. No se envió nada al hotel.',
   },
 } as const;
 
@@ -67,6 +72,7 @@ export const LIBGUEST_AI_CHAT_COPY = {
     close: 'Fechar',
     typing: 'Maya está digitando…',
     error: 'Não consegui responder agora. Tente novamente em instantes ou fale com a recepção.',
+    contactDeclinedError: 'Não consegui responder agora. Tente novamente em instantes.',
     rateLimited: 'Você enviou muitas mensagens em pouco tempo. Aguarde alguns instantes e tente novamente.',
     retry: 'Tentar novamente',
     sessionNotice: 'Esta conversa fica disponível nesta aba por até 8 horas.',
@@ -81,6 +87,7 @@ export const LIBGUEST_AI_CHAT_COPY = {
     close: 'Close',
     typing: 'Maya is typing…',
     error: 'I couldn’t answer right now. Please try again shortly or contact the front desk.',
+    contactDeclinedError: 'I couldn’t answer right now. Please try again shortly.',
     rateLimited: 'You sent too many messages in a short period. Please wait a moment and try again.',
     retry: 'Try again',
     sessionNotice: 'This conversation remains available in this tab for up to 8 hours.',
@@ -95,6 +102,7 @@ export const LIBGUEST_AI_CHAT_COPY = {
     close: 'Cerrar',
     typing: 'Maya está escribiendo…',
     error: 'No pude responder ahora. Inténtalo de nuevo en unos instantes o habla con recepción.',
+    contactDeclinedError: 'No pude responder ahora. Inténtalo de nuevo en unos instantes.',
     rateLimited: 'Enviaste demasiados mensajes en poco tiempo. Espera unos instantes e inténtalo de nuevo.',
     retry: 'Intentar de nuevo',
     sessionNotice: 'Esta conversación permanece disponible en esta pestaña hasta 8 horas.',
@@ -234,8 +242,12 @@ export function LibGuestAiChat({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const requestControllerRef = useRef<AbortController | null>(null);
+  const inputGenerationRef = useRef(0);
+  const localInteractionGuardRef = useRef({ consumedDraftGeneration: null });
 
   useEffect(() => {
+    inputGenerationRef.current = 0;
+    resetLocalAssistantInteraction(localInteractionGuardRef.current);
     let active = true;
     queueMicrotask(() => {
       if (!active) return;
@@ -298,6 +310,8 @@ export function LibGuestAiChat({
     setFailedMessage(null);
     setFailureKind(null);
     setPendingRequest(null);
+    inputGenerationRef.current = 0;
+    resetLocalAssistantInteraction(localInteractionGuardRef.current);
     saveAssistantSession(window.sessionStorage, hotelSlug, session);
     textareaRef.current?.focus();
   }
@@ -308,6 +322,20 @@ export function LibGuestAiChat({
     if (!session || !message || message.length > MESSAGE_MAX_LENGTH || isSending || requestControllerRef.current) return;
 
     const persistUserMessage = shouldPersistAssistantUserMessage(message);
+    const preparedCancellation = findPreparedRequestCancellationTarget(
+      messagesRef.current,
+      message,
+      language
+    );
+    if (
+      preparedCancellation &&
+      !consumeLocalAssistantInteraction(
+        localInteractionGuardRef.current,
+        inputGenerationRef.current
+      )
+    ) {
+      return;
+    }
 
     if (appendUserMessage && persistUserMessage) {
       replaceMessages([...messagesRef.current, {
@@ -318,6 +346,18 @@ export function LibGuestAiChat({
       }]);
     }
     if (appendUserMessage) setInput('');
+
+    if (preparedCancellation) {
+      setFailedMessage(null);
+      setFailureKind(null);
+      setPendingRequest(null);
+      completePreparedRequest(
+        preparedCancellation.messageId,
+        preparedCancellation.action,
+        'cancelled'
+      );
+      return;
+    }
 
     const controller = new AbortController();
     requestControllerRef.current = controller;
@@ -411,16 +451,12 @@ export function LibGuestAiChat({
     if (!target) return;
     const responseLanguage = target.language ?? language;
     const copy = HOUSEKEEPING_REQUEST_COPY[responseLanguage];
-    const messagesWithoutAction = messagesRef.current.map((message) => {
-      if (message.id !== messageId) return message;
-      return {
-        id: message.id,
-        role: message.role,
-        text: message.text,
-        createdAt: message.createdAt,
-        ...(message.language ? { language: message.language } : {}),
-      };
+    const messagesWithoutAction = removePreparedRequestAction(messagesRef.current, {
+      messageId,
+      action,
+      language: responseLanguage,
     });
+    if (!messagesWithoutAction) return;
     replaceMessages([...messagesWithoutAction, {
       id: newId(),
       role: 'assistant',
@@ -507,7 +543,13 @@ export function LibGuestAiChat({
             {isSending ? <p className="mt-3 flex items-center gap-2 pl-9 text-xs text-current/60"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current" />{copy.typing}</p> : null}
             {failedMessage ? (
               <div role="alert" className="mt-3 rounded-2xl border border-amber-300/70 bg-amber-50 px-3.5 py-3 text-sm leading-5 text-amber-900">
-                <p>{failureKind === 'rate_limited' ? copy.rateLimited : copy.error}</p>
+                <p>{failureKind === 'rate_limited'
+                  ? copy.rateLimited
+                  : resolveAssistantErrorMessage(
+                      failedMessage,
+                      copy.error,
+                      copy.contactDeclinedError
+                    )}</p>
                 <button type="button" onClick={() => void sendMessage(failedMessage, false)} disabled={isSending} className="mt-2 inline-flex items-center gap-1.5 font-semibold underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700">
                   <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />{copy.retry}
                 </button>
@@ -519,7 +561,10 @@ export function LibGuestAiChat({
           <footer className="border-t border-black/10 bg-white/35 px-3 pb-[max(.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-sm">
             <form onSubmit={(event) => { event.preventDefault(); void sendMessage(input, true); }}>
               <div className="flex items-end gap-2 rounded-[20px] border border-black/15 bg-white px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-[#b78942]/45">
-                <textarea ref={textareaRef} value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={handleKeyDown} maxLength={MESSAGE_MAX_LENGTH} rows={1} disabled={isSending || !isReady} aria-label={copy.placeholder} placeholder={copy.placeholder} className="max-h-28 min-h-10 flex-1 resize-none bg-transparent py-2 text-sm leading-5 text-slate-900 outline-none placeholder:text-slate-400 disabled:opacity-60" />
+                <textarea ref={textareaRef} value={input} onChange={(event) => {
+                  inputGenerationRef.current += 1;
+                  setInput(event.target.value);
+                }} onKeyDown={handleKeyDown} maxLength={MESSAGE_MAX_LENGTH} rows={1} disabled={isSending || !isReady} aria-label={copy.placeholder} placeholder={copy.placeholder} className="max-h-28 min-h-10 flex-1 resize-none bg-transparent py-2 text-sm leading-5 text-slate-900 outline-none placeholder:text-slate-400 disabled:opacity-60" />
                 <button type="submit" disabled={isSending || !isReady || !input.trim()} aria-label={copy.send} title={copy.send} className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 ${styles.action}`}>
                   <Send className="h-4 w-4" aria-hidden="true" />
                 </button>

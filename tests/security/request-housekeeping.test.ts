@@ -6,6 +6,9 @@ import { runAssistantChat, validateAssistantChatPayload } from '../../lib/assist
 import {
   buildPreparedHousekeepingChatResponse,
   continueHousekeepingQuantityClarification,
+  detectHousekeepingCancellationWithoutPending,
+  detectHousekeepingPreparationCancellation,
+  detectHousekeepingPreparationCancellationTarget,
   detectHousekeepingContactIntent,
   detectHousekeepingRequestIntent,
   parseAssistantAction,
@@ -14,10 +17,16 @@ import {
   prepareHousekeepingRequest,
 } from '../../lib/assistant-tools/index.ts';
 import {
+  consumeLocalAssistantInteraction,
   createAssistantSession,
+  findPreparedRequestCancellationTarget,
   getAssistantSessionStorageKey,
   parseAssistantStoredSession,
+  removePreparedRequestAction,
+  resetLocalAssistantInteraction,
+  resolveAssistantErrorMessage,
   saveAssistantSession,
+  type AssistantChatMessage,
   type AssistantStorage,
 } from '../../lib/assistant-chat-session.ts';
 
@@ -90,6 +99,34 @@ test('uses a closed clarification state and accepts only a valid standalone quan
   assert.equal(continueHousekeepingQuantityClarification('dos roomToken=secret', pending).quantity, null);
   assert.equal(parseHousekeepingPendingRequest({ ...pending, hotelId: 'private' }), null);
   assert.equal(parseHousekeepingPendingRequest({ ...pending, requestType: 'room_cleaning' }), null);
+});
+
+test('detects contextual preparation cancellation in PT, EN and ES without generic negatives', () => {
+  for (const [message, language] of [
+    ['Não quero mais.', 'pt'],
+    ['Never mind.', 'en'],
+    ['Ya no lo quiero.', 'es'],
+  ] as const) {
+    assert.equal(detectHousekeepingPreparationCancellation(message, language), language);
+  }
+  for (const message of [
+    'Não quero falar sobre isso agora.',
+    'Não encontrei toalhas no site.',
+    'As toalhas estavam bem dobradas.',
+  ]) {
+    assert.equal(detectHousekeepingCancellationWithoutPending(message), null);
+  }
+});
+
+test('detects only a targeted housekeeping cancellation without local state', () => {
+  for (const [message, language] of [
+    ['Quero cancelar o pedido de toalhas.', 'pt'],
+    ['I want to cancel the towel request.', 'en'],
+    ['Quiero cancelar el pedido de toallas.', 'es'],
+  ] as const) {
+    assert.equal(detectHousekeepingCancellationWithoutPending(message), language);
+  }
+  assert.equal(detectHousekeepingCancellationWithoutPending('Cancelar.'), null);
 });
 
 test('prepares room cleaning in PT, EN and ES with quantity fixed to null', () => {
@@ -220,6 +257,205 @@ test('persists only a valid allowlisted confirm_request action in sessionStorage
   );
 });
 
+test('typed cancellation selects the matching request type and preserves unrelated cards', () => {
+  const towelsAction = {
+    type: 'confirm_request',
+    request: { kind: 'housekeeping', requestType: 'towels', quantity: 2 },
+    label: 'Confirmar solicitação',
+    cancelLabel: 'Cancelar',
+  } as const;
+  const cleaningAction = {
+    type: 'confirm_request',
+    request: { kind: 'housekeeping', requestType: 'room_cleaning', quantity: null },
+    label: 'Confirmar solicitação',
+    cancelLabel: 'Cancelar',
+  } as const;
+  const messages = [
+    { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', role: 'assistant', text: 'Toalhas?', createdAt: NOW.toISOString(), language: 'pt', action: towelsAction },
+    { id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', role: 'assistant', text: 'Limpeza?', createdAt: NOW.toISOString(), language: 'pt', action: cleaningAction },
+  ] as const;
+
+  const towelsTarget = findPreparedRequestCancellationTarget(
+    messages,
+    'Cancelar pedido de toalhas.',
+    'pt'
+  );
+  assert.ok(towelsTarget);
+  assert.equal(towelsTarget.messageId, messages[0].id);
+  const towelsCleared = removePreparedRequestAction(messages, towelsTarget);
+  assert.ok(towelsCleared);
+  assert.equal(towelsCleared[0].action, undefined);
+  assert.equal(towelsCleared[1].action, cleaningAction);
+
+  const cleaningTarget = findPreparedRequestCancellationTarget(
+    messages,
+    'Quero cancelar o pedido de limpeza.',
+    'pt'
+  );
+  assert.ok(cleaningTarget);
+  assert.equal(cleaningTarget.messageId, messages[1].id);
+
+  const genericTarget = findPreparedRequestCancellationTarget(messages, 'Não quero mais.', 'pt');
+  assert.ok(genericTarget);
+  assert.equal(genericTarget.messageId, messages[1].id);
+  assert.equal(findPreparedRequestCancellationTarget(messages, 'Duas toalhas.', 'pt'), null);
+  assert.deepEqual(detectHousekeepingPreparationCancellationTarget(
+    'Cancelar pedido de toalhas.',
+    'pt'
+  ), { detectedLanguage: 'pt', requestType: 'towels' });
+});
+
+test('exact PT cleaning cancellation stays local and preserves a newer towels card', () => {
+  const cleaningAction = {
+    type: 'confirm_request',
+    request: { kind: 'housekeeping', requestType: 'room_cleaning', quantity: null },
+    label: 'Confirmar solicitação', cancelLabel: 'Cancelar',
+  } as const;
+  const towelsAction = {
+    type: 'confirm_request',
+    request: { kind: 'housekeeping', requestType: 'towels', quantity: 2 },
+    label: 'Confirmar solicitação', cancelLabel: 'Cancelar',
+  } as const;
+  const initialMessages: AssistantChatMessage[] = [
+    { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', role: 'assistant', text: 'Limpeza?', createdAt: NOW.toISOString(), language: 'pt', action: cleaningAction },
+    { id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', role: 'assistant', text: 'Toalhas?', createdAt: NOW.toISOString(), language: 'pt', action: towelsAction },
+  ];
+  let messages = initialMessages;
+  let fetchCalls = 0;
+  let classifierCalls = 0;
+  let mayaCalls = 0;
+
+  function handleClientMessage(message: string) {
+    const target = findPreparedRequestCancellationTarget(messages, message, 'pt');
+    if (!target) {
+      fetchCalls += 1;
+      classifierCalls += 1;
+      mayaCalls += 1;
+      return 'fetch';
+    }
+    const next = removePreparedRequestAction(messages, target);
+    assert.ok(next);
+    messages = next;
+    return 'local';
+  }
+
+  assert.deepEqual(
+    detectHousekeepingPreparationCancellationTarget(
+      'Cancelar o pedido de limpeza.',
+      'pt'
+    ),
+    { detectedLanguage: 'pt', requestType: 'room_cleaning' }
+  );
+  assert.equal(handleClientMessage('Cancelar o pedido de limpeza.'), 'local');
+  assert.equal(messages[0].action, undefined);
+  assert.equal(messages[1].action, towelsAction);
+  assert.equal(fetchCalls, 0);
+  assert.equal(classifierCalls, 0);
+  assert.equal(mayaCalls, 0);
+
+  for (const [message, requestType] of [
+    ['Quero cancelar o pedido de limpeza.', 'room_cleaning'],
+    ['Cancelar pedido de limpeza.', 'room_cleaning'],
+    ['Cancelar o pedido de toalhas.', 'towels'],
+  ] as const) {
+    assert.equal(
+      detectHousekeepingPreparationCancellationTarget(message, 'pt')?.requestType,
+      requestType
+    );
+    assert.equal(
+      findPreparedRequestCancellationTarget(initialMessages, message, 'pt')
+        ?.action.request.requestType,
+      requestType
+    );
+  }
+});
+
+test('one draft generation consumes at most one local card across consecutive events', async () => {
+  const towelsAction = {
+    type: 'confirm_request',
+    request: { kind: 'housekeeping', requestType: 'towels', quantity: 2 },
+    label: 'Confirmar solicitação', cancelLabel: 'Cancelar',
+  } as const;
+  const cleaningAction = {
+    type: 'confirm_request',
+    request: { kind: 'housekeeping', requestType: 'room_cleaning', quantity: null },
+    label: 'Confirmar solicitação', cancelLabel: 'Cancelar',
+  } as const;
+  let messages: AssistantChatMessage[] = [
+    { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', role: 'assistant', text: 'Toalhas?', createdAt: NOW.toISOString(), language: 'pt', action: towelsAction },
+    { id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', role: 'assistant', text: 'Limpeza?', createdAt: NOW.toISOString(), language: 'pt', action: cleaningAction },
+  ];
+  const guard = { consumedDraftGeneration: null as number | null };
+  const localUserMessages: string[] = [];
+  const localAssistantMessages: string[] = [];
+
+  function consumeDraft(draft: string, generation: number) {
+    const target = findPreparedRequestCancellationTarget(messages, draft, 'pt');
+    if (!target || !consumeLocalAssistantInteraction(guard, generation)) return false;
+    const next = removePreparedRequestAction(messages, target);
+    assert.ok(next);
+    messages = next;
+    localUserMessages.push(draft);
+    localAssistantMessages.push('descartada localmente');
+    return true;
+  }
+
+  assert.equal(consumeDraft('Não quero mais.', 1), true);
+  assert.equal(messages[1].action, undefined);
+  assert.equal(messages[0].action, towelsAction);
+  await Promise.resolve();
+  assert.equal(consumeDraft('Não quero mais.', 1), false);
+  assert.equal(messages[0].action, towelsAction);
+  assert.deepEqual(localUserMessages, ['Não quero mais.']);
+  assert.deepEqual(localAssistantMessages, ['descartada localmente']);
+
+  assert.equal(consumeDraft('Cancelar pedido de toalhas.', 2), true);
+  assert.equal(messages[0].action, undefined);
+  assert.equal(findPreparedRequestCancellationTarget(messages, 'Onde fica o café?', 'pt'), null);
+
+  resetLocalAssistantInteraction(guard);
+  assert.equal(guard.consumedDraftGeneration, null);
+  assert.equal(consumeLocalAssistantInteraction(guard, 0), true);
+});
+
+test('directed card selection works in PT, EN and ES and rejects incompatible targets', () => {
+  const towelsAction = {
+    type: 'confirm_request',
+    request: { kind: 'housekeeping', requestType: 'towels', quantity: 2 },
+    label: 'Confirm', cancelLabel: 'Cancel',
+  } as const;
+  const cleaningAction = {
+    type: 'confirm_request',
+    request: { kind: 'housekeeping', requestType: 'room_cleaning', quantity: null },
+    label: 'Confirm', cancelLabel: 'Cancel',
+  } as const;
+  const towelsFirst = [
+    { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', role: 'assistant', text: 'Towels?', createdAt: NOW.toISOString(), action: towelsAction },
+    { id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', role: 'assistant', text: 'Cleaning?', createdAt: NOW.toISOString(), action: cleaningAction },
+  ] as const;
+  const cleaningFirst = [...towelsFirst].reverse();
+
+  for (const [language, towelsMessage, cleaningMessage] of [
+    ['pt', 'Cancelar pedido de toalhas.', 'Quero cancelar o pedido de limpeza.'],
+    ['en', 'Cancel the towel request.', 'Cancel the room cleaning request.'],
+    ['es', 'Cancelar el pedido de toallas.', 'Quiero cancelar la solicitud de limpieza.'],
+  ] as const) {
+    assert.equal(
+      findPreparedRequestCancellationTarget(towelsFirst, towelsMessage, language)?.action,
+      towelsAction
+    );
+    assert.equal(
+      findPreparedRequestCancellationTarget(cleaningFirst, cleaningMessage, language)?.action,
+      cleaningAction
+    );
+    assert.equal(
+      findPreparedRequestCancellationTarget([towelsFirst[1]], towelsMessage, language),
+      null
+    );
+    assert.equal(findPreparedRequestCancellationTarget([], towelsMessage, language), null);
+  }
+});
+
 test('validates the optional clarification payload as a closed browser contract', () => {
   const base = {
     hotelSlug: 'hotel-a', language: 'pt', contextId: CONTEXT_ID, message: 'duas',
@@ -241,9 +477,45 @@ test('confirm and cancel are local-only POC transitions and never claim a real s
   assert.match(localHandler, /status: 'prepared' \| 'cancelled'/);
   assert.match(localHandler, /replaceMessages/);
   assert.doesNotMatch(localHandler, /fetch\(|axios|XMLHttpRequest|WebSocket|sendBeacon/);
-  assert.match(componentSource, /Solicitação preparada\. O envio à equipe será conectado na próxima etapa\./);
-  assert.match(componentSource, /Solicitação cancelada\./);
+  assert.match(componentSource, /Solicitação preparada localmente\. Nada foi enviado ao hotel\./);
+  assert.match(componentSource, /A solicitação em preparação foi descartada\. Nada foi enviado ao hotel\./);
   assert.doesNotMatch(componentSource, /Solicitação enviada|pedido foi enviado|equipe está a caminho/i);
   assert.doesNotMatch(requestSource, /function executeHousekeepingRequest|const executeHousekeepingRequest/);
   assert.match(requestSource, /confirm_request -> POST \/api\/assistant\/actions\/housekeeping -> n8n/);
+});
+
+test('typed cancellation is consumed before fetch and clears only its resolved card action', () => {
+  const sendStart = componentSource.indexOf('async function sendMessage');
+  const sendEnd = componentSource.indexOf('function completePreparedRequest', sendStart);
+  const sendHandler = componentSource.slice(sendStart, sendEnd);
+  assert.ok(sendHandler.indexOf('findPreparedRequestCancellationTarget') < sendHandler.indexOf('fetch('));
+  assert.match(sendHandler, /if \(preparedCancellation\)[\s\S]*completePreparedRequest\([\s\S]*'cancelled'[\s\S]*return;/);
+  assert.match(sendHandler, /setPendingRequest\(null\)/);
+  const completion = componentSource.slice(sendEnd, componentSource.indexOf('function handleKeyDown', sendEnd));
+  assert.match(completion, /removePreparedRequestAction/);
+  assert.match(completion, /status === 'prepared' \? copy\.prepared : copy\.cancelled/);
+});
+
+test('error fallback suppresses reception only for the refused interaction', () => {
+  const normal = 'normal fallback with reception';
+  const declined = 'request-scoped fallback';
+  assert.equal(resolveAssistantErrorMessage(
+    'Qual é o horário do café?',
+    normal,
+    declined
+  ), normal);
+  assert.equal(resolveAssistantErrorMessage(
+    'Não quero falar com a recepção, só preciso saber o horário do café.',
+    normal,
+    declined
+  ), declined);
+  assert.equal(resolveAssistantErrorMessage(
+    'Agora quero falar com a recepção.',
+    normal,
+    declined
+  ), normal);
+  assert.match(componentSource, /error: 'Não consegui responder agora\.[^']*fale com a recepção\.'/);
+  assert.match(componentSource, /error: 'I couldn’t answer right now\.[^']*contact the front desk\.'/);
+  assert.match(componentSource, /error: 'No pude responder ahora\.[^']*habla con recepción\.'/);
+  assert.match(componentSource, /resolveAssistantErrorMessage\([\s\S]*copy\.error,[\s\S]*copy\.contactDeclinedError/);
 });

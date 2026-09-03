@@ -1,4 +1,8 @@
-import { resolveHousekeepingQuantityClarification } from '../assistant-tools/request-housekeeping.ts';
+import {
+  detectContactDecline,
+  detectHousekeepingCancellationWithoutPending,
+  resolveHousekeepingQuantityClarification,
+} from '../assistant-tools/index.ts';
 import { isOpenTourismQuestion } from '../assistant-tourism.ts';
 import { normalizeAssistantMessage } from './normalize.ts';
 import { detectStrongAssistantIntent } from './strong-intents.ts';
@@ -10,6 +14,68 @@ function routeAssistantMessageInternal(
   skipPendingClarification: boolean
 ): AssistantRouteDecision {
   const message = normalizeAssistantMessage(input.message);
+  const contactDecline = detectContactDecline(message.original);
+  if (contactDecline) {
+    if (!contactDecline.remainingMessage) {
+      return {
+        mode: 'deterministic',
+        assistantRoute: 'deterministic',
+        outcome: 'contact_declined',
+        detectedLanguage: contactDecline.detectedLanguage,
+        message,
+      };
+    }
+    const continued = routeAssistantMessageInternal({
+      ...input,
+      message: contactDecline.remainingMessage,
+    }, skipPendingClarification);
+    if (
+      continued.mode === 'capability' &&
+      (continued.capability === 'reception_contact' || continued.capability === 'human_handoff')
+    ) {
+      return {
+        mode: 'deterministic',
+        assistantRoute: 'deterministic',
+        outcome: 'contact_declined',
+        detectedLanguage: contactDecline.detectedLanguage,
+        message,
+      };
+    }
+    return {
+      ...continued,
+      contactDeclinedLanguage: contactDecline.detectedLanguage,
+    };
+  }
+
+  if (input.pendingRequest && !skipPendingClarification) {
+    const resolution = resolveHousekeepingQuantityClarification(
+      message.original,
+      input.pendingRequest
+    );
+    if (resolution.kind === 'cancelled') {
+      return {
+        mode: 'deterministic',
+        assistantRoute: 'deterministic',
+        outcome: 'clarification_cancelled',
+        detectedLanguage: resolution.detectedLanguage,
+        message,
+      };
+    }
+  }
+
+  const cancellationLanguage = detectHousekeepingCancellationWithoutPending(message.original);
+  if (cancellationLanguage) {
+    return {
+      mode: 'deterministic',
+      assistantRoute: 'deterministic',
+      outcome: input.pendingRequest
+        ? 'clarification_cancelled'
+        : 'housekeeping_cancellation_unavailable',
+      detectedLanguage: cancellationLanguage,
+      message,
+    };
+  }
+
   const strongIntent = detectStrongAssistantIntent(message.original);
 
   if (strongIntent) {
@@ -35,7 +101,6 @@ function routeAssistantMessageInternal(
         message,
       };
     }
-
     if (resolution.kind === 'escape') {
       return routeAssistantMessageInternal(
         { message: message.original, uiLanguage: input.uiLanguage },

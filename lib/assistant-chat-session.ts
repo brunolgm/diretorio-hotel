@@ -6,6 +6,8 @@ import {
   type AssistantAction,
   type HousekeepingPendingRequest,
 } from './assistant-tools/types.ts';
+import { detectContactDecline } from './assistant-tools/reception-contact.ts';
+import { detectHousekeepingPreparationCancellationTarget } from './assistant-tools/request-housekeeping.ts';
 
 export const ASSISTANT_SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 export const ASSISTANT_SESSION_STORAGE_PREFIX = 'libguest:assistant:';
@@ -46,6 +48,90 @@ export interface AssistantChatRequestPayload {
   contextId: string;
   message: string;
   pendingRequest?: HousekeepingPendingRequest;
+}
+
+export interface PreparedRequestCancellationTarget {
+  messageId: string;
+  action: Extract<AssistantAction, { type: 'confirm_request' }>;
+  language: SupportedPublicLanguage;
+}
+
+export interface LocalAssistantInteractionGuard {
+  consumedDraftGeneration: number | null;
+}
+
+export function consumeLocalAssistantInteraction(
+  guard: LocalAssistantInteractionGuard,
+  draftGeneration: number
+) {
+  if (guard.consumedDraftGeneration === draftGeneration) return false;
+  guard.consumedDraftGeneration = draftGeneration;
+  return true;
+}
+
+export function resetLocalAssistantInteraction(guard: LocalAssistantInteractionGuard) {
+  guard.consumedDraftGeneration = null;
+}
+
+export function isContactDeclinedInteraction(message: string) {
+  return detectContactDecline(message) !== null;
+}
+
+export function resolveAssistantErrorMessage(
+  message: string,
+  normalFallback: string,
+  contactDeclinedFallback: string
+) {
+  return isContactDeclinedInteraction(message)
+    ? contactDeclinedFallback
+    : normalFallback;
+}
+
+export function findPreparedRequestCancellationTarget(
+  messages: readonly AssistantChatMessage[],
+  message: string,
+  fallbackLanguage: SupportedPublicLanguage
+): PreparedRequestCancellationTarget | null {
+  const cancellation = detectHousekeepingPreparationCancellationTarget(
+    message,
+    fallbackLanguage
+  );
+  if (!cancellation) return null;
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const candidate = messages[index];
+    if (candidate.role !== 'assistant' || candidate.action?.type !== 'confirm_request') continue;
+    if (
+      cancellation.requestType &&
+      candidate.action.request.requestType !== cancellation.requestType
+    ) {
+      continue;
+    }
+    return {
+      messageId: candidate.id,
+      action: candidate.action,
+      language: cancellation.detectedLanguage ?? candidate.language ?? fallbackLanguage,
+    };
+  }
+  return null;
+}
+
+export function removePreparedRequestAction(
+  messages: readonly AssistantChatMessage[],
+  target: PreparedRequestCancellationTarget
+) {
+  let removed = false;
+  const nextMessages = messages.map((message) => {
+    if (message.id !== target.messageId || message.action !== target.action) return message;
+    removed = true;
+    return {
+      id: message.id,
+      role: message.role,
+      text: message.text,
+      createdAt: message.createdAt,
+      ...(message.language ? { language: message.language } : {}),
+    };
+  });
+  return removed ? nextMessages : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

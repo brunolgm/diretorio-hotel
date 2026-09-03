@@ -12,9 +12,67 @@ import type {
 } from './types.ts';
 
 const CLARIFICATION_CANCEL_INTENTS: Record<SupportedPublicLanguage, ReadonlySet<string>> = {
-  pt: new Set(['cancelar', 'cancela', 'deixa pra la', 'deixe pra la']),
-  en: new Set(['cancel', 'never mind', 'nevermind']),
-  es: new Set(['cancelar', 'cancela', 'dejalo', 'dejalo estar']),
+  pt: new Set([
+    'cancelar', 'cancela', 'deixa pra la', 'deixe pra la', 'nao quero mais',
+    'nao preciso mais',
+  ]),
+  en: new Set([
+    'cancel', 'never mind', 'nevermind', 'i don t want it anymore', 'i dont want it anymore',
+    'i no longer want it',
+  ]),
+  es: new Set([
+    'cancelar', 'cancela', 'dejalo', 'dejalo estar', 'no quiero mas',
+    'ya no lo quiero',
+  ]),
+};
+
+const HOUSEKEEPING_CANCELLATION_INTENTS: Record<
+  SupportedPublicLanguage,
+  ReadonlyMap<string, 'towels' | 'room_cleaning'>
+> = {
+  pt: new Map([
+    ['quero cancelar o pedido de toalhas', 'towels'],
+    ['quero cancelar a solicitacao de toalhas', 'towels'],
+    ['cancelar o pedido de toalhas', 'towels'],
+    ['cancelar pedido de toalhas', 'towels'],
+    ['cancelar a solicitacao de toalhas', 'towels'],
+    ['quero cancelar o pedido de limpeza', 'room_cleaning'],
+    ['quero cancelar a solicitacao de limpeza', 'room_cleaning'],
+    ['cancelar o pedido de limpeza', 'room_cleaning'],
+    ['cancelar pedido de limpeza', 'room_cleaning'],
+  ]),
+  en: new Map([
+    ['i want to cancel the towel request', 'towels'],
+    ['cancel the towel request', 'towels'],
+    ['cancel my towel request', 'towels'],
+    ['i want to cancel the room cleaning request', 'room_cleaning'],
+    ['cancel the room cleaning request', 'room_cleaning'],
+  ]),
+  es: new Map([
+    ['quiero cancelar el pedido de toallas', 'towels'],
+    ['quiero cancelar la solicitud de toallas', 'towels'],
+    ['cancelar el pedido de toallas', 'towels'],
+    ['cancelar la solicitud de toallas', 'towels'],
+    ['quiero cancelar la solicitud de limpieza', 'room_cleaning'],
+  ]),
+};
+
+export const HOUSEKEEPING_PREPARATION_DISCARDED_COPY: Record<
+  SupportedPublicLanguage,
+  string
+> = {
+  pt: 'A solicitação em preparação foi descartada. Nada foi enviado ao hotel.',
+  en: 'The request being prepared was discarded. Nothing was sent to the hotel.',
+  es: 'La solicitud en preparación fue descartada. No se envió nada al hotel.',
+};
+
+export const HOUSEKEEPING_CANCELLATION_UNAVAILABLE_COPY: Record<
+  SupportedPublicLanguage,
+  string
+> = {
+  pt: 'Não encontrei uma solicitação pendente nesta conversa. O LibGuest ainda não consegue consultar ou cancelar solicitações que já tenham sido enviadas ao hotel.',
+  en: 'I could not find a pending request in this conversation. LibGuest cannot yet check or cancel requests that may already have been sent to the hotel.',
+  es: 'No encontré una solicitud pendiente en esta conversación. LibGuest todavía no puede consultar ni cancelar solicitudes que ya se hayan enviado al hotel.',
 };
 
 const QUANTITY_TOKENS: Record<SupportedPublicLanguage, Readonly<Record<string, number>>> = {
@@ -178,6 +236,56 @@ function detectCatalogLanguage(
   return matches.length === 1 ? matches[0] : fallback;
 }
 
+function detectCancellationLanguage(
+  message: string,
+  catalog: Record<SupportedPublicLanguage, ReadonlySet<string>>,
+  fallback: SupportedPublicLanguage | null
+) {
+  const normalized = normalizeClosedCatalogText(message);
+  const matches = (Object.keys(catalog) as SupportedPublicLanguage[])
+    .filter((language) => catalog[language].has(normalized));
+  if (!matches.length) return null;
+  return matches.length === 1 ? matches[0] : fallback ?? matches[0];
+}
+
+export function detectHousekeepingPreparationCancellation(
+  message: string,
+  fallback: SupportedPublicLanguage
+) {
+  return detectHousekeepingPreparationCancellationTarget(message, fallback)?.detectedLanguage ?? null;
+}
+
+export interface HousekeepingPreparationCancellationTarget {
+  detectedLanguage: SupportedPublicLanguage;
+  requestType: 'towels' | 'room_cleaning' | null;
+}
+
+export function detectHousekeepingPreparationCancellationTarget(
+  message: string,
+  fallback: SupportedPublicLanguage
+): HousekeepingPreparationCancellationTarget | null {
+  const genericLanguage = detectCancellationLanguage(
+    message,
+    CLARIFICATION_CANCEL_INTENTS,
+    fallback
+  );
+  if (genericLanguage) return { detectedLanguage: genericLanguage, requestType: null };
+
+  const normalized = normalizeClosedCatalogText(message);
+  const matches: HousekeepingPreparationCancellationTarget[] = [];
+  for (const language of Object.keys(HOUSEKEEPING_CANCELLATION_INTENTS) as SupportedPublicLanguage[]) {
+    const requestType = HOUSEKEEPING_CANCELLATION_INTENTS[language].get(normalized);
+    if (requestType) matches.push({ detectedLanguage: language, requestType });
+  }
+  if (!matches.length) return null;
+  return matches.length === 1 ? matches[0] : { ...matches[0], detectedLanguage: fallback };
+}
+
+export function detectHousekeepingCancellationWithoutPending(message: string) {
+  const cancellation = detectHousekeepingPreparationCancellationTarget(message, 'pt');
+  return cancellation?.requestType ? cancellation.detectedLanguage : null;
+}
+
 function matchClarificationQuantity(
   normalized: string,
   fallback: SupportedPublicLanguage
@@ -259,17 +367,13 @@ export function resolveHousekeepingQuantityClarification(
   message: string,
   pendingRequest: HousekeepingPendingRequest
 ): ClarificationResolution {
-  const normalized = normalizeClosedCatalogText(message);
   const fallback = pendingRequest.language;
-  const cancellationLanguage = detectCatalogLanguage(
-    normalized,
-    CLARIFICATION_CANCEL_INTENTS,
-    fallback
-  );
-  if ((Object.values(CLARIFICATION_CANCEL_INTENTS) as ReadonlySet<string>[])
-    .some((catalog) => catalog.has(normalized))) {
+  const cancellationLanguage = detectHousekeepingPreparationCancellation(message, fallback);
+  if (cancellationLanguage) {
     return { kind: 'cancelled', detectedLanguage: cancellationLanguage };
   }
+
+  const normalized = normalizeClosedCatalogText(message);
 
   const valid = matchClarificationQuantity(normalized, fallback);
   if (valid) {
