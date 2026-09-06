@@ -30,7 +30,7 @@ test('extends every database module allowlist without provisioning the new entit
 test('keeps Platform mutation security, availability and auditing contracts intact', () => {
   const migration = read(...migrationPath);
   const updateFunction = migration.match(
-    /create or replace function public\.update_platform_hotel_module[\s\S]*?end;\n\$\$;/i
+    /create or replace function public\.update_platform_hotel_module[\s\S]*?end;\r?\n\$\$;/i
   )?.[0] || '';
   assert.match(updateFunction, /active_platform_admin_required/);
   assert.match(updateFunction, /platform_module_invalid/);
