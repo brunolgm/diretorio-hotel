@@ -2,7 +2,7 @@ export function isJsonContentType(value: string | null) {
   return value?.split(';', 1)[0]?.trim().toLowerCase() === 'application/json';
 }
 
-export async function readUtf8BodyWithLimit(request: Request, maxBytes: number) {
+export async function readUtf8BodyWithLimit(request: Pick<Request, 'headers' | 'body'>, maxBytes: number) {
   const declaredLength = Number(request.headers.get('content-length'));
   if (Number.isFinite(declaredLength) && declaredLength > maxBytes) {
     return { ok: false as const, reason: 'too_large' as const };
