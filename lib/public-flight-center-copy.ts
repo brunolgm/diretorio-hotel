@@ -1,5 +1,23 @@
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
+export function getFlightPlanningCopy(language: SupportedPublicLanguage) {
+  if (language === 'en') return {
+    title: 'Recommended hotel departure', scheduled: 'Scheduled flight', lead: 'Airport lead time', transfer: 'Estimated travel time', margin: 'Safety margin',
+    local: 'Departure airport local time', airlabs: 'Based on the scheduled flight time · AirLabs.', manual: 'Based on the time you provided; not verified by the airline.',
+    estimate: 'Estimate based on hotel guidance. Real-time traffic is not included.', official: 'Follow the airline and airport guidance, including when the flight is delayed.',
+  };
+  if (language === 'es') return {
+    title: 'Salida recomendada del hotel', scheduled: 'Vuelo programado', lead: 'Anticipación en el aeropuerto', transfer: 'Traslado estimado', margin: 'Margen de seguridad',
+    local: 'Hora local del aeropuerto de salida', airlabs: 'Basada en el horario programado del vuelo · AirLabs.', manual: 'Basada en el horario informado por usted; no verificado por la aerolínea.',
+    estimate: 'Estimación basada en las orientaciones del hotel. No incluye tráfico en tiempo real.', official: 'Siga las indicaciones de la aerolínea y del aeropuerto, incluso si el vuelo se retrasa.',
+  };
+  return {
+    title: 'Saída recomendada do hotel', scheduled: 'Voo programado', lead: 'Antecedência no aeroporto', transfer: 'Deslocamento estimado', margin: 'Margem de segurança',
+    local: 'Horário local do aeroporto de partida', airlabs: 'Baseada no horário programado do voo · AirLabs.', manual: 'Baseada no horário informado por você; não verificado pela companhia.',
+    estimate: 'Estimativa baseada nas orientações do hotel. Não considera trânsito em tempo real.', official: 'Siga as orientações da companhia e do aeroporto, inclusive em caso de atraso.',
+  };
+}
+
 function getFlightDataCopy(language: SupportedPublicLanguage) {
   if (language === 'en') return {
     title: 'Flight data', refresh: 'Refresh status', loading: 'Checking flight…', waiting: 'Please wait before refreshing again.',

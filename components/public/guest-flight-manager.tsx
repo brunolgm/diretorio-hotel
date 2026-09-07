@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useRef, useState, useSyncExternalStore, type FormEvent } from 'react';
+import { useCallback, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react';
+import type { FlightPlanning, FlightPlanningAirport } from '@/lib/guest-flight-planning';
 import { AlertTriangle, CalendarPlus, ExternalLink, Info, MapPinned, Pencil, Plane, Trash2 } from 'lucide-react';
 import {
   buildAirlineOfficialFlightUrl,
@@ -57,11 +58,12 @@ function formatFlightDate(date: string, language: SupportedPublicLanguage) {
   }).format(new Date(Date.UTC(year, month - 1, day, 12)));
 }
 
-export function GuestFlightManager({ hotelId, hotelSlug, language, airportOptions }: {
+export function GuestFlightManager({ hotelId, hotelSlug, language, airportOptions, planning, planningFallback }: {
   hotelId: string;
   hotelSlug: string;
   language: SupportedPublicLanguage;
-  airportOptions: Array<{ iataCode: string; name: string; city: string; officialUrl: string | null; timezone?: string | null }>;
+  airportOptions: Array<FlightPlanningAirport & { name: string; city: string; officialUrl: string | null }>;
+  planning: FlightPlanning; planningFallback: ReactNode;
 }) {
   const copy = getPublicFlightCenterCopy(language);
   const subscribe = useCallback((onStoreChange: () => void) => subscribeToGuestFlight(hotelId, onStoreChange), [hotelId]);
@@ -152,6 +154,7 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
           </div>
         </div>
         <GuestFlightStatus key={`${snapshot}:${departureAirport?.timezone ?? ''}`} flight={flight} hotelSlug={hotelSlug} timezone={departureAirport?.timezone ?? null} language={language}
+          planning={planning} airport={departureAirport} planningFallback={planningFallback}
           manual={<div className="mt-5 rounded-[18px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface-muted)] p-4">
             <p className="text-xs font-semibold uppercase tracking-[.12em] text-[color:var(--hotel-text-muted)]">{copy.localTimeLabel}</p>
             <p className="mt-1 text-lg font-semibold text-[color:var(--hotel-primary)]">{formatFlightDate(flight.departureDate, language)} · {flight.scheduledDepartureTime}</p>
@@ -237,7 +240,7 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
   ];
 
   return (
-    <article className="hotel-public-content-card relative overflow-hidden rounded-[26px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 shadow-[var(--hotel-card-shadow)] sm:p-6 md:p-8" data-guest-flight-form>
+    <><article className="hotel-public-content-card relative overflow-hidden rounded-[26px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 shadow-[var(--hotel-card-shadow)] sm:p-6 md:p-8" data-guest-flight-form>
       <div className="flex h-14 w-14 items-center justify-center rounded-[19px] bg-[var(--hotel-accent-soft)] text-[color:var(--hotel-accent)]"><Plane className="h-7 w-7" aria-hidden="true" /></div>
       <h2 className="mt-5 text-2xl font-semibold text-[color:var(--hotel-primary)]">{copy.myFlightTitle}</h2>
       <p className="mt-2 max-w-xl text-sm leading-6 text-[color:var(--hotel-text-muted)]">{copy.myFlightDescription}</p>
@@ -273,6 +276,6 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
           {flight ? <button type="button" onClick={() => { setDraft(draftFromFlight(flight)); setErrors({}); setEditingOverride(false); }} className="inline-flex min-h-11 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] px-5 text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2">{copy.cancelEdit}</button> : null}
         </div>
       </form>
-    </article>
+    </article>{planningFallback}</>
   );
 }

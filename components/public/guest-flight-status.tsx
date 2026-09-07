@@ -6,10 +6,13 @@ import { createGuestStatusController, guestStatusQuery, showManualFlightNotice }
 import type { SavedGuestFlight } from '@/lib/guest-flight-storage';
 import { getPublicFlightCenterCopy } from '@/lib/public-flight-center-copy';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
+import { GuestFlightPlanning } from '@/components/public/guest-flight-planning';
+import type { FlightPlanning, FlightPlanningAirport } from '@/lib/guest-flight-planning';
 
-export function GuestFlightStatus({ flight, hotelSlug, timezone, language, manual, compactManual, notice }: {
+export function GuestFlightStatus({ flight, hotelSlug, timezone, language, manual, compactManual, notice, planning, airport, planningFallback }: {
   flight: SavedGuestFlight; hotelSlug: string; timezone: string | null; language: SupportedPublicLanguage;
   manual: ReactNode; compactManual: ReactNode; notice: ReactNode;
+  planning: FlightPlanning; airport: FlightPlanningAirport | null; planningFallback: ReactNode;
 }) {
   const copy = getPublicFlightCenterCopy(language).flightData;
   const [controller] = useState(() => createGuestStatusController(guestStatusQuery(flight, hotelSlug, timezone)));
@@ -54,6 +57,7 @@ export function GuestFlightStatus({ flight, hotelSlug, timezone, language, manua
     </section>
     {data ? compactManual : null}
     {showManualFlightNotice(data) ? notice : null}
+    <GuestFlightPlanning hotelSlug={hotelSlug} flight={flight} airport={airport} planning={planning} data={data} language={language} fallback={planningFallback} />
     </>
   );
 }

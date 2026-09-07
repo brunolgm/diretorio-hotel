@@ -36,6 +36,7 @@ export function guestStatusQuery(flight: SavedGuestFlight, hotelSlug: string, zo
 }
 
 export type FlightDisplay = {
+  scheduledUtc?: string | null; planningBlocked?: boolean;
   status: 'inFlight' | 'landed' | 'cancelled' | 'scheduled' | 'active' | 'unknown';
   scheduled: string; updated: string | null; updatedKind: 'actual' | 'estimated' | null;
   terminal: string | null; gate: string | null; live: boolean; updatedAt: string;
@@ -59,7 +60,8 @@ export function parseFlightDisplay(payload: unknown, query: FlightQuery): Flight
   const live = compatibleLive && !final;
   const status: FlightDisplay['status'] = conflict ? 'unknown' : live && d.liveStatus === 'en-route' ? 'inFlight'
     : ['landed','cancelled','scheduled','active'].includes(String(d.scheduleStatus)) ? d.scheduleStatus as FlightDisplay['status'] : 'unknown';
-  return { status, scheduled, updated: actual ?? estimated, updatedKind: actual ? 'actual' : estimated ? 'estimated' : null,
+  const rawUtc = object(d.scheduledDeparture)?.utc;
+  return { status, scheduled, scheduledUtc: instant(rawUtc), planningBlocked: conflict || (rawUtc != null && !instant(rawUtc)), updated: actual ?? estimated, updatedKind: actual ? 'actual' : estimated ? 'estimated' : null,
     terminal: location(d.departureTerminal), gate: location(d.departureGate), live, updatedAt: live ? liveTime! : instant(updated?.schedule) ?? fetched };
 }
 
