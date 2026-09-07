@@ -1,5 +1,41 @@
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
+function getFlightDataCopy(language: SupportedPublicLanguage) {
+  if (language === 'en') return {
+    title: 'Flight data', refresh: 'Refresh status', loading: 'Checking flight…', waiting: 'Please wait before refreshing again.',
+    scheduled: 'Scheduled', actual: 'Actual departure', estimated: 'Estimated departure', terminal: 'Terminal', gate: 'Gate',
+    source: 'Flight data · AirLabs', live: 'Live update', updated: 'Last update', local: 'Departure airport local time',
+    unavailable: 'We could not update the flight. Your saved details and travel actions remain available.',
+    outside: 'Flight updates are not available for this date yet. Check again closer to departure.',
+    unverifiable: 'We cannot safely verify this flight’s time or identifier. Please use the official channel.',
+    limited: 'Updates are temporarily limited. Please try again later or use the official channel.',
+    notFound: 'No matching flight was found in this update. Confirm the details through the official channel.',
+    statuses: { inFlight: 'In flight', landed: 'Landed', cancelled: 'Cancelled', scheduled: 'Scheduled', active: 'Update available', unknown: 'Status unconfirmed' },
+  };
+  if (language === 'es') return {
+    title: 'Datos del vuelo', refresh: 'Actualizar estado', loading: 'Consultando el vuelo…', waiting: 'Espere antes de actualizar de nuevo.',
+    scheduled: 'Programado', actual: 'Salida real', estimated: 'Salida estimada', terminal: 'Terminal', gate: 'Puerta',
+    source: 'Datos del vuelo · AirLabs', live: 'Actualización en vivo', updated: 'Última actualización', local: 'Hora local del aeropuerto de salida',
+    unavailable: 'No pudimos actualizar el vuelo. Sus datos guardados y las acciones del viaje siguen disponibles.',
+    outside: 'Las actualizaciones aún no están disponibles para esta fecha. Consulte más cerca de la salida.',
+    unverifiable: 'No podemos verificar con seguridad el horario o el identificador del vuelo. Use el canal oficial.',
+    limited: 'Las actualizaciones están limitadas temporalmente. Inténtelo más tarde o use el canal oficial.',
+    notFound: 'No se encontró un vuelo coincidente en esta consulta. Confirme los datos en el canal oficial.',
+    statuses: { inFlight: 'En vuelo', landed: 'Aterrizado', cancelled: 'Cancelado', scheduled: 'Programado', active: 'Actualización disponible', unknown: 'Estado no confirmado' },
+  };
+  return {
+    title: 'Dados do voo', refresh: 'Atualizar status', loading: 'Consultando voo…', waiting: 'Aguarde antes de atualizar novamente.',
+    scheduled: 'Programado', actual: 'Partida realizada', estimated: 'Partida estimada', terminal: 'Terminal', gate: 'Portão',
+    source: 'Dados do voo · AirLabs', live: 'Atualização ao vivo', updated: 'Última atualização', local: 'Horário local do aeroporto de partida',
+    unavailable: 'Não foi possível atualizar o voo. Seus dados salvos e as ações da viagem continuam disponíveis.',
+    outside: 'As atualizações ainda não estão disponíveis para esta data. Consulte novamente mais perto da partida.',
+    unverifiable: 'Não foi possível verificar com segurança o horário ou o identificador do voo. Consulte o canal oficial.',
+    limited: 'As atualizações estão temporariamente limitadas. Tente mais tarde ou consulte o canal oficial.',
+    notFound: 'Nenhum voo correspondente foi encontrado nesta consulta. Confirme os dados no canal oficial.',
+    statuses: { inFlight: 'Em voo', landed: 'Pousado', cancelled: 'Cancelado', scheduled: 'Programado', active: 'Atualização disponível', unknown: 'Status não confirmado' },
+  };
+}
+
 export const PUBLIC_FLIGHT_CENTER_TABS = ['meu-voo', 'partidas', 'chegadas'] as const;
 export type PublicFlightCenterTab = (typeof PUBLIC_FLIGHT_CENTER_TABS)[number];
 
@@ -11,6 +47,7 @@ export function normalizePublicFlightCenterTab(value: string | null | undefined)
 
 export function getPublicFlightCenterCopy(language: SupportedPublicLanguage) {
   if (language === 'en') return {
+    flightData: getFlightDataCopy('en'),
     back: 'Back to home', title: 'Flight Center', description: 'Official airport links and helpful guidance to plan your departure.',
     tabs: { 'meu-voo': 'My flight', partidas: 'Departures', chegadas: 'Arrivals' },
     myFlightTitle: 'My flight', myFlightDescription: 'Enter your flight to organize your departure from the hotel.', addFlight: 'Add flight',
@@ -30,6 +67,7 @@ export function getPublicFlightCenterCopy(language: SupportedPublicLanguage) {
     homeCardTitle: 'Track your flight', homeCardDescription: 'Check your flight and organize your departure from the hotel.', homeCardCta: 'Open Flight Center',
   };
   if (language === 'es') return {
+    flightData: getFlightDataCopy('es'),
     back: 'Volver al inicio', title: 'Central de Vuelos', description: 'Enlaces oficiales de aeropuertos y orientaciones para planificar su salida.',
     tabs: { 'meu-voo': 'Mi vuelo', partidas: 'Salidas', chegadas: 'Llegadas' },
     myFlightTitle: 'Mi vuelo', myFlightDescription: 'Informe su vuelo para organizar su salida del hotel.', addFlight: 'Agregar vuelo',
@@ -49,6 +87,7 @@ export function getPublicFlightCenterCopy(language: SupportedPublicLanguage) {
     homeCardTitle: 'Siga su vuelo', homeCardDescription: 'Consulte su vuelo y organice su salida del hotel.', homeCardCta: 'Abrir Central de Vuelos',
   };
   return {
+    flightData: getFlightDataCopy('pt'),
     back: 'Voltar ao início', title: 'Central de Voos', description: 'Canais oficiais dos aeroportos e orientações úteis para planejar sua saída.',
     tabs: { 'meu-voo': 'Meu voo', partidas: 'Partidas', chegadas: 'Chegadas' },
     myFlightTitle: 'Meu voo', myFlightDescription: 'Informe seu voo para organizar sua saída do hotel.', addFlight: 'Adicionar voo',

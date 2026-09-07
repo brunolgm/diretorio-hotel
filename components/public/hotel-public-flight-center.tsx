@@ -166,6 +166,7 @@ export function HotelPublicFlightCenter({
   const listTitle = tab === 'chegadas' ? copy.arrivalsTitle : copy.departuresTitle;
   const listDescription = tab === 'chegadas' ? copy.arrivalsDescription : copy.departuresDescription;
   const flightAirportOptions = airports.map((airport) => ({
+    timezone: airport.timezone,
     iataCode: airport.iataCode,
     name: airport.name,
     city: airport.city,

@@ -22,6 +22,7 @@ import {
   type SavedGuestFlight,
 } from '@/lib/guest-flight-storage';
 import { getPublicFlightCenterCopy } from '@/lib/public-flight-center-copy';
+import { GuestFlightStatus } from '@/components/public/guest-flight-status';
 import { sendPublicAnalyticsEvent } from '@/lib/public-analytics-client';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
@@ -60,7 +61,7 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
   hotelId: string;
   hotelSlug: string;
   language: SupportedPublicLanguage;
-  airportOptions: Array<{ iataCode: string; name: string; city: string; officialUrl: string | null }>;
+  airportOptions: Array<{ iataCode: string; name: string; city: string; officialUrl: string | null; timezone?: string | null }>;
 }) {
   const copy = getPublicFlightCenterCopy(language);
   const subscribe = useCallback((onStoreChange: () => void) => subscribeToGuestFlight(hotelId, onStoreChange), [hotelId]);
@@ -150,20 +151,26 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
             <p className="mt-1 text-base font-semibold text-[color:var(--hotel-text)]">{flight.departureAirport} → {flight.arrivalAirport}</p>
           </div>
         </div>
-        <div className="mt-5 rounded-[18px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface-muted)] p-4">
-          <p className="text-xs font-semibold uppercase tracking-[.12em] text-[color:var(--hotel-text-muted)]">{copy.localTimeLabel}</p>
-          <p className="mt-1 text-lg font-semibold text-[color:var(--hotel-primary)]">{formatFlightDate(flight.departureDate, language)} · {flight.scheduledDepartureTime}</p>
-          <dl className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-            <div><dt className="text-[color:var(--hotel-text-muted)]">{copy.origin}</dt><dd className="mt-1 font-semibold text-[color:var(--hotel-primary)]">{flight.departureAirport}</dd></div>
-            <div><dt className="text-[color:var(--hotel-text-muted)]">{copy.destination}</dt><dd className="mt-1 font-semibold text-[color:var(--hotel-primary)]">{flight.arrivalAirport}</dd></div>
-            <div><dt className="text-[color:var(--hotel-text-muted)]">{copy.sourceLabel}</dt><dd className="mt-1 font-semibold text-[color:var(--hotel-primary)]">{copy.providedByYou}</dd></div>
-            <div><dt className="text-[color:var(--hotel-text-muted)]">{copy.statusLabel}</dt><dd className="mt-1 font-semibold text-[color:var(--hotel-primary)]">{copy.statusNotVerified}</dd></div>
-          </dl>
-        </div>
-        <p className={`mt-4 flex gap-2 text-sm leading-6 ${departed ? 'font-medium text-amber-800' : 'text-[color:var(--hotel-text-muted)]'}`}>
-          {departed ? <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" /> : <Info className="mt-0.5 h-5 w-5 shrink-0 text-[color:var(--hotel-accent)]" aria-hidden="true" />}
-          {departed ? copy.pastFlightWarning : copy.officialCheckNotice}
-        </p>
+        <GuestFlightStatus key={`${snapshot}:${departureAirport?.timezone ?? ''}`} flight={flight} hotelSlug={hotelSlug} timezone={departureAirport?.timezone ?? null} language={language}
+          manual={<div className="mt-5 rounded-[18px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface-muted)] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[.12em] text-[color:var(--hotel-text-muted)]">{copy.localTimeLabel}</p>
+            <p className="mt-1 text-lg font-semibold text-[color:var(--hotel-primary)]">{formatFlightDate(flight.departureDate, language)} · {flight.scheduledDepartureTime}</p>
+            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+              <div><dt className="text-[color:var(--hotel-text-muted)]">{copy.origin}</dt><dd className="mt-1 font-semibold text-[color:var(--hotel-primary)]">{flight.departureAirport}</dd></div>
+              <div><dt className="text-[color:var(--hotel-text-muted)]">{copy.destination}</dt><dd className="mt-1 font-semibold text-[color:var(--hotel-primary)]">{flight.arrivalAirport}</dd></div>
+              <div><dt className="text-[color:var(--hotel-text-muted)]">{copy.sourceLabel}</dt><dd className="mt-1 font-semibold text-[color:var(--hotel-primary)]">{copy.providedByYou}</dd></div>
+              <div><dt className="text-[color:var(--hotel-text-muted)]">{copy.statusLabel}</dt><dd className="mt-1 font-semibold text-[color:var(--hotel-primary)]">{copy.statusNotVerified}</dd></div>
+            </dl>
+          </div>}
+          compactManual={<div className="mt-4 border-t border-[color:var(--hotel-border)] pt-3 text-xs leading-5 text-[color:var(--hotel-text-muted)]" data-manual-flight-compact>
+            <p className="font-semibold">{copy.providedByYou}</p>
+            <p>{formatFlightDate(flight.departureDate, language)} · {flight.scheduledDepartureTime} · {flight.departureAirport} → {flight.arrivalAirport}</p>
+          </div>}
+          notice={<p className={`mt-4 flex gap-2 text-sm leading-6 ${departed ? 'font-medium text-amber-800' : 'text-[color:var(--hotel-text-muted)]'}`}>
+            {departed ? <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" /> : <Info className="mt-0.5 h-5 w-5 shrink-0 text-[color:var(--hotel-accent)]" aria-hidden="true" />}
+            {departed ? copy.pastFlightWarning : copy.officialCheckNotice}
+          </p>}
+        />
         <section className="mt-6" aria-labelledby="guest-flight-trip-actions">
           <h3 id="guest-flight-trip-actions" className="text-base font-semibold text-[color:var(--hotel-primary)]">{copy.tripActionsTitle}</h3>
           <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
