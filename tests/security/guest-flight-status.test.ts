@@ -9,6 +9,15 @@ import type { SavedGuestFlight } from '../../lib/guest-flight-storage.ts';
 
 const now = Date.parse('2026-09-07T10:00:00Z');
 const flight: SavedGuestFlight = { version: 1, hotelId: '50200000-0000-4000-8000-000000000001', airlineCode: 'LA', airlineName: null, flightNumber: '3530', departureAirport: 'GIG', arrivalAirport: 'VIX', departureDate: '2026-09-07', scheduledDepartureTime: '07:55', scheduledDepartureAt: '2026-09-07T07:55:00', timeBasis: 'departure_airport_local_unverified', source: 'guest', savedAt: '2026-09-07T09:00:00Z', expiresAt: '2026-09-07T19:55:00' };
+
+test('manual summary leaves status to its controller presentation and avoids duplicate route cells', () => {
+  const manager = readFileSync('components/public/guest-flight-manager.tsx', 'utf8');
+  const summary = manager.slice(manager.indexOf('manual={'), manager.indexOf('notice={'));
+  assert.doesNotMatch(summary, /statusNotVerified|copy.origin|copy.destination|departureAirport|arrivalAirport/);
+  assert.match(summary, /copy.localTimeLabel/);
+  const status = readFileSync('components/public/guest-flight-status.tsx', 'utf8');
+  assert.equal(status.match(/statusNotVerified/g)?.length, 1);
+});
 const query = guestStatusQuery(flight, 'hotel-test', 'America/Sao_Paulo')!;
 function payload(overrides: Record<string, unknown> = {}) {
   return { ok: true, data: { airlineCode: 'LA', flightNumber: '3530', departureAirport: 'GIG', arrivalAirport: 'VIX', scheduleStatus: 'active',

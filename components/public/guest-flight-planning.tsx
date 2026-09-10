@@ -61,16 +61,18 @@ export function GuestFlightPlanning({ hotelSlug, flight, airport, planning, data
     ...(date ? { day: '2-digit', month: 'short' } as const : { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' } as const),
   }).format(new Date(instant));
   return <aside className="mt-5 min-w-0 rounded-[20px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-4 sm:p-5" data-flight-recommendation>
-    <h3 className="text-xs font-semibold uppercase tracking-[.1em] text-[color:var(--hotel-primary)]">{copy.title}</h3>
+    <h3 className="text-sm font-semibold uppercase tracking-[.1em] text-[color:var(--hotel-primary)]">{copy.title}</h3>
     <p className="mt-2 text-4xl font-semibold tabular-nums text-[color:var(--hotel-primary)]"><time dateTime={recommendation.recommendedDepartureAt}>{format(recommendation.recommendedDepartureAt)}</time></p>
-    <p className="mt-1 text-xs text-[color:var(--hotel-text-muted)]">{format(recommendation.recommendedDepartureAt, true)} · {copy.local}</p>
-    <dl className="mt-4 max-w-xl space-y-2 text-sm text-[color:var(--hotel-text)]">
-      {[[copy.scheduled, `${format(recommendation.scheduledDepartureAt, true)} · ${format(recommendation.scheduledDepartureAt)}`], [copy.lead, `${recommendation.lead} min`], [copy.transfer, `${recommendation.transfer} min`], [copy.margin, `${recommendation.margin} min`]].map(([label, value]) =>
-        <div key={label} className="flex items-baseline justify-between gap-3"><dt className="min-w-0">{label}</dt><dd className="shrink-0 font-semibold tabular-nums">{value}</dd></div>)}
-    </dl>
-    <div className="mt-4 space-y-1 border-t border-[color:var(--hotel-accent-border)] pt-3 text-xs leading-5 text-[color:var(--hotel-text-muted)]">
-      <p>{copy[recommendation.basis]}</p><p>{copy.estimate}</p><p>{copy.official}</p>
-      {planning.notice ? <p>{planning.notice}</p> : null}
-    </div>
+    <p className="mt-1 text-sm text-[color:var(--hotel-text-muted)]">{format(recommendation.recommendedDepartureAt, true)} · {copy.local}</p>
+    <p className="mt-3 text-sm leading-5 text-[color:var(--hotel-text-muted)]" data-recommendation-basis>{copy[recommendation.basis]} {copy.estimate}</p>
+    {planning.notice ? <p className="mt-2 text-sm leading-5 text-[color:var(--hotel-text-muted)]">{planning.notice}</p> : null}
+    <details className="mt-3 border-t border-[color:var(--hotel-accent-border)]" data-flight-calculation>
+      <summary className="min-h-11 cursor-pointer rounded-lg py-3 text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)]">{copy.details}</summary>
+      <dl className="max-w-xl space-y-2 pb-2 text-sm text-[color:var(--hotel-text)]">
+        {[[copy.scheduled, `${format(recommendation.scheduledDepartureAt, true)} · ${format(recommendation.scheduledDepartureAt)}`], [copy.lead, `${recommendation.lead} min`], [copy.transfer, `${recommendation.transfer} min`], [copy.margin, `${recommendation.margin} min`]].map(([label, value]) =>
+          <div key={label} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1"><dt className="min-w-0">{label}</dt><dd className="font-semibold tabular-nums">{value}</dd></div>)}
+      </dl>
+      <p className="mt-2 pb-2 text-sm leading-5 text-[color:var(--hotel-text-muted)]">{copy.official}</p>
+    </details>
   </aside>;
 }

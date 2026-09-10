@@ -127,11 +127,15 @@ test('hotel service actions request contact without creating false confirmations
   assert.match(center, /message: copy\.receptionRequestMessage/);
 });
 
-test('keeps disabled hotel actions hidden and reuses the adaptive grid without fillers', () => {
+test('keeps disabled hotel actions hidden in a compact list without fillers', () => {
   for (const flag of ['transferEnabled', 'wakeUpEnabled', 'breakfastBoxEnabled', 'receptionEnabled']) {
     assert.match(center, new RegExp(`settings\\.${flag} \\?`));
   }
-  assert.match(center, /getPublicFlightCenterActionGridLayout\(actionItems\.length\)/);
+  assert.match(center, /actionItems.length > 0/);
+  assert.match(center, /data-flight-service-list/);
+  assert.match(center, /actionItems.map\(\(action\)/);
+  assert.match(center, /min-h-14/);
+  assert.match(center, /focus-visible:ring-inset/);
   for (const count of [1, 2, 3, 4]) {
     assert.equal(getPublicFlightCenterActionGridLayout(count)?.itemClassNames.length, count);
   }

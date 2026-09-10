@@ -71,3 +71,13 @@ test('PT EN ES transparency and shared UI consume status without additional AirL
   assert.match(center, /tab !== 'meu-voo' \? planningFallback : null/);
   assert.match(center, /settings.breakfastBoxEnabled \?/);
 });
+
+test('compact recommendation keeps its basis and notices outside native collapsed calculation details', () => {
+  const ui = readFileSync('components/public/guest-flight-planning.tsx', 'utf8');
+  const details = ui.slice(ui.indexOf('<details'), ui.indexOf('</details>'));
+  const visible = ui.slice(ui.indexOf('return <aside'), ui.indexOf('<details'));
+  for (const token of ['copy.title', 'recommendedDepartureAt', 'copy.local', 'copy[recommendation.basis]', 'copy.estimate', 'planning.notice']) assert.ok(visible.includes(token), token);
+  for (const token of ['copy.scheduled', 'copy.lead', 'copy.transfer', 'copy.margin', 'copy.official', '<summary', 'focus-visible:ring-2', 'min-h-11']) assert.ok(details.includes(token), token);
+  assert.doesNotMatch(details, /\bopen[=\s>]|onToggle|onClick|fetch\(/);
+  for (const language of ['pt', 'en', 'es'] as const) assert.ok(getFlightPlanningCopy(language).details.length > 10);
+});

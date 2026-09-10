@@ -2,17 +2,17 @@ import type { SupportedPublicLanguage } from '@/lib/public-language';
 
 export function getFlightPlanningCopy(language: SupportedPublicLanguage) {
   if (language === 'en') return {
-    title: 'Recommended hotel departure', scheduled: 'Scheduled flight', lead: 'Airport lead time', transfer: 'Estimated travel time', margin: 'Safety margin',
+    details: 'How we calculate this time', title: 'Recommended hotel departure', scheduled: 'Scheduled flight', lead: 'Airport lead time', transfer: 'Estimated travel time', margin: 'Safety margin',
     local: 'Departure airport local time', airlabs: 'Based on the scheduled flight time · AirLabs.', manual: 'Based on the time you provided; not verified by the airline.',
     estimate: 'Estimate based on hotel guidance. Real-time traffic is not included.', official: 'Follow the airline and airport guidance, including when the flight is delayed.',
   };
   if (language === 'es') return {
-    title: 'Salida recomendada del hotel', scheduled: 'Vuelo programado', lead: 'Anticipación en el aeropuerto', transfer: 'Traslado estimado', margin: 'Margen de seguridad',
+    details: 'Cómo calculamos este horario', title: 'Salida recomendada del hotel', scheduled: 'Vuelo programado', lead: 'Anticipación en el aeropuerto', transfer: 'Traslado estimado', margin: 'Margen de seguridad',
     local: 'Hora local del aeropuerto de salida', airlabs: 'Basada en el horario programado del vuelo · AirLabs.', manual: 'Basada en el horario informado por usted; no verificado por la aerolínea.',
     estimate: 'Estimación basada en las orientaciones del hotel. No incluye tráfico en tiempo real.', official: 'Siga las indicaciones de la aerolínea y del aeropuerto, incluso si el vuelo se retrasa.',
   };
   return {
-    title: 'Saída recomendada do hotel', scheduled: 'Voo programado', lead: 'Antecedência no aeroporto', transfer: 'Deslocamento estimado', margin: 'Margem de segurança',
+    details: 'Como calculamos este horário', title: 'Saída recomendada do hotel', scheduled: 'Voo programado', lead: 'Antecedência no aeroporto', transfer: 'Deslocamento estimado', margin: 'Margem de segurança',
     local: 'Horário local do aeroporto de partida', airlabs: 'Baseada no horário programado do voo · AirLabs.', manual: 'Baseada no horário informado por você; não verificado pela companhia.',
     estimate: 'Estimativa baseada nas orientações do hotel. Não considera trânsito em tempo real.', official: 'Siga as orientações da companhia e do aeroporto, inclusive em caso de atraso.',
   };
@@ -24,7 +24,7 @@ function getFlightDataCopy(language: SupportedPublicLanguage) {
     scheduled: 'Scheduled', actual: 'Actual departure', estimated: 'Estimated departure', terminal: 'Terminal', gate: 'Gate',
     source: 'Flight data · AirLabs', live: 'Live update', updated: 'Last update', local: 'Departure airport local time',
     unavailable: 'We could not update the flight. Your saved details and travel actions remain available.',
-    outside: 'Flight updates are not available for this date yet. Check again closer to departure.',
+    outside: 'Automatic updates are available closer to departure.',
     unverifiable: 'We cannot safely verify this flight’s time or identifier. Please use the official channel.',
     limited: 'Updates are temporarily limited. Please try again later or use the official channel.',
     notFound: 'No matching flight was found in this update. Confirm the details through the official channel.',
@@ -35,7 +35,7 @@ function getFlightDataCopy(language: SupportedPublicLanguage) {
     scheduled: 'Programado', actual: 'Salida real', estimated: 'Salida estimada', terminal: 'Terminal', gate: 'Puerta',
     source: 'Datos del vuelo · AirLabs', live: 'Actualización en vivo', updated: 'Última actualización', local: 'Hora local del aeropuerto de salida',
     unavailable: 'No pudimos actualizar el vuelo. Sus datos guardados y las acciones del viaje siguen disponibles.',
-    outside: 'Las actualizaciones aún no están disponibles para esta fecha. Consulte más cerca de la salida.',
+    outside: 'Consulta automática disponible más cerca de la salida.',
     unverifiable: 'No podemos verificar con seguridad el horario o el identificador del vuelo. Use el canal oficial.',
     limited: 'Las actualizaciones están limitadas temporalmente. Inténtelo más tarde o use el canal oficial.',
     notFound: 'No se encontró un vuelo coincidente en esta consulta. Confirme los datos en el canal oficial.',
@@ -46,7 +46,7 @@ function getFlightDataCopy(language: SupportedPublicLanguage) {
     scheduled: 'Programado', actual: 'Partida realizada', estimated: 'Partida estimada', terminal: 'Terminal', gate: 'Portão',
     source: 'Dados do voo · AirLabs', live: 'Atualização ao vivo', updated: 'Última atualização', local: 'Horário local do aeroporto de partida',
     unavailable: 'Não foi possível atualizar o voo. Seus dados salvos e as ações da viagem continuam disponíveis.',
-    outside: 'As atualizações ainda não estão disponíveis para esta data. Consulte novamente mais perto da partida.',
+    outside: 'Consulta automática disponível mais perto da partida.',
     unverifiable: 'Não foi possível verificar com segurança o horário ou o identificador do voo. Consulte o canal oficial.',
     limited: 'As atualizações estão temporariamente limitadas. Tente mais tarde ou consulte o canal oficial.',
     notFound: 'Nenhum voo correspondente foi encontrado nesta consulta. Confirme os dados no canal oficial.',

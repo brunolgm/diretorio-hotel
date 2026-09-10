@@ -155,28 +155,21 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
         </div>
         <GuestFlightStatus key={`${snapshot}:${departureAirport?.timezone ?? ''}`} flight={flight} hotelSlug={hotelSlug} timezone={departureAirport?.timezone ?? null} language={language}
           planning={planning} airport={departureAirport} planningFallback={planningFallback}
-          manual={<div className="mt-5 rounded-[18px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface-muted)] p-4">
-            <p className="text-xs font-semibold uppercase tracking-[.12em] text-[color:var(--hotel-text-muted)]">{copy.localTimeLabel}</p>
+          manual={<div className="mt-4 text-sm text-[color:var(--hotel-text-muted)]" data-manual-flight-summary>
+            <p>{copy.localTimeLabel}</p>
             <p className="mt-1 text-lg font-semibold text-[color:var(--hotel-primary)]">{formatFlightDate(flight.departureDate, language)} · {flight.scheduledDepartureTime}</p>
-            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-              <div><dt className="text-[color:var(--hotel-text-muted)]">{copy.origin}</dt><dd className="mt-1 font-semibold text-[color:var(--hotel-primary)]">{flight.departureAirport}</dd></div>
-              <div><dt className="text-[color:var(--hotel-text-muted)]">{copy.destination}</dt><dd className="mt-1 font-semibold text-[color:var(--hotel-primary)]">{flight.arrivalAirport}</dd></div>
-              <div><dt className="text-[color:var(--hotel-text-muted)]">{copy.sourceLabel}</dt><dd className="mt-1 font-semibold text-[color:var(--hotel-primary)]">{copy.providedByYou}</dd></div>
-              <div><dt className="text-[color:var(--hotel-text-muted)]">{copy.statusLabel}</dt><dd className="mt-1 font-semibold text-[color:var(--hotel-primary)]">{copy.statusNotVerified}</dd></div>
-            </dl>
           </div>}
-          compactManual={<div className="mt-4 border-t border-[color:var(--hotel-border)] pt-3 text-xs leading-5 text-[color:var(--hotel-text-muted)]" data-manual-flight-compact>
-            <p className="font-semibold">{copy.providedByYou}</p>
-            <p>{formatFlightDate(flight.departureDate, language)} · {flight.scheduledDepartureTime} · {flight.departureAirport} → {flight.arrivalAirport}</p>
-          </div>}
+          compactManual={<p className="mt-3 text-sm leading-5 text-[color:var(--hotel-text-muted)]" data-manual-flight-compact>
+            {copy.localTimeLabel}: {formatFlightDate(flight.departureDate, language)} · {flight.scheduledDepartureTime}
+          </p>}
           notice={<p className={`mt-4 flex gap-2 text-sm leading-6 ${departed ? 'font-medium text-amber-800' : 'text-[color:var(--hotel-text-muted)]'}`}>
             {departed ? <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" /> : <Info className="mt-0.5 h-5 w-5 shrink-0 text-[color:var(--hotel-accent)]" aria-hidden="true" />}
             {departed ? copy.pastFlightWarning : copy.officialCheckNotice}
           </p>}
         />
-        <section className="mt-6" aria-labelledby="guest-flight-trip-actions">
+        <section className="mt-4" aria-labelledby="guest-flight-trip-actions">
           <h3 id="guest-flight-trip-actions" className="text-base font-semibold text-[color:var(--hotel-primary)]">{copy.tripActionsTitle}</h3>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-3 grid grid-cols-2 gap-2">
             {officialUrl ? <a
               href={officialUrl}
               target="_blank"
@@ -187,7 +180,7 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
                 void copyOfficialFlightReference(navigator.clipboard, flight.airlineCode, flight.flightNumber)
                   .then((copied) => setOfficialMessage(copied ? copy.flightNumberCopied : copy.clipboardUnavailable));
               } : undefined}
-              className="inline-flex min-h-12 items-center justify-center rounded-[14px] bg-[var(--hotel-accent)] px-4 text-center text-sm font-semibold text-[color:var(--hotel-accent-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"
+              className="col-span-2 inline-flex min-h-12 items-center justify-center rounded-[14px] bg-[var(--hotel-accent)] px-3 py-2 text-center text-sm font-semibold text-[color:var(--hotel-accent-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"
             >{officialActionLabel}<ExternalLink className="ml-2 h-4 w-4 shrink-0" aria-hidden="true" /></a> : null}
             {calendarFile ? <button
               type="button"
@@ -210,21 +203,21 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
                   setCalendarMessage(copy.calendarUnavailable);
                 }
               }}
-              className="inline-flex min-h-12 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-4 text-center text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"
+              className="inline-flex min-h-12 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-3 py-2 text-center text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"
             ><CalendarPlus className="mr-2 h-4 w-4 shrink-0" aria-hidden="true" />{copy.addToCalendar}</button> : null}
             {airportRouteUrl ? <a
               href={airportRouteUrl}
               target="_blank"
               rel="noreferrer"
               data-analytics-event="flight_route_open"
-              className="inline-flex min-h-12 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-4 text-center text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"
+              className="inline-flex min-h-12 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-3 py-2 text-center text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"
             ><MapPinned className="mr-2 h-4 w-4 shrink-0" aria-hidden="true" />{copy.openAirportRoute}</a> : null}
           </div>
-          <p className="mt-2 min-h-5 text-xs leading-5 text-[color:var(--hotel-text-muted)]" role="status" aria-live="polite">{officialMessage || calendarMessage}</p>
+          <p className="mt-2 text-sm leading-5 empty:mt-0 text-[color:var(--hotel-text-muted)]" role="status" aria-live="polite">{officialMessage || calendarMessage}</p>
         </section>
-        <div className="mt-3 flex flex-col gap-2 min-[360px]:flex-row">
-          <button type="button" onClick={() => { setDraft(draftFromFlight(flight)); setOfficialMessage(null); setCalendarMessage(null); setEditingOverride(true); }} className="inline-flex min-h-11 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-5 text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"><Pencil className="mr-2 h-4 w-4" aria-hidden="true" />{copy.editFlight}</button>
-          <button type="button" onClick={remove} className="inline-flex min-h-11 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-5 text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"><Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />{copy.removeFlight}</button>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <button type="button" onClick={() => { setDraft(draftFromFlight(flight)); setOfficialMessage(null); setCalendarMessage(null); setEditingOverride(true); }} className="inline-flex min-h-11 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-3 py-2 text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"><Pencil className="mr-2 h-4 w-4" aria-hidden="true" />{copy.editFlight}</button>
+          <button type="button" onClick={remove} className="inline-flex min-h-11 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-3 py-2 text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"><Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />{copy.removeFlight}</button>
         </div>
       </article>
     );

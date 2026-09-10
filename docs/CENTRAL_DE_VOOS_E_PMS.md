@@ -17,6 +17,115 @@ O produto final inclui:
 - transfer, despertar, café da manhã para viagem e recepção via canal existente do hotel;
 - analytics agregado e sem itinerário, identidade ou contexto de apartamento.
 
+## Refinamento da Sprint 51.1 — apresentação compacta
+
+Referência desta etapa: branch `sprint-51-1-flight-live-status`, checkpoint
+`88d6877440d669e13e72c0c6005c3cea0952262e`. As descrições do MVP da Sprint 51
+acima e nas seções históricas abaixo não substituem a evolução de status já
+presente nesse checkpoint. A infraestrutura AirLabs continua documentada em
+[airlabs-distributed-coordinator.md](./airlabs-distributed-coordinator.md).
+
+Esta etapa altera somente apresentação e interação nos componentes compartilhados
+da Central, sem criar outra Central ou componentes por hotel:
+
+- Companhia, número e rota aparecem no resumo, sem repetir origem/destino em
+  células adicionais. Sem dados externos utilizáveis, data/hora informadas pelo
+  hóspede são protagonistas e “Status não verificado” aparece uma única vez.
+- Com dados externos utilizáveis, o status normalizado e o horário programado
+  externo ficam em destaque, com data, fonte AirLabs e timestamp da atualização.
+  O horário manual permanece como referência compacta, inclusive quando diverge.
+  A leitura não escreve no storage. `active` continua “Atualização disponível”,
+  nunca “Em voo”; ausência de atraso não produz “No horário”.
+- Fora da janela: “Consulta automática disponível mais perto da partida”, em
+  PT/EN/ES. As mensagens de falha técnica, não encontrado, limitação e contexto
+  não verificável continuam distintas. Loading, cooldown de 60 segundos,
+  atualização manual, proteção contra simultaneidade e timestamp antigo são
+  controlados pelo mesmo código existente.
+- Na recomendação válida ficam sempre visíveis título, hora, data, horário local,
+  base manual/AirLabs, estimativa sem trânsito em tempo real e
+  eventual `departure_notice`. O `<details>` nativo “Como calculamos este horário”
+  começa recolhido e contém horário usado, antecedência, deslocamento, margem e
+  orientação complementar para seguir as instruções da companhia e do aeroporto.
+  O marcador nativo indica o estado, o foco é visível e Enter/Espaço operam o
+  controle. Abrir/fechar não chama rede. Avisos operacionais permanecem fora do
+  controle para não esconder informação essencial.
+- Consulta oficial ocupa a largura principal; calendário e rota ficam lado a
+  lado, assim como editar/remover. Textos podem quebrar sem truncamento; os alvos
+  mantêm pelo menos 44–48 px. Download, clipboard, feedbacks e callbacks existentes
+  permanecem.
+- Serviços são uma lista de linhas com ícone, nome, indicação de contato e seta.
+  Só as flags habilitadas geram linhas, na ordem Transfer, Despertar, Breakfast
+  Box e Recepção. Não há fillers. Continua explícito que nenhuma solicitação é
+  criada automaticamente. Não houve edição de flags reais: Breakfast Box no
+  Grand Mercure Copacabana permanece desligado.
+
+Fórmula, tratamento de `null`, ocultação da recomendação e fallback genérico
+permanecem no código anterior. Estimado/realizado não adiam a recomendação.
+Não foram alterados hero, abas, conteúdo de Partidas/Chegadas, Homes, docks,
+tokens, entitlement opt-in, baseline, provisioning, Admin, APIs, timezone,
+banco, storage v1, analytics ou infraestrutura AirLabs. Novos hotéis utilizam
+naturalmente os mesmos componentes e suas próprias flags/tokens. PMS/OPERA e
+Sprint 52 continuam fora do escopo; as pendências históricas permanecem.
+
+### Homologação local desta apresentação
+
+Os arquivos `tests/browser/flight-center-fixture.tsx` e
+`tests/browser/flight-center-compact.mjs` montam os componentes reais com dados
+sintéticos. O harness lê a versão anterior com `git show`, sem checkout/reset,
+e gera bundles antes/depois com o mesmo CSS e os mesmos dados. Assets são locais;
+`fetch` é simulado, CSP bloqueia conexões e Playwright aborta destinos externos.
+Não carrega credenciais nem consulta banco ou AirLabs. Os exemplos não comprovam
+existência de voo real naquela data/rota. O harness não é uma rota do produto.
+
+Execução: disponibilizar `esbuild` e `playwright` em ferramentas temporárias,
+definir `TOOL_NODE_MODULES` para seu diretório `node_modules` e
+`PLAYWRIGHT_BROWSERS_PATH` para o Chromium temporário instalado; executar
+`node tests/browser/flight-center-compact.mjs`. Nenhuma dependência foi adicionada
+ao projeto. `--serve` mantém a fixture na porta 4173 para inspeção; a matriz usa
+a porta 4174. O relógio da matriz é fixo em 09/09/2026 às 18:00 UTC.
+
+Resultado executado: 51 comparações em Chromium, cobrindo Grand Mercure, Novotel,
+Mercure e Default em PT/EN/ES, larguras 320/360/390/430 px, mais Grand Mercure
+desktop de 1440 px nos três idiomas. Verificações comportamentais: detalhes
+inicialmente recolhidos, Enter/Espaço, base/hora visíveis, nenhuma chamada extra
+ao expandir, ausência de overflow horizontal da página e último serviço
+acessível acima do dock. Também passaram dados externos com referência manual
+divergente, erros técnico/não encontrado/limitação, fallback genérico, zero a
+quatro serviços, Breakfast Box condicionado, calendário `.ics`, links, editar,
+cancelar e remover do storage. Nenhum erro JavaScript capturado.
+
+Altura medida **somente do cartão Meu voo**, cenário manual fora da janela,
+Grand Mercure/PT; serviços, hero e dock não entram nestes números:
+
+| Largura | Antes | Depois | Redução |
+| --- | ---: | ---: | ---: |
+| 320 px | 1487 px | 1001 px | 486 px |
+| 360 px | 1323 px | 987 px | 336 px |
+| 390 px | 1287 px | 927 px | 360 px |
+| 430 px | 1287 px | 887 px | 400 px |
+| 1440 px | 1051 px | 829 px | 222 px |
+
+Capturas do topo/final e `measurements.json` são gerados em
+`out/flight-center-compact/` (artefatos locais ignorados pelo Git). O Grand Mercure
+usa a região de rolagem interna já existente, por isso as capturas registram topo
+e final separadamente. Nas abas de 320 px permanece a rolagem horizontal interna
+anterior; não houve alteração de seu layout. O cabeçalho Default conserva a
+apresentação anterior, inclusive contraste reduzido observado nesta fixture;
+qualquer ajuste nele exige uma etapa própria, pois foi excluído deste pedido.
+
+Regressões estruturais adicionais cobrem resumo sem duplicações, conteúdo visível
+versus expansível e lista condicionada. `npm run test:security`: 286 testes
+aprovados, incluindo controladores, cálculo, storage v1 e entitlement. Esses
+contratos de segurança incluem verificações estruturais, não substituem a matriz
+de navegador. A homologação usa Chromium desktop em viewports mobile, não aparelhos
+físicos, Safari ou leitor de tela. Banco e endpoints reais não foram homologados
+nesta etapa visual. As limitações de integração já documentadas permanecem.
+
+`npm run lint` terminou com zero erros e quatro avisos preexistentes de `<img>`
+em arquivos fora desta alteração. `npm run build` passou. `git diff --check`
+passou; os dois arquivos novos também foram revisados quanto a whitespace,
+compilados e incluídos no lint. Nenhum commit, push ou merge foi feito.
+
 ## Etapas 1–9
 
 1. Inclusão de `travel.flights` no catálogo e no fluxo de entitlement da Platform.
