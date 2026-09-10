@@ -26,7 +26,6 @@ import type { DomainContext } from '@/lib/domain-context';
 import type { FlightServiceAnalyticsAction } from '@/lib/analytics';
 import { buildHotelServiceActionDestination } from '@/lib/flight-center-actions';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
-import { getPublicFlightCenterActionGridLayout } from '@/lib/public-flight-center-layout';
 import {
   getPublicFlightCenterCopy,
   PUBLIC_FLIGHT_CENTER_TABS,
@@ -156,7 +155,6 @@ export function HotelPublicFlightCenter({
     settings.breakfastBoxEnabled ? { action: 'breakfast_box' as const, label: copy.breakfastBox, icon: Coffee, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.breakfastBoxRequestMessage }) } : null,
     settings.receptionEnabled ? { action: 'reception' as const, label: copy.reception, icon: MessageCircle, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.receptionRequestMessage }) } : null,
   ].filter((item): item is { action: FlightServiceAnalyticsAction; label: string; icon: typeof BusFront; href: string; isExternal: boolean } => Boolean(item));
-  const actionGrid = getPublicFlightCenterActionGridLayout(actionItems.length);
   const showPlanning = settings.departurePlanningEnabled && (
     Boolean(settings.departureNotice) || airports.some((airport) =>
       airport.estimatedTransferMinutes !== null || airport.domesticLeadMinutes !== null ||
@@ -166,11 +164,24 @@ export function HotelPublicFlightCenter({
   const listTitle = tab === 'chegadas' ? copy.arrivalsTitle : copy.departuresTitle;
   const listDescription = tab === 'chegadas' ? copy.arrivalsDescription : copy.departuresDescription;
   const flightAirportOptions = airports.map((airport) => ({
+    estimatedTransferMinutes: airport.estimatedTransferMinutes,
+    domesticLeadMinutes: airport.domesticLeadMinutes,
+    internationalLeadMinutes: airport.internationalLeadMinutes,
+    safetyMarginMinutes: airport.safetyMarginMinutes,
+    timezone: airport.timezone,
     iataCode: airport.iataCode,
     name: airport.name,
     city: airport.city,
     officialUrl: airport.officialDeparturesUrl || airport.officialArrivalsUrl,
   }));
+
+  const planningFallback = showPlanning ? (
+    <aside className="rounded-[24px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-5">
+      <h2 className="text-lg font-semibold text-[color:var(--hotel-primary)]">{copy.planningTitle}</h2>
+      <p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{settings.departureNotice || copy.planningDescription}</p>
+      {settings.departureNotice ? <p className="mt-2 text-xs leading-5 text-[color:var(--hotel-text-muted)]">{copy.planningDescription}</p> : null}
+    </aside>
+  ) : null;
 
   const hero = isNovotel ? (
     <NovotelAreaHero hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={copy.back} title={copy.title} description={copy.description} icon={Plane} />
@@ -208,7 +219,8 @@ export function HotelPublicFlightCenter({
 
         <section className={`mt-5 space-y-5 ${isGrandMercure ? 'grand-mercure-last-content mb-8 md:mb-4' : isNovotel || isMercure ? 'mb-8 md:mb-4' : ''}`}>
           {tab === 'meu-voo' ? (
-            <GuestFlightManager hotelId={hotel.id} hotelSlug={hotel.slug} language={language} airportOptions={flightAirportOptions} />
+            <GuestFlightManager hotelId={hotel.id} hotelSlug={hotel.slug} language={language} airportOptions={flightAirportOptions}
+              planning={{ enabled: settings.departurePlanningEnabled, notice: settings.departureNotice }} planningFallback={planningFallback} />
           ) : (
             <div className="space-y-4">
               <div><h2 className="text-2xl font-semibold text-[color:var(--hotel-primary)]">{listTitle}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{listDescription}</p></div>
@@ -228,16 +240,27 @@ export function HotelPublicFlightCenter({
             </div>
           )}
 
-          {showPlanning ? (
-            <aside className="rounded-[24px] border border-[color:var(--hotel-accent-border)] bg-[var(--hotel-accent-soft)] p-5">
-              <h2 className="text-lg font-semibold text-[color:var(--hotel-primary)]">{copy.planningTitle}</h2>
-              <p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{settings.departureNotice || copy.planningDescription}</p>
-              {settings.departureNotice ? <p className="mt-2 text-xs leading-5 text-[color:var(--hotel-text-muted)]">{copy.planningDescription}</p> : null}
-            </aside>
-          ) : null}
+          {tab !== 'meu-voo' ? planningFallback : null}
 
-          {actionGrid ? (
-            <section><h2 className="text-xl font-semibold text-[color:var(--hotel-primary)]">{copy.actionsTitle}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{copy.actionsDescription}</p><div className={`mt-4 ${actionGrid.containerClassName}`}>{actionItems.map((action, index) => { const ActionIcon = action.icon; return <a key={action.label} href={action.href} target={action.isExternal ? '_blank' : undefined} rel={action.isExternal ? 'noopener noreferrer' : undefined} data-analytics-event="flight_service_action" data-analytics-action={action.action} className={`hotel-public-content-card rounded-[20px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-4 shadow-[var(--hotel-card-shadow)] ${actionGrid.itemClassNames[index]}`.trim()}><ActionIcon className="h-6 w-6 text-[color:var(--hotel-accent)]" /><h3 className="mt-3 font-semibold text-[color:var(--hotel-primary)]">{action.label}</h3><p className="mt-2 flex items-center text-xs text-[color:var(--hotel-text-muted)]">{copy.contactHotel}<ArrowUpRight className="ml-1 h-3.5 w-3.5" /></p></a>; })}</div></section>
+          {actionItems.length > 0 ? (
+            <section aria-labelledby="flight-hotel-services">
+              <h2 id="flight-hotel-services" className="text-xl font-semibold text-[color:var(--hotel-primary)]">{copy.actionsTitle}</h2>
+              <p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{copy.actionsDescription}</p>
+              <ul className="mt-3 overflow-hidden rounded-[20px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] divide-y divide-[color:var(--hotel-border)]" data-flight-service-list>
+                {actionItems.map((action) => {
+                  const ActionIcon = action.icon;
+                  return <li key={action.action}>
+                    <a href={action.href} target={action.isExternal ? '_blank' : undefined} rel={action.isExternal ? 'noopener noreferrer' : undefined}
+                      data-analytics-event="flight_service_action" data-analytics-action={action.action}
+                      className="flex min-h-14 items-center gap-3 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--hotel-accent)]">
+                      <ActionIcon className="h-5 w-5 shrink-0 text-[color:var(--hotel-accent)]" aria-hidden="true" />
+                      <span className="min-w-0 flex-1"><span className="block font-semibold text-[color:var(--hotel-primary)]">{action.label}</span><span className="block text-sm text-[color:var(--hotel-text-muted)]">{copy.contactHotel}</span></span>
+                      <ArrowUpRight className="h-5 w-5 shrink-0 text-[color:var(--hotel-accent)]" aria-hidden="true" />
+                    </a>
+                  </li>;
+                })}
+              </ul>
+            </section>
           ) : null}
         </section>
 
