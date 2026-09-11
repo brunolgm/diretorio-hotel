@@ -1,5 +1,9 @@
 # PRODUCT MAP
 
+Contrato técnico da Sprint 52 — Turismo: [SPRINT_52_TOURISM.md](SPRINT_52_TOURISM.md).
+A etapa 52.1 entrega somente a fundação local de domínio/banco/autorização; Turismo
+permanece `coming_soon`, fora do baseline, sem ativação ou alteração da experiência pública.
+
 Documento vivo para manter uma fonte única de verdade sobre a evolução do produto, decisões técnicas, branding, domínios, processo de trabalho e próximos ciclos.
 
 Importante:

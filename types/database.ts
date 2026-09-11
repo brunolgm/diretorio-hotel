@@ -9,6 +9,127 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      hotel_tourism_items: {
+        Row: {
+          id: string;
+          hotel_id: string;
+          slug: string;
+          type: 'PLACE' | 'EXPERIENCE' | 'GASTRONOMY';
+          category_key: 'sights' | 'beaches_and_nature' | 'culture_and_history' | 'neighborhoods_and_regions' | 'shopping' | 'tours' | 'local_culture' | 'nature_and_adventure' | 'nightlife' | 'wellness' | 'restaurants' | 'bars' | 'cafes_and_bakeries' | 'local_cuisine' | 'markets_and_fairs';
+          name: string;
+          short_description: string;
+          full_description: string | null;
+          address: string | null;
+          map_url: string | null;
+          official_website_url: string | null;
+          phone: string | null;
+          whatsapp_number: string | null;
+          opening_hours: string | null;
+          price_info: string | null;
+          duration_info: string | null;
+          main_image_path: string | null;
+          recommended_by_hotel: boolean;
+          featured: boolean;
+          sort_order: number;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          hotel_id: string;
+          slug: string;
+          type: 'PLACE' | 'EXPERIENCE' | 'GASTRONOMY';
+          category_key: 'sights' | 'beaches_and_nature' | 'culture_and_history' | 'neighborhoods_and_regions' | 'shopping' | 'tours' | 'local_culture' | 'nature_and_adventure' | 'nightlife' | 'wellness' | 'restaurants' | 'bars' | 'cafes_and_bakeries' | 'local_cuisine' | 'markets_and_fairs';
+          name: string;
+          short_description: string;
+          full_description?: string | null;
+          address?: string | null;
+          map_url?: string | null;
+          official_website_url?: string | null;
+          phone?: string | null;
+          whatsapp_number?: string | null;
+          opening_hours?: string | null;
+          price_info?: string | null;
+          duration_info?: string | null;
+          main_image_path?: string | null;
+          recommended_by_hotel?: boolean;
+          featured?: boolean;
+          sort_order?: number;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          hotel_id?: string;
+          slug?: string;
+          type?: 'PLACE' | 'EXPERIENCE' | 'GASTRONOMY';
+          category_key?: 'sights' | 'beaches_and_nature' | 'culture_and_history' | 'neighborhoods_and_regions' | 'shopping' | 'tours' | 'local_culture' | 'nature_and_adventure' | 'nightlife' | 'wellness' | 'restaurants' | 'bars' | 'cafes_and_bakeries' | 'local_cuisine' | 'markets_and_fairs';
+          name?: string;
+          short_description?: string;
+          full_description?: string | null;
+          address?: string | null;
+          map_url?: string | null;
+          official_website_url?: string | null;
+          phone?: string | null;
+          whatsapp_number?: string | null;
+          opening_hours?: string | null;
+          price_info?: string | null;
+          duration_info?: string | null;
+          main_image_path?: string | null;
+          recommended_by_hotel?: boolean;
+          featured?: boolean;
+          sort_order?: number;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [{ foreignKeyName: 'hotel_tourism_items_hotel_id_fkey'; columns: ['hotel_id']; isOneToOne: false; referencedRelation: 'hotels'; referencedColumns: ['id'] }];
+      };
+      hotel_tourism_item_translations: {
+        Row: {
+          id: string;
+          item_id: string;
+          language: 'en' | 'es';
+          name: string | null;
+          short_description: string | null;
+          full_description: string | null;
+          opening_hours: string | null;
+          price_info: string | null;
+          duration_info: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          item_id: string;
+          language: 'en' | 'es';
+          name?: string | null;
+          short_description?: string | null;
+          full_description?: string | null;
+          opening_hours?: string | null;
+          price_info?: string | null;
+          duration_info?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          item_id?: string;
+          language?: 'en' | 'es';
+          name?: string | null;
+          short_description?: string | null;
+          full_description?: string | null;
+          opening_hours?: string | null;
+          price_info?: string | null;
+          duration_info?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [{ foreignKeyName: 'hotel_tourism_item_translations_item_id_fkey'; columns: ['item_id']; isOneToOne: false; referencedRelation: 'hotel_tourism_items'; referencedColumns: ['id'] }];
+      };
+
       hotels: {
         Row: {
           id: string;
@@ -985,6 +1106,11 @@ export interface Database {
       };
     };
     Functions: {
+      save_current_hotel_tourism_item: { Args: { p_item_id: string | null; p_changes: Json; p_expected_updated_at?: string | null }; Returns: Database['public']['Tables']['hotel_tourism_items']['Row'][] };
+      reorder_current_hotel_tourism_items: { Args: { p_item_ids: string[] }; Returns: Database['public']['Tables']['hotel_tourism_items']['Row'][] };
+      delete_current_hotel_tourism_item: { Args: { p_item_id: string; p_expected_updated_at: string }; Returns: { deleted_id: string; main_image_path: string | null }[] };
+      save_current_hotel_tourism_translation: { Args: { p_item_id: string; p_language: 'en' | 'es'; p_expected_updated_at: string; p_changes: Json }; Returns: boolean };
+
       admit_airlabs_query: { Args: { p_account_scope: string; p_hotel_id: string; p_query: Json }; Returns: Json };
       publish_airlabs_query: { Args: { p_canonical_key: string; p_owner_token: string; p_result: Json; p_ttl_seconds: number }; Returns: boolean };
       close_airlabs_query: { Args: { p_canonical_key: string; p_owner_token: string; p_error: string }; Returns: boolean };
