@@ -1106,6 +1106,7 @@ export interface Database {
       };
     };
     Functions: {
+      update_current_hotel_tourism_image: { Args: { p_item_id: string; p_main_image_path: string | null; p_expected_updated_at: string }; Returns: { item_id: string; updated_at: string; previous_image_path: string | null; main_image_path: string | null }[] };
       save_current_hotel_tourism_item: { Args: { p_item_id: string | null; p_changes: Json; p_expected_updated_at?: string | null }; Returns: Database['public']['Tables']['hotel_tourism_items']['Row'][] };
       reorder_current_hotel_tourism_items: { Args: { p_item_ids: string[] }; Returns: Database['public']['Tables']['hotel_tourism_items']['Row'][] };
       delete_current_hotel_tourism_item: { Args: { p_item_id: string; p_expected_updated_at: string }; Returns: { deleted_id: string; main_image_path: string | null }[] };

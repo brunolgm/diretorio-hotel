@@ -9,6 +9,31 @@ import { MODULE_CATALOG, BASELINE_MODULE_KEYS } from '../../lib/modules/catalog.
 const migrationPath = 'supabase/migrations/20260910043520_52_1_tourism_foundation.sql';
 const sql = readFileSync(migrationPath, 'utf8');
 
+test('incremental tourism image RPC keeps generic writes closed and audits atomically', () => {
+  const imageSql = readFileSync('supabase/migrations/20260911011338_52_2a_tourism_main_image.sql', 'utf8');
+  assert.match(imageSql, /create function public\.update_current_hotel_tourism_image\(/);
+  assert.match(imageSql, /security definer set search_path=''/);
+  assert.match(imageSql, /tourism_private\.mutation_hotel\(\)/);
+  assert.match(imageSql, /i\.id=p_item_id and i\.hotel_id=target for update/);
+  assert.match(imageSql, /errcode='40001',message='tourism_revision_conflict'/);
+  assert.match(imageSql, /tourism\.image_updated/);
+  assert.doesNotMatch(imageSql, /tourism\.updated|alter table|storage\.|hotel_module_entitlements|create or replace/i);
+  assert.match(imageSql, /from public,anon,authenticated,service_role/);
+  assert.match(imageSql, /to authenticated/);
+  assert.match(imageSql, /previous_image_path text,main_image_path text/);
+  const allowlist = sql.split('allowed:=case')[1].split('for k,v')[0];
+  assert.doesNotMatch(allowlist, /main_image_path/);
+});
+
+test('image RPC rejects unchanged paths including NULL before mutation or audit', () => {
+  const imageSql = readFileSync('supabase/migrations/20260911011338_52_2a_tourism_main_image.sql', 'utf8');
+  assert.match(imageSql, /if p_main_image_path is not distinct from previous\.main_image_path then\s+raise exception using errcode='22023',message='tourism_image_unchanged'; end if;/);
+  const guard = imageSql.indexOf('if p_main_image_path is not distinct');
+  assert.ok(guard > imageSql.indexOf("message='tourism_revision_conflict'"));
+  assert.ok(guard < imageSql.indexOf('update public.hotel_tourism_items'));
+  assert.ok(guard < imageSql.indexOf('perform public.record_admin_audit_event'));
+});
+
 test('checked_patch rejects an empty object explicitly before either field allowlist', () => {
   const body = sql.split('create function tourism_private.checked_patch(')[1].split('end $$;')[0];
   assert.match(body, /p_patch is null or pg_catalog\.jsonb_typeof\(p_patch\)<>'object'/);

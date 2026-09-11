@@ -324,6 +324,93 @@ begin
   execute 'drop trigger s521_test_audit_failure on public.admin_audit_log';
 end $$;
 
+-- 52.2A: image ownership, revision, roles, return values and atomic audit.
+do $$
+declare
+  item uuid:=current_setting('test.s521_id')::uuid;
+  tenant uuid:='52100000-0000-4000-8000-000000000001';
+  revision timestamptz; stale timestamptz; result record;
+  first_path text; second_path text; bad_path text; actor text;
+  before_row jsonb; audit_count bigint;
+begin
+  first_path:=tenant::text||'/tourism/'||item::text||'/52140000-0000-4000-8000-000000000001.png';
+  second_path:=tenant::text||'/tourism/'||item::text||'/52140000-0000-4000-8000-000000000002.jpeg';
+  select updated_at into strict revision from public.hotel_tourism_items where id=item;
+  stale:=revision;
+  select count(*) into audit_count from public.admin_audit_log;
+  execute 'set local role authenticated';
+  perform set_config('request.jwt.claim.sub','52110000-0000-4000-8000-000000000002',true);
+  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,null,%L)',item,revision),'22023','tourism_image_unchanged');
+  execute 'reset role';
+  assert (select updated_at=revision and main_image_path is null from public.hotel_tourism_items where id=item), 'NULL no-op changed path/revision';
+  assert (select count(*) from public.admin_audit_log)=audit_count, 'NULL no-op created audit';
+  execute 'set local role authenticated';
+  select * into strict result from public.update_current_hotel_tourism_image(item,first_path,revision);
+  assert result.item_id=item and result.previous_image_path is null and result.main_image_path=first_path and result.updated_at>revision;
+  revision:=result.updated_at;
+  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,%L)',item,first_path,revision),'22023','tourism_image_unchanged');
+  execute 'reset role';
+  assert (select updated_at=revision and main_image_path=first_path from public.hotel_tourism_items where id=item), 'same-path no-op changed path/revision';
+  assert (select count(*) from public.admin_audit_log)=audit_count+1, 'same-path no-op created audit';
+  execute 'set local role authenticated';
+  select * into strict result from public.update_current_hotel_tourism_image(item,second_path,revision);
+  assert result.previous_image_path=first_path and result.main_image_path=second_path and result.updated_at>revision;
+  revision:=result.updated_at;
+  select * into strict result from public.update_current_hotel_tourism_image(item,null,revision);
+  assert result.previous_image_path=second_path and result.main_image_path is null and result.updated_at>revision;
+  revision:=result.updated_at;
+  execute 'reset role';
+  assert (select count(*) from public.admin_audit_log)=audit_count+3, 'image must audit once per operation';
+  assert (select count(*)=3 from public.admin_audit_log where entity_id=item and action='tourism.image_updated');
+  select to_jsonb(i) into before_row from public.hotel_tourism_items i where id=item;
+  select count(*) into audit_count from public.admin_audit_log;
+  execute 'set local role authenticated';
+  foreach bad_path in array array[
+    replace(first_path,tenant::text,'52100000-0000-4000-8000-000000000002'),
+    replace(first_path,item::text,'52130000-0000-4000-8000-000000000002'),
+    replace(first_path,'.png','.svg'),first_path||'/extra',first_path||E'\n',
+    'arbitrary.png','https://example.com/'||first_path,'',replace(first_path,'/tourism/','/promotional-banners/')
+  ] loop
+    perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,%L)',item,bad_path,revision),'22023','tourism_image_path_invalid');
+  end loop;
+  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,%L)',item,first_path,stale),'40001','tourism_revision_conflict');
+  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,null)',item,first_path),'40001','tourism_revision_conflict');
+  perform pg_temp.expect_error(format('select public.save_current_hotel_tourism_item(%L,%L,%L)',item,jsonb_build_object('main_image_path',first_path),revision),'22023','tourism_field_not_writable');
+  perform pg_temp.expect_error(format('update public.hotel_tourism_items set main_image_path=%L where id=%L',first_path,item),'42501');
+  perform set_config('request.jwt.claim.sub','52110000-0000-4000-8000-000000000003',true);
+  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,%L)',item,first_path,revision),'P0002','tourism_item_not_found');
+  foreach actor in array array['52110000-0000-4000-8000-000000000001','52110000-0000-4000-8000-000000000004','52110000-0000-4000-8000-000000000099',''] loop
+    perform set_config('request.jwt.claim.sub',actor,true);
+    perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,%L)',item,first_path,revision),'42501');
+  end loop;
+  execute 'reset role';
+  perform set_config('request.jwt.claim.sub','52110000-0000-4000-8000-000000000002',true);
+  update public.profiles set is_active=false where id=auth.uid();
+  execute 'set local role authenticated';
+  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,%L)',item,first_path,revision),'42501');
+  execute 'reset role';
+  update public.profiles set is_active=true where id=auth.uid();
+  update public.hotel_module_entitlements set is_enabled=false,enabled_at=null,enabled_by=null,disabled_at=now()
+    where hotel_id=tenant and module_key='content.tourism';
+  execute 'set local role authenticated';
+  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,%L)',item,first_path,revision),'42501');
+  execute 'reset role';
+  update public.hotel_module_entitlements set is_enabled=true,enabled_at=now(),disabled_at=null
+    where hotel_id=tenant and module_key='content.tourism';
+  update public.hotels set platform_status='archived' where id=tenant;
+  execute 'set local role authenticated';
+  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,%L)',item,first_path,revision),'42501');
+  execute 'reset role';
+  update public.hotels set platform_status='active' where id=tenant;
+  execute 'create trigger s521_test_audit_failure before insert on public.admin_audit_log for each row execute function pg_temp.reject_tourism_audit()';
+  execute 'set local role authenticated';
+  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,%L)',item,first_path,revision),'23514','test audit failure');
+  execute 'reset role';
+  execute 'drop trigger s521_test_audit_failure on public.admin_audit_log';
+  assert (select to_jsonb(i) from public.hotel_tourism_items i where id=item)=before_row, 'rejected image mutation changed row/revision';
+  assert (select count(*) from public.admin_audit_log)=audit_count, 'rejected image mutation added audit';
+end $$;
+
 set local role authenticated;
 do $$ declare a public.hotel_tourism_items; begin
   select * into a from public.hotel_tourism_items where id=current_setting('test.s521_id')::uuid;
@@ -337,7 +424,9 @@ reset role;
 do $$ declare rpc_signature text; begin
   assert exists(select 1 from public.admin_audit_log where entity_id=current_setting('test.s521_id')::uuid and action='tourism.deleted');
   assert not exists(select 1 from public.admin_audit_log a cross join lateral jsonb_object_keys(a.metadata) k
-    where a.action like 'tourism.%' and k not in ('type','category_key','featured','recommended_by_hotel','is_published','item_count','language'));
+    where a.action like 'tourism.%' and k not in ('type','category_key','featured','recommended_by_hotel','is_published','item_count','language','had_image','has_image'));
+  assert not exists(select 1 from public.admin_audit_log a cross join lateral jsonb_object_keys(a.metadata) k
+    where a.action='tourism.image_updated' and k not in ('had_image','has_image'));
   assert not has_table_privilege('authenticated','public.hotel_tourism_items','INSERT');
   assert not has_table_privilege('authenticated','public.hotel_tourism_items','UPDATE');
   assert not has_table_privilege('authenticated','public.hotel_tourism_items','DELETE');
@@ -348,7 +437,8 @@ do $$ declare rpc_signature text; begin
     'public.save_current_hotel_tourism_item(uuid,jsonb,timestamptz)',
     'public.reorder_current_hotel_tourism_items(uuid[])',
     'public.delete_current_hotel_tourism_item(uuid,timestamptz)',
-    'public.save_current_hotel_tourism_translation(uuid,text,timestamptz,jsonb)'
+    'public.save_current_hotel_tourism_translation(uuid,text,timestamptz,jsonb)',
+    'public.update_current_hotel_tourism_image(uuid,text,timestamptz)'
   ] loop
     assert not has_function_privilege('anon',rpc_signature,'EXECUTE'), 'anon can execute '||rpc_signature;
     assert not has_function_privilege('service_role',rpc_signature,'EXECUTE'), 'service_role can execute '||rpc_signature;

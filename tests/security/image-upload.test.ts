@@ -4,6 +4,8 @@ import {
   buildHotelAssetStoragePath,
   IMAGE_UPLOAD_POLICIES,
   validateImageUpload,
+  isOwnedTourismImagePath,
+  extractOwnedHotelAssetPath,
 } from '../../lib/security/image-upload.ts';
 
 function fileLike(bytes: Uint8Array, type: string, declaredSize = bytes.byteLength) {
@@ -53,6 +55,30 @@ test('accepts valid PNG, JPEG and WebP signatures with dimensions', async () => 
     const result = await validateImageUpload(fileLike(bytes, type), IMAGE_UPLOAD_POLICIES.logo);
     assert.equal(result.ok, true);
   }
+});
+
+test('tourism paths enforce hotel/item ownership without changing existing asset namespaces', () => {
+  const hotelId = '52100000-0000-4000-8000-000000000001';
+  const resourceId = '52130000-0000-4000-8000-000000000001';
+  const uniqueId = '52140000-0000-4000-8000-000000000001';
+  const path = buildHotelAssetStoragePath({ hotelId, resourceId, uniqueId, category: 'tourism', extension: 'png' });
+  assert.equal(path, `${hotelId}/tourism/${resourceId}/${uniqueId}.png`);
+  for (const extension of ['jpg', 'jpeg', 'png', 'webp']) assert.ok(isOwnedTourismImagePath(path.replace('.png', `.${extension}`), hotelId, resourceId));
+  for (const bad of [path + '\n', path + '/extra', path.replace('.png', '.svg'), `https://example.com/${path}`, path.replace(resourceId, uniqueId), path.replace(hotelId, uniqueId), '../image.png']) assert.equal(isOwnedTourismImagePath(bad, hotelId, resourceId), false);
+  assert.throws(() => buildHotelAssetStoragePath({ hotelId, uniqueId, category: 'tourism', extension: 'png' }));
+  for (const category of ['logo', 'hero', 'promotional-banners'] as const) {
+    const oldPath = buildHotelAssetStoragePath({ hotelId, category, uniqueId: 'synthetic-id', extension: 'png' });
+    assert.equal(oldPath, `${hotelId}/${category}/synthetic-id.png`);
+    assert.equal(extractOwnedHotelAssetPath({ hotelId, category, publicUrl: `https://example.com/storage/v1/object/public/hotel-assets/${oldPath}` }), oldPath);
+  }
+});
+
+test('tourism image policy accepts real supported formats and rejects limits/spoofing', async () => {
+  const policy = IMAGE_UPLOAD_POLICIES.tourism;
+  assert.deepEqual(policy, { maxBytes: 2097152, maxWidth: 6000, maxHeight: 4000, maxPixels: 24000000 });
+  assert.deepEqual(policy, IMAGE_UPLOAD_POLICIES.banner);
+  for (const [bytes, mime] of [[png(6000, 4000), 'image/png'], [jpeg(), 'image/jpeg'], [webp(), 'image/webp']] as const) assert.equal((await validateImageUpload(fileLike(bytes, mime), policy)).ok, true);
+  for (const file of [fileLike(png(6001, 1), 'image/png'), fileLike(png(1, 4001), 'image/png'), fileLike(png(), 'image/jpeg'), fileLike(png(), 'image/png', policy.maxBytes + 1), fileLike(new TextEncoder().encode('<svg/>'), 'image/svg+xml')]) assert.equal((await validateImageUpload(file, policy)).ok, false);
 });
 
 test('rejects false MIME, empty, oversized and SVG/HTML payloads', async () => {

@@ -7,7 +7,9 @@ Fundação local de domínio/banco/autorização, a partir de `sprint-52-tourism
 `20260910043520_52_1_tourism_foundation.sql`. Este documento complementa o
 [PRODUCT_MAP](PRODUCT_MAP.md), sem substituir registros históricos da experiência pública.
 
-A migration ainda não foi aplicada ao Supabase remoto. `content.tourism` permanece
+Fundação 52.1 aplicada e validada no Supabase remoto: migration
+`20260910043520_52_1_tourism_foundation.sql`, imutável desde o checkpoint
+`3e2be2b5f350786105b4337c0b967cc4df884787`. `content.tourism` permanece
 `coming_soon`, opt-in, fora do baseline e sem provisionamento para qualquer hotel.
 Os testes habilitam o módulo apenas em hotéis sintéticos dentro de uma transação local
 revertida. Disponibilidade e habilitação real dependem da entrega coordenada de Admin,
@@ -117,7 +119,8 @@ As quatro RPCs são SECURITY DEFINER, search_path vazio e relações qualificada
 Funções auxiliares estão em tourism_private, sem USAGE/EXECUTE para papéis da aplicação.
 Toda mutação resolve auth.uid(), perfil ativo, papel operador ou superior e hotel não
 arquivado; valida entitlement. Não aceita hotel_id/ator/slug/timestamps no patch.
-Imagem e sort_order também não são editáveis pelo patch genérico.
+Imagem e sort_order também não são editáveis pelo patch genérico. A extensão 52.2A
+de imagem está descrita abaixo e não altera essa allowlist.
 
 Um lock de linha no hotel serializa todas as mutações do catálogo, inclusive inserção
 no catálogo vazio. Edição/exclusão verificam expected_updated_at e falham com 40001
@@ -141,17 +144,71 @@ tourism.deleted. Tradução usa tourism.updated com language, sem conteúdo.
 Metadata é construída no banco, sem parâmetro livre: type, category_key, featured,
 recommended_by_hotel, is_published, item_count ou language. Não inclui contatos,
 descrições, URLs, dados de hóspede ou payload do tradutor. Audit log histórico permanece
-após exclusão. Não foi criado evento de imagem.
+após exclusão. Na 52.1 não foi criado evento de imagem; a extensão 52.2A o acrescenta.
 
 Hard delete exige ação explícita do futuro Admin; a confirmação pertence à 52.2.
 Não há deleted_at, archive, lixeira ou restauração via auditoria.
 
 ## Imagem e integrações futuras
 
-Somente a coluna e sua constraint existem. Caminho:
+Na fundação 52.1, somente a coluna e sua constraint existiam. Caminho:
 `<hotel_id>/tourism/<item_id>/<uuid>.<jpg|jpeg|png|webp>` no bucket existente hotel-assets.
 Uma imagem; futuro upload validará bytes/MIME, até 2 MiB, 6000x4000 e 24 milhões de pixels.
-Nenhum upload, bucket, objeto, policy Storage ou RPC de associação foi criado.
+Nenhum upload, bucket, objeto ou policy Storage foi criado. A 52.2A acrescenta
+somente a RPC de associação e os helpers necessários, sem tela ou Server Action de upload.
+
+### Sprint 52.2A — contrato da imagem principal
+
+Nova migration incremental local: `20260911011338_52_2a_tourism_main_image.sql`.
+Não aplicada ao remoto nesta etapa. A migration 52.1 permanece byte a byte intacta.
+
+RPC: `public.update_current_hotel_tourism_image(p_item_id uuid,
+p_main_image_path text, p_expected_updated_at timestamptz)`.
+Retorna uma linha com `item_id uuid`, `updated_at timestamptz`,
+`previous_image_path text NULL` e `main_image_path text NULL`.
+
+Usa o mesmo contexto/lock `tourism_private.mutation_hotel()`: sessão, perfil ativo,
+operador ou superior, hotel não arquivado e content.tourism habilitado. O item deve
+pertencer ao hotel atual. Global Admin não ganha papel editorial implícito.
+SECURITY DEFINER, search_path vazio, execução somente para authenticated; anon,
+PUBLIC e service_role não recebem EXECUTE. Grants de tabelas permanecem intactos.
+
+Revisão ausente ou divergente produz `40001 / tourism_revision_conflict`. A operação
+não busca uma nova revisão para repetir. O caminho inteiro deve corresponder ao hotel,
+item e UUID do objeto, com extensão jpg/jpeg/png/webp; vazio e URL são inválidos.
+NULL remove a associação. O trigger existente avança updated_at no banco.
+
+Após validar a revisão, a RPC rejeita path igual ao atual, inclusive NULL → NULL,
+com `22023 / tourism_image_unchanged`. A rejeição não executa UPDATE, não avança
+updated_at e não grava auditoria. Associação, substituição por path diferente e remoção
+de imagem existente continuam seguindo o mesmo contrato.
+
+Auditoria atômica: somente `tourism.image_updated`, entity_type hotel_tourism_item,
+metadata fechada `had_image` e `has_image` (booleanos). Não inclui path, URL ou conteúdo
+e não duplica tourism.updated. Uma falha no audit log reverte a associação.
+
+`lib/security/image-upload.ts` agora oferece categoria/policy tourism e
+`isOwnedTourismImagePath(path, hotelId, itemId)`, que recebe PATH, não URL.
+O gerador exige resourceId e UUIDs válidos para Turismo, preservando a geração antiga
+de logo/hero/promotional-banners. A policy é 2 MiB, 6000x4000, 24 milhões de pixels,
+JPEG/PNG/WebP, usando a validação de bytes/MIME/dimensões existente.
+
+A RPC valida associação/ownership, não existência, MIME ou bytes no Storage. A futura
+Server Action deve validar o arquivo, gerar UUID novo e subir no bucket hotel-assets
+com upsert=false antes de chamar a RPC com a revisão exibida. Em falha confirmada da
+RPC, remover somente o upload novo; em sucesso, usar previous_image_path retornado
+para remover o anterior apenas quando diferente de main_image_path. Como defesa
+adicional, a Server Action nunca deve remover do Storage um previous_image_path
+igual ao main_image_path resultante. A falha posterior
+de cleanup deve ser relatada separadamente, sem fingir rollback da associação.
+Em resposta de rede ambígua após possível commit, reconciliar a associação antes de
+remover o upload novo. Não reusar caminhos antigos ou compartilhá-los entre operações.
+
+Não há UI, upload real, db push, ativação de módulo ou provisionamento de entitlement.
+O runner local existente executa ambas as migrations antes da matriz, sob rollback.
+Cobertura adicional: associar/substituir/remover, old/new path, revisão, papéis,
+lifecycle, entitlement, caminhos estrangeiros/arbitrários, falha de auditoria,
+grants, patch genérico fechado e regressão dos helpers de mídia antigos.
 
 No futuro: upload novo sem sobrescrita; associar sob controle de revisão; remover novo
 upload se associação falhar; remover anterior após commit bem-sucedido; cleanup após
@@ -199,7 +256,13 @@ TS e constraints SQL; 13–25 matriz de identidade/flags/traduções; 26–40 RL
 papéis e patches; 41–47 RPCs e falha induzida de auditoria; 48–55 teste de escopo,
 catálogo de módulos inalterado e ausência de provisionamento na migration.
 
-Resultado local da implementação: 293 testes de segurança aprovados; lint sem erros
+Resultado histórico local da implementação inicial 52.1: 293 testes de segurança aprovados; lint sem erros
 (quatro avisos preexistentes de `<img>` em arquivos fora do escopo); build aprovado;
 matriz SQL rollback-only aprovada; diff-check sem erros de whitespace. Nenhum banco
-remoto foi alterado; nenhuma migration foi aplicada permanentemente ao laboratório.
+remoto foi alterado naquela execução; nenhuma migration foi aplicada permanentemente ao laboratório.
+
+Validação local da 52.2A: 297 testes de segurança aprovados, matriz SQL rollback-only
+aprovada com conferência de ausência de resíduos, lint sem erros (os mesmos quatro
+avisos preexistentes), build e diff-check aprovados. A nova migration não foi aplicada
+ao remoto e nenhum entitlement foi criado. O SHA-256 da migration 52.1 permaneceu
+`52A2EDA17B6AE93A16B9E81AA265B52A787EA2C23AAB4E92C19D391E16ACAB64`.
