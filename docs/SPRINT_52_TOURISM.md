@@ -159,8 +159,9 @@ somente a RPC de associação e os helpers necessários, sem tela ou Server Acti
 
 ### Sprint 52.2A — contrato da imagem principal
 
-Nova migration incremental local: `20260911011338_52_2a_tourism_main_image.sql`.
-Não aplicada ao remoto nesta etapa. A migration 52.1 permanece byte a byte intacta.
+Migration incremental `20260911011338_52_2a_tourism_main_image.sql` aplicada no remoto,
+conforme checkpoint confirmado `f7e7aed84e12a7a623eb5938562b5564e28c1318`.
+As migrations 52.1 e 52.2A são imutáveis a partir deste checkpoint.
 
 RPC: `public.update_current_hotel_tourism_image(p_item_id uuid,
 p_main_image_path text, p_expected_updated_at timestamptz)`.
@@ -220,6 +221,51 @@ Não há eventos ou PII novos. O contrato futuro de eventos deverá preservar id
 histórica/classificação sem FK destrutiva para o item.
 
 ## Limites de escopo e continuidade
+
+### Sprint 52.2B1 — Admin Core
+
+Implementados `/admin/turismo` (listagem/criação) e `/admin/turismo/[id]`
+(detalhe e edição). Leituras em Server Components, tenant obtido do perfil no servidor,
+filtros por hotel e ID, listagem ordenada por sort_order e id. O layout/guard original,
+shell e governança permanecem intactos. Não existe rota `/novo`.
+
+Viewer acessa lista/detalhe sem controles de mutação; operador ou superior recebe
+formulário, publicação, reordenação e confirmação de exclusão. Cada Server Action
+repete role/entitlement e usa exclusivamente as RPCs existentes de save, reorder e
+delete, com cliente autenticado. Nenhuma escrita direta, service_role ou auditoria
+duplicada. Flags são independentes e publicação envia somente is_published + revisão.
+
+Formulário compartilhado usa catálogo fechado, limites e normalizeTourismPatch.
+Campos protegidos não entram no patch. Dados digitados são controlados e preservados
+quando a ação retorna erro via useActionState. A revisão original integral é enviada
+sem conversão para Date; conflito 40001 exibe orientação para recarregar, sem retry.
+Patch vazio é rejeitado antes da chamada. Reorder consulta o conjunto completo e
+desabilita os limites; não há filtros de subconjunto nem drag-and-drop nesta etapa.
+
+Delete exige AdminConfirmAction e revisão. Itens com main_image_path são bloqueados
+na UI e na Server Action até B3, oferecendo despublicação como alternativa. A consulta
+prévia não substitui a revisão original; uma associação concorrente provoca conflito
+na RPC. Não há cleanup de Storage nem novos paths nesta B1.
+
+Pendências: B2 tradução automática; B3 imagem na UI e cleanup; etapa pública;
+ativação/entitlement posterior. Edição PT continua invalidando campos traduzidos pelo
+contrato do banco, mas B1 não regenera EN/ES. Nenhuma mudança em /admin/idiomas ou nos
+helpers globais de tradução. content.tourism continua coming_soon e nenhum entitlement
+é provisionado pela implementação.
+
+Homologação de navegador requer banco/credenciais e fixtures locais persistentes
+isolados. O runner SQL disponível é rollback-only e não oferece por si só uma sessão
+administrativa persistente. Nenhum bypass ou entitlement remoto foi criado para tornar
+a UI acessível. Nesta entrega, Server Actions e composição dos Server Components são
+testadas com dependências simuladas; homologação visual autenticada permanece pendente.
+
+Verificação B1: 306 testes de segurança, incluindo oito testes específicos do Admin;
+build aprovado; lint sem erros com quatro avisos preexistentes de img; diff-check sem
+erros de whitespace. Uma checagem adicional com tsc --noEmit --incremental false
+reportou tipagens preexistentes de node:module/registerHooks nos testes de Voos;
+esses arquivos não foram alterados. O build Next e a execução dos testes passaram.
+
+O registro abaixo descreve os limites da fundação anterior à B1.
 
 Não há Admin, UI pública, Home, grid, docks, public-routes, mudanças de layout, eventos
 analíticos ou alteração da Central de Voos. O legado continua intacto: sem alteração de

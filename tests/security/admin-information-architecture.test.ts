@@ -71,11 +71,13 @@ test('marks future areas as coming soon without fake operations', () => {
   const structural = [
     read('components', 'admin', 'admin-coming-soon-page.tsx'),
     read('app', 'admin', 'cardapio', 'page.tsx'),
-    read('app', 'admin', 'turismo', 'page.tsx'),
     read('app', 'admin', 'logs', 'page.tsx'),
   ].join('\n');
   assert.match(structural, /Em breve/);
   assert.doesNotMatch(structural, /\.from\(|\.rpc\(|insert\(|update\(|delete\(|service_role/i);
+  // B1 now has real administration, still gated and unavailable for activation.
+  assert.match(read('app', 'admin', 'turismo', 'layout.tsx'), /requireHotelModule\('content.tourism'\)/);
+  assert.match(read('app', 'admin', 'turismo', 'page.tsx'), /requireHotelModule\('content.tourism'\)/);
 });
 
 test('matches the compact golden-master navigation without sidebar roadmap badges', () => {
