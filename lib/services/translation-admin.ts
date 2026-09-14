@@ -1,4 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
+import { hasHotelModule } from '@/lib/admin-entitlements';
+import { getTourismTranslationStatus, tourismTranslationFields, type TourismTranslationFields } from '@/lib/tourism/translations';
 import {
   type SupportedTranslationLanguage,
   translateAnnouncementFields,
@@ -6,11 +8,72 @@ import {
   translatePolicyFields,
   translatePromotionalBannerFields,
   translateSectionFields,
+  translateTourismFields,
 } from '@/lib/services/translation-service';
 
 type AppSupabaseClient = Awaited<ReturnType<typeof createClient>>;
 
 const TARGET_LANGUAGES: SupportedTranslationLanguage[] = ['en', 'es'];
+
+export interface TourismTranslationSyncResult {
+  status: 'complete' | 'partial' | 'failed' | 'stale' | 'skipped';
+  successfulLanguages: SupportedTranslationLanguage[];
+  failedLanguages: SupportedTranslationLanguage[];
+  staleLanguages: SupportedTranslationLanguage[];
+}
+
+/** PT is already committed. Never refresh its revision or retry a stale translation. */
+export async function syncTourismTranslations({ supabase, item }: {
+  supabase: AppSupabaseClient;
+  item: TourismTranslationFields & { id: string; updated_at: string };
+}): Promise<TourismTranslationSyncResult> {
+  const failed: TourismTranslationSyncResult = {
+    status: 'failed', successfulLanguages: [], failedLanguages: [...TARGET_LANGUAGES], staleLanguages: [],
+  };
+  try {
+    if (!(await hasHotelModule('content.languages'))) {
+      return { status: 'skipped', successfulLanguages: [], failedLanguages: [], staleLanguages: [] };
+    }
+    const fields = tourismTranslationFields(item);
+    const outcomes = await Promise.all(TARGET_LANGUAGES.map(async (language) => {
+      try {
+        const translated = await translateTourismFields(fields, language);
+        if (!translated || getTourismTranslationStatus(fields, translated) !== 'complete') return 'failed';
+        const { data, error } = await supabase.rpc('save_current_hotel_tourism_translation', {
+          p_item_id: item.id, p_language: language, p_expected_updated_at: item.updated_at,
+          p_changes: tourismTranslationFields(translated),
+        });
+        if (error) return 'failed';
+        if (data === false) return 'stale';
+        return data === true ? 'complete' : 'failed';
+      } catch {
+        return 'failed';
+      }
+    }));
+    const successfulLanguages = TARGET_LANGUAGES.filter((_, index) => outcomes[index] === 'complete');
+    const failedLanguages = TARGET_LANGUAGES.filter((_, index) => outcomes[index] === 'failed');
+    const staleLanguages = TARGET_LANGUAGES.filter((_, index) => outcomes[index] === 'stale');
+    return {
+      status: staleLanguages.length ? 'stale' : getSyncStatus(successfulLanguages),
+      successfulLanguages, failedLanguages, staleLanguages,
+    };
+  } catch {
+    // Entitlement lookup failure also must not turn a successful PT save into failure.
+    return failed;
+  }
+}
+
+export function formatTourismTranslationFeedback(result: TourismTranslationSyncResult) {
+  if (result.status === 'skipped') return {};
+  if (result.status === 'complete') return { success: 'Traduções EN e ES concluídas.' };
+  if (result.staleLanguages.length) return {
+    warning: `Conteúdo salvo em português. Resultado de tradução ${result.staleLanguages.map(formatLanguageLabel).join(' e ')} descartado por revisão obsoleta. Recarregue os dados antes de traduzir novamente.`,
+  };
+  if (result.status === 'partial') return {
+    warning: `Conteúdo salvo em português, com tradução parcial. ${result.successfulLanguages.map(formatLanguageLabel).join(' e ')} concluída; ${result.failedLanguages.map(formatLanguageLabel).join(' e ')} não pôde ser atualizada. O fallback continua em PT.`,
+  };
+  return { warning: 'Conteúdo salvo em português, mas as traduções EN e ES não puderam ser concluídas. O fallback continua em PT.' };
+}
 
 export type TranslationSyncState = 'complete' | 'partial' | 'failed';
 

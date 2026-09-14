@@ -6,7 +6,7 @@ import { requireAdminAccess } from '@/lib/auth';
 import { requireHotelModule } from '@/lib/admin-entitlements';
 import { createClient } from '@/lib/supabase/server';
 import { isUuid } from '@/lib/security/identifiers';
-import { buildFeedbackRedirect } from '@/lib/services/translation-admin';
+import { buildFeedbackRedirect, formatTourismTranslationFeedback, syncTourismTranslations } from '@/lib/services/translation-admin';
 import { moveTourismOrder, tourismAdminError, tourismFormPatch, type TourismFormState } from '@/lib/tourism/admin';
 
 async function requireTourismOperator() {
@@ -25,10 +25,12 @@ function fail(error: { code?: string; message?: string }): never {
   redirect(buildFeedbackRedirect('/admin/turismo', { error: tourismAdminError(error) }));
 }
 
-function finish(message: string, id?: string): never {
+function finish(message: string, id?: string, feedback: { success?: string; warning?: string } = {}): never {
   revalidatePath('/admin/turismo');
   if (id) revalidatePath(`/admin/turismo/${id}`);
-  redirect(buildFeedbackRedirect(id ? `/admin/turismo/${id}` : '/admin/turismo', { success: message }));
+  redirect(buildFeedbackRedirect(id ? `/admin/turismo/${id}` : '/admin/turismo', {
+    ...feedback, success: feedback.success ? `${message} ${feedback.success}` : message,
+  }));
 }
 
 export async function createTourismItemAction(_state: TourismFormState, form: FormData): Promise<TourismFormState> {
@@ -38,7 +40,8 @@ export async function createTourismItemAction(_state: TourismFormState, form: Fo
   catch (error) { return { error: tourismAdminError(error as Error) }; }
   const { data, error } = await supabase.rpc('save_current_hotel_tourism_item', { p_item_id: null, p_changes: patch });
   if (error || !data?.[0]) return { error: tourismAdminError(error || {}) };
-  finish('Item de Turismo criado.', data[0].id);
+  const translation = await syncTourismTranslations({ supabase, item: data[0] });
+  finish('Item de Turismo criado.', data[0].id, formatTourismTranslationFeedback(translation));
 }
 
 export async function updateTourismItemAction(id: string, _state: TourismFormState, form: FormData): Promise<TourismFormState> {
@@ -47,9 +50,26 @@ export async function updateTourismItemAction(id: string, _state: TourismFormSta
   let patch; let revision;
   try { patch = tourismFormPatch(form); revision = revisionFrom(form); }
   catch (error) { return { error: tourismAdminError(error as Error) }; }
-  const { error } = await supabase.rpc('save_current_hotel_tourism_item', { p_item_id: id, p_changes: patch, p_expected_updated_at: revision });
+  const { data, error } = await supabase.rpc('save_current_hotel_tourism_item', { p_item_id: id, p_changes: patch, p_expected_updated_at: revision });
   if (error) return { error: tourismAdminError(error) };
-  finish('Item de Turismo atualizado.', id);
+  if (!data?.[0]) finish('Item de Turismo atualizado.', id, { warning: 'Conteúdo salvo em português, mas não foi possível preparar as traduções.' });
+  const translation = await syncTourismTranslations({ supabase, item: data[0] });
+  finish('Item de Turismo atualizado.', id, formatTourismTranslationFeedback(translation));
+}
+
+export async function retranslateTourismItemAction(form: FormData) {
+  const { profile, supabase } = await requireTourismOperator();
+  const id = String(form.get('id') || '');
+  if (!isUuid(id)) fail({});
+  let revision;
+  try { revision = revisionFrom(form); } catch (error) { fail(error as Error); }
+  const { data: item, error } = await supabase.from('hotel_tourism_items').select('*')
+    .eq('id', id).eq('hotel_id', profile.hotel_id).maybeSingle();
+  if (error || !item) fail(error || { code: 'P0002' });
+  // Explicit manual request: load the source, but never substitute a newer revision.
+  if (item.updated_at !== revision) fail({ message: 'tourism_revision_conflict' });
+  const translation = await syncTourismTranslations({ supabase, item });
+  finish('Conteúdo em português preservado.', id, formatTourismTranslationFeedback(translation));
 }
 
 export async function publishTourismItemAction(form: FormData) {

@@ -5,6 +5,7 @@ import { runInNewContext } from 'node:vm';
 import test from 'node:test';
 import * as domain from '../../lib/tourism/admin.ts';
 import * as catalog from '../../lib/tourism/catalog.ts';
+import * as translations from '../../lib/tourism/translations.ts';
 import { MODULE_CATALOG } from '../../lib/modules/catalog.ts';
 
 const require = createRequire(import.meta.url);
@@ -43,7 +44,10 @@ function harness(options: { denied?: boolean; disabled?: boolean; image?: boolea
     if (name === '@/lib/admin-entitlements') return { requireHotelModule: async (key: string) => { guards.push(key); if (options.disabled) throw new Error('DISABLED'); } };
     if (name === '@/lib/supabase/server') return { createClient: async () => client };
     if (name === '@/lib/security/identifiers') return { isUuid: (value: string) => /^[0-9a-f-]{36}$/.test(value) };
-    if (name === '@/lib/services/translation-admin') return { buildFeedbackRedirect: (path: string, messages: Record<string, string>) => `${path}?${new URLSearchParams(messages)}` };
+    if (name === '@/lib/services/translation-admin') return {
+      buildFeedbackRedirect: (path: string, messages: Record<string, string>) => `${path}?${new URLSearchParams(messages)}`,
+      syncTourismTranslations: async () => ({ status: 'skipped' }), formatTourismTranslationFeedback: () => ({}),
+    };
     if (name === '@/lib/tourism/admin') return domain;
     throw new Error(`Unexpected import ${name}`);
   } });
@@ -53,6 +57,7 @@ function harness(options: { denied?: boolean; disabled?: boolean; image?: boolea
     publishTourismItemAction: (data: FormData) => Promise<void>;
     moveTourismItemAction: (data: FormData) => Promise<void>;
     deleteTourismItemAction: (data: FormData) => Promise<void>;
+    retranslateTourismItemAction: (data: FormData) => Promise<void>;
   };
   return { actions, calls, filters, guards };
 }
@@ -96,7 +101,7 @@ test('every mutation repeats role and module guards', async () => {
   for (const options of [{ denied: true }, { disabled: true }]) {
     const h = harness(options);
     const data = form({ id, expected_updated_at: revision, direction: 'down', is_published: 'true' });
-    for (const operation of [() => h.actions.createTourismItemAction({}, valid()), () => h.actions.updateTourismItemAction(id, {}, valid()), () => h.actions.publishTourismItemAction(data), () => h.actions.moveTourismItemAction(data), () => h.actions.deleteTourismItemAction(data)]) await assert.rejects(operation, /DENIED|DISABLED/);
+    for (const operation of [() => h.actions.createTourismItemAction({}, valid()), () => h.actions.updateTourismItemAction(id, {}, valid()), () => h.actions.publishTourismItemAction(data), () => h.actions.moveTourismItemAction(data), () => h.actions.deleteTourismItemAction(data), () => h.actions.retranslateTourismItemAction(data)]) await assert.rejects(operation, /DENIED|DISABLED/);
     assert.equal(h.calls.length, 0);
   }
 });
@@ -126,7 +131,7 @@ test('delete is scoped, requires original revision and blocks images without Sto
   }
 });
 
-test('pages expose viewer detail but gate every mutation; public/image/translation scope stays closed', () => {
+test('pages expose viewer detail but gate every mutation; public/image scope stays closed', () => {
   for (const file of ['app/admin/turismo/page.tsx', 'app/admin/turismo/[id]/page.tsx']) {
     const page = readFileSync(file, 'utf8');
     assert.match(page, /requireAdminAccess\('visualizador'\)/);
@@ -144,19 +149,24 @@ test('pages expose viewer detail but gate every mutation; public/image/translati
   assert.match(formSource, /useActionState/);
   assert.match(formSource, /value=\{item.updated_at\}/);
   assert.match(formSource, /TOURISM_CATEGORIES.filter/);
-  assert.doesNotMatch(source, /\.insert\(|\.update\(|\.delete\(|createAdminClient|service_role|\.storage|sync.*Translation|update_current_hotel_tourism_image/);
+  assert.doesNotMatch(source, /\.insert\(|\.update\(|\.delete\(|createAdminClient|service_role|\.storage|update_current_hotel_tourism_image/);
+  assert.match(source, /syncTourismTranslations/);
+  assert.doesNotMatch(source, /sync(?:Section|Department|Policy|Announcement|PromotionalBanner)Translations/);
   assert.equal(MODULE_CATALOG.find((entry) => entry.key === 'content.tourism')?.availability, 'coming_soon');
 });
 
 test('Server Components actually omit forms/actions for viewer and reject a foreign item', async () => {
-  async function renderPage(role: 'visualizador' | 'operador', detail: boolean, foreign = false) {
+  async function renderPage(role: 'visualizador' | 'operador', detail: boolean, foreign = false, languages = true, translated = false) {
     const filters: Array<[string, unknown]> = [];
     const item = { id, hotel_id: tenant, name: 'Museu', type: 'PLACE', category_key: 'sights', short_description: 'Visita', updated_at: revision };
     const query = {
       select: () => query, order: () => query,
       eq: (key: string, value: unknown) => { filters.push([key, value]); return query; },
       maybeSingle: async () => ({ data: foreign ? null : item, error: null }),
-      then: (resolve: (value: unknown) => unknown) => resolve({ data: [item], error: null }),
+      then: (resolve: (value: unknown) => unknown) => resolve({ data: translated ? [
+        { language: 'en', name: 'Museum', short_description: null },
+        { language: 'es', name: 'Museo', short_description: 'Visita' },
+      ] : [item], error: null }),
     };
     const file = detail ? 'app/admin/turismo/[id]/page.tsx' : 'app/admin/turismo/page.tsx';
     const code = ts.transpileModule(readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 } }).outputText;
@@ -166,11 +176,12 @@ test('Server Components actually omit forms/actions for viewer and reject a fore
       if (name === 'react/jsx-runtime') return { jsx, jsxs: jsx, Fragment: 'Fragment' };
       if (name === 'next/navigation') return { notFound: () => { throw new Error('NOT_FOUND'); } };
       if (name === '@/lib/auth') return { requireAdminAccess: async () => ({ profile: { hotel_id: tenant, normalizedRole: role } }), hasMinimumRole: () => role === 'operador' };
-      if (name === '@/lib/admin-entitlements') return { requireHotelModule: async () => {} };
+      if (name === '@/lib/admin-entitlements') return { requireHotelModule: async () => {}, hasHotelModule: async () => languages };
       if (name === '@/lib/supabase/server') return { createClient: async () => ({ from: () => query }) };
       if (name === '@/lib/security/identifiers') return { isUuid: () => true };
       if (name === '@/lib/tourism/catalog') return catalog;
       if (name === '@/lib/tourism/admin') return domain;
+      if (name === '@/lib/tourism/translations') return translations;
       if (name.endsWith('/actions')) return { createTourismItemAction: () => {}, updateTourismItemAction: () => {} };
       if (name.startsWith('@/components/')) return new Proxy({}, { get: (_object, key) => String(key) });
       throw new Error(`Unexpected import ${name}`);
@@ -183,9 +194,18 @@ test('Server Components actually omit forms/actions for viewer and reject a fore
   for (const detail of [false, true]) {
     const viewer = await renderPage('visualizador', detail);
     assert.doesNotMatch(viewer, /"type":"TourismForm"|"type":"TourismItemActions"/);
+    assert.doesNotMatch(viewer, /Traduzir novamente/);
     const operator = await renderPage('operador', detail);
     assert.match(operator, /"type":"TourismForm"/);
     assert.match(operator, /"type":"TourismItemActions"/);
+    if (detail) {
+      assert.match(viewer, /English — Ausente/);
+      assert.match(operator, /Traduzir novamente/);
+      assert.doesNotMatch(await renderPage('operador', true, false, false), /Traduzir novamente/);
+      const statuses = await renderPage('visualizador', true, false, true, true);
+      assert.match(statuses, /English — Parcial/);
+      assert.match(statuses, /Español — Completo/);
+    }
   }
   await assert.rejects(renderPage('visualizador', true, true), /NOT_FOUND/);
 });

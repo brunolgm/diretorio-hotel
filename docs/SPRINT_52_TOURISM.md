@@ -1,5 +1,17 @@
 # Sprint 52 — Turismo: contrato técnico canônico
 
+## Checkpoint atual — 52.2B2
+
+Base: branch `sprint-52-tourism`, HEAD `0b3e36ddc23d92bddfd47f96c042f042f17ca534`.
+Conforme checkpoint confirmado para esta etapa, 52.1 e 52.2A estão concluídas;
+52.2B1 está concluída e homologada, e o hotfix PT409 foi aplicado e validado no
+remoto. Os relatos de homologação pendente abaixo são registros históricos da
+implementação anterior. Esta B2 não executou alterações no Supabase remoto.
+
+A entrega atual implementa somente tradução administrativa PT → EN/ES de Turismo.
+B3 (imagem na UI/cleanup), público e integração ao resumo `/admin/idiomas` continuam
+pendentes. `content.tourism` permanece `coming_soon`, sem provisionar entitlements.
+
 ## Estado e escopo da 52.1
 
 Fundação local de domínio/banco/autorização, a partir de `sprint-52-tourism`, HEAD
@@ -379,7 +391,83 @@ Procedimento manual, exclusivamente na stack descartável local:
 6. Repetir pela UI com duas abas: salvar na Aba A, tentar salvar a revisão antiga
    na Aba B, confirmar mensagem específica sem retry e preservação dos dados de A.
 
-**B1 continua pendente de homologação completa até repetir concorrência pela UI.**
-B2, B3 e público não avançaram. content.tourism continua coming_soon; nenhum
-entitlement persistente foi criado (fixtures sintéticas da matriz sofreram rollback).
-Supabase remoto permaneceu intocado; sem commit, push, merge, deploy ou db push.
+**Registro histórico de um checkpoint intermediário do hotfix PT409.**
+Naquele checkpoint, B2, B3 e público ainda não haviam avançado; content.tourism
+permanecia coming_soon e nenhum entitlement persistente havia sido criado
+(fixtures sintéticas da matriz sofreram rollback). A ausência de alterações no
+Supabase remoto e de commit, push, merge, deploy ou db push referia-se somente
+àquele checkpoint intermediário. A homologação final da B1, o commit/push da
+branch e a aplicação/validação do hotfix PT409 no Supabase remoto ocorreram
+posteriormente e estão refletidos no checkpoint atual do início deste documento.
+
+## Sprint 52.2B2 — traduções administrativas PT → EN/ES
+
+O serviço técnico continua em `lib/services/translation-service.ts`, com
+`translateTourismFields` reutilizando o mesmo transporte Google dos editoriais.
+Não há cliente paralelo. O novo caminho aplica uma allowlist em runtime:
+name, short_description, full_description, opening_hours, price_info e duration_info.
+Somente valores não nulos vão ao tradutor; tipo/categoria, endereço, contatos,
+URLs, slug, flags, ordem e imagem nunca fazem parte da solicitação.
+O limite de espera de 10 segundos por idioma e a sanitização de erros do provedor
+são exclusivos de Turismo; os cinco editoriais existentes mantêm o comportamento.
+
+`syncTourismTranslations`, em `translation-admin.ts`, consulta `hasHotelModule`
+para `content.languages` no servidor. Desligado: retorno skipped, sem Google,
+sem RPC de tradução e sem aviso de erro. Uma falha na consulta de entitlement
+impede a tradução e gera aviso, preservando o save PT já concluído.
+
+Create salva por `save_current_hotel_tourism_item`, recebe o registro e usa seu
+id e updated_at. Update agora também consome o registro retornado, incluindo a
+revisão efetiva da gravação. Ambos traduzem os seis campos da fonte retornada,
+seguindo a sincronização integral ao salvar dos editoriais atuais. O redirect
+para o detalhe e as mensagens B1 permanecem, acrescidos do feedback de tradução.
+Publicação, reordenação e exclusão não disparam tradução.
+
+EN e ES são processados independentemente. Toda persistência usa
+`save_current_hotel_tourism_translation` com o cliente autenticado do operador;
+sem upsert direto, service_role, grants ou DML novo. A revisão retornada pelo
+save PT é enviada como string integral, inclusive microssegundos. Não há Date,
+consulta de revisão nova ou retry automático para forçar persistência.
+
+O resultado true confirma persistência; false é stale e é descartado com aviso
+específico, nunca contado como sucesso. Erro de um idioma não impede o outro.
+Google indisponível, resposta vazia/incompleta, falha da RPC ou stale não desfazem
+PT. O feedback distingue sucesso EN/ES, conclusão parcial, falha total e descarte
+por revisão obsoleta, sem detalhes internos do provedor. O fallback permanece PT.
+A invalidação por campo continua exclusivamente no banco, sem reimplementação
+no browser e sem alteração das migrations aplicadas.
+
+`lib/tourism/translations.ts` centraliza a allowlist, o recorte dos campos e
+`getTourismTranslationStatus`. Completude é derivada no servidor: ausente quando
+nenhum campo PT preenchido tem tradução; parcial quando somente parte tem;
+completa quando todos têm. Uma linha EN/ES existir não basta. Opcionais NULL no
+PT não são exigidos. Não existe status persistido novo.
+
+O detalhe reutiliza AdminLanguageBadge para Português — Fonte, English e Español
+com Completo/Parcial/Ausente. Falha de leitura do status é indicada como consulta
+indisponível, sem alegar que traduções estão ausentes. Viewer visualiza o estado,
+sem botão de tradução. Operador ou superior pode usar “Traduzir novamente”,
+seguindo o padrão de formulário/Server Action/AdminSubmitButton dos editoriais.
+O botão depende de languages; a ação repete role/tourism, filtra o item pelo hotel,
+confere a revisão exibida antes de traduzir e repete a checagem de languages no
+helper. A RPC continua protegendo contra mudança PT durante a tradução.
+
+`/admin/idiomas` não foi alterado nem passou a agregar Turismo. Sua futura
+integração precisa respeitar completude por campo. B3 imagem na UI permanece
+pendente; nenhuma mudança em Storage, Home, público ou demais módulos.
+
+Testes B2 usam o transporte HTTP falso com o serviço e a orquestração reais,
+sem consumo do Google. Cobrem os seis campos, create/update com revisão retornada,
+languages desligado, falhas independentes, stale sem retry, PT409, completude,
+viewer/operador, retradução manual, preservação dos cinco editoriais e arquivos
+protegidos. Testes de fundação e hotfix continuam verificando a invalidação e os
+contratos imutáveis do banco. A composição dos Server Components é testada com
+dependências simuladas; homologação visual autenticada da B2 não foi executada.
+
+Validação B2: `npm run test:security` aprovado (320 testes, incluindo 11 novos
+testes de tradução); testes específicos de Turismo/tradução também executados;
+`npm run lint` sem erros, com os quatro avisos preexistentes de img;
+`npm run build` e `git diff --check` aprovados.
+
+Nenhuma migration foi criada ou modificada. Nenhum entitlement foi provisionado.
+Sem alteração de Supabase remoto, db push, commit, push, merge ou deploy nesta B2.

@@ -1,6 +1,7 @@
 import 'server-only';
 import { getRequiredEnvVar, logWarningOnce } from '@/lib/env';
 import { logOperationalError } from '@/lib/services/translation-admin';
+import { tourismTranslationFields, type TourismTranslationFields } from '@/lib/tourism/translations';
 
 export type SupportedTranslationLanguage = 'en' | 'es';
 
@@ -25,7 +26,8 @@ function decodeHtmlEntities(value: string) {
 
 async function translateTextBatch(
   values: string[],
-  targetLanguage: SupportedTranslationLanguage
+  targetLanguage: SupportedTranslationLanguage,
+  signal?: AbortSignal,
 ) {
   if (values.length === 0) {
     return null;
@@ -55,6 +57,7 @@ async function translateTextBatch(
       model: 'nmt',
     }),
     cache: 'no-store',
+    ...(signal ? { signal } : {}),
   });
 
   if (!response.ok) {
@@ -81,7 +84,8 @@ async function translateTextBatch(
 
 async function tryTranslateTextFields<T extends TranslatableFieldMap>(
   fields: T,
-  targetLanguage: SupportedTranslationLanguage
+  targetLanguage: SupportedTranslationLanguage,
+  tourism = false,
 ) {
   try {
     const entries = Object.entries(fields).filter(([, value]) => value !== null) as Array<
@@ -94,7 +98,8 @@ async function tryTranslateTextFields<T extends TranslatableFieldMap>(
 
     const translatedValues = await translateTextBatch(
       entries.map(([, value]) => value),
-      targetLanguage
+      targetLanguage,
+      tourism ? AbortSignal.timeout(10_000) : undefined,
     );
 
     if (!translatedValues) {
@@ -113,10 +118,17 @@ async function tryTranslateTextFields<T extends TranslatableFieldMap>(
       module: 'translation',
       action: 'tryTranslateTextFields',
       operation: `translate content to ${targetLanguage}`,
-      error,
+      error: tourism ? 'Tourism translation unavailable' : error,
     });
     return null;
   }
+}
+
+export async function translateTourismFields(
+  fields: TourismTranslationFields,
+  targetLanguage: SupportedTranslationLanguage,
+) {
+  return tryTranslateTextFields(tourismTranslationFields(fields), targetLanguage, true);
 }
 
 export async function translateSectionFields(
