@@ -83,7 +83,7 @@ test('create/update call only save RPC and preserve the original microsecond rev
 });
 
 test('conflict returns form error without retry; empty form never invokes a write', async () => {
-  const h = harness({ rpcError: { code: '40001', message: 'tourism_revision_conflict' } });
+  const h = harness({ rpcError: { code: 'PT409', message: 'tourism_revision_conflict' } });
   assert.equal((await h.actions.updateTourismItemAction(id, {}, valid())).error, domain.TOURISM_CONFLICT_MESSAGE);
   assert.equal(h.calls.length, 1);
   const empty = harness();

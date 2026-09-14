@@ -312,3 +312,74 @@ aprovada com conferência de ausência de resíduos, lint sem erros (os mesmos q
 avisos preexistentes), build e diff-check aprovados. A nova migration não foi aplicada
 ao remoto e nenhum entitlement foi criado. O SHA-256 da migration 52.1 permaneceu
 `52A2EDA17B6AE93A16B9E81AA265B52A787EA2C23AAB4E92C19D391E16ACAB64`.
+
+## Hotfix 52.2B1 — conflito de revisão via PostgREST
+
+Na homologação autenticada local de B1, o PostgreSQL rejeitou corretamente uma
+revisão obsoleta em aproximadamente 6 ms com `40001 / tourism_revision_conflict`.
+Não houve sobrescrita, avanço de revisão ou nova auditoria. Pelo caminho REST,
+a stack local com PostgREST 14.16 processou a mesma chamada até o Kong retornar
+504. Assim, 40001/serialization_failure é inadequado como erro funcional de
+concorrência de Turismo nessa stack.
+
+A migration incremental `20260914014530_52_2b1_tourism_revision_conflict.sql`,
+criada pela CLI local, substitui somente save_current_hotel_tourism_item,
+delete_current_hotel_tourism_item e update_current_hotel_tourism_image.
+A única mudança funcional é `40001 -> PT409` para `tourism_revision_conflict`.
+CREATE OR REPLACE conserva ownership, grants/revokes e comentários; assinatura,
+retorno, SECURITY DEFINER, search_path, autorização, tenant, locks, validações e
+auditoria permanecem iguais. As migrations 52.1 e 52.2A aplicadas são imutáveis,
+verificadas byte-for-byte por SHA-256. Nenhum outro SQLSTATE mudou.
+As referências anteriores a 40001 neste documento descrevem o contrato histórico;
+o contrato efetivo após este hotfix é PT409. Tradução stale continua retornando false.
+
+A documentação oficial do [PostgREST 14](https://docs.postgrest.org/en/v14/references/errors.html#raise-errors-with-http-status-codes)
+define PTxyz como status HTTP customizado. O Admin reconhece PT409, 40001 legado
+e a mensagem funcional separadamente, mantendo a orientação aprovada para
+recarregar os dados, sem retry.
+
+O runner local executa BEGIN + migrations 52.1, 52.2A e hotfix + matriz + ROLLBACK
+no container fixo supabase_db_libguest-45b-lab. A matriz verifica save/delete/image
+stale com código e mensagem exatos, revisão ausente, preservação de itens,
+traduções e updated_at e ausência de auditoria após cada conflito. Translation
+stale continua false e sem efeitos. A cobertura anterior de generic patch, RLS,
+entitlement, grants, auditoria e demais erros permanece.
+
+Resultados: 309 testes de segurança aprovados; lint sem erros, com quatro avisos
+preexistentes de img; build aprovado; matriz SQL aprovada com verificação de
+ausência de resíduos; diff-check aprovado.
+
+### Homologação REST local preparada; execução pendente
+
+O runner SQL usa uma única conexão e desfaz migrations e fixtures. PostgREST usa
+outra conexão e não enxerga esse estado não confirmado. Executar REST exige
+schema/fixtures confirmados, credencial de operador local e snapshot/restauração
+do laboratório visual; essa preparação não foi automatizada neste hotfix.
+Não foi aplicada migration permanente ao laboratório visual nem ao remoto.
+O HTTP 409 e sua latência ainda não foram medidos nesta execução.
+
+Procedimento manual, exclusivamente na stack descartável local:
+
+1. Preservar snapshot do laboratório e aplicar a migration incremental somente
+   nele. Usar operador autenticado e item do próprio hotel já habilitado no lab.
+2. Capturar a revisão A; salvar uma mudança válida para obter revisão B. Registrar
+   como owner o item completo, suas traduções e a contagem de admin_audit_log.
+3. Com URL restrita a loopback e token local, enviar POST para
+   `/rest/v1/rpc/save_current_hotel_tourism_item` com
+   `{"p_item_id":"<item>","p_changes":{"name":"STALE"},"p_expected_updated_at":"<revisão A>"}`.
+   Repetir para delete_current_hotel_tourism_item com item/revisão A e para
+   update_current_hotel_tourism_image com item, p_main_image_path null e revisão A.
+   Usar timeout de 5 segundos e registrar duração, status e body de cada resposta.
+4. Exigir resposta antes do timeout, HTTP 409, code PT409 e message
+   tourism_revision_conflict; 504 ou outro código reprova. Se PT409 não for aceito,
+   parar e reportar, sem escolher outro SQLSTATE.
+5. Após cada chamada, comparar item completo (incluindo updated_at=B), traduções
+   e contagem de auditoria com o snapshot do passo 2: tudo deve permanecer igual.
+   Restaurar o snapshot do laboratório ao terminar.
+6. Repetir pela UI com duas abas: salvar na Aba A, tentar salvar a revisão antiga
+   na Aba B, confirmar mensagem específica sem retry e preservação dos dados de A.
+
+**B1 continua pendente de homologação completa até repetir concorrência pela UI.**
+B2, B3 e público não avançaram. content.tourism continua coming_soon; nenhum
+entitlement persistente foi criado (fixtures sintéticas da matriz sofreram rollback).
+Supabase remoto permaneceu intocado; sem commit, push, merge, deploy ou db push.

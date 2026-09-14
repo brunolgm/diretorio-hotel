@@ -26,7 +26,7 @@ export function tourismFormPatch(form: FormData) {
 }
 
 export function tourismAdminError(error: { code?: string; message?: string }): string {
-  if (error.code === '40001' || error.message === 'tourism_revision_conflict') return TOURISM_CONFLICT_MESSAGE;
+  if (error.code === 'PT409' || error.code === '40001' || error.message === 'tourism_revision_conflict') return TOURISM_CONFLICT_MESSAGE;
   if (error.message === 'tourism_patch_empty') return 'Informe os campos antes de salvar.';
   if (error.message === 'tourism_category_invalid') return 'Escolha um tipo e uma categoria compatíveis.';
   if (error.message === 'tourism_phone_invalid') return 'Informe telefone e WhatsApp com +, código do país e número, sem espaços.';

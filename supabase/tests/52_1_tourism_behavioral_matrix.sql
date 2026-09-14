@@ -136,8 +136,8 @@ do $$ declare a public.hotel_tourism_items; b public.hotel_tourism_items; origin
   assert public.save_current_hotel_tourism_translation(a.id,'es',a.updated_at,'{"name":"Nombre"}');
   perform pg_temp.expect_error(format('select public.save_current_hotel_tourism_translation(%L,%L,%L,%L)',a.id,'pt',a.updated_at,'{"name":"PT"}'),'22023');
   perform pg_temp.expect_error(format('select public.save_current_hotel_tourism_translation(%L,%L,%L,%L)',a.id,'es',a.updated_at,'{"name":null}'),'23514');
-  perform pg_temp.expect_error(format('select public.save_current_hotel_tourism_item(%L,%L,%L)',a.id,'{"name":"Nome novo"}',original_revision),'40001');
-  perform pg_temp.expect_error(format('select public.delete_current_hotel_tourism_item(%L,%L)',a.id,original_revision),'40001');
+  perform pg_temp.expect_error(format('select public.save_current_hotel_tourism_item(%L,%L,%L)',a.id,'{"name":"Nome novo"}',original_revision),'PT409','tourism_revision_conflict');
+  perform pg_temp.expect_error(format('select public.delete_current_hotel_tourism_item(%L,%L)',a.id,original_revision),'PT409','tourism_revision_conflict');
   perform pg_temp.expect_error(format('select public.reorder_current_hotel_tourism_items(array[%L,%L,%L]::uuid[])',a.id,a.id,b.id),'22023');
   perform pg_temp.expect_error(format('select public.reorder_current_hotel_tourism_items(array[%L]::uuid[])',a.id),'22023');
   perform pg_temp.expect_error(format('select public.reorder_current_hotel_tourism_items(array[%L,%L,%L]::uuid[])',a.id,b.id,'52130000-0000-4000-8000-000000000002'),'22023');
@@ -162,6 +162,47 @@ do $$ declare col text; lim integer; item uuid:=current_setting('test.s521_id'):
     perform pg_temp.expect_error(format('update public.hotel_tourism_item_translations set %I=%L',col,''),'23514');
     perform pg_temp.expect_error(format('update public.hotel_tourism_item_translations set %I=%L',col,repeat('x',lim+1)),'23514');
   end loop;
+end $$;
+
+
+-- Revision conflicts: each rejected RPC preserves all rows, timestamps and audit.
+do $$
+declare
+  item uuid:=current_setting('test.s521_id')::uuid;
+  revision timestamptz;
+  items_before jsonb;
+  translations_before jsonb;
+  audits_before bigint;
+  statement text;
+begin
+  select updated_at into strict revision from public.hotel_tourism_items where id=item;
+  select jsonb_agg(to_jsonb(i) order by id) into items_before from public.hotel_tourism_items i;
+  select jsonb_agg(to_jsonb(t) order by id) into translations_before from public.hotel_tourism_item_translations t;
+  select count(*) into audits_before from public.admin_audit_log;
+  foreach statement in array array[
+    format('select public.save_current_hotel_tourism_item(%L,%L,%L)',item,'{"name":"STALE overwrite"}',revision-interval '1 microsecond'),
+    format('select public.delete_current_hotel_tourism_item(%L,%L)',item,revision-interval '1 microsecond'),
+    format('select public.update_current_hotel_tourism_image(%L,null,%L)',item,revision-interval '1 microsecond'),
+    format('select public.save_current_hotel_tourism_item(%L,%L,null)',item,'{"name":"NULL revision"}'),
+    format('select public.delete_current_hotel_tourism_item(%L,null)',item)
+  ] loop
+    execute 'set local role authenticated';
+    perform set_config('request.jwt.claim.sub','52110000-0000-4000-8000-000000000002',true);
+    perform pg_temp.expect_error(statement,'PT409','tourism_revision_conflict');
+    execute 'reset role';
+    assert (select jsonb_agg(to_jsonb(i) order by id) from public.hotel_tourism_items i) is not distinct from items_before,
+      'revision conflict changed items or updated_at';
+    assert (select jsonb_agg(to_jsonb(t) order by id) from public.hotel_tourism_item_translations t) is not distinct from translations_before,
+      'revision conflict changed translations';
+    assert (select count(*) from public.admin_audit_log)=audits_before, 'revision conflict created audit';
+  end loop;
+  execute 'set local role authenticated';
+  assert not public.save_current_hotel_tourism_translation(item,'en',revision-interval '1 microsecond','{"name":"STALE"}'),
+    'translation stale must remain false';
+  execute 'reset role';
+  assert (select jsonb_agg(to_jsonb(i) order by id) from public.hotel_tourism_items i) is not distinct from items_before;
+  assert (select jsonb_agg(to_jsonb(t) order by id) from public.hotel_tourism_item_translations t) is not distinct from translations_before;
+  assert (select count(*) from public.admin_audit_log)=audits_before, 'stale translation created audit';
 end $$;
 
 -- Empty patches must fail with the exact controlled error and no persistent side effects.
@@ -373,8 +414,8 @@ begin
   ] loop
     perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,%L)',item,bad_path,revision),'22023','tourism_image_path_invalid');
   end loop;
-  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,%L)',item,first_path,stale),'40001','tourism_revision_conflict');
-  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,null)',item,first_path),'40001','tourism_revision_conflict');
+  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,%L)',item,first_path,stale),'PT409','tourism_revision_conflict');
+  perform pg_temp.expect_error(format('select public.update_current_hotel_tourism_image(%L,%L,null)',item,first_path),'PT409','tourism_revision_conflict');
   perform pg_temp.expect_error(format('select public.save_current_hotel_tourism_item(%L,%L,%L)',item,jsonb_build_object('main_image_path',first_path),revision),'22023','tourism_field_not_writable');
   perform pg_temp.expect_error(format('update public.hotel_tourism_items set main_image_path=%L where id=%L',first_path,item),'42501');
   perform set_config('request.jwt.claim.sub','52110000-0000-4000-8000-000000000003',true);

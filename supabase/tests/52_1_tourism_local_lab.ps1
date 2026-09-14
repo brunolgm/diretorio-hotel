@@ -4,8 +4,9 @@ $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $migration = [IO.File]::ReadAllText((Join-Path $repoRoot 'supabase/migrations/20260910043520_52_1_tourism_foundation.sql'))
 $matrix = [IO.File]::ReadAllText((Join-Path $PSScriptRoot '52_1_tourism_behavioral_matrix.sql'))
 $imageMigration = [IO.File]::ReadAllText((Join-Path $repoRoot 'supabase/migrations/20260911011338_52_2a_tourism_main_image.sql'))
+$revisionMigration = [IO.File]::ReadAllText((Join-Path $repoRoot 'supabase/migrations/20260914014530_52_2b1_tourism_revision_conflict.sql'))
 $OutputEncoding = [Text.UTF8Encoding]::new($false)
-('begin;' + $migration + $imageMigration + $matrix) | docker exec -i supabase_db_libguest-45b-lab psql -X -q -v ON_ERROR_STOP=1 -U postgres -d postgres
+('begin;' + $migration + $imageMigration + $revisionMigration + $matrix) | docker exec -i supabase_db_libguest-45b-lab psql -X -q -v ON_ERROR_STOP=1 -U postgres -d postgres
 if ($LASTEXITCODE -ne 0) { throw 'Tourism local rollback matrix failed' }
 @'
 do $$ begin
