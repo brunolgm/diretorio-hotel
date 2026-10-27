@@ -1,0 +1,92 @@
+{
+  "fixtureOnly": true,
+  "viewportLanguageCardCombinations": 72,
+  "results": [
+    {
+      "name": "public-390",
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "name": "public-430",
+      "width": 430,
+      "height": 932,
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "name": "public-desktop",
+      "width": 1440,
+      "height": 900,
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "name": "admin-390",
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "drawerEscape": true,
+      "focusTrapped": true,
+      "focusRestored": true
+    },
+    {
+      "name": "admin-desktop",
+      "width": 1440,
+      "height": 900,
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "query": "empty=yes",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "query": "area=informacoes",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "query": "area=turismo",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "query": "flightpage=yes",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "query": "subdomain=yes",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "query": "theme=grand-mercure",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "query": "theme=novotel",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "query": "theme=mercure",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "query": "theme=midnight-slate",
+      "status": 200,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

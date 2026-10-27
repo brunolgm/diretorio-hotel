@@ -1,4 +1,5 @@
 export const PLATFORM_HOTEL_BRANDS = [
+  { value: 'bugan', label: 'Bugan' },
   { value: 'mercure', label: 'Mercure' },
   { value: 'novotel', label: 'Novotel' },
   { value: 'grand-mercure', label: 'Grand Mercure' },

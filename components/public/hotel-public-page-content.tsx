@@ -14,6 +14,7 @@ import {
   Sparkles,
   Wifi,
 } from 'lucide-react';
+import { PublicExperienceOverview } from '@/components/public/public-experience-overview';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { GrandMercurePublicHome } from '@/components/public/grand-mercure/grand-mercure-public-home';
 import { MercurePublicHome } from '@/components/public/mercure/mercure-public-home';
@@ -353,6 +354,14 @@ export function HotelPublicPageContent({
   const departmentPosition = layoutByKey.get('departments')?.position ?? 6;
   const policyPosition = layoutByKey.get('policies')?.position ?? 7;
   const pairOperationalBlocks = Math.abs(departmentPosition - policyPosition) === 1;
+
+  if (theme.preset === 'bugan') {
+    return <PublicExperienceOverview
+      pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, hasFallbackContent }}
+      language={language} domainContext={domainContext} preferSubdomainRoot={useSubdomainRoot}
+      activeRoomContext={activeRoomContext}
+    />;
+  }
 
   if (isNovotelExperience) {
     return (

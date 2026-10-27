@@ -1,8 +1,255 @@
 # PRODUCT MAP
 
 Contrato técnico da Sprint 52 — Turismo: [SPRINT_52_TOURISM.md](SPRINT_52_TOURISM.md).
-A etapa 52.1 entrega somente a fundação local de domínio/banco/autorização; Turismo
-permanece `coming_soon`, fora do baseline, sem ativação ou alteração da experiência pública.
+A base técnica atual inclui a fundação 52.1, imagens 52.2a, Admin e traduções 52.2b.
+Turismo permanece `coming_soon`, fora do baseline e sem catálogo público funcional.
+A Sprint 52 ainda não está encerrada.
+
+## Bugan Recife — decisão canônica e entrega local UX V2 (27/10/2026)
+
+### Decisão e continuidade
+
+[APROVADO] Antes desta entrega o Bugan possuía apenas mockups externos V1/V2.
+Bugan Recife passa a ser cliente canônico permanente do LibGuest, com marca `bugan`
+e UX V2 definitiva. A entrada do cliente Atlântica exige identidade própria e evolução
+pelo produto compartilhado. Marca e propriedade não se confundem: `bugan` é a marca;
+Bugan Recife, Recife, PE é a propriedade. Não foi necessária variante de propriedade.
+
+[DESCARTADO] UX V1, páginas paralelas, forks de negócio e ativação automática de opcionais.
+
+> Toda funcionalidade compartilhada nova ou alterada no LibGuest deve ser validada para o Bugan Recife, salvo quando explicitamente desabilitada por entitlement. Implementações futuras não devem exigir cópia ou fork específico para o Bugan.
+
+A matriz permanente é **Grand Mercure, Novotel, Mercure, Bugan e Default/fallback**,
+inclusive para Turismo, Central de Voos, IA/Router, analytics, serviços, departamentos,
+políticas, comunicados, banners, QR/apartamentos, idiomas, navegação e Admin.
+
+### Git e relação com a Sprint 52
+
+[APROVADO] Base técnica excepcional autorizada: `sprint-52-tourism`, commit
+`6551abdff53a7629ee6f9c0621b1b6b27bf51163`, árvore inicialmente limpa.
+Branch criada: `feat/bugan-recife-ux-v2`. A `main` não foi alterada e a Sprint 52
+permanece aberta e intacta. Cinco commits preservados: 3e2be2b, f7e7aed, ec282c1,
+0b3e36d e 6551abd. Novos commits de Turismo após esse checkpoint não entram
+automaticamente na branch Bugan. Antes da integração final em main é obrigatória
+reconciliação explícita da Sprint 52 final com Bugan UX V2 final, preservando ambas
+as linhas e repetindo a matriz multi-hotel. Não integrar Bugan na Sprint 52 agora.
+
+[NÃO CONFIRMADO] Estado remoto atual: fetch falhou por autenticação SSH (publickey);
+não houve tentativa de reparo. Referências locais main e origin/main apontavam para
+`5b42ec1fdd31337efc367df7ea18420da314a10a`, sem divergência conhecida. A base estava
+cinco commits adiante de main e um adiante da referência local origin/sprint-52-tourism.
+Não houve push, merge, rebase, cherry-pick, deploy, convite, cadastro ou escrita remota.
+
+### Mapa técnico e estado herdado
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Pontos de extensão inspecionados:
+
+- Marca/tema público e governança de aparência: `lib/hotel-theme.ts`; labels,
+  catálogo de marcas, diretório e governança: `lib/platform-governance.ts`.
+  Onboarding: `lib/platform-onboarding.ts` e formulário em `app/platform/hoteis/novo/`.
+- Admin: `lib/admin-theme.ts`, `app/admin/layout.tsx`, sidebar, nav-links e mobile-menu.
+  Resolução server-side por `profile.hotel_id`; plataforma global fora do provider.
+  Estados de carregamento, erro, vazio e acesso negado mantêm componentes compartilhados.
+- Público: `lib/public-hotel-data.ts` carrega conteúdo e traduções;
+  `lib/experience-layout.ts`/`experience-layout-queries.ts` normalizam composição;
+  `components/public/hotel-public-page-content.tsx` seleciona apresentação.
+  Áreas internas, detalhes e voos usam o mesmo domínio. Banners ativos/período/limite
+  continuam filtrados no loader atual e apresentados pelo carrossel sem autoplay.
+- Banco: migrations 20260724 (marca), 202608140002 (governança), 202608170001
+  (onboarding), 202608170002 (readiness), 202608180001 (composição/onboarding atual),
+  migrations 51 de voos/AirLabs e as três migrations atuais de Turismo.
+  Nenhuma migration histórica foi editada.
+- Lifecycle: Auth com compensação de falha, slug/subdomínio únicos, administrador inicial,
+  criação draft-only, auditoria atômica, readiness, ativação/suspensão/arquivamento
+  e resolução pública permanecem nos contratos existentes.
+- Domínios: libguest.digital e www são raízes; subdomínios resolvem hotel e
+  `/hotel/[slug]` é fallback. guestdesk.digital continua legado dual-domain.
+  URLs, QR `/r/[roomToken]` e preview usam os contratos existentes; DNS/Vercel intactos.
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Baseline de **12** módulos: core.directory,
+content.services, content.departments, content.policies, content.announcements,
+content.banners, rooms.qr, content.languages, experience.appearance,
+experience.navigation, experience.preview e analytics.basic. Catálogo total: **20** chaves.
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Central de Voos é opcional disponível
+(`travel.flights`): configuração, Meu voo/Partidas/Chegadas, planejamento e status
+verificado quando existe fonte. Preserva estado não verificado, ações condicionais,
+isolamento e ausência de itinerário em analytics. Não usa roomToken como identidade.
+Nenhum aeroporto, ação ou entitlement foi habilitado para Bugan.
+
+[IMPLEMENTADO PARCIALMENTE] Turismo possui domínio, banco/RLS/RPCs, auditoria,
+Admin, revisão concorrente, imagem principal e traduções PT/EN/ES. Catálogo segue
+coming_soon, fora do baseline. A rota pública existente ainda apresenta estado vazio;
+não há catálogo turístico público completo ou conteúdo real de Recife. Não foi alterada
+a maturidade/disponibilidade da Sprint 52 nem simplificado seu código.
+
+[PLANEJADO] experience.seo, fb.menu, analytics.advanced, integrations.thex,
+integrations.opera e audit.access_logs continuam coming_soon no catálogo atual.
+Rotas de compatibilidade/menu por apartamento e fundação de analytics Pro não
+significam disponibilidade comercial desses entitlements.
+
+[EM ANÁLISE] Integração futura de IA/Router: sem entitlement canônico de concierge
+nesta base. [DESCARTADO] Integrar POCs ou exibir widget nesta etapa.
+Nenhum agent/provider/ID/variável ou `.env.local` foi alterado.
+
+### POCs de IA — inspeção somente de Git
+
+Todos localizados; nenhum ancestral de 6551abd, nenhum integrado nesta entrega.
+Referências remotas abaixo são as armazenadas localmente, sem confirmação do servidor.
+
+| Commit | Branches locais que contêm | Referência remota local |
+|---|---|---|
+| db07d966 | poc/libguest-ai-analytics-persistence; poc/libguest-ai-housekeeping-singular-hotfix; poc/libguest-ai-router-negation-hardening | origin/poc/libguest-ai-housekeeping-singular-hotfix |
+| eec759e | poc/libguest-ai-housekeeping-singular-hotfix; poc/libguest-ai-router-negation-hardening | origin/poc/libguest-ai-housekeeping-singular-hotfix |
+| c297eca | poc/libguest-ai-housekeeping-singular-hotfix | origin/poc/libguest-ai-housekeeping-singular-hotfix |
+
+Não houve checkout, alteração ou integração dessas branches/commits.
+
+### Implementação e apresentação
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Marca aceita em tipos, validadores, labels,
+onboarding, diretório e governança. Tema público usa #AD6433, #B58150, #2D2926,
+#D6D2C4 e neutros quentes, preservando cores semânticas. Admin usa carvão/areia,
+label BUGAN, navegação, permissões, shell e drawer existentes.
+
+`PublicExperienceOverview` recebe o mesmo payload do compositor, sem fetches ou
+regras de negócio por tenant. Inclui os oito blocos atuais, ordem persistida,
+hero obrigatório pelo contrato, seis acessos possíveis a destinos canônicos,
+contagem real de comunicados, PT/EN/ES, banners reais e voos condicionais.
+Novos blocos compartilhados devem entrar no catálogo/compositor e na matriz,
+sem implementação separada de negócio para Bugan.
+
+Defaults aplicam-se **somente a novos inserts Bugan**: hero, quick_info,
+announcements, services, contact, departments, policies, banners. A grade usa a
+ordem persistida; reorder segue autorizado/auditado pelas RPCs atuais. Nenhum
+layout existente foi sobrescrito. Voos aparece antes dos banners, ou depois dos
+cards quando não há banners, sem item adicional no dock. Wi-Fi/café/check-out
+reutilizam campos reais já públicos; ausências e senha Wi-Fi não aparecem na faixa.
+
+Chip recebe exclusivamente activeRoomContext validado pelo fluxo compartilhado.
+Nenhum quarto entra em links previsíveis. Dock tem até quatro itens canônicos,
+ícone/rótulo, foco, estado ativo, safe area e reserva de espaço. Detalhes de serviço
+mostram somente destinos garantidos por seu payload (Início/Serviços).
+Áreas internas e Central de Voos usam hero/dock genéricos por tokens.
+
+Admin Experiência Pública reutiliza loaders: falha permanece erro, sem virar zero.
+Indicadores apontam apenas para destinos permitidos pelo catálogo/role/entitlements;
+status diferencia lifecycle ativo de diretório desabilitado. Atenção necessária
+apresenta checks reais de readiness, sem motor novo. Não existe workflow intermediário
+fictício de rascunho/publicação; permanece publicação por lifecycle e entitlement.
+
+[IMPLEMENTADO PARCIALMENTE] Acabamento de identidade: manual/mockups V2 inspecionados.
+O kit contém apenas bugan-logo-referencia.png/bugan-monograma-referencia.png extraídos
+do manual; não foram promovidos a assets oficiais nem copiados para public.
+Não há arquivos originais autorizados de logo/monograma/texturas ou fontes
+Wask New/Astonia fornecidas/licenciadas. Fallback textual e fonte de sistema legível.
+Campo de logo mantém proporção, respiro e mínimo digital de 23 px.
+Nenhum logo redesenhado/vetorizado/filtrado/inventado; nenhuma fonte baixada.
+
+### Arquivos e migration
+
+Criados:
+
+- `lib/public-experience-overview.ts`: modelo de apresentação de blocos compartilhados.
+- `components/public/public-experience-overview.tsx`, `public-area-hero.tsx`,
+  `public-bottom-dock.tsx`, `bugan.css`: apresentação por tokens.
+- `supabase/migrations/20261027215620_bugan_canonical_brand.sql`: constraint,
+  allowlists de create_platform_hotel_onboarding/update_platform_hotel_brand,
+  default de tema no onboarding e defaults insert-only de initialize_hotel_experience_layout.
+  Sem backfill, grants, políticas ou ativação.
+- `supabase/tests/bugan_behavioral_matrix.sql`, `bugan_local_lab.ps1`,
+  `bugan_tourism_local_lab.ps1`: fixtures/rollback, incluindo Turismo nas cinco marcas.
+- `tests/security/bugan.test.ts`: marca, onboarding, isolamento, composição/gates,
+  paridade dos corpos das RPCs; `tests/security/node-module-hooks.d.ts`: tipagem
+  limitada aos testes para API Node 22.15+ já usada na base, ausente no @types/node 20.
+  Sem alteração de runtime ou dependências.
+- `tests/fixtures/bugan-visual-page.tsx`, `tests/bugan-runtime.mjs`: harness sintético
+  local. Runner cria/remove rota dev-only temporária e bloqueia APIs/rede externa.
+  A rota temporária foi removida e não integra o build final.
+- `docs/evidence/bugan/`: seis PNGs e runtime.json. **Fixtures sintéticas, não cadastro
+  do cliente.** Banner com imagem usa asset existente de teste, não mídia aprovada do Bugan.
+
+Modificados: lib/hotel-theme.ts, lib/admin-theme.ts, lib/platform-governance.ts,
+lib/public-copy.ts; compositor público, áreas/voos/detalhes, language-switcher;
+app/globals.css; app/admin/experiencia/page.tsx e experience-metrics.tsx;
+tests/security/admin-theme.test.ts e este PRODUCT_MAP. Nenhum asset de produção novo.
+
+Rollback lógico: primeiro reclassificar de forma autorizada eventuais tenants Bugan
+para NULL/outra marca e tema legado; depois restaurar constraint e três corpos de
+função anteriores (46c/50). Nunca excluir tenant/dados como rollback. ACLs,
+search_path, autorizações, auditoria e draft-only preservados por CREATE OR REPLACE.
+
+### Evidências, regressões e limites
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Matriz de marcas, onboarding e isolamento
+de tokens. SQL local: migration aplicada duas vezes, snapshots de hotéis/layout/
+entitlements intactos, ACLs/RLS/auditoria, draft-only, opcionais desligados e
+cross-tenant negado. DDL e fixtures revertidos.
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Edge local: 72 combinações
+(320/360/390/430 × PT/EN/ES × 1–6 cards), sem overflow; cinco temas renderizados;
+voos ligados/desligados por payload; banners com/sem imagem; contexto sintético;
+áreas de informações/Turismo; dock sem cobrir rodapé; drawer com foco contido,
+restaurado e Escape. Zero pageerrors. Capturas públicas 390×844, 430×932 e 1440×900;
+Admin 390×844, 1440×900 e drawer 390×844.
+
+Scripts existentes de composição/RLS 50, readiness 48 e matrizes 51 de home de voos,
+Central de Voos e entitlement passaram localmente. A matriz SQL de Turismo 52 foi
+executada sem reescrever seus contratos nas cinco marcas e passou.
+Scripts históricos 47 e 46.8 falharam **antes de aplicar a migration Bugan** por
+expectativas antigas (baseline 11, catálogo 19), incompatíveis com Sprints 50/51.
+Preservados como histórico; não reportados como aprovados. Testes atuais verificam 12/20.
+
+Validação final local: `npm run test:security` **328/328**, `npx tsc --noEmit`
+aprovado, `npm run build` aprovado, `npm run lint` sem erros e com quatro avisos
+preexistentes de img (hotel Admin, dois diretórios Platform e Home default),
+`git diff --check` aprovado. Nenhum aviso novo de lint. O runner visual foi também
+executado iniciando/encerrando seu próprio servidor e removendo a fixture e sua
+referência gerada no cache de tipos do Next. O primeiro build após remover a rota
+temporária encontrou essa referência de cache; após limpeza pontual do arquivo
+gerado, o build final passou sem rota de QA. Não houve alteração do tsconfig para
+ocultar erros. Os erros preexistentes de registerHooks foram resolvidos pela
+declaração limitada aos testes citada acima.
+
+[NÃO CONFIRMADO] Homologação real por slug, host/subdomínio/DNS, QR real e Admin
+autenticado do futuro tenant; disponibilidade remota dos identificadores;
+assets oficiais; provedor de voos real; conteúdo PT/EN/ES do cliente.
+Harness valida apresentação nos dois modos de geração de links, não provisiona
+hotel nem substitui testes reais de resolução/auth.
+
+QA visual reproduzível: Playwright/Edge disponíveis, BUGAN_PLAYWRIGHT_MODULE se
+instalado fora do repo; `node tests/bugan-runtime.mjs`. SQL: executar os runners
+`supabase/tests/bugan*_local_lab.ps1` apenas no container descartável
+`supabase_db_libguest-45b-lab`, nunca em produção.
+
+### Dados pendentes e sequência de ativação
+
+[PLANEJADO] Cadastro remoto e ativação são etapa posterior. Slug preferencial
+bugan-recife e subdomínio bugan-recife são sintaticamente válidos. Sugestão
+compartilhada de subdomínio: buganrecife (remove hífens), preservada para todos.
+[NÃO CONFIRMADO] Conflitos/reserva serão verificados pelo onboarding real,
+sem consultar produção nesta etapa.
+
+Manifesto de dados necessários, sem inventar valores operacionais:
+
+- Nome institucional/público, endereço completo, cidade/UF, telefone, WhatsApp,
+  e-mail e site oficial.
+- Check-in, check-out, café da manhã, Wi-Fi (rede, senha e política de divulgação).
+- Contatos por departamento, serviços, políticas, comunicados iniciais,
+  banners/imagens autorizados, logo/monograma originais e eventual licença/arquivo de fontes.
+- Quartos/apartamentos, tokens/QR, links Thex quando aplicáveis.
+- Aeroportos, parâmetros de voo e configurações/contatos de transfer, despertar,
+  Breakfast Box, com ações reais aprovadas.
+- Usuários administrativos/perfis, idiomas, conteúdo traduzido PT/EN/ES e turístico.
+- IA somente quando futuramente aprovada por contrato e entitlement canônico.
+
+Próximos passos: (1) reconciliar/aprovar código e migration no ambiente de destino;
+(2) criar pelo onboarding tenant Bugan em draft e administrador autorizado;
+(3) preencher/revisar dados e mídia reais; (4) configurar somente opcionais disponíveis
+e contratados; (5) executar readiness e resolver bloqueios/avisos aplicáveis;
+(6) homologar slug, subdomínio, QR, idiomas, acessibilidade, Admin e matriz multi-hotel
+com conteúdo real; (7) ativar pelo lifecycle autorizado. Publicação resulta do
+lifecycle ativo + core.directory e demais gates; não há workflow separado fictício.
 
 Documento vivo para manter uma fonte única de verdade sobre a evolução do produto, decisões técnicas, branding, domínios, processo de trabalho e próximos ciclos.
 
