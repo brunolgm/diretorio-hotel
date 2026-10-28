@@ -1,3 +1,4 @@
+import { TourismImagePanel } from '@/components/admin/tourism-image-panel';
 import { notFound } from 'next/navigation';
 import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { hasHotelModule, requireHotelModule } from '@/lib/admin-entitlements';
@@ -50,6 +51,7 @@ export default async function TourismDetailPage({ params, searchParams }: { para
       </div>
       <p className="mt-3 text-sm text-[var(--admin-muted)]">{languagesEnabled ? 'Português é a fonte. EN e ES são gerados ao salvar; campos sem tradução usam PT como fallback.' : 'Português é a fonte. A tradução automática está desabilitada para este hotel.'}</p>
     </AdminSurface>
+    <TourismImagePanel item={item} canManage={canManage} />
     <AdminSurface>{canManage ? <TourismForm key={`${item.id}:${item.updated_at}`} item={item} action={updateTourismItemAction.bind(null, item.id)} /> : <>
       <p className="mb-5 text-sm text-[var(--admin-muted)]">Seu perfil possui acesso somente para visualização.</p>
       <dl className="space-y-5">{Object.entries(TOURISM_FIELD_LABELS).map(([key, label]) => <div key={key}><dt className="font-semibold">{label}</dt><dd className="whitespace-pre-wrap break-words text-[var(--admin-muted)]">{item[key as keyof typeof TOURISM_FIELD_LABELS] || 'Não informado'}</dd></div>)}</dl>

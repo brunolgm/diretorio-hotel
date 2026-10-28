@@ -37,7 +37,7 @@ export const MODULE_CATALOG: readonly ModuleDefinition[] = [
   { key: 'experience.preview', name: 'Pré-visualização', group: 'experience', availability: 'available', description: 'Preview público real executado em sandbox.' },
   { key: 'experience.seo', name: 'SEO e compartilhamento', group: 'experience', availability: 'coming_soon', description: 'Metadados e compartilhamento futuros.' },
   { key: 'fb.menu', name: 'Cardápio (F&B)', group: 'content', availability: 'coming_soon', description: 'Módulo futuro de alimentos e bebidas.' },
-  { key: 'content.tourism', name: 'Turismo', group: 'content', availability: 'coming_soon', description: 'Conteúdo futuro de turismo local.' },
+  { key: 'content.tourism', name: 'Turismo', group: 'content', availability: 'available', description: 'Catálogo de turismo local, habilitado por hotel.' },
   { key: 'analytics.basic', name: 'Analytics básico', group: 'analytics', availability: 'available', description: 'Indicadores operacionais atuais.' },
   { key: 'analytics.advanced', name: 'Analytics avançado', group: 'analytics', availability: 'coming_soon', description: 'Análises avançadas futuras.' },
   { key: 'travel.flights', name: 'Central de Voos', group: 'operations', availability: 'available', description: 'Ajude o hóspede a acompanhar seu voo e organizar a saída do hotel.' },

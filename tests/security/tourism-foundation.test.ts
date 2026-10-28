@@ -137,7 +137,7 @@ test('translation schema and field-level invalidation preserve revision contract
 });
 
 test('foundation preserves entitlement, legacy, Home, flights, Storage and analytics', () => {
-  assert.equal(MODULE_CATALOG.find(({ key }) => key === 'content.tourism')?.availability, 'coming_soon');
+  assert.equal(MODULE_CATALOG.find(({ key }) => key === 'content.tourism')?.availability, 'available');
   assert.ok(!(BASELINE_MODULE_KEYS as readonly string[]).includes('content.tourism'));
   assert.doesNotMatch(sql, /(?:insert into|update|delete from) public\.(?:hotel_sections|hotel_module_entitlements|hotel_analytics_events)|storage\.|create bucket/i);
   assert.doesNotMatch(sql, /tourism\.image_updated|deleted_at|latitude|longitude/);

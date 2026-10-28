@@ -64,7 +64,7 @@ test('keeps every existing admin route and adds only approved foundations', () =
 });
 
 test('marks future areas as coming soon without fake operations', () => {
-  for (const moduleKey of ['fb.menu', 'content.tourism', 'experience.seo', 'audit.access_logs']) {
+  for (const moduleKey of ['fb.menu', 'experience.seo', 'audit.access_logs']) {
     assert.equal(ADMIN_MODULE_CATALOG.find(({ key }) => key === moduleKey)?.availability, 'coming_soon');
   }
   assert.equal(ADMIN_MODULE_CATALOG.find(({ key }) => key === 'experience.preview')?.availability, 'available');
@@ -75,7 +75,8 @@ test('marks future areas as coming soon without fake operations', () => {
   ].join('\n');
   assert.match(structural, /Em breve/);
   assert.doesNotMatch(structural, /\.from\(|\.rpc\(|insert\(|update\(|delete\(|service_role/i);
-  // B1 now has real administration, still gated and unavailable for activation.
+  // Tourism is available for explicit activation; hotel access remains entitlement-gated.
+  assert.equal(ADMIN_MODULE_CATALOG.find(({ key }) => key === 'content.tourism')?.availability, 'available');
   assert.match(read('app', 'admin', 'turismo', 'layout.tsx'), /requireHotelModule\('content.tourism'\)/);
   assert.match(read('app', 'admin', 'turismo', 'page.tsx'), /requireHotelModule\('content.tourism'\)/);
 });

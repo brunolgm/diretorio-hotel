@@ -1,6 +1,41 @@
 # Sprint 52 — Turismo: contrato técnico canônico
 
-## Checkpoint atual — 52.2B2
+## Checkpoint atual — correções finais P1/P2 (diff local)
+
+Branch `sprint-52-tourism`, HEAD local e referência local de
+`origin/sprint-52-tourism` em `91634a423126887a8ffab973460679fb1967a34d`.
+A rodada de correções iniciou com 29 arquivos modificados e 24 novos do Turbo 1/2,
+zero staged. Alterações funcionais válidas foram preservadas. Os harnesses descartáveis
+foram retirados conforme decisão aprovada; o diff permanece sem stage/commit.
+
+Nova decisão canônica aprovada: `content.tourism` passa de `coming_soon` para
+`available`, habilitável/desabilitável exclusivamente pelo Global/Platform Admin.
+Permanece opt-in, fora do baseline de 12 módulos, sem auto-enable para hotéis
+novos/existentes e sem criação automática de conteúdo. Home exige entitlement
+mais item publicado. Dados editoriais e legado não são apagados ao desabilitar.
+Na área Turismo, entitlement ON seleciona exclusivamente o novo domínio; OFF preserva
+a experiência legada anterior do próprio hotel. A decisão é resolvida no servidor.
+
+A migration aditiva `20261028012744_52_2_tourism_governance_available.sql` alinha
+a RPC canônica à decisão, preservando assinatura, identidade, owner, ACL,
+SECURITY DEFINER, search_path vazio, dependências, locks e auditoria. Não existe
+segunda RPC, backfill ou alteração de migrations antigas. O catálogo TypeScript
+acompanha essa liberação; os demais módulos mantêm sua disponibilidade anterior.
+
+A homologação autenticada real local foi executada no Turbo 2 com Auth, DB, Storage
+e Server Actions reais. Nesta rodada, P1/P2 foram corrigidos e verificados por regressões
+automatizadas e matrizes SQL locais; a matriz de navegador não foi repetida.
+A homologação B2 anterior mantém seu checkpoint histórico próprio.
+
+Resposta ambígua com leitura de oldPath NÃO comprova rollback: o upload novo é
+preservado com warning e log operacional, permitindo eventual commit tardio seguro.
+A decisão anterior de compensar nessa situação foi substituída. Detalhes e gates
+atualizados estão na seção de correções finais ao término deste documento.
+
+Nenhum acesso ao Supabase remoto, Google real ou API externa real; nenhum
+entitlement real provisionado. Sem commit, push, merge ou deploy.
+
+## Checkpoint histórico — 52.2B2
 
 Estado atual: homologação visual autenticada local da Sprint 52.2B2 concluída
 com sucesso no checkpoint `6551abdff53a7629ee6f9c0621b1b6b27bf51163`, branch
@@ -13,7 +48,7 @@ Conforme checkpoint confirmado para esta etapa, 52.1 e 52.2A estão concluídas;
 remoto. Os relatos de homologação pendente abaixo são registros históricos da
 implementação anterior. Esta B2 não executou alterações no Supabase remoto.
 
-A entrega atual implementa somente tradução administrativa PT → EN/ES de Turismo.
+Na entrega B2, o escopo implementava somente tradução administrativa PT → EN/ES de Turismo.
 B3 (imagem na UI/cleanup), público e integração ao resumo `/admin/idiomas` continuam
 pendentes. `content.tourism` permanece `coming_soon`, sem provisionar entitlements.
 
@@ -499,3 +534,377 @@ testes de tradução); testes específicos de Turismo/tradução também executa
 
 Nenhuma migration foi criada ou modificada. Nenhum entitlement foi provisionado.
 Sem alteração de Supabase remoto, db push, commit, push, merge ou deploy nesta B2.
+
+## Entrega local Turbo 1 — 52.2B3 e fechamento técnico
+
+Registro histórico do diff antes da decisão de liberação do Turbo 2. As pendências
+de ativação/homologação descritas nesta seção referem-se àquele checkpoint.
+
+### Imagem administrativa e cleanup
+
+O detalhe do item persistido oferece imagem principal, envio/substituição e remoção
+para operador+, com confirmação na remoção. Viewer visualiza sem controles de escrita.
+A criação continua sem upload: primeiro persiste o item, depois gerencia a imagem no
+detalhe. Preview responsivo preserva proporção natural, sem crop/reencodificação.
+
+Server Actions repetem autorização, entitlement e consulta do item no hotel atual.
+Reutilizam `validateImageUpload`, `IMAGE_UPLOAD_POLICIES.tourism`,
+`buildHotelAssetStoragePath` e `isOwnedTourismImagePath`: JPEG/PNG/WebP validados por
+bytes, até 2 MiB, 6000 × 4000 e 24.000.000 pixels. Path obrigatório
+`<hotel_id>/tourism/<item_id>/<uuid>.<ext>`, UUID gerado no servidor, sem nome original
+e com `upsert: false`. Nenhuma policy de escrita do browser foi aberta.
+
+Apenas upload/remoção de objetos usam cliente privilegiado no servidor. Associação
+e desassociação usam a sessão normal e a RPC existente
+`update_current_hotel_tourism_image(p_item_id, p_main_image_path, p_expected_updated_at)`.
+A revisão exibida é preservada integralmente, inclusive microssegundos, sem substituir
+por revisão mais recente. PT409 e auditoria permanecem no banco.
+
+Após sucesso confirmado, `previous_image_path` retornado pela RPC governa o cleanup:
+NULL ou igual ao atual não é removido; path diferente só é removido após validar
+ownership do hotel/item. Remoção usa a mesma RPC com NULL antes de limpar o anterior.
+Falha SQL confirmada compensa somente o upload novo e preserva o anterior.
+
+Regra histórica do Turbo 1, agora substituída: depois de resposta ambígua, uma
+releitura com oldPath permitia compensar o upload novo. A auditoria mostrou que
+essa leitura a RPC ainda poderia estar em execução. A regra atual NÃO permite essa
+compensação; preserva os arquivos, informa incerteza e registra contexto operacional.
+Ler newPath confirma associação; terceiro path ou releitura falha também preservam
+todos os arquivos. A correção está detalhada ao final.
+
+O hard delete deixou de ser bloqueado por imagem. Exige confirmação e sucesso da
+RPC autenticada de exclusão antes de consumir seu `main_image_path` e limpar Storage.
+Falha do banco não remove objetos. Falha do cleanup após commit gera warning separado:
+o item permanece excluído ou a associação permanece salva, sem rollback simulado.
+
+Cada cleanup tem uma tentativa e no máximo uma repetição imediata idempotente.
+Depois de duas falhas, operação/path ficam nos logs internos para tratamento
+operacional. Não há fila persistente, tabela, cron ou worker; órfãos podem permanecer
+se o processo morrer ou a resposta não puder ser reconciliada. Não há promessa de
+coleta automática posterior. O bucket continua público, conforme contrato 52.2A.
+
+### Experiência pública e Home
+
+Catálogo e detalhe por slug usam os resolvedores públicos canônicos, tanto em
+`/hotel/[slug]/explorar/turismo` e seu detalhe quanto no equivalente de subdomínio.
+O cliente anônimo exige hotel público/operacional, entitlement e item publicado;
+consultas filtram hotel/slug/publicação, além da RLS. Nenhum hotel_id do navegador
+determina o tenant e nenhuma escrita Storage ocorre no público.
+
+Filtros V1: Todos, Lugares, Experiências e Gastronomia. Ordenação preserva
+`sort_order, id`; featured/recommended são metadados visuais, sem ranking automático.
+Cards e detalhe exibem somente campos existentes, sem busca, reviews, galeria,
+reservas, preços calculados, distâncias ou alegações de parceria/disponibilidade.
+Ações de website/mapa aceitam somente HTTPS válido; telefone/WhatsApp usam E.164.
+Links externos são identificados e usam `noopener noreferrer`.
+
+EN/ES usam tradução por campo preenchido, com fallback PT individual; existência
+de row não implica completude. Nenhuma leitura pública chama Google. Tipo/categoria
+usam labels do catálogo; endereço, contatos, URLs, slug, flags e imagem não são
+traduzidos. Imagem ausente, path inválido ou falha de carregamento não deixam img
+quebrada. A apresentação usa tokens compartilhados e não cria forks por hotel.
+
+O compositor atual e as Homes Grand Mercure, Novotel, Mercure e Default recebem
+o mesmo card compartilhado, somente quando o entitlement está habilitado e existe
+ao menos um item publicado. Erro de consulta oculta o card e gera log. Sem placeholder,
+inclusão no dock ou restauração do antigo conjunto de seis cards. Servidos os novos
+dados de Turismo, não há fallback por classificação de textos de Serviços; os dados
+legados continuam preservados, sem migração/reclassificação automática.
+
+### Resumo administrativo de idiomas
+
+Uma seção aditiva na mesma `/admin/idiomas` lista Turismo, links para o detalhe,
+badges e contagens EN/ES Ausente/Parcial/Completo usando o contrato B2 por campo PT
+preenchido. NULL opcional no PT não exige tradução. Erros de leitura são apresentados
+como indisponibilidade de consulta. Os cinco domínios editoriais mantêm consultas,
+contagens e links anteriores; o indicador PT explicita que se refere a esses cinco.
+A seção respeita entitlement e não oferece mutação/tradução em massa nem chama Google
+ao carregar; Viewer mantém somente leitura.
+
+### Validação local e limites
+
+- Testes direcionados (imagem/upload, Admin, público, idiomas, Home e B2): 63/63.
+- Suíte de segurança: 359/359 testes aprovados, incluindo upload/compensação,
+  reconciliação ambígua, cleanup limitado, hard delete, isolamento público,
+  fallback por campo, idiomas, Home e bloqueio efetivo da RPC de governança.
+- TypeScript aprovado; lint sem erros e com os quatro warnings históricos de img;
+  build e `git diff --check` aprovados.
+- Runner SQL local 52.1: aprovado em banco descartável, com rollback e sem resíduos.
+  Migrations aplicadas e contratos anteriores foram preservados; zero migration nova
+  ou modificada nesta rodada.
+- Matriz Next/Edge sintética: 96 combinações de quatro temas × três idiomas × quatro
+  larguras (320, 390, 430, 1440) × catálogo/detalhe, sem overflow; três filtros,
+  quatro apresentações de imagem administrativa, oito combinações Home ligada/desligada
+  e fallback de imagem quebrada aprovados, sem erros de runtime.
+- Fixtures incluem os três tipos, imagem/sem imagem, PT, EN completo, ES parcial,
+  recomendado e destaque. Naquela homologação, um harness descartável criou uma rota
+  temporária, removeu-a ao terminar e bloqueou requisições externas. Esse harness
+  não integra o conjunto versionável da Sprint; evidências locais ignoradas
+  pelo Git ficam em `out/tourism-final`.
+
+Isso não substitui homologação autenticada final dos novos fluxos com banco/Auth/
+Storage locais reais, incluindo upload, replace, remoção, concorrência e hard delete
+no navegador. Não houve validação de entrega remota nem uso de Google real. Naquele checkpoint, a ativação
+Global Admin permanecia bloqueada pela RPC então efetiva; o Turbo 2 resolve esse bloqueio. Nenhum
+entitlement de hotel real foi habilitado e onboarding/baseline não foram alterados.
+
+Bugan NÃO foi validado nesta branch porque permanece isolado em `feat/bugan-recife-ux-v2`. A regressão Bugan será obrigatória após a reconciliação explícita das branches.
+
+A branch Bugan permanece em `6a117d7542b884315a6cef57281b0b1b70bc4cdd`, sem alterações
+ou reconciliação nesta rodada. Sua base divergente é `6551abd`; mudanças posteriores
+de Turismo não entram nela automaticamente. Antes da integração final, a reconciliação
+explícita deve preservar ambas as linhas e repetir a matriz multi-hotel, incluindo Bugan.
+
+
+## Entrega local Turbo 2 — governança e homologação real (registro anterior à correção P1/P2)
+
+### Decisão canônica e contrato efetivo
+
+Decisão anterior: Turismo `coming_soon`, sem habilitação pela governança enquanto
+incompleto. Nova decisão aprovada: Turismo `available`, habilitável/desabilitável
+por Global/Platform Admin, após implementação funcional e homologação local.
+
+A inspeção da cadeia identificou a definição efetiva da RPC em
+`202608250001_51_travel_flights_entitlement.sql`. O CHECK de chaves e as funções de
+leitura reconheciam os 20 módulos, incluindo Turismo. A disponibilidade de escrita
+era imposta por uma lista própria de módulos bloqueados em
+`update_platform_hotel_module`, não por uma tabela de availability. A tela Platform
+combina estado SQL com availability do catálogo TypeScript.
+
+A nova migration `20261028012744_52_2_tourism_governance_available.sql` altera somente
+`public.update_platform_hotel_module(uuid,text,boolean)`: remove `content.tourism`
+da lista bloqueada. Teste compara integralmente o corpo com a versão anterior,
+admitindo apenas essa diferença, e confere paridade entre a lista SQL restante e
+os seis módulos `coming_soon` do TypeScript. Preflight verifica dependências,
+SECURITY DEFINER/search_path e grants. CREATE OR REPLACE preserva identidade, owner
+e ACL; assinatura, autenticação Platform Admin ativo, validações, dependência de
+core.directory, locks, idempotência e escritor canônico de auditoria são mantidos.
+
+Nenhuma tabela/RLS/policy foi ampliada; nenhuma RPC paralela, alteração de onboarding,
+backfill ou provisionamento foi criado. A migration foi aplicada e reaplicada no
+banco local, sem habilitar hotéis automaticamente. Migrations antigas não foram
+modificadas. A única alteração funcional adicional de catálogo é a disponibilidade
+e descrição de Turismo; os demais módulos permanecem iguais.
+
+### Laboratório e evidências reais
+
+Stack descartável `libguest-52-turbo2`, aplicação em `http://127.0.0.1:3153` e API
+local em `http://127.0.0.1:55621`. Auth, DB e Storage ficaram em rede Docker interna;
+somente o gateway publicou a API em loopback. PostgreSQL foi operado por docker exec.
+O processo Next bloqueou conexões externas e o navegador bloqueou origens externas.
+Nenhuma API externa real, Google real ou Supabase remoto foi acessado.
+
+A cadeia local foi reconstruída com o artefato histórico local de schema sem dados
+anterior à 45B (`remote-public-baseline-20260811.sql`, já existente em disco, sem
+nova consulta remota), que contém os contratos das migrations anteriores. Em seguida
+foram aplicadas todas as 25 migrations da 45B em diante, incluindo a nova migration.
+A migration de governança foi reaplicada para comprovar comportamento idempotente.
+Não se alega bootstrap desde banco vazio apenas com os arquivos deste repositório:
+o schema inicial histórico não é integralmente criado pela primeira migration.
+
+Foram criados usuários Auth sintéticos Platform, Operator, Viewer e operador do
+hotel sem Turismo; cinco hotéis sintéticos, cobrindo Grand Mercure, Novotel, Mercure,
+Default e um segundo Default sem entitlement. Quatro receberam Turismo explicitamente
+pela RPC canônica, um permaneceu sem o módulo. Nenhum hotel real foi utilizado.
+
+Homologado pelo navegador e Server Actions reais:
+
+- Auth: login dos três perfis principais e acesso às rotas protegidas com sessão real.
+- Platform: ausência de entitlement bloqueia o módulo; habilitação pela tela aceita,
+  auditada, sem conteúdo automático ou mudança dos outros módulos; Home sem publicados
+  oculta o card. Desabilitação preserva dados e bloqueia Admin/público/Home;
+  reabilitação restaura acesso. SQL confirma exclusividade Platform, auditoria,
+  idempotência, isolamento, baseline exato e rollback se a auditoria falhar.
+- B3: criação sem upload, JPEG inicial, PNG de substituição e WebP; UUID/path canônico,
+  associação, revisão avançada, preview, objeto no bucket e auditoria. Substituição
+  remove o anterior; remoção deixa NULL e limpa o objeto. Viewer visualiza sem controles.
+- Validação B3 real: rejeitados arquivo >2 MiB, HTML declarado PNG, SVG e PNG de largura
+  6001, antes de qualquer associação/objeto adicional. O limite de pixels independente
+  e os demais formatos/limites continuam cobertos na suíte automatizada de upload.
+- Concorrência B3: duas abas; a segunda usa revisão antiga, recebe conflito PT409,
+  compensa seu upload novo e preserva o objeto/associação vencedores.
+- Hard delete: confirmação pela UI, exclusão do item, traduções em cascata e cleanup
+  do objeto. A ordenação banco antes de Storage é também verificada nos testes.
+- Operator: criar, editar, reordenar, publicar/despublicar, imagem e excluir; badges
+  Completo/Parcial/Ausente; retradução com Google indisponível apresenta warning,
+  preserva PT e não cria falsas traduções EN/ES.
+- Viewer: listagem com Ver detalhes, detalhe/badges/imagem somente leitura, sem
+  formulários de edição, publicação, ordem, exclusão ou retradução.
+- Idiomas: mesma tela existente, contagens/badges por campo, três estados, NULL PT
+  opcional não obrigatório e navegação pelo link do item. Viewer somente leitura;
+  cinco editoriais anteriores preservados, também cobertos por regressão automatizada.
+- Público: Todos e três filtros pela navegação, publicados do hotel, ordem editorial,
+  404 para não publicado e slug exclusivo de outro hotel; detalhe com imagem real do
+  bucket e sem imagem; website/mapa HTTPS e telefone/WhatsApp E.164; preço/duração textuais.
+  PT/EN/ES com fallback individual por campo, sem chamar Google na leitura.
+- Home: habilitado sem publicados oculta; habilitado com publicado mostra; desabilitado
+  oculta mesmo com dados publicados. Card compartilhado, sem Turismo no dock, placeholder
+  novo ou restauração do grid antigo. Legado continua preservado e sem migração automática.
+- Temas: 24 casos reais (4 temas × 2 larguras, 390/1440 × Home/catálogo/detalhe), sem
+  overflow horizontal; capturas revisadas sem regressão visual grosseira. Rotas por
+  slug e equivalente de subdomínio `.localhost` aprovadas. Bugan não foi incluído.
+
+Evidências locais ignoradas pelo Git em `out/tourism-local`: resultados autenticados
+(23 grupos de verificações), SQL, migrations, banco, logs e capturas. Conferência final:
+5 hotéis, 17 itens, 20 traduções de fixtures, 4 hotéis com Turismo, 1 objeto associado,
+zero objetos órfãos, 6 eventos de governança Turismo e 6 eventos de imagem.
+
+### Regressão SQL histórica e gates
+
+As verificações históricas 46.8/47 tinham expectativas 19/11 que deixaram de representar
+o contrato atual: a Sprint 50 incluiu `experience.navigation` no baseline (12), e a
+Sprint 51 acrescentou `travel.flights` ao catálogo (20). Turismo já pertencia às chaves;
+sua liberação não acrescenta chave nem default. Foram alinhadas as verificações de
+catálogo/RLS e suas matrizes comportamentais. Outros módulos opcionais, incluindo
+Turismo e Voos, continuam proibidos no onboarding automático. Não se compara o total
+de módulos de hotéis existentes com uma baseline fixa: opt-in/desativação podem variar.
+
+A matriz histórica 52.1 utiliza DML/contagens globais esperando catálogo isolado. Na
+execução do Turbo 2, o harness descartável isolou os fixtures de navegador dentro da
+mesma transação revertida e comparou fingerprints antes/depois. O harness não é uma
+ferramenta versionada. A rodada de correções usou matrizes em catálogo transacional
+isolado, sem fixtures persistentes e sem alterar o SQL histórico da matriz 52.1.
+
+Gates finais aprovados: 79/79 testes direcionados de Turismo/upload; 362/362 testes de
+segurança; TypeScript; lint com zero erros e somente quatro warnings históricos de img;
+build; `git diff --check`. Sete matrizes SQL locais aprovadas, com rollback e sem resíduos:
+46.8 catálogo/RLS e comportamento, 47 catálogo/RLS e comportamento, 51 entitlement de
+Voos, 52.1 domínio/RLS/RPC/imagem e 52.2 governança de Turismo.
+
+### Limites e encerramento do laboratório
+
+Respostas ambíguas de rede (novo/antigo/terceiro path e releitura falha), cleanup com
+falha e retry máximo de duas tentativas continuam validados automaticamente; não
+foram induzidas falhas destrutivas no Storage real. Não existe fila persistente ou
+promessa de coleta automática de órfãos. A geração de tradução com Google real não
+foi homologada; estados conhecidos foram inseridos como fixtures locais, e o fluxo
+com provedor indisponível foi efetivamente testado pela UI.
+
+A aplicação foi encerrada; containers, volumes, redes e estado de credenciais da stack
+desta rodada foram removidos. Evidências foram preservadas. Stacks preexistentes de
+outras frentes não foram modificadas. Não restou listener da aplicação na porta 3153.
+
+Este foi o checkpoint encaminhado à auditoria, que identificou P1/P2 e problemas
+nos harnesses. A seção seguinte registra suas correções. Não houve stage, commit,
+push, merge ou deploy. Aplicação remota da migration e publicação continuam fora
+desta rodada e exigem etapa autorizada posterior.
+
+Bugan permanece pendente de regressão até reconciliação com feat/bugan-recife-ux-v2.
+A branch permanece em `6a117d7542b884315a6cef57281b0b1b70bc4cdd`, sem alteração ou
+reconciliação. A reconciliação futura deve preservar ambas as linhas desde a divergência
+em `6551abd` e repetir a matriz multi-hotel antes da integração final em main.
+
+
+## Correções finais após auditoria — P1, P2 e ferramentas descartáveis
+
+### P1 — resposta ambígua e commit tardio
+
+**Decisão anterior substituída:** após falha ambígua de transporte da RPC de imagem,
+observar oldPath numa releitura permitia compensar o upload novo.
+
+**Nova decisão:** oldPath observado imediatamente NÃO comprova rollback. A RPC
+original ainda pode commitar depois dessa leitura. O upload novo é preservado até
+haver confirmação segura; prioriza-se possível órfão temporário em vez de referência
+quebrada no banco. Isso também vale para desassociação ambígua que ainda observa
+oldPath: nenhum objeto é removido.
+
+Comportamento final da orquestração:
+
+- Releitura com newPath: associação confirmada, mantém o novo; cleanup do anterior
+  conhecido conforme contrato normal, sempre com ownership e retry limitado.
+- Releitura com oldPath: mantém novo e antigo; warning sem afirmar sucesso/rollback;
+  orienta refresh/reconciliação posterior.
+- Terceiro path: mantém todos os arquivos, inclusive terceiro/antigo/novo; warning.
+- Releitura falha: mantém todos os arquivos; warning e registro de erro operacional.
+
+Nos estados incertos, os logs internos da Server Action incluem hotel, item,
+oldPath, newPath, revisão integral e operação. Não há detalhe interno de Storage
+no feedback público. Falhas SQL confirmadas continuam compensando somente o novo
+upload, como antes. PT409, cliente autenticado normal para associação, paths
+server-owned, Storage server-only e retry de cleanup (no máximo duas tentativas)
+permanecem preservados.
+
+O teste permanente late commit existe em `tests/security/tourism-image.test.ts`:
+RPC perde a resposta enquanto pendente, leitura ainda retorna oldPath, nenhum
+arquivo é removido, commit posterior aponta para newPath existente. O mesmo callback
+falhou com a regra antiga reintroduzida apenas em memória e passou com a implementação
+nova. Foram mantidos casos newPath confirmado, oldPath, terceiro path, releitura
+falha, falha de cleanup e retry limitado; acrescentados remoção ambígua e contexto
+do log da Server Action.
+
+Impacto UX: warning conservador com orientação de recarregar/reconciliar, sem falsa
+confirmação de associação ou rollback. Limitação explícita: pode sobrar objeto órfão
+temporário quando o resultado nunca for confirmado; tratamento posterior é operacional.
+Não se criou tabela, fila persistente, cron, worker ou migration de reconciliação.
+
+### P2 — transição legada por hotel
+
+Os dois catálogos, por slug e por subdomínio, consultam o novo loader no servidor.
+Entitlement ON retorna o novo domínio, mesmo vazio, e não projeta Services nessa
+experiência. OFF retorna ao loader/componente público anterior, preservando conteúdo
+legado sem 404 introduzido pelo novo interceptador. Falha na consulta de entitlement
+não é confundida com OFF nem força fallback silencioso.
+
+`HotelPublicAreaContent` e `lib/public-hotel-areas.ts` correspondem ao checkpoint
+`91634a4`: a projeção textual antiga é somente leitura, sem nova heurística,
+reclassificação, cópia, migração ou exclusão de Services. O novo detalhe por slug de
+item continua exclusivo do domínio novo e exige entitlement/publicação. Home continua
+exigindo entitlement e ao menos um item novo publicado; o fallback legado não ativa
+esse card nem adiciona Turismo ao dock.
+
+Regressões permanentes em `tests/security/tourism-legacy-transition.test.ts` exercitam
+os dois componentes de rota reais com os loaders controlados e o contrato de leitura
+novo: hotel A ON mostra somente seus publicados; hotel B OFF mantém Services sem 404,
+sem herdar a decisão de A, mesmo com hotel_id forjado na query. Também cobrem catálogo
+novo vazio, erro de gate e paridade integral do renderer/projeção legados com a base.
+
+### Ferramentas de laboratório — opção B aprovada
+
+Não ampliar a Sprint para tornar portável uma stack dependente de containers,
+schema histórico e Playwright externos ao checkout. Foram retirados do conjunto
+versionável os três runners descartáveis usados anteriormente (autenticado, setup/
+cleanup local e matriz sintética). A fixture visual exclusiva desse harness também
+foi retirada por não ter consumidor permanente após a decisão. A homologação já
+executada permanece registrada acima; não existe comando de harness permanente
+implícito neste repositório para reproduzi-la.
+
+Os testes de segurança/regressão permanentes foram preservados. A declaração
+`tests/security/node-module-hooks.d.ts` permanece necessária aos testes versionados
+que usam registerHooks no Node 22 com @types/node 20, sem alterar código de runtime.
+Os quatro fontes retirados foram preservados apenas em arquivo local ignorado em
+out, junto às evidências anteriores, sem instrução de uso/versionamento. Nenhuma
+exceção de .gitignore foi adicionada. Logs, dumps, screenshots, state, fixtures
+geradas, credenciais e .env de laboratório não integram o diff/versionamento.
+
+### Gates e auditoria interna desta correção
+
+- 118/118 testes direcionados: todos Tourism/upload, módulos/entitlements,
+  onboarding e arquitetura administrativa relevante.
+- 374/374 testes de segurança.
+- 7/7 matrizes SQL locais: 46.8 RLS e comportamento, 47 RLS e comportamento,
+  51 entitlement de Voos, 52.1 domínio/RLS/RPC/imagem e 52.2 governança de Turismo.
+- TypeScript, lint (zero erros, quatro warnings históricos), build e diff-check
+  aprovados. Nenhum warning novo introduzido.
+
+A execução SQL foi descartável, em transações no container local
+`supabase_db_libguest-45b-lab`: fundação 52.1, imagem, hotfix PT409 e a migration de
+availability foram aplicados antes de cada matriz e revertidos junto a ela. Conferida
+restauração da definição original de governança e ausência de tabelas/fixtures de
+Turismo ao término. Nenhuma operação contra Supabase remoto; não foi criada stack
+persistente nem adicionada ferramenta de laboratório permanente para essa execução.
+
+A migration de governança `20261028012744_52_2_tourism_governance_available.sql`
+permanece integralmente igual à aprovada no Turbo 2; nenhuma migration adicional ou
+antiga foi alterada. `content.tourism` permanece available, fora do baseline e sem
+auto-enable. Não houve mudanças em roomToken, Central de Voos, IA, Router,
+AI Analytics, TheX, OPERA ou nos cinco editoriais.
+
+Auditoria interna final: P1 antigo removido do fluxo ambíguo; apenas rollback SQL
+confirmado pode compensar o upload novo. Fallback legado decidido por hotel no
+servidor, sem bypass multi-hotel. Nenhum runner frágil ou dependência de laboratório
+Bugan permanece no conjunto versionável. Sem credenciais reais ou artefatos locais
+no diff. Resultado: APROVADA para uma nova auditoria final, sem stage/commit/push.
+
+Bugan continua isolado em `feat/bugan-recife-ux-v2`, HEAD
+`6a117d7542b884315a6cef57281b0b1b70bc4cdd`, sem checkout, alteração, teste artificial
+ou integração. Sua regressão continua obrigatória após reconciliação explícita.

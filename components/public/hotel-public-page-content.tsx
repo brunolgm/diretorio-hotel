@@ -1,3 +1,4 @@
+import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
 import type { ElementType } from 'react';
 import {
   ArrowUpRight,
@@ -307,6 +308,7 @@ export function HotelPublicPageContent({
   policies,
   layout,
   flightHomeCard,
+  tourismHomeAvailable = false,
   language,
   domainContext,
   hasFallbackContent,
@@ -321,6 +323,7 @@ export function HotelPublicPageContent({
   policies: PublicHotelPolicy[];
   layout: ExperienceLayoutBlock[];
   flightHomeCard: PublicFlightHomeCardData | null;
+  tourismHomeAvailable?: boolean;
   language: SupportedPublicLanguage;
   domainContext: DomainContext;
   hasFallbackContent: boolean;
@@ -366,6 +369,7 @@ export function HotelPublicPageContent({
           policies,
           layout,
           flightHomeCard,
+          tourismHomeAvailable,
           hasFallbackContent,
         }}
         language={language}
@@ -378,7 +382,7 @@ export function HotelPublicPageContent({
   if (isGrandMercureExperience) {
     return (
       <GrandMercurePublicHome
-        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, hasFallbackContent }}
+        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -389,7 +393,7 @@ export function HotelPublicPageContent({
   if (isMercureExperience) {
     return (
       <MercurePublicHome
-        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, hasFallbackContent }}
+        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -570,6 +574,7 @@ export function HotelPublicPageContent({
           />
         ) : null}
 
+        <PublicTourismHomeCard available={tourismHomeAvailable} slug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={useSubdomainRoot} style={blockStyle('banners')} />
         {highlightsState !== 'hidden' ? (
           <section className="mt-8" style={blockStyle('banners')}>
             <PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback />

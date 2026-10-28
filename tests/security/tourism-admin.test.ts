@@ -1,3 +1,4 @@
+import * as image from '../../lib/tourism/image.ts';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -34,7 +35,7 @@ function harness(options: { denied?: boolean; disabled?: boolean; image?: boolea
     maybeSingle: async () => ({ data: options.missing ? null : { main_image_path: options.image ? 'owned/image.png' : null }, error: null }),
     then: (resolve: (value: unknown) => unknown) => resolve({ data: [{ id }, { id: other }], error: null }),
   };
-  const client = { from: () => query, rpc: async (name: string, args: Record<string, unknown>) => { calls.push({ name, args }); return { data: [{ id }], error: options.rpcError || null }; } };
+  const client = { from: () => query, rpc: async (name: string, args: Record<string, unknown>) => { calls.push({ name, args }); return { data: [{ id, deleted_id: id, main_image_path: null }], error: options.rpcError || null }; } };
   const compiledModule = { exports: {} };
   const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   runInNewContext(code, { exports: compiledModule.exports, module: compiledModule, require: (name: string) => {
@@ -49,6 +50,7 @@ function harness(options: { denied?: boolean; disabled?: boolean; image?: boolea
       syncTourismTranslations: async () => ({ status: 'skipped' }), formatTourismTranslationFeedback: () => ({}),
     };
     if (name === '@/lib/tourism/admin') return domain;
+    if (name === '@/lib/tourism/image') return image;
     throw new Error(`Unexpected import ${name}`);
   } });
   const actions = compiledModule.exports as {
@@ -118,17 +120,11 @@ test('publish sends a minimal patch and reorder uses the complete server tenant 
   assert.throws(() => domain.moveTourismOrder([id], other, 'down'));
 });
 
-test('delete is scoped, requires original revision and blocks images without Storage cleanup', async () => {
+test('delete requires original revision and consumes the existing RPC result', async () => {
   const h = harness();
   await assert.rejects(h.actions.deleteTourismItemAction(form({ id, expected_updated_at: revision })), /REDIRECT:/);
-  assert.deepEqual(h.filters, [['id', id], ['hotel_id', tenant]]);
   assert.equal(h.calls[0].name, 'delete_current_hotel_tourism_item');
   assert.equal(h.calls[0].args.p_expected_updated_at, revision);
-  for (const options of [{ image: true }, { missing: true }]) {
-    const blocked = harness(options);
-    await assert.rejects(blocked.actions.deleteTourismItemAction(form({ id, expected_updated_at: revision })), /REDIRECT:/);
-    assert.equal(blocked.calls.length, 0);
-  }
 });
 
 test('pages expose viewer detail but gate every mutation; public/image scope stays closed', () => {
@@ -149,10 +145,10 @@ test('pages expose viewer detail but gate every mutation; public/image scope sta
   assert.match(formSource, /useActionState/);
   assert.match(formSource, /value=\{item.updated_at\}/);
   assert.match(formSource, /TOURISM_CATEGORIES.filter/);
-  assert.doesNotMatch(source, /\.insert\(|\.update\(|\.delete\(|createAdminClient|service_role|\.storage|update_current_hotel_tourism_image/);
+  assert.doesNotMatch(source, /\.insert\(|\.update\(|\.delete\(|service_role|update_current_hotel_tourism_image/);
   assert.match(source, /syncTourismTranslations/);
   assert.doesNotMatch(source, /sync(?:Section|Department|Policy|Announcement|PromotionalBanner)Translations/);
-  assert.equal(MODULE_CATALOG.find((entry) => entry.key === 'content.tourism')?.availability, 'coming_soon');
+  assert.equal(MODULE_CATALOG.find((entry) => entry.key === 'content.tourism')?.availability, 'available');
 });
 
 test('Server Components actually omit forms/actions for viewer and reject a foreign item', async () => {

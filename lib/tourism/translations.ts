@@ -27,3 +27,14 @@ export function getTourismTranslationStatus(
 export const TOURISM_TRANSLATION_STATUS_LABELS = {
   missing: 'Ausente', partial: 'Parcial', complete: 'Completo',
 } as const;
+
+export function summarizeTourismTranslations(
+  items: Array<TourismTranslationFields & { id: string }>,
+  translations: Array<Partial<TourismTranslationFields> & { item_id: string; language: string }>,
+) {
+  return items.map((item) => ({
+    id: item.id, name: item.name,
+    en: getTourismTranslationStatus(item, translations.find((row) => row.item_id === item.id && row.language === 'en')),
+    es: getTourismTranslationStatus(item, translations.find((row) => row.item_id === item.id && row.language === 'es')),
+  }));
+}

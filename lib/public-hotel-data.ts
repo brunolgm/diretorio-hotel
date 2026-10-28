@@ -1,3 +1,4 @@
+import { loadPublicTourism, publicTourismHomeAvailable } from '@/lib/tourism/public';
 import { createPublicClient } from '@/lib/supabase/public';
 import { getFlightAirportTimezones } from '@/lib/flights/airport-timezones.server';
 import { normalizeExperienceLayout, type ExperienceLayoutBlock } from '@/lib/experience-layout';
@@ -30,6 +31,7 @@ type PublicHotelPromotionalBannerTranslation =
   Database['public']['Tables']['hotel_promotional_banner_translations']['Row'];
 
 export interface PublicHotelPageData {
+  tourismHomeAvailable?: boolean;
   hotel: PublicHotel;
   flightHomeCard: PublicFlightHomeCard | null;
   banners: PublicHotelPromotionalBanner[];
@@ -424,6 +426,7 @@ async function getPublicHotelPageDataForHotel(
 
   return {
     hotel,
+    tourismHomeAvailable: await publicTourismHomeAvailable(supabase, hotel.id),
     flightHomeCard: flightHomeCardRow ? {
       title: flightHomeCardRow.home_card_title,
       description: flightHomeCardRow.home_card_description,
@@ -661,4 +664,16 @@ export async function getPublicFlightCenterDataBySubdomain(subdomain: string) {
   const hotel = await getHotelBySubdomainWithClient(supabase, subdomain);
   if (!hotel) return null;
   return getPublicFlightCenterDataForHotel(supabase, hotel);
+}
+
+
+export async function getPublicTourismDataBySlug(slug: string, language: SupportedPublicLanguage, itemSlug?: string) {
+  const client = createPublicClient();
+  const hotel = await getHotelBySlugWithClient(client, slug);
+  return hotel ? loadPublicTourism(client, hotel, language, itemSlug) : null;
+}
+export async function getPublicTourismDataBySubdomain(subdomain: string, language: SupportedPublicLanguage, itemSlug?: string) {
+  const client = createPublicClient();
+  const hotel = await getHotelBySubdomainWithClient(client, subdomain);
+  return hotel ? loadPublicTourism(client, hotel, language, itemSlug) : null;
 }

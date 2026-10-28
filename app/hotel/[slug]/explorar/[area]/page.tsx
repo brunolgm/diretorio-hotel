@@ -1,3 +1,5 @@
+import { PublicTourismContent } from '@/components/public/public-tourism-content';
+import { getPublicTourismDataBySlug } from '@/lib/public-hotel-data';
 import { notFound } from 'next/navigation';
 import { HotelPublicAreaContent } from '@/components/public/hotel-public-area-content';
 import { getRequestDomainContext } from '@/lib/domain-context';
@@ -12,7 +14,7 @@ export default async function PublicHotelSlugAreaPage({
   searchParams,
 }: {
   params: Promise<{ slug: string; area: string }>;
-  searchParams?: Promise<{ lang?: string }>;
+  searchParams?: Promise<{ lang?: string; type?: string }>;
 }) {
   const { slug, area } = await params;
   if (!isPublicHotelAreaKey(area)) notFound();
@@ -20,6 +22,10 @@ export default async function PublicHotelSlugAreaPage({
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const language = normalizePublicLanguage(resolvedSearchParams?.lang);
   const domainContext = await getRequestDomainContext();
+  if (area === 'turismo') {
+    const data = await getPublicTourismDataBySlug(slug, language);
+    if (data) return <PublicTourismContent data={data} language={language} domainContext={domainContext} preferSubdomainRoot={false} filter={resolvedSearchParams?.type} />;
+  }
   const pageData = await getPublicHotelPageDataBySlug(slug, language);
   if (!pageData) notFound();
 

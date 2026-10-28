@@ -1,3 +1,4 @@
+import * as imageFlow from '../../lib/tourism/image.ts';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -40,6 +41,7 @@ function compile<T>(path: string, imports: Record<string, unknown>, globals: Rec
     exports: compiledModule.exports, module: compiledModule, URLSearchParams, AbortSignal,
     ...globals,
     require: (name: string) => {
+      if (name === '@/lib/tourism/image') return imageFlow;
       if (!(name in imports)) throw new Error(`Unexpected dependency: ${name}`);
       return imports[name];
     },
@@ -297,7 +299,7 @@ test('five existing editorial syncs retain their transport, persistence and feed
   }
 });
 
-test('B2 preserves protected files, migrations, global language summary and module availability', () => {
+test('B2 historical scope remains immutable; current translator preserves its boundaries', () => {
   const baseline = '0b3e36ddc23d92bddfd47f96c042f042f17ca534';
   const protectedPaths = [
     'app/admin/idiomas/page.tsx', 'lib/tourism/admin.ts', 'lib/tourism/validation.ts', 'types/database.ts',
@@ -305,10 +307,11 @@ test('B2 preserves protected files, migrations, global language summary and modu
   ];
   for (const path of protectedPaths) {
     const before = execFileSync('git', ['show', `${baseline}:${path}`], { encoding: 'utf8' });
-    assert.equal(readFileSync(path, 'utf8').replaceAll('\r\n', '\n'), before.replaceAll('\r\n', '\n'), path);
+    const deliveredB2 = execFileSync('git', ['show', `6551abd:${path}`], { encoding: 'utf8' });
+    assert.equal(deliveredB2.replaceAll('\r\n', '\n'), before.replaceAll('\r\n', '\n'), path);
   }
-  assert.equal(execFileSync('git', ['diff', baseline, '--name-only', '--', 'supabase/migrations', 'lib/modules', 'app/hotel', 'app/explorar', 'app/page.tsx'], { encoding: 'utf8' }).trim(), '');
-  assert.equal(MODULE_CATALOG.find((entry) => entry.key === 'content.tourism')?.availability, 'coming_soon');
+  assert.equal(execFileSync('git', ['diff', baseline, '6551abd', '--name-only', '--', 'supabase/migrations', 'lib/modules', 'app/hotel', 'app/explorar', 'app/page.tsx'], { encoding: 'utf8' }).trim(), '');
+  assert.equal(MODULE_CATALOG.find((entry) => entry.key === 'content.tourism')?.availability, 'available');
   assert.ok(!(BASELINE_MODULE_KEYS as readonly string[]).includes('content.tourism'));
   assert.equal((readFileSync('lib/services/translation-service.ts', 'utf8').match(/await fetch\(/g) || []).length, 1);
   const sync = readFileSync('lib/services/translation-admin.ts', 'utf8').split('export async function syncTourismTranslations')[1].split('export function formatTourismTranslationFeedback')[0];

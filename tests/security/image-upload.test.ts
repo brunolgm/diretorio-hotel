@@ -94,6 +94,11 @@ test('rejects false MIME, empty, oversized and SVG/HTML payloads', async () => {
   assert.equal((await validateImageUpload(fileLike(html, 'image/png'), IMAGE_UPLOAD_POLICIES.logo)).ok, false);
 });
 
+test('tourism pixel ceiling is enforced independently of side limits', async () => {
+  const policy = { ...IMAGE_UPLOAD_POLICIES.tourism, maxWidth: 10000, maxHeight: 10000 };
+  assert.deepEqual(await validateImageUpload(fileLike(png(5000,5000), 'image/png'), policy), { ok: false, reason: 'dimensions' });
+});
+
 test('rejects excessive dimensions and generates server-owned paths', async () => {
   const result = await validateImageUpload(
     fileLike(png(5000, 5000), 'image/png'),

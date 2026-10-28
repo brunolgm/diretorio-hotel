@@ -124,13 +124,13 @@ do $$ declare created uuid := current_setting('test.s47_hotel_id')::uuid; begin
       and slug='s47-new-draft' and subdomain='s47newdraft' and brand_code='grand-mercure') then
     raise exception '47 behavior: draft hotel identity missing';
   end if;
-  if (select count(*) from public.hotel_module_entitlements where hotel_id=created and is_enabled)<>11 then
-    raise exception '47 behavior: baseline is not eleven enabled modules';
+  if (select count(*) from public.hotel_module_entitlements where hotel_id=created and is_enabled)<>12 then
+    raise exception '47 behavior: baseline is not twelve enabled modules';
   end if;
   if exists(select 1 from public.hotel_module_entitlements where hotel_id=created and module_key=any(array[
-      'experience.navigation','experience.seo','fb.menu','content.tourism','analytics.advanced',
-      'integrations.thex','integrations.opera','audit.access_logs'])) then
-    raise exception '47 behavior: coming-soon entitlement was created';
+      'experience.seo','fb.menu','content.tourism','analytics.advanced',
+      'integrations.thex','integrations.opera','audit.access_logs','travel.flights'])) then
+    raise exception '47 behavior: optional entitlement was created';
   end if;
   if not exists(select 1 from public.hotel_module_entitlements where hotel_id=created and module_key='core.directory' and is_enabled) then
     raise exception '47 behavior: core.directory missing';
@@ -140,7 +140,7 @@ do $$ declare created uuid := current_setting('test.s47_hotel_id')::uuid; begin
     raise exception '47 behavior: initial administrator profile missing';
   end if;
   if (select count(*) from public.platform_audit_log where entity_id=created and action='hotel.created'
-      and metadata=pg_catalog.jsonb_build_object('brand_code','grand-mercure','baseline_modules',11))<>1 then
+      and metadata=pg_catalog.jsonb_build_object('brand_code','grand-mercure','baseline_modules',12))<>1 then
     raise exception '47 behavior: shallow hotel.created audit missing';
   end if;
   if exists(select 1 from public.platform_audit_log where entity_id=created
@@ -155,7 +155,7 @@ end $$;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','47010000-0000-4000-8000-000000000004',true);
 do $$ begin
-  if (select count(*) from public.get_current_hotel_modules() where is_enabled)<>11
+  if (select count(*) from public.get_current_hotel_modules() where is_enabled)<>12
     or not exists(select 1 from public.get_current_hotel_modules() where module_key='core.directory' and is_enabled) then
     raise exception '47 behavior: initial draft admin cannot resolve baseline modules';
   end if;

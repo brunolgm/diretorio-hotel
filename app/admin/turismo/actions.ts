@@ -1,5 +1,7 @@
 'use server';
 
+import { cleanupTourismImage } from '@/lib/tourism/image';
+
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
@@ -110,16 +112,24 @@ export async function deleteTourismItemAction(form: FormData) {
   if (!isUuid(id)) fail({});
   let revision;
   try { revision = revisionFrom(form); } catch (error) { fail(error as Error); }
-  // B1 cannot clean Storage. Block existing images; the original revision also
-  // prevents deletion if an image is associated between this read and the RPC.
-  const { data, error: readError } = await supabase.from('hotel_tourism_items').select('main_image_path')
-    .eq('id', id).eq('hotel_id', profile.hotel_id).maybeSingle();
-  if (readError || !data) fail(readError || { code: 'P0002' });
-  if (data.main_image_path) redirect(buildFeedbackRedirect('/admin/turismo', {
-    error: 'Este item possui imagem. A exclusão com limpeza da imagem estará disponível na etapa de imagens. Você pode despublicá-lo.',
-  }));
-  const { error } = await supabase.rpc('delete_current_hotel_tourism_item', { p_item_id: id, p_expected_updated_at: revision });
+  const { data, error } = await supabase.rpc('delete_current_hotel_tourism_item', { p_item_id: id, p_expected_updated_at: revision });
   if (error) fail(error);
   revalidatePath(`/admin/turismo/${id}`);
-  finish('Item excluído definitivamente.');
+  if (!data?.[0] || data[0].deleted_id !== id) fail({ message: 'tourism_delete_unconfirmed' });
+  let warning: string | undefined;
+  if (data[0].main_image_path) {
+    try {
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const storage = createAdminClient().storage.from('hotel-assets');
+    const cleaned = await cleanupTourismImage({
+      remove: (path) => storage.remove([path]),
+      log: (operation, path) => console.error('Tourism delete cleanup requires attention', { operation, path, itemId: id, hotelId: profile.hotel_id }),
+    }, profile.hotel_id, id, data[0].main_image_path, null);
+    if (!cleaned) warning = 'O item foi excluído, mas o arquivo precisa de limpeza posterior.';
+    } catch {
+      console.error('Tourism deleted-image storage unavailable', { hotelId: profile.hotel_id, itemId: id, path: data[0].main_image_path });
+      warning = 'O item foi excluído, mas o arquivo precisa de limpeza posterior.';
+    }
+  }
+  finish('Item excluído definitivamente.', undefined, { warning });
 }

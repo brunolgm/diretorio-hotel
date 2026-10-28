@@ -33,21 +33,21 @@ begin
     select 1 from (values
       ('core.directory'),('content.services'),('content.departments'),('content.policies'),
       ('content.announcements'),('content.banners'),('rooms.qr'),('content.languages'),
-      ('experience.appearance'),('experience.preview'),('analytics.basic')
+      ('experience.appearance'),('experience.navigation'),('experience.preview'),('analytics.basic')
     ) baseline(module_key)
     where pg_catalog.strpos(source,pg_catalog.quote_literal(module_key))=0
-  ) then raise exception '47 catalog: canonical eleven-module baseline is incomplete'; end if;
-  if source ~* '(experience\.navigation|experience\.seo|fb\.menu|content\.tourism|analytics\.advanced|integrations\.thex|integrations\.opera|audit\.access_logs)' then
-    raise exception '47 catalog: coming-soon module leaked into onboarding RPC';
+  ) then raise exception '47 catalog: canonical twelve-module baseline is incomplete'; end if;
+  if source ~* '(experience\.seo|fb\.menu|content\.tourism|analytics\.advanced|integrations\.thex|integrations\.opera|audit\.access_logs|travel\.flights)' then
+    raise exception '47 catalog: optional module leaked into onboarding RPC';
   end if;
   if source !~* 'record_platform_audit_event'
     or source ~* 'insert into public\.platform_audit_log'
     or source !~* '''hotel\.created'''
-    or source !~* '''baseline_modules''[[:space:]]*,[[:space:]]*11' then
+    or source !~* '''baseline_modules''[[:space:]]*,[[:space:]]*12' then
     raise exception '47 catalog: controlled shallow audit contract drifted';
   end if;
   if source !~*
-  'jsonb_build_object[[:space:]]*\([[:space:]]*''brand_code''[[:space:]]*,[[:space:]]*p_brand_code[[:space:]]*,[[:space:]]*''baseline_modules''[[:space:]]*,[[:space:]]*11[[:space:]]*\)'
+  'jsonb_build_object[[:space:]]*\([[:space:]]*''brand_code''[[:space:]]*,[[:space:]]*p_brand_code[[:space:]]*,[[:space:]]*''baseline_modules''[[:space:]]*,[[:space:]]*12[[:space:]]*\)'
 then
   raise exception '47 catalog: expected shallow hotel.created metadata missing';
 end if;
@@ -67,7 +67,7 @@ declare
     'content.banners','content.departments','content.languages','content.policies',
     'content.services','content.tourism','core.directory','experience.appearance',
     'experience.navigation','experience.preview','experience.seo','fb.menu',
-    'integrations.opera','integrations.thex','rooms.qr'
+    'integrations.opera','integrations.thex','rooms.qr','travel.flights'
   ];
   actual_keys text[];
   public_hotels_definition text;
@@ -82,7 +82,7 @@ begin
   where c.conrelid='public.hotel_module_entitlements'::regclass
     and c.conname='hotel_module_entitlements_module_key_check';
   if actual_keys is distinct from expected_keys then
-    raise exception '47 catalog: exact canonical 19-module catalog drifted';
+    raise exception '47 catalog: exact canonical 20-module catalog drifted';
   end if;
   if not exists (
     select 1 from pg_catalog.pg_index i

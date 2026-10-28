@@ -1,3 +1,4 @@
+import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
 import type { ElementType } from 'react';
 import { BellRing, ChevronRight, CircleHelp, ConciergeBell, Info, MessageCircle } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
@@ -84,6 +85,7 @@ export function NovotelPublicHome({ pageData, language, domainContext, preferSub
       {hero}
       {cardGridSection}
       {flightCard}
+      <PublicTourismHomeCard available={pageData.tourismHomeAvailable} slug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} />
       {highlights}
       {supportCard}
       <footer className="px-6 pt-6 pb-8 text-center text-xs font-medium text-slate-500 md:py-8">Powered by LibGuest</footer>

@@ -16,9 +16,9 @@ export function TourismItemActions({ item, position, total }: { item: Database['
       <input type="hidden" name="id" value={item.id} /><input type="hidden" name="direction" value={direction} />
       <button type="submit" disabled={direction === 'up' ? position === 0 : position === total - 1} aria-label={`Mover ${item.name} para ${direction === 'up' ? 'cima' : 'baixo'}`} className="h-11 rounded-xl border border-[var(--admin-border)] px-4 disabled:opacity-40">{direction === 'up' ? 'Subir' : 'Descer'}</button>
     </form>) : null}
-    {item.main_image_path ? <p className="text-sm text-[var(--admin-muted)]">Item com imagem: a exclusão estará disponível com a gestão de imagens. Você pode despublicá-lo.</p> : <AdminConfirmAction
+    <AdminConfirmAction
       action={deleteTourismItemAction} title={`Excluir ${item.name}?`} description="A exclusão é definitiva e remove também as traduções. Para retirar temporariamente, use Despublicar."
       triggerLabel="Excluir" confirmLabel="Excluir definitivamente" pendingLabel="Excluindo..."
-      hiddenFields={[{ name: 'id', value: item.id }, { name: 'expected_updated_at', value: item.updated_at }]} />}
+      hiddenFields={[{ name: 'id', value: item.id }, { name: 'expected_updated_at', value: item.updated_at }]} />
   </>;
 }
