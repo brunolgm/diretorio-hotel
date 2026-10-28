@@ -1,3 +1,4 @@
+import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
 import type { ElementType } from 'react';
 import {
   ArrowUpRight,
@@ -14,6 +15,9 @@ import {
   Sparkles,
   Wifi,
 } from 'lucide-react';
+import { PublicExperienceOverview } from '@/components/public/public-experience-overview';
+import type { ExperienceMedia } from '@/lib/public-experience-media';
+import type { PublicTourismItem } from '@/lib/tourism/public';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { GrandMercurePublicHome } from '@/components/public/grand-mercure/grand-mercure-public-home';
 import { MercurePublicHome } from '@/components/public/mercure/mercure-public-home';
@@ -307,6 +311,9 @@ export function HotelPublicPageContent({
   policies,
   layout,
   flightHomeCard,
+  tourismHomeAvailable = false,
+  experienceMedia = [],
+  tourismPreview = [],
   language,
   domainContext,
   hasFallbackContent,
@@ -321,6 +328,9 @@ export function HotelPublicPageContent({
   policies: PublicHotelPolicy[];
   layout: ExperienceLayoutBlock[];
   flightHomeCard: PublicFlightHomeCardData | null;
+  tourismHomeAvailable?: boolean;
+  experienceMedia?: ExperienceMedia[];
+  tourismPreview?: PublicTourismItem[];
   language: SupportedPublicLanguage;
   domainContext: DomainContext;
   hasFallbackContent: boolean;
@@ -354,6 +364,14 @@ export function HotelPublicPageContent({
   const policyPosition = layoutByKey.get('policies')?.position ?? 7;
   const pairOperationalBlocks = Math.abs(departmentPosition - policyPosition) === 1;
 
+  if (theme.preset === 'bugan') {
+    return <PublicExperienceOverview
+      pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, experienceMedia, tourismPreview, hasFallbackContent }}
+      language={language} domainContext={domainContext} preferSubdomainRoot={useSubdomainRoot}
+      activeRoomContext={activeRoomContext}
+    />;
+  }
+
   if (isNovotelExperience) {
     return (
       <NovotelPublicHome
@@ -366,6 +384,7 @@ export function HotelPublicPageContent({
           policies,
           layout,
           flightHomeCard,
+          tourismHomeAvailable,
           hasFallbackContent,
         }}
         language={language}
@@ -378,7 +397,7 @@ export function HotelPublicPageContent({
   if (isGrandMercureExperience) {
     return (
       <GrandMercurePublicHome
-        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, hasFallbackContent }}
+        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -389,7 +408,7 @@ export function HotelPublicPageContent({
   if (isMercureExperience) {
     return (
       <MercurePublicHome
-        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, hasFallbackContent }}
+        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -570,6 +589,7 @@ export function HotelPublicPageContent({
           />
         ) : null}
 
+        <PublicTourismHomeCard available={tourismHomeAvailable} slug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={useSubdomainRoot} style={blockStyle('banners')} />
         {highlightsState !== 'hidden' ? (
           <section className="mt-8" style={blockStyle('banners')}>
             <PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback />

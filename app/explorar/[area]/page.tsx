@@ -1,3 +1,5 @@
+import { PublicTourismContent } from '@/components/public/public-tourism-content';
+import { getPublicTourismDataBySubdomain } from '@/lib/public-hotel-data';
 import { notFound } from 'next/navigation';
 import { HotelPublicAreaContent } from '@/components/public/hotel-public-area-content';
 import { HotelExperienceUnavailable } from '@/components/public/hotel-experience-unavailable';
@@ -13,7 +15,7 @@ export default async function PublicHotelAreaPage({
   searchParams,
 }: {
   params: Promise<{ area: string }>;
-  searchParams?: Promise<{ lang?: string }>;
+  searchParams?: Promise<{ lang?: string; type?: string }>;
 }) {
   const { area } = await params;
   if (!isPublicHotelAreaKey(area)) notFound();
@@ -23,6 +25,10 @@ export default async function PublicHotelAreaPage({
 
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const language = normalizePublicLanguage(resolvedSearchParams?.lang);
+  if (area === 'turismo') {
+    const data = await getPublicTourismDataBySubdomain(domainContext.subdomain, language);
+    if (data) return <PublicTourismContent data={data} language={language} domainContext={domainContext} preferSubdomainRoot={true} filter={resolvedSearchParams?.type} />;
+  }
   const pageData = await getPublicHotelPageDataBySubdomain(domainContext.subdomain, language);
   if (!pageData) return <HotelExperienceUnavailable />;
 

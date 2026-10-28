@@ -116,12 +116,17 @@ do $$ begin
   end if;
 end $$;
 
+-- Cumulative gate: the local database may already contain the canonical airport
+-- catalog. Compare the visible set to all active rows, not only three fixtures.
+create temp table expected_active_airports as select id from public.airports where is_active;
+grant select on expected_active_airports to authenticated;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','51210000-0000-4000-8000-000000000001',true);
 set constraints hotel_airports_sort_order_key immediate;
 
 do $$ declare affected integer; begin
-  if (select count(*) from public.airports)<>3 then
+  if exists((select id from public.airports except select id from expected_active_airports)
+    union all (select id from expected_active_airports except select id from public.airports)) then
     raise exception '51 configuration behavior: active entitled hotel airport catalog invalid';
   end if;
   begin

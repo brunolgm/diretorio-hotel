@@ -38,6 +38,11 @@ import { getCurrentHotelReadiness } from '@/lib/readiness-queries';
 import { removeHotelHeroImageAction, removeHotelLogoAction, updateHotelAction } from './actions';
 import { uploadHotelHeroImageAction } from './upload-hero-image-action';
 import { uploadHotelLogoAction } from './upload-logo-action';
+import { ExperienceMediaEditor } from '@/components/admin/experience-media-editor';
+import { updateExperienceMediaAction } from './experience-media-actions';
+import { createClient } from '@/lib/supabase/server';
+import { hasHotelModule } from '@/lib/admin-entitlements';
+import { experienceMediaUrl } from '@/lib/public-experience-media';
 
 interface AdminHotelPageProps {
   searchParams?: Promise<{
@@ -76,6 +81,15 @@ function InfoCard({
 export default async function AdminHotelPage({ searchParams }: AdminHotelPageProps) {
   await requireAdminAccess('editor');
   const [hotel, readiness] = await Promise.all([getAdminHotel(), getCurrentHotelReadiness()]);
+  const canManageMedia = await hasHotelModule('experience.appearance');
+  const mediaClient = await createClient();
+  const mediaResult = canManageMedia ? await mediaClient.from('hotel_public_experience_media').select('*').eq('hotel_id', hotel.id) : null;
+  if (mediaResult?.error) throw new Error('Não foi possível carregar a mídia da experiência.');
+  const mediaRows = mediaResult?.data ?? [];
+  const mediaUrls = Object.fromEntries(mediaRows.map(row => [row.slot, {
+    desktop: experienceMediaUrl(row.image_path, hotel.id, row.slot, process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''),
+    mobile: experienceMediaUrl(row.mobile_image_path, hotel.id, row.slot, process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''),
+  }]));
   const allowedThemePresets = getAllowedAdminThemePresets(hotel);
   const params = searchParams ? await searchParams : {};
   const success = params?.success;
@@ -622,6 +636,10 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
           </div>
         </div>
       </section>
+      {canManageMedia ? <details className="rounded-2xl border border-[var(--admin-border)] p-4">
+        <summary className="cursor-pointer py-2 font-semibold">Mídia e conteúdo da experiência pública</summary>
+        <div className="mt-4"><ExperienceMediaEditor rows={mediaRows} urls={mediaUrls} action={updateExperienceMediaAction} /></div>
+      </details> : null}
     </main>
   );
 }

@@ -1,3 +1,5 @@
+import { PublicAreaHero } from '@/components/public/public-area-hero';
+import { PublicBottomDock } from '@/components/public/public-bottom-dock';
 import { ArrowLeft, CheckCircle2, Hotel, MapPin, Sparkles } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { GrandMercureMobileNavigation } from '@/components/public/grand-mercure/grand-mercure-mobile-navigation';
@@ -73,7 +75,7 @@ export function HotelServiceDetailContent({
 
   return (
     <main
-      className={`hotel-theme-page min-h-screen ${isGrandMercureExperience ? 'grand-mercure-dock-layout' : ''}`}
+      className={`hotel-theme-page min-h-screen ${isGrandMercureExperience ? 'grand-mercure-dock-layout' : theme.preset === 'bugan' ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : ''}`}
       style={theme.cssVars}
       data-hotel-theme={theme.preset}
       data-hotel-icon-style={theme.iconStyle}
@@ -82,7 +84,9 @@ export function HotelServiceDetailContent({
       {isGrandMercureExperience ? <GrandMercureGlobalMandala internal /> : null}
 
       <div className={`mx-auto px-4 py-6 md:px-6 md:py-8 ${isGrandMercureExperience ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-6xl' : 'max-w-4xl'}`}>
-        <section
+        {theme.preset === 'bugan' ? <PublicAreaHero hotel={hotel} language={language}
+          languageBasePath={useSubdomainRoot ? `/servicos/${section.id}` : `/hotel/${hotel.slug}/servicos/${section.id}`}
+          homeHref={grandMercureServicesHref} backLabel={copy.backToServices} title={section.title} description={section.category || copy.serviceDetails} icon={Hotel} /> : <section
           className={
             isBrandExperience
               ? 'hotel-theme-hero relative -mx-4 overflow-hidden rounded-t-none rounded-b-[30px] px-6 py-8 md:mx-0 md:rounded-[30px] md:p-10'
@@ -182,7 +186,7 @@ export function HotelServiceDetailContent({
               </div>
             </div>
           </div>
-        </section>
+        </section>}
 
         {hasFallbackContent ? (
           <section className="mt-4 rounded-[24px] border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 shadow-[0_16px_35px_-30px_rgba(120,53,15,0.35)]">
@@ -248,6 +252,7 @@ export function HotelServiceDetailContent({
           {copy.internalPageRule(MIN_SERVICE_DETAIL_CONTENT_LENGTH)}
         </section>
       </div>
+      {theme.preset === 'bugan' ? <PublicBottomDock items={grandMercureNavigationItems.filter((item) => item.key === 'home' || item.key === 'services')} activeItem="services" ariaLabel={copy.navigationLabel} /> : null}
       {isGrandMercureExperience ? <GrandMercureMobileNavigation items={grandMercureNavigationItems} activeItem="services" ariaLabel={copy.navigationLabel} /> : null}
     </main>
   );

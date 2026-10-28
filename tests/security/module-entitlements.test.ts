@@ -22,7 +22,7 @@ test('keeps one shared canonical 20-key module catalog', () => {
     description: 'Ajude o hóspede a acompanhar seu voo e organizar a saída do hotel.',
   });
   assert.deepEqual(MODULE_CATALOG.filter(({ availability }) => availability === 'coming_soon').map(({ key }) => key), [
-    'experience.seo', 'fb.menu', 'content.tourism',
+    'experience.seo', 'fb.menu',
     'analytics.advanced', 'integrations.thex', 'integrations.opera', 'audit.access_logs',
   ]);
 });

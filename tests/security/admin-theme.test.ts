@@ -62,7 +62,7 @@ test('allows only bounded preset refinement and keeps semantic colors stable', (
 });
 
 test('keeps critical text pairs at accessible contrast in every theme', () => {
-  for (const brandCode of [null, 'grand-mercure', 'mercure', 'novotel']) {
+  for (const brandCode of [null, 'grand-mercure', 'mercure', 'novotel', 'bugan']) {
     const theme = resolveAdminTheme(brandCode);
     assert.ok(contrastRatio(theme.colors.accentText, theme.colors.accent) >= 4.5);
     assert.ok(contrastRatio(theme.colors.sidebarText, theme.colors.sidebar) >= 4.5);

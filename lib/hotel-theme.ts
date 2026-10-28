@@ -31,6 +31,7 @@ export const HOTEL_THEME_PRESETS = [
 export type HotelThemePreset = (typeof HOTEL_THEME_PRESETS)[number]['value'];
 
 export const HOTEL_BRAND_PRESETS = [
+  { value: 'bugan', label: 'Bugan', status: 'experience-implemented', legacyFallback: 'ivory-noir' },
   {
     value: 'libguest-signature',
     label: 'LibGuest Signature',
@@ -66,6 +67,7 @@ export type HotelBrandPreset = (typeof HOTEL_BRAND_PRESETS)[number]['value'];
 export type HotelVisualPreset = HotelThemePreset | HotelBrandPreset;
 
 export const HOTEL_BRAND_CODES = [
+  'bugan',
   'mercure',
   'novotel',
   'grand-mercure',
@@ -357,6 +359,27 @@ function createThemeConfig({
 }
 
 const HOTEL_THEME_CONFIGS: Record<HotelVisualPreset, HotelThemeConfig> = {
+  bugan: createThemeConfig({
+    label: 'Bugan', kind: 'brand',
+    heroClassName: 'bg-[#FFFDF9]', heroOverlayClassName: '',
+    tokens: {
+      background: '#F7F1E9', surface: '#FFFDF9', surfaceMuted: '#F8F1E8',
+      primary: '#2D2926', accent: '#AD6433', secondary: '#D6D2C4',
+      text: '#2D2926', textMuted: '#6C6259', border: '#D6D2C4',
+      cardRadius: '20px', cardShadow: '0 12px 28px -24px rgba(45,41,38,.28)',
+      heroBackground: '#FFFDF9', heroOverlay: 'none', heroText: '#2D2926', heroMuted: '#6C6259',
+      heroRadius: '20px', heroShadow: 'none', headerBackground: '#FFFDF9',
+      headerBorder: '#D6D2C4', headerText: '#2D2926', navigation: '#2D2926',
+      iconStyle: 'outlined', iconColor: '#AD6433', buttonRadius: '12px',
+      bannerBackground: '#FFFDF9', bannerRadius: '20px', helpBackground: '#FFFDF9',
+      signatureBackground: '#F7F1E9', signatureText: '#6C6259',
+    },
+    badgeBackground: '#F8F1E8', badgeBorder: '#D6D2C4', badgeText: '#2D2926',
+    footerBackground: '#F7F1E9', footerBorder: '#D6D2C4', footerText: '#6C6259',
+    heroSecondaryBg: '#F8F1E8', heroSecondaryBorder: '#B58150', heroSecondaryText: '#2D2926',
+    heroSecondaryHoverBg: '#D6D2C4', heroDisabledBg: '#F8F1E8', heroDisabledText: '#6C6259',
+    sectionLabelText: '#6C6259',
+  }),
   'midnight-slate': createThemeConfig({
     label: 'Midnight Slate',
     kind: 'legacy',

@@ -1,3 +1,4 @@
+import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
 import type { ElementType } from 'react';
 import { BellRing, ChevronDown, CircleHelp, ConciergeBell, Info, MessageCircle } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
@@ -98,6 +99,7 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
       {hero}
       {cardGridSection}
       {flightCard}
+      <PublicTourismHomeCard available={pageData.tourismHomeAvailable} slug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} />
       {highlights}
       {showRioCopacabanaEditorial ? <GrandMercureBrazilianPillars language={language} /> : null}
       {supportStrip}

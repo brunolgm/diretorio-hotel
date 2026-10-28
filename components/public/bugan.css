@@ -1,0 +1,122 @@
+/* Identity only. No hidden content, capability overrides or tenant business rules. */
+[data-hotel-theme="bugan"] .hotel-theme-language-trigger {
+  min-height: 44px;
+  box-shadow: none;
+}
+[data-hotel-theme="bugan"] .hotel-theme-language-trigger svg {
+  color: var(--hotel-accent);
+}
+[data-hotel-theme="bugan"] .hotel-theme-language-menu {
+  background: var(--hotel-surface);
+  border-color: var(--hotel-border);
+}
+[data-hotel-theme="bugan"] .hotel-theme-language-menu a,
+[data-hotel-theme="bugan"] .hotel-theme-language-menu > div {
+  color: var(--hotel-text);
+}
+[data-hotel-theme="bugan"] .hotel-theme-language-menu a[aria-current="page"] {
+  background: var(--hotel-active-bg);
+}
+[data-hotel-theme="bugan"] .hotel-theme-language-trigger:focus-visible,
+[data-hotel-theme="bugan"] .hotel-theme-language-menu a:focus-visible {
+  outline: 2px solid var(--hotel-accent);
+  outline-offset: 2px;
+}
+[data-admin-theme="bugan"] {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+[data-admin-theme="bugan"] [class~="text-[10px]"],
+[data-admin-theme="bugan"] [class~="text-[11px]"] { font-size: 0.75rem; }
+[data-hotel-theme="bugan"] .hotel-theme-card { background: var(--hotel-surface); }
+[data-hotel-theme="bugan"] .hotel-theme-banner-fallback > div {
+  background: #2D2926;
+  color: #FFFDF9;
+}
+[data-hotel-theme="bugan"] .hotel-theme-banner-content {
+  background: var(--hotel-surface);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-hotel-theme="bugan"] * { transition-duration: 0s; }
+}
+
+/* Public Experience V3: presentation is scoped to Bugan; media contracts are shared. */
+[data-hotel-theme="bugan"].public-experience-v3 { background:#f7f3ed; padding-bottom:calc(5rem + env(safe-area-inset-bottom)); }
+.public-experience-v3 .v3-hero { position:relative; isolation:isolate; min-height:660px; background:#2d2926; color:#fffdf9; padding-bottom:46px; }
+.public-experience-v3 .v3-hero-picture,.public-experience-v3 .v3-hero-treatment { position:absolute; inset:0; z-index:-2; }
+.public-experience-v3 picture img { width:100%; height:100%; object-fit:cover; object-position:var(--v3-focal,50% 50%); }
+.public-experience-v3 .v3-hero-treatment { z-index:-1; background:linear-gradient(90deg,rgba(45,29,19,.65),rgba(45,29,19,.10) 80%),linear-gradient(0deg,rgba(28,26,23,.40),transparent 65%); }
+.public-experience-v3 .v3-header { display:flex; align-items:center; gap:24px; min-height:88px; padding:12px clamp(24px,4vw,64px); background:rgba(255,253,249,.92); color:#2d2926; }
+.public-experience-v3 .v3-brand { display:flex; flex-direction:column; align-items:center; min-width:140px; margin-right:auto; }
+.public-experience-v3 .v3-brand span { font-size:20px; font-weight:500; }
+.public-experience-v3 .v3-brand small { font-size:10px; letter-spacing:.22em; text-transform:uppercase; }
+.public-experience-v3 .v3-brand img { max-height:64px; width:auto; max-width:170px; }
+.public-experience-v3 .v3-desktop-nav { display:flex; align-items:center; gap:22px; font-size:13px; }
+.public-experience-v3 .v3-desktop-nav a { display:flex; align-items:center; min-height:44px; }
+.public-experience-v3 .v3-reserve { border-radius:8px; padding:12px 24px; color:#fffdf9; background:#914a19; font-size:14px; }
+.public-experience-v3 .v3-menu-trigger { display:none; }
+.public-experience-v3 .v3-headline { max-width:850px; padding:145px clamp(24px,4vw,64px) 60px; }
+.public-experience-v3 .v3-eyebrow { font-size:11px; text-transform:uppercase; letter-spacing:.2em; font-weight:600; }
+.public-experience-v3 .v3-headline .v3-eyebrow { font-size:16px; letter-spacing:.3em; }
+.public-experience-v3 .v3-headline h1 { font-family:Georgia,'Times New Roman',serif; font-size:clamp(46px,5.3vw,82px); line-height:1.05; margin-top:10px; overflow-wrap:anywhere; }
+.public-experience-v3 .v3-subtitle { font-size:clamp(20px,2vw,28px); line-height:1.4; max-width:540px; margin-top:16px; white-space:pre-line; }
+.public-experience-v3 .v3-room-context { display:inline-block; font-size:12px; padding:8px 12px; margin-bottom:12px; border-radius:20px; background:#2d2926; }
+.public-experience-v3 .v3-accesses { display:flex; gap:12px; padding:0 clamp(24px,4vw,64px); }
+.public-experience-v3 .v3-accesses a { flex:1; min-width:0; min-height:126px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; position:relative; padding:18px 24px; background:#fffdf9; color:#2d2926; border-radius:10px; text-align:center; box-shadow:0 8px 24px #0002; font-size:14px; }
+.public-experience-v3 .v3-accesses a>svg:first-child { width:30px; height:30px; color:#914a19; }
+.public-experience-v3 .v3-access-arrow { position:absolute; width:14px; right:12px; bottom:18px; color:#914a19; }
+.public-experience-v3 .v3-body { max-width:1600px; margin:auto; padding:14px; }
+.public-experience-v3 .v3-editorials { display:grid; grid-template-columns:1.15fr 1fr 1fr; gap:12px; }
+.public-experience-v3 .v3-editorial { position:relative; min-width:0; min-height:310px; overflow:hidden; border-radius:8px; background:#fffdf9; }
+.public-experience-v3 .v3-editorial-picture { position:absolute; right:0; top:0; width:53%; height:100%; }
+.public-experience-v3 .v3-editorial-copy { position:relative; padding:26px; width:60%; }
+.public-experience-v3 .v3-editorial-copy h2 { font:normal 30px/1.1 Georgia,serif; margin:14px 0; overflow-wrap:anywhere; }
+.public-experience-v3 .v3-editorial-copy>p:not(.v3-eyebrow) { font-size:13px; line-height:1.6; white-space:pre-line; }
+.public-experience-v3 .v3-editorial-copy>a { display:inline-flex; gap:12px; align-items:center; min-height:44px; border-radius:6px; background:#914a19; color:#fff; margin-top:16px; padding:10px 16px; font-size:12px; }
+.public-experience-v3 .v3-editorial-restaurant { color:#fffdf9; background:#2d2926; }
+.public-experience-v3 .v3-editorial-restaurant .v3-editorial-picture { width:100%; }
+.public-experience-v3 .v3-editorial-restaurant .v3-editorial-copy { width:100%; min-height:100%; background:linear-gradient(90deg,#21140ae8,#21140a50); }
+.public-experience-v3 .v3-announcements { padding:24px; }
+.public-experience-v3 .v3-announcements article { padding:12px 0; }
+.public-experience-v3 .v3-announcements h2,.public-experience-v3 .v3-tourism h2 { font:normal 30px/1.2 Georgia,serif; margin:10px 0; }
+.public-experience-v3 .v3-tourism { display:grid; grid-template-columns:1.4fr repeat(3,1fr); gap:14px; padding:30px 20px; }
+.public-experience-v3 .v3-tourism>div p { font-size:13px; line-height:1.5; }
+.public-experience-v3 .v3-tourism>a { min-width:0; background:#fffdf9; border-radius:10px; overflow:hidden; padding:10px; }
+.public-experience-v3 .v3-tourism h3 { font-size:16px; margin:10px 0; }
+.public-experience-v3 .v3-tourism>a>p { font-size:12px; }
+.public-experience-v3 .v3-footer { text-align:center; padding:30px 12px; font-size:12px; color:#6c6259; }
+.public-experience-v3 a:focus-visible,.public-experience-v3 button:focus-visible { outline:3px solid #b58150; outline-offset:4px; }
+@media(min-width:1025px) { .public-experience-v3 .public-bottom-dock { display:none; } .public-experience-v3[data-hotel-theme] { padding-bottom:0; } }
+@media(max-width:1199px) and (min-width:768px) { .public-experience-v3 .v3-desktop-nav { gap:10px; font-size:11px; } .public-experience-v3 .v3-header { gap:12px; } .public-experience-v3 .v3-reserve { padding:12px; } }
+@media(max-width:767px) {
+  .public-experience-v3 .v3-hero { min-height:0; padding-bottom:0; background:#2d2926; }
+  .public-experience-v3 .v3-hero-picture,.public-experience-v3 .v3-hero-treatment { bottom:auto; height:460px; }
+  .public-experience-v3 picture img { object-position:var(--v3-mobile-focal,50% 50%); }
+  .public-experience-v3 .v3-header { min-height:88px; padding:12px 20px; gap:12px; }
+  .public-experience-v3 .v3-menu-trigger { display:flex; min-height:44px; min-width:44px; align-items:center; justify-content:center; }
+  .public-experience-v3 .v3-brand { min-width:0; flex:1; margin:0; }
+  .public-experience-v3 .v3-brand span { font-size:17px; }
+  .public-experience-v3 .v3-brand img { max-width:125px; max-height:52px; }
+  .public-experience-v3 .v3-desktop-nav,.public-experience-v3 .v3-reserve { display:none; }
+  .public-experience-v3 .v3-headline { padding:150px 26px 48px; min-height:330px; }
+  .public-experience-v3 .v3-headline h1 { font-size:42px; }
+  .public-experience-v3 .v3-headline .v3-eyebrow { font-size:10px; }
+  .public-experience-v3 .v3-subtitle { font-size:18px; margin-top:10px; }
+  .public-experience-v3 .v3-accesses { position:relative; display:flex; flex-direction:column; gap:0; margin:0 18px; padding:8px 12px; transform:translateY(-16px); border-radius:10px; background:#fffdf9; box-shadow:0 8px 24px #0002; }
+  .public-experience-v3 .v3-accesses a { flex-direction:row; justify-content:flex-start; min-height:52px; padding:12px 8px; gap:18px; border-radius:0; box-shadow:none; border-bottom:1px solid #d6d2c466; font-size:13px; text-align:left; }
+  .public-experience-v3 .v3-accesses a:last-child { border-bottom:0; }
+  .public-experience-v3 .v3-accesses a>svg:first-child { width:24px; height:24px; flex-shrink:0; }
+  .public-experience-v3 .v3-access-arrow { position:static; margin-left:auto; flex-shrink:0; }
+  .public-experience-v3 .v3-body { padding:12px; }
+  .public-experience-v3 .v3-editorials { grid-template-columns:1fr; gap:14px; }
+  .public-experience-v3 .v3-editorial { min-height:310px; }
+  .public-experience-v3 .v3-editorial-copy { padding:22px; }
+  .public-experience-v3 .v3-editorial-copy h2 { font-size:27px; }
+  .public-experience-v3 .v3-tourism { grid-template-columns:1fr; padding:24px 4px; }
+}
+.public-experience-v3 .v3-amenities { display:flex; flex-wrap:wrap; gap:24px; padding:28px; }
+.public-experience-v3 .v3-amenities a { display:flex; flex:1; min-width:100px; flex-direction:column; align-items:center; gap:12px; text-align:center; font-size:13px; }
+.public-experience-v3 .v3-amenities svg { color:#914a19; }
+/* V3 Home navigation lives in the header/drawer; existing internal docks stay unchanged. */
+[data-hotel-theme="bugan"].public-experience-v3 { padding-bottom:env(safe-area-inset-bottom); }
+.public-experience-v3 .v3-editorial:not(.v3-editorial-restaurant) .v3-editorial-copy { width:50%; }
+.public-experience-v3 .v3-editorial:not(.v3-editorial-restaurant) .v3-editorial-picture { width:50%; }

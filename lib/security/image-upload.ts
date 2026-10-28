@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 
 export type SafeImageMimeType = 'image/jpeg' | 'image/png' | 'image/webp';
 export type SafeImageExtension = 'jpg' | 'png' | 'webp';
-export type HotelAssetCategory = 'logo' | 'hero' | 'promotional-banners';
+export type HotelAssetCategory = 'logo' | 'hero' | 'promotional-banners' | 'tourism';
 
 export interface UploadFileLike {
   size: number;
@@ -33,6 +33,7 @@ export const IMAGE_UPLOAD_POLICIES = {
   logo: { maxBytes: 5 * 1024 * 1024, maxWidth: 4096, maxHeight: 4096, maxPixels: 16_000_000 },
   hero: { maxBytes: 10 * 1024 * 1024, maxWidth: 8192, maxHeight: 8192, maxPixels: 40_000_000 },
   banner: { maxBytes: 2 * 1024 * 1024, maxWidth: 6000, maxHeight: 4000, maxPixels: 24_000_000 },
+  tourism: { maxBytes: 2 * 1024 * 1024, maxWidth: 6000, maxHeight: 4000, maxPixels: 24_000_000 },
 } as const satisfies Record<string, ImageUploadPolicy>;
 
 function readUint16BigEndian(bytes: Uint8Array, offset: number) {
@@ -209,7 +210,20 @@ export function buildHotelAssetStoragePath({
   uniqueId?: string;
 }) {
   const resourceSegment = resourceId ? `${resourceId}/` : '';
-  return `${hotelId}/${category}/${resourceSegment}${uniqueId}.${extension}`;
+  const path = `${hotelId}/${category}/${resourceSegment}${uniqueId}.${extension}`;
+  if (category === 'tourism' && !isOwnedTourismImagePath(path, hotelId, resourceId || '')) {
+    throw new Error('tourism_image_path_invalid');
+  }
+  return path;
+}
+
+/** Accepts a stored PATH, never a public URL; checks both hotel and item ownership. */
+export function isOwnedTourismImagePath(path: string, hotelId: string, itemId: string): boolean {
+  const uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+  const idPattern = new RegExp(`^${uuid}$`);
+  if (!idPattern.test(hotelId) || !idPattern.test(itemId)) return false;
+  const pattern = new RegExp(`^${hotelId}/tourism/${itemId}/${uuid}\\.(jpg|jpeg|png|webp)$`);
+  return path.length <= 512 && pattern.test(path) && !/[\r\n]/.test(path);
 }
 
 export function extractOwnedHotelAssetPath({

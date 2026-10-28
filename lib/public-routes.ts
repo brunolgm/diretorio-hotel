@@ -135,3 +135,10 @@ export function buildPublicHotelFlightCenterHref({
 
   return `${path}${buildLanguageQuery(language)}`;
 }
+
+export function buildPublicHotelTourismItemHref(input: {
+  slug: string; itemSlug: string; language: SupportedPublicLanguage; domainContext?: DomainContext | null; preferSubdomainRoot?: boolean;
+}) {
+  const base = buildPublicHotelAreaHref({ ...input, area: 'turismo', language: 'pt' });
+  return `${base}/${encodeURIComponent(input.itemSlug)}${buildLanguageQuery(input.language)}`;
+}

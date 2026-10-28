@@ -65,7 +65,7 @@ end $$;
 reset role; set local role authenticated;
 select set_config('request.jwt.claim.sub','46810000-0000-4000-8000-000000000001',true);
 do $$ declare n int; begin
-  select count(*) into n from public.get_platform_hotel_modules('46800000-0000-4000-8000-000000000001'); if n<>19 then raise exception 'platform catalog not complete'; end if;
+  select count(*) into n from public.get_platform_hotel_modules('46800000-0000-4000-8000-000000000001'); if n<>20 then raise exception 'platform catalog not complete'; end if;
   begin perform * from public.hotel_module_entitlements; raise exception 'direct entitlement SELECT allowed'; exception when insufficient_privilege then null; end;
   begin insert into public.hotel_module_entitlements(hotel_id,module_key,is_enabled,disabled_at) values('46800000-0000-4000-8000-000000000001','content.tourism',false,now()); raise exception 'direct entitlement INSERT allowed'; exception when insufficient_privilege then null; end;
   begin update public.hotel_module_entitlements set is_enabled=false; raise exception 'direct entitlement UPDATE allowed'; exception when insufficient_privilege then null; end;
@@ -73,7 +73,7 @@ do $$ declare n int; begin
   begin perform * from public.update_platform_hotel_module('46800000-0000-4000-8000-000000000001','invalid.module',true); raise exception 'invalid module accepted'; exception when invalid_parameter_value then null; end;
   begin perform * from public.update_platform_hotel_module('46800000-0000-4000-8000-000000000001','core.directory',false); raise exception 'core.directory disabled'; exception when invalid_parameter_value then null; end;
   begin
-    perform * from public.update_platform_hotel_module('46800000-0000-4000-8000-000000000001','content.tourism',true);
+    perform * from public.update_platform_hotel_module('46800000-0000-4000-8000-000000000001','fb.menu',true);
     raise exception 'coming-soon module was enabled';
   exception when object_not_in_prerequisite_state then
     if sqlerrm <> 'platform_module_not_available' then raise; end if;

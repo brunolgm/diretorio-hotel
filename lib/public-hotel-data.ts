@@ -1,3 +1,4 @@
+import { loadPublicTourism, publicTourismHomeAvailable } from '@/lib/tourism/public';
 import { createPublicClient } from '@/lib/supabase/public';
 import { getFlightAirportTimezones } from '@/lib/flights/airport-timezones.server';
 import { normalizeExperienceLayout, type ExperienceLayoutBlock } from '@/lib/experience-layout';
@@ -8,6 +9,8 @@ import {
   type PublicNavigationAvailability,
 } from '@/lib/public-navigation';
 import type { Database } from '@/types/database';
+import type { ExperienceMedia } from './public-experience-media';
+import type { PublicTourismItem } from './tourism/public';
 
 type SupabaseClient = ReturnType<typeof createPublicClient>;
 
@@ -30,6 +33,9 @@ type PublicHotelPromotionalBannerTranslation =
   Database['public']['Tables']['hotel_promotional_banner_translations']['Row'];
 
 export interface PublicHotelPageData {
+  experienceMedia?: ExperienceMedia[];
+  tourismPreview?: PublicTourismItem[];
+  tourismHomeAvailable?: boolean;
   hotel: PublicHotel;
   flightHomeCard: PublicFlightHomeCard | null;
   banners: PublicHotelPromotionalBanner[];
@@ -422,8 +428,17 @@ async function getPublicHotelPageDataForHotel(
         return !translation || !translation.title || !translation.description;
       }));
 
+  const tourismHomeAvailable = await publicTourismHomeAvailable(supabase, hotel.id);
+  const [mediaResult, tourismResult] = await Promise.all([
+    supabase.from('hotel_public_experience_media').select('*').eq('hotel_id', hotel.id).eq('is_published', true),
+    tourismHomeAvailable ? loadPublicTourism(supabase, hotel, language).catch(() => null) : Promise.resolve(null),
+  ]);
+  if (mediaResult.error) console.error('Public experience media unavailable; retaining theme fallback');
   return {
     hotel,
+    experienceMedia: (mediaResult.error ? [] : mediaResult.data ?? []).filter(row => row.hotel_id === hotel.id && row.is_published),
+    tourismPreview: tourismResult?.items.slice(0, 3) ?? [],
+    tourismHomeAvailable,
     flightHomeCard: flightHomeCardRow ? {
       title: flightHomeCardRow.home_card_title,
       description: flightHomeCardRow.home_card_description,
@@ -661,4 +676,16 @@ export async function getPublicFlightCenterDataBySubdomain(subdomain: string) {
   const hotel = await getHotelBySubdomainWithClient(supabase, subdomain);
   if (!hotel) return null;
   return getPublicFlightCenterDataForHotel(supabase, hotel);
+}
+
+
+export async function getPublicTourismDataBySlug(slug: string, language: SupportedPublicLanguage, itemSlug?: string) {
+  const client = createPublicClient();
+  const hotel = await getHotelBySlugWithClient(client, slug);
+  return hotel ? loadPublicTourism(client, hotel, language, itemSlug) : null;
+}
+export async function getPublicTourismDataBySubdomain(subdomain: string, language: SupportedPublicLanguage, itemSlug?: string) {
+  const client = createPublicClient();
+  const hotel = await getHotelBySubdomainWithClient(client, subdomain);
+  return hotel ? loadPublicTourism(client, hotel, language, itemSlug) : null;
 }

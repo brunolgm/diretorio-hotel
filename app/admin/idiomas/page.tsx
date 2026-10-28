@@ -1,3 +1,4 @@
+import { TourismLanguageSummary } from '@/components/admin/tourism-language-summary';
 import Link from 'next/link';
 import { ArrowRight, Languages } from 'lucide-react';
 import { AdminBreadcrumbs, AdminLanguageBadge, AdminPageHero, AdminSectionTitle, AdminStatCard, AdminSurface } from '@/components/admin/ui';
@@ -51,10 +52,11 @@ export default async function AdminLanguagesPage() {
       <AdminBreadcrumbs items={[{ label: 'Dashboard', href: '/admin' }, { label: 'Idiomas' }]} />
       <AdminPageHero eyebrow="Gestão" title="Idiomas" description="Status real das traduções ligadas aos conteúdos atuais do hotel." />
       <section className="grid gap-4 md:grid-cols-3">
-        <AdminStatCard icon={<Languages className="h-5 w-5" />} title="Português" value={String(sourceCount)} description="Conteúdos fonte cadastrados" />
+        <AdminStatCard icon={<Languages className="h-5 w-5" />} title="Português" value={String(sourceCount)} description="Fontes dos cinco módulos editoriais" />
         <AdminStatCard icon={<Languages className="h-5 w-5" />} title="Inglês" value={completion(englishCount)} description="Registros de tradução disponíveis" />
         <AdminStatCard icon={<Languages className="h-5 w-5" />} title="Espanhol" value={completion(spanishCount)} description="Registros de tradução disponíveis" />
       </section>
+      <TourismLanguageSummary hotelId={profile.hotel_id} />
       <AdminSurface>
         <AdminSectionTitle title="Fluxo atual" description="Português é a fonte; EN e ES são gerados ao salvar e usam PT como fallback quando ausentes." />
         <div className="mt-5 flex flex-wrap gap-2">

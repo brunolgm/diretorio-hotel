@@ -1,3 +1,4 @@
+import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
 import type { ElementType } from 'react';
 import Image from 'next/image';
 import { BellRing, Headphones, Info, Megaphone, MessageCircle } from 'lucide-react';
@@ -92,6 +93,7 @@ export function MercurePublicHome({ pageData, language, domainContext, preferSub
       {hero}
       {cardGridSection}
       {flightCard}
+      <PublicTourismHomeCard available={pageData.tourismHomeAvailable} slug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} />
       {highlights}
       {supportCard}
       <footer className="px-6 pt-6 pb-5 text-center text-[10px] font-medium tracking-[.18em] text-[#685d64] md:py-8 md:text-xs">Powered by <span className="tracking-normal text-[#52204f]">LibGuest</span></footer>

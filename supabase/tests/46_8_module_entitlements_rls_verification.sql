@@ -2,7 +2,7 @@
 begin;
 
 do $$
-declare direct_policies integer; canonical_keys integer; baseline_bad integer;
+declare direct_policies integer; canonical_keys integer;
 begin
   if to_regclass('public.hotel_module_entitlements') is null then raise exception '46.8: table missing'; end if;
   if not (select relrowsecurity from pg_catalog.pg_class where oid='public.hotel_module_entitlements'::regclass) then raise exception '46.8: RLS disabled'; end if;
@@ -31,12 +31,15 @@ begin
   from pg_constraint c
   cross join lateral regexp_matches(pg_get_constraintdef(c.oid),'''[a-z0-9._-]+''','g')
   where c.conrelid='public.hotel_module_entitlements'::regclass and c.conname='hotel_module_entitlements_module_key_check';
-  if canonical_keys <> 19 then raise exception '46.8: canonical CHECK does not contain 19 keys'; end if;
+  if canonical_keys <> 20 then raise exception '46.8: canonical CHECK does not contain 20 keys'; end if;
   if not exists(select 1 from pg_constraint where conrelid='public.hotel_module_entitlements'::regclass and contype='f' and pg_get_constraintdef(oid) ~* 'hotels.*ON DELETE CASCADE') then raise exception '46.8: hotel FK/cascade missing'; end if;
   if exists(select 1 from pg_constraint where conrelid='public.hotel_module_entitlements'::regclass and contype='f' and pg_get_constraintdef(oid) ~* '(enabled_by|disabled_by)') then raise exception '46.8: destructive actor FK present'; end if;
-  select count(*) into baseline_bad from public.hotels h where (select count(*) from public.hotel_module_entitlements e where e.hotel_id=h.id and e.is_enabled) <> 11;
-  if baseline_bad <> 0 then raise exception '46.8: existing hotel baseline is not eleven enabled modules'; end if;
-  if exists(select 1 from public.hotels h where not public.is_hotel_module_enabled(h.id,'experience.preview')) then raise exception '46.8: experience.preview is not available in baseline'; end if;
+  -- Sprint 50 intentionally added navigation to the onboarding baseline. Existing
+  -- hotels may have optional modules or disabled modules; their total is not a baseline.
+  if pg_get_functiondef('public.create_platform_hotel_onboarding(text,text,text,text,text,text,uuid,text,text)'::regprocedure)
+      !~* '''baseline_modules''[[:space:]]*,[[:space:]]*12' then
+    raise exception '46.8: current twelve-module onboarding baseline drifted';
+  end if;
   if pg_get_viewdef('public.public_hotels'::regclass,true) !~* 'core.directory' then raise exception '46.8: public hotel resolution ignores core.directory'; end if;
   if (select count(*) from pg_policies where schemaname='public' and policyname like '45b_public_%' and coalesce(qual,'') ~ 'is_hotel_module_enabled') < 10 then raise exception '46.8: public policies ignore entitlements'; end if;
   if exists(select 1 from pg_policies where schemaname='public' and tablename='hotels' and coalesce(qual,'') ~* 'platform_users') then raise exception '46.8: global hotels policy introduced'; end if;

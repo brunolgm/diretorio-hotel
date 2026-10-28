@@ -2,7 +2,7 @@ import {
   LEGACY_PRODUCT_ROOT_DOMAINS,
   PRIMARY_PRODUCT_ROOT_DOMAIN,
   PRODUCT_ROOT_DOMAIN,
-} from '@/lib/product-domain';
+} from './product-domain.ts';
 
 export const HOTEL_SUBDOMAIN_RESERVED_NAMES = [
   'admin',

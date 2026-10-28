@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { HOTEL_BRAND_CODES, type HotelBrandCode } from './hotel-theme.ts';
 
 export const ADMIN_THEME_CODES = [
+  'bugan',
   'libguest-default',
   'grand-mercure',
   'mercure',
@@ -58,6 +59,18 @@ const ADMIN_SEMANTIC_COLORS: AdminSemanticColors = Object.freeze({
 });
 
 const BASE_THEMES: Record<AdminThemeCode, Omit<AdminTheme, 'themePreset'>> = {
+  bugan: {
+    code: 'bugan', label: 'BUGAN', brandCode: 'bugan', logoTreatment: 'soft-frame',
+    colors: {
+      background: '#F3EEE7', surface: '#FFFDF9', surfaceMuted: '#F8F1E8',
+      text: '#2D2926', textStrong: '#2D2926', muted: '#6C6259', border: '#D6D2C4',
+      sidebar: '#2D2926', sidebarText: '#FFFDF9', sidebarMuted: '#D6D2C4',
+      sidebarBorder: 'rgba(214,210,196,.20)', accent: '#AD6433', accentHover: '#8F5028',
+      accentText: '#FFFFFF', accentSoft: '#F8F1E8', focus: '#AD6433',
+      focusSoft: 'rgba(173,100,51,.20)', activeBackground: '#D6D2C4', activeText: '#2D2926',
+    },
+    semantic: ADMIN_SEMANTIC_COLORS,
+  },
   'libguest-default': {
     code: 'libguest-default',
     label: 'LibGuest Default',
