@@ -640,6 +640,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
       </section>
       {canManageMedia ? <details className="rounded-2xl border border-[var(--admin-border)] p-4">
         <summary className="cursor-pointer py-2 font-semibold">Mídia e conteúdo da experiência pública</summary>
+        <a className="my-3 inline-block underline" href="/admin/hotel/apresentacao">Editar benefícios e cards editoriais</a>
         <div className="mt-4"><ExperienceMediaEditor rows={mediaRows} urls={mediaUrls} action={updateExperienceMediaAction} /></div>
       </details> : null}
     </main>

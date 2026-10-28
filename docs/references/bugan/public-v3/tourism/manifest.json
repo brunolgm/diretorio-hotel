@@ -1,0 +1,62 @@
+[
+  {
+    "path": "docs/references/bugan/public-v3/tourism/praia-boa-viagem.webp",
+    "source": "docs/references/bugan/public-v3/golden-master-public-v3.png",
+    "crop": {
+      "left": 850,
+      "top": 874,
+      "width": 138,
+      "height": 80
+    },
+    "bytes": 20606,
+    "width": 138,
+    "height": 80,
+    "sha256": "2abbba7b34a31a777934c65b69084960ff964700bb2e565039b82edad9471753",
+    "classification": "approved illustrative editorial; not official hotel photography"
+  },
+  {
+    "path": "docs/references/bugan/public-v3/tourism/centro-historico.webp",
+    "source": "docs/references/bugan/public-v3/golden-master-public-v3.png",
+    "crop": {
+      "left": 1013,
+      "top": 874,
+      "width": 144,
+      "height": 80
+    },
+    "bytes": 20888,
+    "width": 144,
+    "height": 80,
+    "sha256": "89f0b035a09947029c658c35460d788a83df80e1c28d8a6328215d754debcfc4",
+    "classification": "approved illustrative editorial; not official hotel photography"
+  },
+  {
+    "path": "docs/references/bugan/public-v3/tourism/passeios-culturais.webp",
+    "source": "docs/references/bugan/public-v3/golden-master-public-v3.png",
+    "crop": {
+      "left": 1181,
+      "top": 874,
+      "width": 149,
+      "height": 80
+    },
+    "bytes": 18342,
+    "width": 149,
+    "height": 80,
+    "sha256": "f9b7a5ec2804b6302eac7dd6d59e5bba19463300c1a745a84a093ba63c01f14e",
+    "classification": "approved illustrative editorial; not official hotel photography"
+  },
+  {
+    "path": "docs/references/bugan/public-v3/tourism/cultura-local.webp",
+    "source": "docs/references/bugan/public-v3/golden-master-public-v3.png",
+    "crop": {
+      "left": 1352,
+      "top": 874,
+      "width": 147,
+      "height": 80
+    },
+    "bytes": 24056,
+    "width": 147,
+    "height": 80,
+    "sha256": "2dfa074f8c5e5b015b5e982e17ace2c54b499ef88984c036ee1474122228ed5b",
+    "classification": "approved illustrative editorial; not official hotel photography"
+  }
+]

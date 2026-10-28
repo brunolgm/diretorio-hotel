@@ -1,3 +1,4 @@
+import { parsePublicPresentation, type PublicPresentation } from './public-presentation';
 import { loadPublicTourism, publicTourismHomeAvailable } from '@/lib/tourism/public';
 import { createPublicClient } from '@/lib/supabase/public';
 import { getFlightAirportTimezones } from '@/lib/flights/airport-timezones.server';
@@ -33,6 +34,7 @@ type PublicHotelPromotionalBannerTranslation =
   Database['public']['Tables']['hotel_promotional_banner_translations']['Row'];
 
 export interface PublicHotelPageData {
+  presentation?: PublicPresentation | null;
   experienceMedia?: ExperienceMedia[];
   tourismPreview?: PublicTourismItem[];
   tourismHomeAvailable?: boolean;
@@ -434,9 +436,10 @@ export async function getPublicHotelPageDataForHotel(
       }));
 
   const tourismHomeAvailable = await publicTourismHomeAvailable(supabase, hotel.id);
-  const [mediaResult, tourismResult] = await Promise.all([
+  const [mediaResult, tourismResult, presentationResult] = await Promise.all([
     supabase.from('hotel_public_experience_media').select('*').eq('hotel_id', hotel.id).eq('is_published', true),
     tourismHomeAvailable ? loadPublicTourism(supabase, hotel, language).catch(() => null) : Promise.resolve(null),
+    supabase.from('hotel_public_presentation').select('configuration').eq('hotel_id',hotel.id).maybeSingle(),
   ]);
   if (mediaResult.error) console.error('Public experience media unavailable; retaining theme fallback');
   const mediaTranslations = language === 'pt' || !mediaResult.data?.length ? {data: [],error:null} : await supabase.from('hotel_public_experience_media_translations').select('slot,title,description,alt_text,cta_label').eq('hotel_id',hotel.id).eq('language',language);
@@ -444,6 +447,7 @@ export async function getPublicHotelPageDataForHotel(
 
   return {
     hotel,
+    presentation: presentationResult.error ? null : parsePublicPresentation(presentationResult.data?.configuration, hotel.id),
     experienceMedia: (mediaResult.error ? [] : mediaResult.data ?? []).filter(row => row.hotel_id === hotel.id && row.is_published).map(row=>localizeExperienceMedia(row,translatedMedia.get(row.slot))),
     tourismPreview: tourismResult?.items.slice(0, 3) ?? [],
     tourismHomeAvailable,

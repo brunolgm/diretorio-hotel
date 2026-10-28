@@ -312,6 +312,7 @@ export function HotelPublicPageContent({
   layout,
   flightHomeCard,
   tourismHomeAvailable = false,
+  presentation = null,
   experienceMedia = [],
   tourismPreview = [],
   language,
@@ -329,6 +330,7 @@ export function HotelPublicPageContent({
   layout: ExperienceLayoutBlock[];
   flightHomeCard: PublicFlightHomeCardData | null;
   tourismHomeAvailable?: boolean;
+  presentation?: import('@/lib/public-presentation').PublicPresentation | null;
   experienceMedia?: ExperienceMedia[];
   tourismPreview?: PublicTourismItem[];
   language: SupportedPublicLanguage;
@@ -366,7 +368,7 @@ export function HotelPublicPageContent({
 
   if (theme.preset === 'bugan') {
     return <PublicExperienceOverview
-      pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, experienceMedia, tourismPreview, hasFallbackContent }}
+      pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, tourismPreview, hasFallbackContent }}
       language={language} domainContext={domainContext} preferSubdomainRoot={useSubdomainRoot}
       activeRoomContext={activeRoomContext}
     />;

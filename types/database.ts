@@ -9,6 +9,10 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      hotel_public_presentation: {
+        Row: {hotel_id:string;configuration:Json;revision:number};
+        Insert:never;Update:never;Relationships:[];
+      };
       hotel_public_experience_media_translations: {
         Row: { hotel_id: string; slot: string; language: string; title: string | null; description: string | null; alt_text: string | null; cta_label: string | null; updated_at: string };
         Insert: { hotel_id: string; slot: string; language: string; title?: string | null; description?: string | null; alt_text?: string | null; cta_label?: string | null; updated_at?: string };
@@ -1134,6 +1138,7 @@ export interface Database {
       };
     };
     Functions: {
+      save_current_hotel_public_presentation: {Args:{p_expected_revision:number;p_configuration:Json};Returns:number};
       update_current_hotel_experience_media: {
         Args: { p_slot: string; p_expected_revision: number; p_values: Json };
         Returns: { revision: number; previous_image_path: string | null; previous_mobile_image_path: string | null }[];
