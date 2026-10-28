@@ -52,6 +52,31 @@ do bootstrap (incluindo manifesto completo nas cinco marcas), nove regressões d
 governança/onboarding/Turismo/Voos e uma regressão de mídia, todas locais com rollback.
 Teste do executor usa stdin privado, SDK isolado e rede bloqueada; fixtures próprias,
 sem depender de out/ nem usar senha real. Não equivale a seed/homologação em produção.
+[IMPLEMENTADO E CONFIRMADO EM PRODUÇÃO] Código funcional d876de3110207c88418039e5e6183c16cec2e714
+publicado em main. Migration 20261028105402 aplicada via CLI ao projeto confirmado
+diretorio-hotel/micuekfznunwwofxnovw; 44 migrations, dry-run sem pendências. Vercel
+READY/production: dpl_AowLP3mCsyxAjZForfpCuFc6karL, mesmo projeto/equipe/SHA e aliases
+libguest.digital/www/wildcards. Nenhum DNS alterado. Smoke HTTP 10/10, com /preview e
+/admin/hotel/slug protegidos; três operações negaram anon via REST/401 e o slug
+suspenso permaneceu oculto. Não foi feita automação de navegador ou login impersonado.
+
+[IMPLEMENTADO E CONFIRMADO EM PRODUÇÃO] REC/SBRF registrado pelo helper operacional
+insert-only do catálogo existente: ID 5f63c039-2243-4634-85f3-b2691b210f20, nome oficial,
+America/Recife, ARP -8.126389/-34.922778, ativo, links de partidas/chegadas vazios.
+Vínculo ao Bugan depende da execução autenticada do seed; não foi presumido.
+Hashes de todos os hotéis, profiles, entitlements, layouts e aeroportos anteriores
+(excluindo o novo REC) idênticos antes/depois. Karoline e o segundo administrador
+continuam ativos; zero registros de bootstrap/alias/tradução de mídia no remoto.
+Os serviços, Turismo e mídia do Bugan ainda estão vazios: preparação não é carga real.
+
+[IMPLEMENTADO PARCIALMENTE] Readiness anterior ao seed foi calculado pela função
+canônica calculate_hotel_readiness em leitura operacional: seis checks bloqueantes
+passam; nove recomendações pendentes (contato, logo, hero legado, serviços,
+departamentos, políticas, banners, QR e traduções). Esse resultado não comprova os
+critérios funcionais/visuais de ativação; hotel permanece suspended. O check de hero
+ainda usa hero_image_url legado; o slot V3 deve ser verificado separadamente, sem
+alterar critérios para facilitar a aprovação. Readiness posterior será registrado
+pelo executor após os dois lotes e as traduções.
 [NÃO CONFIRMADO] Seed real, EN/ES efetivamente gerados, mídia em Storage, readiness
 pós-seed e homologação visual ainda aguardam execução autenticada. O próximo bloqueio
 humano legítimo é a senha do novo administrador, digitada exclusivamente no prompt
