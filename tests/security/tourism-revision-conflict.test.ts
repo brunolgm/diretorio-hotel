@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import test from 'node:test';
 import { tourismAdminError, TOURISM_CONFLICT_MESSAGE } from '../../lib/tourism/admin.ts';
 
@@ -11,11 +12,20 @@ const hotfix = '20260914014530_52_2b1_tourism_revision_conflict.sql';
 const read = (name: string) => readFileSync(directory + name, 'utf8');
 const names = ['save_current_hotel_tourism_item', 'delete_current_hotel_tourism_item', 'update_current_hotel_tourism_image'];
 
-test('applied tourism migrations remain byte-for-byte immutable', () => {
-  for (const [name, hash] of [
-    [foundation, '52a2eda17b6ae93a16b9e81aa265b52a787ea2c23aab4e92c19d391e16acab64'],
-    [image, 'f0777d3d4e6f73bd65e88481486a1cf291e7852abb934656f716726dd88cf902'],
-  ]) assert.equal(createHash('sha256').update(readFileSync(directory + name)).digest('hex'), hash);
+test('applied tourism Git blobs remain byte-for-byte immutable across LF/CRLF checkouts', () => {
+  // Pin the original Git blobs, not pre-commit working-copy line endings.
+  for (const [name, introduction, hash] of [
+    [foundation, '3e2be2b', 'be1e6c4a81a9ef2830b54e6ee6c8ccd0d017dc6412db8b406255718cdbfeccd6'],
+    [image, 'f7e7aed', 'f0777d3d4e6f73bd65e88481486a1cf291e7852abb934656f716726dd88cf902'],
+  ]) {
+    const committed = execFileSync('git', ['show', `HEAD:${directory + name}`]);
+    const original = execFileSync('git', ['show', `${introduction}:${directory + name}`]);
+    assert.deepEqual(committed, original);
+    assert.equal(createHash('sha256').update(committed).digest('hex'), hash);
+    // core.autocrlf changes working-copy bytes on Windows, not the migration blob.
+    // Still reject every working-copy content change other than that conversion.
+    assert.equal(read(name).replace(/\r\n/g, '\n'), committed.toString('utf8'));
+  }
 });
 
 test('incremental hotfix changes only the three revision SQLSTATEs, preserving entire definitions', () => {
