@@ -54,6 +54,8 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
       layout={pageData.layout}
       flightHomeCard={pageData.flightHomeCard}
       tourismHomeAvailable={pageData.tourismHomeAvailable}
+        experienceMedia={pageData.experienceMedia}
+        tourismPreview={pageData.tourismPreview}
       language={language}
       domainContext={domainContext}
       hasFallbackContent={pageData.hasFallbackContent}

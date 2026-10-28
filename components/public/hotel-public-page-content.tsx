@@ -16,6 +16,8 @@ import {
   Wifi,
 } from 'lucide-react';
 import { PublicExperienceOverview } from '@/components/public/public-experience-overview';
+import type { ExperienceMedia } from '@/lib/public-experience-media';
+import type { PublicTourismItem } from '@/lib/tourism/public';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { GrandMercurePublicHome } from '@/components/public/grand-mercure/grand-mercure-public-home';
 import { MercurePublicHome } from '@/components/public/mercure/mercure-public-home';
@@ -310,6 +312,8 @@ export function HotelPublicPageContent({
   layout,
   flightHomeCard,
   tourismHomeAvailable = false,
+  experienceMedia = [],
+  tourismPreview = [],
   language,
   domainContext,
   hasFallbackContent,
@@ -325,6 +329,8 @@ export function HotelPublicPageContent({
   layout: ExperienceLayoutBlock[];
   flightHomeCard: PublicFlightHomeCardData | null;
   tourismHomeAvailable?: boolean;
+  experienceMedia?: ExperienceMedia[];
+  tourismPreview?: PublicTourismItem[];
   language: SupportedPublicLanguage;
   domainContext: DomainContext;
   hasFallbackContent: boolean;
@@ -360,7 +366,7 @@ export function HotelPublicPageContent({
 
   if (theme.preset === 'bugan') {
     return <PublicExperienceOverview
-      pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, hasFallbackContent }}
+      pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, experienceMedia, tourismPreview, hasFallbackContent }}
       language={language} domainContext={domainContext} preferSubdomainRoot={useSubdomainRoot}
       activeRoomContext={activeRoomContext}
     />;

@@ -78,15 +78,14 @@ test('compact overview uses all canonical blocks, preserves reorder and hides un
 test('optional flights, tourism and AI remain off baseline and preserve tourism maturity', () => {
   assert.equal(BASELINE_MODULE_KEYS.length, 12);
   for (const key of ['travel.flights', 'content.tourism', 'analytics.advanced']) assert.ok(!(BASELINE_MODULE_KEYS as readonly string[]).includes(key));
-  assert.equal(MODULE_CATALOG.find((m) => m.key === 'content.tourism')?.availability, 'coming_soon');
+  assert.equal(MODULE_CATALOG.find((m) => m.key === 'content.tourism')?.availability, 'available');
   assert.equal(MODULE_CATALOG.find((m) => m.key === 'travel.flights')?.availability, 'available');
   assert.ok(!MODULE_CATALOG.some((m) => /concierge|gptmaker/i.test(m.key)));
   const overview = read('components/public/public-experience-overview.tsx');
   assert.doesNotMatch(overview, /supabase|fetch\(|gptmaker|roomToken|wifi_password|setInterval/);
   assert.match(overview, /flightHomeCard \?/);
   assert.match(overview, /activeRoomContext \?/);
-  assert.match(overview, /hotel\.wifi_name/);
-  assert.match(overview, /getPublicExperienceOverview\(pageData\)/);
+  assert.match(overview, /pageData\.tourismHomeAvailable/);
 });
 
 test('Bugan reuses multilingual copy and the same role/entitlement navigation as every theme', () => {

@@ -9,6 +9,8 @@ import {
   type PublicNavigationAvailability,
 } from '@/lib/public-navigation';
 import type { Database } from '@/types/database';
+import type { ExperienceMedia } from './public-experience-media';
+import type { PublicTourismItem } from './tourism/public';
 
 type SupabaseClient = ReturnType<typeof createPublicClient>;
 
@@ -31,6 +33,8 @@ type PublicHotelPromotionalBannerTranslation =
   Database['public']['Tables']['hotel_promotional_banner_translations']['Row'];
 
 export interface PublicHotelPageData {
+  experienceMedia?: ExperienceMedia[];
+  tourismPreview?: PublicTourismItem[];
   tourismHomeAvailable?: boolean;
   hotel: PublicHotel;
   flightHomeCard: PublicFlightHomeCard | null;
@@ -424,9 +428,17 @@ async function getPublicHotelPageDataForHotel(
         return !translation || !translation.title || !translation.description;
       }));
 
+  const tourismHomeAvailable = await publicTourismHomeAvailable(supabase, hotel.id);
+  const [mediaResult, tourismResult] = await Promise.all([
+    supabase.from('hotel_public_experience_media').select('*').eq('hotel_id', hotel.id).eq('is_published', true),
+    tourismHomeAvailable ? loadPublicTourism(supabase, hotel, language).catch(() => null) : Promise.resolve(null),
+  ]);
+  if (mediaResult.error) console.error('Public experience media unavailable; retaining theme fallback');
   return {
     hotel,
-    tourismHomeAvailable: await publicTourismHomeAvailable(supabase, hotel.id),
+    experienceMedia: (mediaResult.error ? [] : mediaResult.data ?? []).filter(row => row.hotel_id === hotel.id && row.is_published),
+    tourismPreview: tourismResult?.items.slice(0, 3) ?? [],
+    tourismHomeAvailable,
     flightHomeCard: flightHomeCardRow ? {
       title: flightHomeCardRow.home_card_title,
       description: flightHomeCardRow.home_card_description,

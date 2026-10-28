@@ -11,10 +11,12 @@ for (const [enabled, published, expected] of [[false,false,false],[false,true,fa
   assert.equal(await publicTourismHomeAvailable(api as unknown as Parameters<typeof publicTourismHomeAvailable>[0],'tenant'),expected);
   assert.equal(queried,enabled);if(enabled)assert.deepEqual(filters,[['hotel_id','tenant'],['is_published',true]]);
 });
-test('all four Homes use one gated card, outside the established access grid/dock',()=>{
+test('five canonical Homes preserve the shared Tourism gate without a Tourism dock entry',()=>{
   for(const file of ['app/page.tsx','app/hotel/[slug]/page.tsx'])assert.match(readFileSync(file,'utf8'),/tourismHomeAvailable=\{pageData\.tourismHomeAvailable\}/);
   for(const file of ['components/public/hotel-public-page-content.tsx','components/public/grand-mercure/grand-mercure-public-home.tsx','components/public/novotel/novotel-public-home.tsx','components/public/mercure/mercure-public-home.tsx'])assert.match(readFileSync(file,'utf8'),/PublicTourismHomeCard available=/);
   for(const file of ['components/public/grand-mercure/grand-mercure-mobile-navigation.tsx','components/public/novotel/novotel-mobile-navigation.tsx','components/public/mercure/mercure-bottom-dock.tsx'])assert.doesNotMatch(readFileSync(file,'utf8'),/tourism|turismo/i);
+  assert.match(readFileSync('components/public/public-experience-overview.tsx','utf8'),/pageData\.tourismHomeAvailable/);
+  assert.doesNotMatch(readFileSync('components/public/public-bottom-dock.tsx','utf8'),/tourism|turismo/i);
   const card=readFileSync('components/public/public-tourism-home-card.tsx','utf8');assert.match(card,/if \(!available\) return null/);assert.doesNotMatch(card,/Em breve|coming_soon/);
 });
 test('availability is opt-in available and effective governance no longer blocks Tourism',()=>{

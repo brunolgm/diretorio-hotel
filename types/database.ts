@@ -9,6 +9,28 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      hotel_public_experience_media: {
+        Row: {
+          hotel_id: string;
+          slot: 'hero' | 'about' | 'restaurant' | 'accommodation';
+          image_path: string | null;
+          mobile_image_path: string | null;
+          focal_x: number;
+          focal_y: number;
+          mobile_focal_x: number;
+          mobile_focal_y: number;
+          alt_text: string;
+          title: string;
+          description: string;
+          cta_label: string;
+          cta_url: string | null;
+          is_published: boolean;
+          revision: number;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       hotel_tourism_items: {
         Row: {
           id: string;
@@ -1106,6 +1128,10 @@ export interface Database {
       };
     };
     Functions: {
+      update_current_hotel_experience_media: {
+        Args: { p_slot: string; p_expected_revision: number; p_values: Json };
+        Returns: { revision: number; previous_image_path: string | null; previous_mobile_image_path: string | null }[];
+      };
       update_current_hotel_tourism_image: { Args: { p_item_id: string; p_main_image_path: string | null; p_expected_updated_at: string }; Returns: { item_id: string; updated_at: string; previous_image_path: string | null; main_image_path: string | null }[] };
       save_current_hotel_tourism_item: { Args: { p_item_id: string | null; p_changes: Json; p_expected_updated_at?: string | null }; Returns: Database['public']['Tables']['hotel_tourism_items']['Row'][] };
       reorder_current_hotel_tourism_items: { Args: { p_item_ids: string[] }; Returns: Database['public']['Tables']['hotel_tourism_items']['Row'][] };

@@ -1,93 +1,99 @@
 import Image from 'next/image';
-import { Fragment } from 'react';
-import { BellRing, ChevronRight, Clock3, Coffee, Info, MessageCircle, ShieldCheck, Wifi } from 'lucide-react';
+import { ArrowUpRight, Building2, ChevronRight, ConciergeBell, MapPinned, MessageCircle, Plane, Utensils } from 'lucide-react';
 import { LanguageSwitcher } from './language-switcher';
 import { PublicAnalytics } from './public-analytics';
 import { PromotionalBannerCarousel } from './promotional-banner-carousel';
-import { PublicFlightHomeCard } from './public-flight-home-card';
-import { PublicBottomDock } from './public-bottom-dock';
+import { PublicExperienceMenu } from './public-experience-menu';
+import { TourismImage } from '@/components/tourism-image';
+import { ServiceIcon } from '@/components/service-icon';
 import type { DomainContext } from '@/lib/domain-context';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { getPublicCopy } from '@/lib/public-copy';
-import { getPublicExperienceOverview, getOverviewNavigation } from '@/lib/public-experience-overview';
-import { getCanonicalPublicNavigationKeys } from '@/lib/public-navigation';
+import { experienceHttpsUrl, experienceMediaUrl, focalPosition, type ExperienceMedia } from '@/lib/public-experience-media';
 import type { PublicHotelPageData } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
-import { buildPublicHotelAreaHref, buildPublicHotelHref, type PublicHotelAreaKey } from '@/lib/public-routes';
+import { buildPublicHotelAreaHref, buildPublicHotelFlightCenterHref, buildPublicHotelHref, buildPublicHotelServiceHref, buildPublicHotelTourismItemHref, type PublicHotelAreaKey } from '@/lib/public-routes';
+import { tourismImageUrl } from '@/lib/tourism/media';
+import { tourismPublicCopy } from '@/lib/tourism/public-copy';
 
-// Compact presentation of the shared experience; no data fetching or tenant business rules.
+function MediaPicture({ media, legacy, hero = false }: { media?: ExperienceMedia; legacy?: string | null; hero?: boolean }) {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+  const desktop = media ? experienceMediaUrl(media.image_path, media.hotel_id, media.slot, base) : experienceHttpsUrl(legacy);
+  const mobile = media ? experienceMediaUrl(media.mobile_image_path, media.hotel_id, media.slot, base) : null;
+  if (!desktop && !mobile) return null;
+  const position = { '--v3-focal': focalPosition(media?.focal_x ?? 50, media?.focal_y ?? 50), '--v3-mobile-focal': focalPosition(media?.mobile_focal_x ?? 50, media?.mobile_focal_y ?? 50) } as React.CSSProperties;
+  return <picture className={hero ? 'v3-hero-picture' : 'v3-editorial-picture'} style={position}>
+    {mobile ? <source media="(max-width: 767px)" srcSet={mobile} /> : null}
+    {/* Native picture preserves responsive art direction without a third-party image proxy. */}
+    <img src={desktop ?? mobile!} alt={media?.alt_text ?? ''} loading={hero ? 'eager' : 'lazy'} fetchPriority={hero ? 'high' : 'auto'} />
+  </picture>;
+}
+
+// Theme presentation only: all data, publication and entitlement decisions use shared loaders.
 export function PublicExperienceOverview({ pageData, language, domainContext, preferSubdomainRoot, activeRoomContext }: {
-  pageData: PublicHotelPageData;
-  language: SupportedPublicLanguage;
-  domainContext: DomainContext;
-  preferSubdomainRoot: boolean;
+  pageData: PublicHotelPageData; language: SupportedPublicLanguage; domainContext: DomainContext; preferSubdomainRoot: boolean;
   activeRoomContext?: { roomNumber: string | null; label: string | null } | null;
 }) {
-  const { hotel, sections, announcements, flightHomeCard, banners } = pageData;
+  const { hotel, sections, announcements, flightHomeCard, banners, layout } = pageData;
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const copy = getPublicCopy(language);
-  const areaHref = (area: PublicHotelAreaKey) => buildPublicHotelAreaHref({ slug: hotel.slug, area, language, domainContext, preferSubdomainRoot });
-  const homeHref = buildPublicHotelHref({ slug: hotel.slug, language, domainContext, preferSubdomainRoot });
-  const keys = getPublicExperienceOverview(pageData);
-  const navigation = getOverviewNavigation(pageData.layout, sections.length);
-  const routes = {
-    quick_info: { area: 'informacoes', title: copy.stayInformation, description: copy.editorialInformationDescription, icon: Info },
-    announcements: { area: 'comunicados', title: copy.editorialAnnouncementsTitle, description: copy.editorialAnnouncementsDescription, icon: BellRing },
-    services: { area: 'servicos', title: copy.editorialServicesTitle, description: copy.editorialServicesDescription, icon: BellRing },
-    contact: { area: 'contato', title: copy.talkToHotel, description: copy.editorialContactDescription, icon: MessageCircle },
-    departments: { area: 'contato', title: copy.support, description: copy.departmentDefaultDescription, icon: MessageCircle },
-    policies: { area: 'informacoes', title: copy.hotelPolicies, description: copy.policyDefaultDescription, icon: ShieldCheck },
-  } as const;
-  const navMeta = {
-    home: { href: homeHref, label: copy.navigationHome },
-    services: { href: areaHref('servicos'), label: copy.navigationServices },
-    menu: { href: areaHref('cardapio'), label: copy.navigationMenu },
-    information: { href: areaHref('informacoes'), label: copy.navigationInformation },
-    contact: { href: areaHref('contato'), label: copy.navigationContact },
-  };
-  const quickInfo = [
-    { icon: Wifi, title: copy.wifi, value: hotel.wifi_name },
-    { icon: Coffee, title: copy.breakfast, value: hotel.breakfast_hours },
-    { icon: Clock3, title: copy.checkOut, value: hotel.checkout_time },
-  ].filter((item) => item.value?.trim());
-  const flight = flightHomeCard ? <div className="col-span-full"><PublicFlightHomeCard card={flightHomeCard} hotelId={hotel.id} hotelSlug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} variant="default" /></div> : null;
-
-  return <main className="hotel-theme-page public-compact-experience min-h-dvh pb-[calc(6rem+env(safe-area-inset-bottom))]" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+  const t = language === 'en' ? { hotel: 'Hotel information', dining: 'Restaurants and bars', services: 'Services', tourism: 'Tourism', flights: 'Flight center', contact: 'Contact us', reserve: 'Book', menu: 'Open navigation', explore: 'Explore', welcome: 'Welcome to' }
+    : language === 'es' ? { hotel: 'Información del hotel', dining: 'Restaurantes y bares', services: 'Servicios', tourism: 'Turismo', flights: 'Central de vuelos', contact: 'Contáctenos', reserve: 'Reservar', menu: 'Abrir navegación', explore: 'Explora', welcome: 'Bienvenido a' }
+    : { hotel: 'Informações do Hotel', dining: 'Restaurantes e Bares', services: 'Serviços', tourism: 'Turismo', flights: 'Central de Voos', contact: 'Fale Conosco', reserve: 'Reservar', menu: 'Abrir navegação', explore: 'Explore', welcome: 'Bem-vindo ao' };
+  const route = { slug: hotel.slug, language, domainContext, preferSubdomainRoot };
+  const areaHref = (area: PublicHotelAreaKey) => buildPublicHotelAreaHref({ ...route, area });
+  const homeHref = buildPublicHotelHref(route);
+  const enabled = (key: string) => layout.some(block => block.blockKey === key && block.isEnabled);
+  const media = (pageData.experienceMedia ?? []).filter(row => row.hotel_id === hotel.id && row.is_published);
+  const hero = media.find(row => row.slot === 'hero');
+  const editorial = media.filter(row => row.slot !== 'hero').sort((a, b) => ['about','restaurant','accommodation'].indexOf(a.slot) - ['about','restaurant','accommodation'].indexOf(b.slot));
+  const restaurant = media.find(row => row.slot === 'restaurant');
+  const hasMenu = sections.some(row => row.service_action_type === 'room_restaurant_menu');
+  const reserve = experienceHttpsUrl(hotel.booking_url);
+  const hasContact = enabled('contact') && Boolean(hotel.whatsapp_number || experienceHttpsUrl(hotel.website_url) || reserve || pageData.departments.length);
+  const accesses = [
+    ...(enabled('quick_info') ? [{ key: 'information', href: areaHref('informacoes'), label: t.hotel, icon: Building2 }] : []),
+    ...(restaurant || hasMenu ? [{ key: 'menu', href: restaurant ? '#restaurant' : areaHref('cardapio'), label: t.dining, icon: Utensils }] : []),
+    ...(enabled('services') && sections.length ? [{ key: 'services', href: areaHref('servicos'), label: t.services, icon: ConciergeBell }] : []),
+    ...(pageData.tourismHomeAvailable ? [{ key: 'tourism', href: areaHref('turismo'), label: t.tourism, icon: MapPinned }] : []),
+    ...(flightHomeCard ? [{ key: 'flights', href: buildPublicHotelFlightCenterHref(route), label: t.flights, icon: Plane }] : []),
+    ...(hasContact ? [{ key: 'contact', href: areaHref('contato'), label: t.contact, icon: MessageCircle }] : []),
+  ];
+  const links = [{ href: homeHref, label: copy.navigationHome }, ...accesses.map(({ href, label }) => ({ href, label }))];
+  const tourism = pageData.tourismHomeAvailable ? (pageData.tourismPreview ?? []).filter(row => row.hotel_id === hotel.id && row.is_published) : [];
+  return <main className="hotel-theme-page public-experience-v3 min-h-dvh" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
     <PublicAnalytics hotelSlug={hotel.slug} language={language} />
-    <div className="mx-auto max-w-4xl px-4 py-4 md:px-8 md:py-8">
-      <div className="grid grid-cols-2 gap-3 md:gap-5">
-        {keys.map((key) => {
-          if (key === 'hero') return <header key={key} className="col-span-full min-w-0 py-2 text-center">
-            <div className="flex min-h-11 items-start justify-between gap-2 text-left">
-              <div className="min-w-0">{activeRoomContext ? <span className="inline-flex min-h-11 items-center rounded-full border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-3 text-xs">{copy.activeRoomAccessLabel(activeRoomContext.roomNumber, activeRoomContext.label)}</span> : null}</div>
-              <LanguageSwitcher compact slug={hotel.slug} currentLanguage={language} basePath={preferSubdomainRoot ? '/' : undefined} />
-            </div>
-            <div className="px-6 py-6">
-              {hotel.logo_url ? <Image src={hotel.logo_url} alt={hotel.name} width={192} height={96} unoptimized className="mx-auto h-auto max-h-24 min-h-[23px] w-48 max-w-full object-contain" /> : <h1 className="break-words text-3xl font-medium tracking-tight">{hotel.name}</h1>}
-              {hotel.city ? <p className="mt-4 text-xs font-medium uppercase tracking-[.22em] text-[color:var(--hotel-text-muted)]">{hotel.city}</p> : null}
-              {hotel.logo_url ? <h1 className="sr-only">{hotel.name}</h1> : null}
-              <p className="mx-auto mt-5 max-w-lg text-sm leading-6 text-[color:var(--hotel-text-muted)]">{copy.heroDescription}</p>
-            </div>
-            {pageData.hasFallbackContent ? <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">{copy.fallbackNotice}</p> : null}
-          </header>;
-          if (key === 'banners') return <Fragment key={key}>{flight}<section className="col-span-full min-w-0"><PromotionalBannerCarousel banners={banners} language={language} /></section></Fragment>;
-          const card = routes[key];
-          const Icon = card.icon;
-          return <Fragment key={key}>
-            {key === 'quick_info' && quickInfo.length > 0 ? <dl className="col-span-full grid grid-cols-3 gap-2 rounded-2xl border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-3">
-              {quickInfo.map((item) => <div key={item.title} className="min-w-0 text-center"><item.icon className="mx-auto mb-2 h-5 w-5 text-[color:var(--hotel-accent)]" aria-hidden="true" /><dt className="break-words text-xs text-[color:var(--hotel-text-muted)]">{item.title}</dt><dd className="mt-1 break-words text-xs font-semibold [overflow-wrap:anywhere]">{item.value}</dd></div>)}
-            </dl> : null}
-            <a href={areaHref(card.area)} className="hotel-theme-card group flex min-h-40 min-w-0 flex-col p-4 transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] md:min-h-44 md:p-6">
-              <div className="flex items-center justify-between gap-2"><Icon className="h-6 w-6 text-[color:var(--hotel-accent)]" aria-hidden="true" />{key === 'announcements' ? <span className="rounded-full bg-[var(--hotel-accent-soft)] px-2 py-1 text-xs" aria-label={copy.activeAnnouncementsCount(announcements.length)}>{announcements.length}</span> : null}<ChevronRight className="ml-auto h-4 w-4 text-[color:var(--hotel-accent)]" aria-hidden="true" /></div>
-              <h2 className="mt-4 break-words text-sm font-semibold md:text-lg">{card.title}</h2>
-              <p className="mt-2 break-words text-xs leading-5 text-[color:var(--hotel-text-muted)] md:text-sm">{card.description}</p>
-            </a>
-          </Fragment>;
-        })}
-        {!keys.includes('banners') ? flight : null}
+    <section className="v3-hero" data-v3-hero>
+      <MediaPicture media={hero} legacy={hotel.hero_image_url} hero />
+      <div className="v3-hero-treatment" aria-hidden />
+      <header className="v3-header">
+        <PublicExperienceMenu title={hotel.name} label={t.menu} links={reserve ? [...links, { href: reserve, label: t.reserve }] : links} style={theme.cssVars} />
+        <a href={homeHref} className="v3-brand" aria-label={hotel.name}>{hotel.logo_url ? <Image src={hotel.logo_url} alt={hotel.name} width={170} height={72} unoptimized /> : <><span>{hotel.name}</span>{hotel.city ? <small>{hotel.city}</small> : null}</>}</a>
+        <nav className="v3-desktop-nav" aria-label={copy.navigationLabel}>{links.map(link => <a key={link.href} href={link.href}>{link.label}</a>)}</nav>
+        <LanguageSwitcher compact slug={hotel.slug} currentLanguage={language} basePath={preferSubdomainRoot ? '/' : undefined} />
+        {reserve ? <a className="v3-reserve" href={reserve} target="_blank" rel="noopener noreferrer">{t.reserve}</a> : null}
+      </header>
+      <div className="v3-headline">
+        {activeRoomContext ? <p className="v3-room-context">{copy.activeRoomAccessLabel(activeRoomContext.roomNumber, activeRoomContext.label)}</p> : null}
+        <p className="v3-eyebrow">{t.welcome}</p>
+        <h1>{hero?.title || hotel.name}</h1>
+        <p className="v3-subtitle">{hero?.description || copy.heroDescription}</p>
       </div>
-      <footer className="py-7 text-center text-xs text-[color:var(--hotel-text-muted)]">Powered by LibGuest</footer>
+      <nav className="v3-accesses" aria-label={copy.navigationLabel} data-v3-accesses>{accesses.map(item => <a key={item.key} href={item.href} data-access={item.key}><item.icon aria-hidden /><span>{item.label}</span><ChevronRight className="v3-access-arrow" aria-hidden /></a>)}</nav>
+    </section>
+    <div className="v3-body">
+      {pageData.hasFallbackContent ? <p role="status" className="v3-fallback">{copy.fallbackNotice}</p> : null}
+      {editorial.length ? <section className="v3-editorials" aria-label={t.hotel}>{editorial.map(row => <article key={row.slot} id={row.slot} className={`v3-editorial v3-editorial-${row.slot}`} data-editorial={row.slot}>
+        <MediaPicture media={row} />
+        <div className="v3-editorial-copy"><p className="v3-eyebrow">{row.slot === 'restaurant' ? t.dining : row.slot === 'about' ? t.hotel : ''}</p><h2>{row.title}</h2>{row.description ? <p>{row.description}</p> : null}{experienceHttpsUrl(row.cta_url) && row.cta_label ? <a href={experienceHttpsUrl(row.cta_url)!} target="_blank" rel="noopener noreferrer">{row.cta_label}<ArrowUpRight aria-hidden className="h-4 w-4" /></a> : null}</div>
+      </article>)}</section> : null}
+      {enabled('banners') && banners.length ? <PromotionalBannerCarousel banners={banners} language={language} /> : null}
+      {enabled('services') && sections.length ? <nav className="v3-amenities" aria-label={copy.editorialServicesTitle}>{sections.slice(0, 4).map(row => <a key={row.id} href={buildPublicHotelServiceHref({ ...route, serviceId: row.id })}><ServiceIcon iconName={row.icon} className="h-7 w-7" /><span>{row.title}</span></a>)}</nav> : null}
+      {enabled('announcements') && announcements.length ? <section className="v3-announcements"><h2>{copy.editorialAnnouncementsTitle}</h2>{announcements.map(row => <article key={row.id}><h3>{row.title}</h3><p>{row.body}</p></article>)}</section> : null}
+      {tourism.length ? <section className="v3-tourism" data-v3-tourism><div><p className="v3-eyebrow">{t.explore} {hotel.city}</p><h2>{tourismPublicCopy(language).title}</h2><p>{tourismPublicCopy(language).intro}</p></div>{tourism.map(row => <a key={row.id} href={buildPublicHotelTourismItemHref({ ...route, itemSlug: row.slug })}>
+        <TourismImage src={tourismImageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL, row.main_image_path, hotel.id, row.id)} alt={row.name} /><h3>{row.name}</h3><p>{row.short_description}</p>
+      </a>)}</section> : null}
+      <footer className="v3-footer">Powered by LibGuest</footer>
     </div>
-    <PublicBottomDock items={getCanonicalPublicNavigationKeys(navigation).map((key) => ({ key, ...navMeta[key] }))} activeItem="home" ariaLabel={copy.navigationLabel} />
   </main>;
 }

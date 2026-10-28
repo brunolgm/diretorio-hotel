@@ -86,8 +86,8 @@ for (const kind of ['slug', 'subdomain'] as const) {
   });
 }
 
-test('legacy renderer and its read-only textual projection match the pre-Tourism checkpoint', () => {
-  for (const file of ['components/public/hotel-public-area-content.tsx', 'lib/public-hotel-areas.ts']) {
+test('legacy read-only textual projection remains unchanged; renderer supports canonical brand themes', () => {
+  for (const file of ['lib/public-hotel-areas.ts']) {
     const before = execFileSync('git', ['show', `91634a4:${file}`], { encoding: 'utf8' }).replace(/\r/g, '');
     assert.equal(readFileSync(file, 'utf8').replace(/\r/g, ''), before);
   }

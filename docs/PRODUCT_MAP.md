@@ -1,11 +1,221 @@
 # PRODUCT MAP
 
-Contrato técnico da Sprint 52 — Turismo: [SPRINT_52_TOURISM.md](SPRINT_52_TOURISM.md).
-A base técnica atual inclui a fundação 52.1, imagens 52.2a, Admin e traduções 52.2b.
-Turismo permanece `coming_soon`, fora do baseline e sem catálogo público funcional.
-A Sprint 52 ainda não está encerrada.
+## Reconciliação Sprint 52 + Bugan e Public Experience V3 (28/10/2026)
 
-## Bugan Recife — decisão canônica e entrega local UX V2 (27/10/2026)
+### Decisão vigente e Git
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] A linha local `integration/bugan-s52-public-v3`
+nasceu da Sprint 52 final `efa4d886b52483d6333297dcfe38430c516a7623` e recebeu
+`feat/bugan-recife-ux-v2` em merge não destrutivo `6b51038` (dois pais).
+Bugan permanece em `6a117d7542b884315a6cef57281b0b1b70bc4cdd`; ancestor comum
+`6551abdff53a7629ee6f9c0621b1b6b27bf51163`. As duas branches originais não foram movidas.
+O único conflito textual foi a declaração test-only de `registerHooks`: assinaturas
+idênticas foram consolidadas sem ampliar o contrato. O auto-merge do compositor foi
+revisado: o encaminhamento de `tourismHomeAvailable` para Bugan foi acrescentado,
+preservando as Homes das outras marcas. Nenhuma migration histórica foi reescrita.
+
+[APROVADO] A composição Home do golden master V3 substitui a grade compacta inicial
+V2 para Bugan. UX V1 continua [DESCARTADO]. A seção V2 abaixo é registro histórico;
+suas afirmações de Turismo `coming_soon`, testes antigos vermelhos e reconciliação
+futura foram superadas pelo fechamento da Sprint 52 e por esta reconciliação local.
+Bugan é cliente canônico permanente: toda sprint compartilhada deve testar
+Grand Mercure, Novotel, Mercure, Bugan e Default, respeitando entitlement/configuração.
+
+### Arquitetura de mídia e editorial
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Reutilizados `hotel-assets`,
+`validateImageUpload`, políticas de hero e geração UUID de paths no servidor.
+O contrato antigo `hotels.hero_image_url` não comportava imagem mobile, focal points
+ou os três placements editoriais; banners/Services não oferecem essas semânticas.
+A extensão mínima é uma tabela genérica `hotel_public_experience_media`, quatro
+slots (`hero`, `about`, `restaurant`, `accommodation`), sem dados ou nomes de tenant.
+Migration nova: `20261028034907_public_experience_media_v3.sql`.
+
+Cada slot contém desktop/mobile opcionais, focal X/Y normalizado 0–100 em ambos,
+alt, título, descrição, CTA HTTPS opcional, publicação e revisão inteira.
+Uma imagem serve desktop/mobile; a variante mobile tem prioridade no mobile.
+Sem foto, o hero mantém fallback temático; o URL legado continua como compatibilidade.
+As outras marcas recebem a infraestrutura, preservando a apresentação atual.
+O preset/overlay é resolvido pelo tema Bugan, não por campos CSS escolhidos pelo hotel.
+
+A edição fica em `/admin/hotel`, no mesmo nível editor/administrador já exigido pela
+rota, com entitlement `experience.appearance`. Preview, clique na fotografia na
+proporção original e sliders acessíveis permitem escolher focal points sem CSS.
+Os textos novos são fonte PT, também usados como fallback em EN/ES; não foi criado
+tradutor nem alterado o contrato dos cinco editoriais anteriores de `/admin/idiomas`.
+Traduções próprias desses novos slots são evolução futura, não fluxo homologado aqui.
+
+RLS separa publicação pública de leitura administrativa; a RPC
+`update_current_hotel_experience_media(p_slot text, p_expected_revision integer,
+p_values jsonb)` deriva hotel/permissão da sessão, exige editor ativo e entitlement,
+serializa por hotel e rejeita revisão desatualizada com PT409. Campos desconhecidos,
+hotel_id e paths de outro hotel/slot são rejeitados. Retorna revisão e os dois paths
+anteriores. SECURITY DEFINER possui search_path vazio, execução pública revogada e
+auditoria na transação. Não há DML de tabela nem Storage write concedido ao browser.
+
+Uploads usam `upsert:false`, MIME+assinatura JPEG/PNG/WebP, 2 MiB agregados por envio, máximo 8192 por
+eixo e 40 milhões de pixels. Paths: `<hotel>/hero/<slot>/<uuid>.<ext>`, gerados no servidor.
+O limite agregado respeita as Server Actions existentes de 3 MiB, com margem para multipart/textos; não houve aumento global do limite. Fotos originais maiores precisam ser otimizadas antes do upload no Prompt 2. Uploads são validados antes da primeira escrita. Cleanup somente depois da associação
+confirmada; compensação do upload novo somente após erro SQL definitivo. Respostas
+ambíguas preservam todos os arquivos. Paths anteriores vêm da RPC; ownership é
+revalidado e retry limitado a dois. Falha de cleanup é informada para reconciliação.
+Não há delete definitivo dos slots: remover foto/despublicar preserva o editorial.
+Rollback comportamental futuro pode despublicar os slots, sem apagar tabela/dados.
+
+### Público, navegação e domínios compartilhados
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Só Bugan recebe a Home V3: foto dominante,
+header desktop/drawer mobile acessível, headline editorial, 2–6 acessos dinâmicos,
+três editoriais opcionais e amenidades obtidas de Services publicados/configurados.
+Nenhuma afirmação sobre piscina, academia/localização ou catálogo de Recife está fixa
+na apresentação. Reserva existe somente com booking_url HTTPS configurado; nenhum
+link vazio `#`. Menu gastronômico usa placement publicado ou serviço de cardápio real.
+A Home V3 usa navegação no header/drawer; os docks internos anteriores permanecem.
+Turismo e Voos nunca entram no dock.
+
+Explore utiliza `loadPublicTourism`, os mesmos itens publicados, ordenação e fallback
+PT/EN/ES por campo da Sprint 52. Sem entitlement/conteúdo, não há acesso/preview.
+Não há loader, catálogo, regra de tenant ou módulo duplicado para Bugan. O catálogo
+continua com 20 módulos, baseline de 12; Turismo e Voos são opcionais. Services legados
+não foram migrados, apagados ou refiltrados destrutivamente. QR/roomToken não mudou:
+a Home recebe somente o contexto seguro já resolvido pelas rotas canônicas.
+
+### Referências e validação visual
+
+[APROVADO] As cinco referências físicas fornecidas estão em
+`docs/references/bugan/public-v3/`; não são assets servidos pelo Next em produção.
+Fotos reais: rooftop, fachada, Restaurante Filipe e acomodação. O golden master é
+referência de composição, nunca imagem de fundo. A persistência de fotos do tenant
+real será pelo fluxo normal no Prompt 2; não foi criado tenant nem seed de negócio.
+
+[IMPLEMENTADO PARCIALMENTE] Fidelidade estrutural confirmada em capturas locais
+1440×900, 1536×864, 390×844 e 430×932: hero, navegação, acessos, editorial e mobile.
+A foto real possui enquadramento/luz diferentes da prancha; não foi sintetizado céu,
+piscina ou skyline. Logo oficial/licenciado e fontes Wask New/Astonia ainda não estão
+persistidos: slot funcional com fallback textual e Georgia/system, sem redesenhar logo.
+Textos definitivos, benefícios e catálogo turístico real pertencem ao Prompt 2.
+As capturas usam fixtures explicitamente sintéticas, não comprovam ativação de hotel.
+
+### Gates reproduzíveis e limites
+
+[APROVADO] Direcionados 127/127; Security 398/398; TypeScript OK; lint 0 erros / 4 warnings históricos; build OK; diff --check OK. Security inclui oito testes da ação real de mídia com validação,
+ordem upload→RPC→cleanup, PT409, revisão stale, MIME inválido, resposta ambígua e retry.
+A comparação integral antiga do renderer foi substituída por preservação do helper
+legado, testes de rotas reais e renderização do legado sob os cinco temas; a alteração
+permitida é de apresentação. Turismo final foi mantido como `available`, fora do baseline.
+O gate SQL cumulativo de aeroportos compara conjunto ativo, em vez de presumir que
+só três aeroportos de fixture existam. Snapshots/migrations históricas ficam intactos.
+
+`node tests/bugan-runtime.mjs`: 60 combinações viewport/idioma/2–6 acessos, cinco temas,
+catálogo/detalhe Turismo, legado, Voos, contexto de quarto sintético, drawer com foco/
+Escape/restauração, preview focal e módulos ON/OFF. Playwright é devDependency fixa,
+sem instalação temporária pessoal. A rota dev-only é removida no finally. Evidências e
+logs regeneráveis ficam em `out/public-v3/` (ignorado), fora do commit de aplicação.
+
+`powershell -NoProfile -File supabase/tests/public_experience_local_lab.ps1`: 15
+execuções SQL locais com rollback (mídia + nove gates cumulativos + Turismo em cinco
+marcas), sem resíduos; matriz Bugan adicional confirma ACL, onboarding e isolamento.
+O runner exige baseline descartável pré-Turismo/Sprint 51 e aceita `-Container` local.
+Não é bootstrap remoto. Nova ação usa clientes simulados nos testes; não se alega
+homologação autenticada ponta a ponta do novo formulário com Storage real de produção.
+
+### Inventário de arquivos da reconciliação
+
+Delta contra a Sprint 52 final `efa4d88` (inclui a incorporação da branch Bugan).
+As evidências V2 incorporadas são históricas; os arquivos V3 em `docs/references` são referências, não assets públicos.
+
+```text
+A	app/admin/hotel/experience-media-actions.ts
+A	components/admin/experience-media-editor.tsx
+A	components/public/bugan.css
+A	components/public/public-area-hero.tsx
+A	components/public/public-bottom-dock.tsx
+A	components/public/public-experience-menu.tsx
+A	components/public/public-experience-overview.tsx
+A	docs/evidence/bugan/admin-390.png
+A	docs/evidence/bugan/admin-desktop.png
+A	docs/evidence/bugan/admin-drawer-390.png
+A	docs/evidence/bugan/public-390.png
+A	docs/evidence/bugan/public-430.png
+A	docs/evidence/bugan/public-desktop.png
+A	docs/evidence/bugan/runtime.json
+A	docs/references/bugan/public-v3/acomodacao-bugan-real.png
+A	docs/references/bugan/public-v3/fachada-bugan-real.png
+A	docs/references/bugan/public-v3/golden-master-public-v3.png
+A	docs/references/bugan/public-v3/hero-piscina-real.png
+A	docs/references/bugan/public-v3/restaurante-filipe-real.png
+A	lib/public-experience-media.ts
+A	lib/public-experience-overview.ts
+A	supabase/migrations/20261027215620_bugan_canonical_brand.sql
+A	supabase/migrations/20261028034907_public_experience_media_v3.sql
+A	supabase/tests/bugan_behavioral_matrix.sql
+A	supabase/tests/bugan_local_lab.ps1
+A	supabase/tests/bugan_tourism_local_lab.ps1
+A	supabase/tests/public_experience_local_lab.ps1
+A	supabase/tests/public_experience_media_behavioral_matrix.sql
+A	tests/bugan-runtime.mjs
+A	tests/fixtures/bugan-visual-page.tsx
+A	tests/security/bugan.test.ts
+A	tests/security/public-experience-media.test.ts
+A	tests/security/public-experience-media-actions.test.ts
+M	app/admin/experiencia/page.tsx
+M	app/admin/hotel/page.tsx
+M	app/globals.css
+M	app/hotel/[slug]/page.tsx
+M	app/page.tsx
+M	components/admin/experience/experience-metrics.tsx
+M	components/public/hotel-public-area-content.tsx
+M	components/public/hotel-public-flight-center.tsx
+M	components/public/hotel-public-page-content.tsx
+M	components/public/hotel-service-detail-content.tsx
+M	components/public/language-switcher.tsx
+M	docs/PRODUCT_MAP.md
+M	docs/SPRINT_52_TOURISM.md
+M	lib/admin-theme.ts
+M	lib/hotel-subdomain.ts
+M	lib/hotel-theme.ts
+M	lib/platform-governance.ts
+M	lib/public-copy.ts
+M	lib/public-hotel-data.ts
+M	package.json
+M	package-lock.json
+M	supabase/tests/51_flight_center_configuration_behavioral_matrix.sql
+M	tests/security/admin-theme.test.ts
+M	tests/security/node-module-hooks.d.ts
+M	tests/security/tourism-home.test.ts
+M	tests/security/tourism-legacy-transition.test.ts
+M	types/database.ts
+```
+
+### Publicação e próxima etapa
+
+[NÃO CONFIRMADO] Fetch origin falhou com `Permission denied (publickey)`.
+`main` e a referência cacheada `origin/main` permaneceram em `5b42ec1`; não foi
+inventado estado remoto atual. A reconciliação é local; não houve push/main/deploy.
+Nenhuma escrita Supabase remota, tenant, administrador, quarto, conteúdo, entitlement
+ou imagem de negócio foi criada. Google real não foi utilizado.
+
+[APROVADO] Inspeção read-only Vercel identificou `diretorio-hotel`, projeto
+`prj_EJ9BEIP0qvROaycswNZqp4bZGo0R`. `libguest.digital`, `www.libguest.digital` e
+`*.libguest.digital` estão associados e verificados. Configuração DNS consultada para
+raiz, www e `buganrecife.libguest.digital`: `misconfigured:false`, sem conflitos.
+Nenhum DNS foi alterado. O wildcard cobre o hostname alvo; o tenant só será resolvido
+após criação autorizada com subdomain `buganrecife` e slug `bugan-recife` no Prompt 2.
+Projeto/migrations/drift Supabase remoto não foram inspecionados nesta rodada local;
+a aplicação remota continua condicionada aos gates Git e à conferência explícita.
+
+[PLANEJADO] **LibGuest Public Experience V3** para Grand Mercure, Novotel e Mercure,
+usando a mesma infraestrutura e preservando a identidade própria. Não redesenhados aqui.
+Para Prompt 2: autenticar/reconfirmar Git remoto e main; conferir projeto e drift
+Supabase; aplicar somente migrations revisadas pendentes; publicar pelo fluxo oficial;
+criar tenant draft/admin autorizado; subir logo/fontes licenciados e fotos por Storage;
+revisar textos/CTAs/amenidades/idiomas; configurar opcionais autorizados; preparar
+quartos/QR; executar readiness e homologação autenticada antes da ativação.
+
+Contrato técnico da Sprint 52 — Turismo: [SPRINT_52_TOURISM.md](SPRINT_52_TOURISM.md).
+A Sprint 52 final está em `efa4d88`. Turismo está `available`, opt-in, fora do baseline de 12 módulos, com Admin, imagens, idiomas e catálogo público compartilhado.
+
+## Histórico: Bugan Recife — decisão canônica e entrega local UX V2 (27/10/2026)
 
 ### Decisão e continuidade
 

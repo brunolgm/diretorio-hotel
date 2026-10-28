@@ -1,6 +1,28 @@
 # Sprint 52 — Turismo: contrato técnico canônico
 
-## Checkpoint atual — correções finais P1/P2 (diff local)
+
+## Checkpoint vigente — Sprint 52 final reconciliada localmente com Bugan (28/10/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Sprint 52 fechada em `efa4d88`
+(`feat: complete tourism module`), preservada integralmente na branch original.
+Reconciliação local em `integration/bugan-s52-public-v3`, merge `6b51038` com Bugan
+`6a117d7`, sem mover `sprint-52-tourism` ou `feat/bugan-recife-ux-v2`.
+Turismo permanece `available`, opt-in, fora do baseline, compartilhado por todas as
+marcas. A Home Bugan V3 recebe o gate e o preview do mesmo loader publicado;
+PT/EN/ES, imagens, legado, PT409, governança e autorização da Sprint 52 foram preservados.
+
+[APROVADO] Regressão SQL do domínio em Grand Mercure, Novotel, Mercure, Bugan e
+Default; nove gates SQL cumulativos, mídia V3 e matriz adicional de marca Bugan,
+sempre local/rollback. Security integrada 398/398. Browser: 60 combinações de
+viewport/idioma/acessos e cinco temas, catálogo/detalhe/legado/Voos, sem APIs externas.
+São fixtures de componentes; não equivalem a ativação do tenant real.
+
+A documentação canônica da reconciliação, mídia e Public Experience V3 está em
+[PRODUCT_MAP.md](PRODUCT_MAP.md). A referência anterior a diff sem commit abaixo
+é histórica: esse diff foi consolidado pelo fechamento `efa4d88` antes da integração.
+Fetch SSH falhou; main/push/deploy e Supabase remoto não foram executados.
+Nenhum tenant Bugan ou entitlement real foi provisionado. Google real não utilizado.
+## Histórico — correções finais P1/P2 (diff local)
 
 Branch `sprint-52-tourism`, HEAD local e referência local de
 `origin/sprint-52-tourism` em `91634a423126887a8ffab973460679fb1967a34d`.
