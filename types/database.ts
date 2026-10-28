@@ -9,6 +9,12 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      hotel_public_experience_media_translations: {
+        Row: { hotel_id: string; slot: string; language: string; title: string | null; description: string | null; alt_text: string | null; cta_label: string | null; updated_at: string };
+        Insert: { hotel_id: string; slot: string; language: string; title?: string | null; description?: string | null; alt_text?: string | null; cta_label?: string | null; updated_at?: string };
+        Update: { title?: string | null; description?: string | null; alt_text?: string | null; cta_label?: string | null; updated_at?: string };
+        Relationships: [];
+      };
       hotel_public_experience_media: {
         Row: {
           hotel_id: string;
@@ -1150,6 +1156,11 @@ export interface Database {
         Args: { p_hotel_id: string; p_user_id: string; p_email: string; p_full_name: string; p_operation_id: string };
         Returns: { hotel_id: string; admin_user_id: string }[];
       };
+      save_current_hotel_experience_media_translation: { Args: { p_slot: string; p_language: string; p_expected_revision: number; p_fields: Json }; Returns: boolean };
+      resolve_public_hotel_slug: { Args: { p_slug: string }; Returns: string | null };
+      update_current_hotel_slug: { Args: { p_hotel_id: string; p_expected_slug: string; p_slug: string }; Returns: string };
+      apply_current_hotel_bootstrap: { Args: { p_hotel_id: string; p_namespace: string; p_manifest: Json }; Returns: Json };
+      apply_current_hotel_bootstrap_translation: { Args: { p_hotel_id: string; p_namespace: string; p_key: string; p_language: string; p_fields: Json }; Returns: boolean };
       create_platform_hotel_onboarding: {
         Args: { p_name: string; p_city: string; p_slug: string; p_subdomain: string; p_brand_code: string | null; p_theme_preset: string | null; p_admin_user_id: string; p_admin_email: string; p_admin_full_name: string };
         Returns: { hotel_id: string; platform_status: string; admin_user_id: string }[];

@@ -46,3 +46,14 @@ export async function cleanupExperienceMedia({ hotelId, slot, paths, currentPath
   }
   return cleaned;
 }
+
+export type ExperienceMediaTranslation = Partial<Record<'title'|'description'|'alt_text'|'cta_label',string|null>>;
+const MEDIA_TEXT_FIELDS = ['title','description','alt_text','cta_label'] as const;
+export function localizeExperienceMedia(source: ExperienceMedia, translation?: ExperienceMediaTranslation | null): ExperienceMedia {
+ const result={...source};
+ for(const field of MEDIA_TEXT_FIELDS) if(translation?.[field]?.trim()) result[field]=translation[field]!;
+ return result;
+}
+export function experienceMediaHasFallback(source: ExperienceMedia, translation?: ExperienceMediaTranslation | null) {
+ return MEDIA_TEXT_FIELDS.some(field=>Boolean(source[field]?.trim())&&!translation?.[field]?.trim());
+}

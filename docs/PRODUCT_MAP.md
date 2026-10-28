@@ -1,5 +1,64 @@
 # PRODUCT MAP
 
+## Bootstrap compartilhado do pré-cadastro Bugan — 28/10/2026
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Novo contrato autenticado para configuração
+inicial de hotel existente: apply_current_hotel_bootstrap. Administrador ativo do
+próprio tenant, alvo explícito validado no banco, somente draft/suspended, row lock,
+idempotência por namespace/chave e snapshot de fonte. Reexecução preserva IDs; edição
+humana, registro preexistente sem vínculo ao seed ou manifesto divergente gera PT409.
+Não altera lifecycle, entitlements, profiles, contas, roomToken ou outros hotéis.
+Turismo e mídia reutilizam suas RPCs atuais; domínios editoriais reutilizam campos/
+constraints do Admin. Campos canônicos do hotel só preenchem lacunas.
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Slug pode ser alterado durante preparação pelo
+administrador do hotel em /admin/hotel/slug ou pela RPC canônica. Validação/unicidade,
+expected slug, audit e alias privado protegem o ID e os endereços antigos. Alias não
+expõe hotel suspenso e é reservado contra atribuição a outro tenant. Subdomain/QR não
+mudam. Resolução pública continua passando por public_hotels e lifecycle/entitlement.
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Editorial V3 ganhou EN/ES no mesmo tradutor
+server-side existente. Fonte PT/revision verificada na persistência, RLS, invalidação
+de derivados quando o texto PT muda e fallback por campo. O Admin traduz ao salvar;
+bootstrap preserva tradução existente e reporta parcialidade. Sem Google na leitura.
+Logger compartilhado foi extraído sem mudar sua interface e sem dependência circular.
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Preview /preview requer sessão editor/admin do
+próprio hotel e entitlements core.directory/experience.preview. Nenhum alvo vem da
+URL; usa RLS e o renderer público compartilhado, só conteúdo elegível, sem analytics,
+roomToken, provider ou abertura pública de hotel suspenso. A aba de preview usa essa
+rota em preparação. Revisão visual/golden master continua sendo humana.
+
+[APROVADO] Manifesto revisado docs/bootstrap/bugan-recife-20261028.json: 13 serviços,
+três departamentos, duas políticas, dois itens Turismo, configuração de Voos/REC,
+quatro slots e logo oficial. Quatro WebP reais e logo PNG conferidos no diretório
+preparado, com hashes fixados; não inclui golden master ou SVG. Horários e SSID já
+salvos são preservados; café do restaurante remete à fonte canônica de Quick Info.
+Não inclui WhatsApp, senha Wi-Fi fixa, preços voláteis, promoções, música conflitante,
+IA, comunicados ou UHs inventadas. Campos institucionais sem coluna própria ficam
+em conteúdo editorial editável. Fontes/focais iniciais e limites em HOTEL_BOOTSTRAP.md.
+
+[IMPLEMENTADO PARCIALMENTE] O executor PowerShell/Node está preparado: plano sem rede,
+login normal com senha oculta em stdin, sessão só em memória e logout scope local.
+A credencial operacional local já configurada é usada somente server-side para
+Storage e catálogo global conforme grants existentes; não substitui a autenticação
+do administrador e não cria contas. Não há magic link, JWT forjado ou impersonação.
+REC usa dado oficial DECEA/IATA; helper de catálogo é insert-only e recusa drift.
+Nenhum tempo de transfer, antecedência, margem ou link de voo é inventado.
+
+[APROVADO] Gates do checkpoint: 424/424 security, 44/44 direcionados, TypeScript,
+build e diff check OK; lint zero erros/quatro warnings históricos. Seis matrizes SQL
+do bootstrap (incluindo manifesto completo nas cinco marcas), nove regressões de
+governança/onboarding/Turismo/Voos e uma regressão de mídia, todas locais com rollback.
+Teste do executor usa stdin privado, SDK isolado e rede bloqueada; fixtures próprias,
+sem depender de out/ nem usar senha real. Não equivale a seed/homologação em produção.
+[NÃO CONFIRMADO] Seed real, EN/ES efetivamente gerados, mídia em Storage, readiness
+pós-seed e homologação visual ainda aguardam execução autenticada. O próximo bloqueio
+humano legítimo é a senha do novo administrador, digitada exclusivamente no prompt
+local oculto do executor. Não solicitar preenchimento manual de conteúdo. Tenant
+permanece suspended com os dois administradores ativos e módulos já aprovados.
+Detalhes, comando único, retomada e fontes: [HOTEL_BOOTSTRAP.md](HOTEL_BOOTSTRAP.md).
+
 ## Platform — administrador adicional em hotel existente (28/10/2026)
 
 [IMPLEMENTADO E CONFIRMADO NO CÓDIGO] A Platform antes só criava administrador no

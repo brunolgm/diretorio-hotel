@@ -97,7 +97,12 @@ test('uses the authenticated hotel for a sandboxed public preview', () => {
   const preview = read('components', 'admin', 'experience', 'public-experience-preview.tsx');
   assert.match(page, /requireAdminAccess\('visualizador'\)/);
   assert.match(page, /eq\('hotel_id', profile\.hotel_id\)/);
-  assert.match(page, /const publicUrl = `\/hotel\/\$\{encodeURIComponent\(hotel\.slug\)\}`/);
+  assert.match(page, /hotel\.platform_status === 'active'/);
+  assert.match(page, /encodeURIComponent\(hotel\.slug\)/);
+  assert.match(page, /: '\/preview'/);
+  const authenticated = read('lib','authenticated-hotel-preview.ts');
+  assert.match(authenticated, /requireAdminAccess\('editor'\)/);
+  assert.match(authenticated, /\.eq\('id',profile.hotel_id\)/);
   assert.doesNotMatch(page, /searchParams[^\n]*hotel|service_role|createAdminClient/i);
   assert.match(preview, /<iframe/);
   assert.match(preview, /sandbox="allow-forms allow-popups allow-same-origin allow-scripts"/);

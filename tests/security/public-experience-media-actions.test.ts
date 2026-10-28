@@ -10,7 +10,7 @@ const ts=require('typescript') as typeof import('typescript');
 const source=ts.transpileModule(readFileSync('app/admin/hotel/experience-media-actions.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
 const hotel='b0600000-0000-4000-8000-000000000001';
 const old=`${hotel}/hero/hero/b0600000-0000-4000-8000-000000000002.png`;
-function harness(mode:'ok'|'conflict'|'ambiguous'|'transport'|'stale'|'cleanup-failure'|'malformed'='ok'){
+function harness(mode:'ok'|'conflict'|'ambiguous'|'transport'|'stale'|'cleanup-failure'|'malformed'|'translation-failure'='ok'){
   const events:{op:string;value?:unknown}[]=[];
   let newPath:string|undefined;
   const previous={image_path:old,mobile_image_path:null,revision:1};
@@ -31,6 +31,7 @@ function harness(mode:'ok'|'conflict'|'ambiguous'|'transport'|'stale'|'cleanup-f
     if(name==='@/lib/supabase/admin')return {createAdminClient:()=>({storage:{from:(bucket:string)=>{assert.equal(bucket,'hotel-assets');return storage;}}})};
     if(name==='@/lib/security/image-upload')return image;
     if(name==='@/lib/public-experience-media')return media;
+    if(name==='@/lib/services/experience-media-translations')return {syncExperienceMediaTranslations:async()=>mode==='translation-failure'?'failed':'skipped'};
     throw Error(name);
   }});
   const form=new FormData();
@@ -70,4 +71,10 @@ test('media aggregate upload budget stays below the existing Server Action trans
   h.form.set('mobile_image',new File([bytes],'mobile.png',{type:'image/png'}));
   await assert.rejects(h.run(),/error=/);
   assert.equal(h.events.filter(e=>['upload','rpc','remove'].includes(e.op)).length,0);
+});
+
+test('media translation failure warns after confirmed association and never compensates the committed image',async()=>{
+ const h=harness('translation-failure');await assert.rejects(h.run(),/fallback%20permanece%20PT/);
+ assert.deepEqual(h.events.filter(e=>['upload','rpc','remove'].includes(e.op)).map(e=>e.op),['upload','rpc','remove']);
+ assert.deepEqual([...(h.events.find(e=>e.op==='remove')?.value as string[])],[old]);
 });

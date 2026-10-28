@@ -1,3 +1,4 @@
+import Link from 'next/link';
 ﻿import {
   Clock3,
   Coffee,
@@ -216,6 +217,7 @@ export default async function AdminHotelPage({ searchParams }: AdminHotelPagePro
 
             <div className="order-[41] space-y-2 md:col-span-2">
               <p className="block text-sm font-medium text-slate-700">Slug público</p>
+              <Link href="/admin/hotel/slug" className="text-sm underline">Alterar slug</Link>
               <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
                 <p className="text-sm font-semibold text-slate-900">{hotel.slug}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">

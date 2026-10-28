@@ -1,3 +1,5 @@
+import { logOperationalError } from '@/lib/services/operational-logger';
+export { logOperationalError } from '@/lib/services/operational-logger';
 import { createClient } from '@/lib/supabase/server';
 import { hasHotelModule } from '@/lib/admin-entitlements';
 import { getTourismTranslationStatus, tourismTranslationFields, type TourismTranslationFields } from '@/lib/tourism/translations';
@@ -159,31 +161,6 @@ export function buildOperationalErrorMessage(
   return `Não foi possível ${operation} ${subject}. ${guidance}`;
 }
 
-export function logOperationalError({
-  module,
-  action,
-  operation,
-  hotelId,
-  targetId,
-  error,
-}: {
-  module: string;
-  action: string;
-  operation: string;
-  hotelId?: string;
-  targetId?: string;
-  error: unknown;
-}) {
-  const message =
-    error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
-
-  console.error(`[${module}] ${action} failed`, {
-    operation,
-    hotelId,
-    targetId,
-    message,
-  });
-}
 
 export function getAvailableTranslationLanguages(translations: Array<{ language: string }>) {
   const available = new Set<SupportedTranslationLanguage>();

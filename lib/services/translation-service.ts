@@ -1,6 +1,6 @@
 import 'server-only';
 import { getRequiredEnvVar, logWarningOnce } from '@/lib/env';
-import { logOperationalError } from '@/lib/services/translation-admin';
+import { logOperationalError } from '@/lib/services/operational-logger';
 import { tourismTranslationFields, type TourismTranslationFields } from '@/lib/tourism/translations';
 
 export type SupportedTranslationLanguage = 'en' | 'es';
@@ -113,12 +113,12 @@ async function tryTranslateTextFields<T extends TranslatableFieldMap>(
     });
 
     return translatedFields;
-  } catch (error) {
+  } catch {
     logOperationalError({
       module: 'translation',
       action: 'tryTranslateTextFields',
       operation: `translate content to ${targetLanguage}`,
-      error: tourism ? 'Tourism translation unavailable' : error,
+      error: tourism ? 'Tourism translation unavailable' : 'Translation unavailable',
     });
     return null;
   }
@@ -183,4 +183,9 @@ export async function translatePromotionalBannerFields(
   targetLanguage: SupportedTranslationLanguage
 ) {
   return tryTranslateTextFields(fields, targetLanguage);
+}
+
+/** V3 editorial fields use the same server-side Google batch and PT source as existing domains. */
+export async function translateExperienceMediaFields(fields: {title:string|null;description:string|null;alt_text:string|null;cta_label:string|null}, targetLanguage: SupportedTranslationLanguage) {
+ return tryTranslateTextFields(fields,targetLanguage);
 }

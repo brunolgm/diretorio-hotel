@@ -1,0 +1,399 @@
+{
+  "version": 1,
+  "projectRef": "micuekfznunwwofxnovw",
+  "hotelId": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+  "namespace": "initial-20261028",
+  "sources": {
+    "verifiedAt": "2026-10-28",
+    "hotel": "https://www.letsatlantica.com.br/hotel/bugan-hotel-recife-by-atlantica",
+    "operations": "https://www.descubraobugan.com/",
+    "airport": "https://aisweb.decea.mil.br/eaip/20-2026_2026_10_01/eAIP/AD%202%20SBRF-pt-BR.html",
+    "logo": "https://letsimage.s3.amazonaws.com/editor/atlantica/imgs/1788505754743-bugan-by-atlantica.svg"
+  },
+  "hotel": {
+    "website_url": "https://www.letsatlantica.com.br/hotel/bugan-hotel-recife-by-atlantica",
+    "booking_url": "https://atlantica.letsbook.com.br/reserva/busca?hotel=22",
+    "checkin_time": "14:00",
+    "checkout_time": "12:00",
+    "breakfast_hours": "Seg–Sex 06:00–10:00; sábados, domingos e feriados 06:00–10:30",
+    "wifi_name": "Bugan by Atlantica"
+  },
+  "slug": {
+    "expected": "bugan",
+    "value": "bugan-recife"
+  },
+  "entries": [
+    {
+      "key": "hotel",
+      "domain": "service",
+      "values": {
+        "title": "Conheça o hotel",
+        "icon": "Hotel",
+        "content": "Bugan Hotel Recife by Atlantica. Av. Eng. Domingos Ferreira, 4661, Boa Viagem, Recife — PE. Hotel contemporâneo para viagens de lazer ou negócios. A Praça de Boa Viagem fica a aproximadamente 400 m, o Shopping Recife a 1,2 km e o aeroporto a 3,8 km, segundo a página oficial.",
+        "category": "Hotel",
+        "cta": null,
+        "url": null,
+        "service_action_type": "standard",
+        "enabled": true,
+        "sort_order": 0
+      }
+    },
+    {
+      "key": "wifi",
+      "domain": "service",
+      "values": {
+        "title": "Acesso ao Wi-Fi",
+        "icon": "Wifi",
+        "content": "Rede de hóspedes: Bugan by Atlantica. Para autenticar, utilize nome, sobrenome e número da UH. Rede de eventos: Bugan by Eventos; autenticação com sobrenome. Para auxílio, contate a recepção pelo ramal *1. Não há senha fixa cadastrada.",
+        "category": "Wi-Fi",
+        "cta": null,
+        "url": null,
+        "service_action_type": "standard",
+        "enabled": true,
+        "sort_order": 1
+      }
+    },
+    {
+      "key": "restaurante-filipe",
+      "domain": "service",
+      "values": {
+        "title": "Restaurante Filipe",
+        "icon": "UtensilsCrossed",
+        "content": "Cozinha contemporânea com ingredientes regionais e referências à cultura local. Consulte os horários do café da manhã nas informações rápidas do hotel. Almoço 12:00–14:30; jantar 19:00–22:30.",
+        "category": "Restaurante",
+        "cta": null,
+        "url": null,
+        "service_action_type": "standard",
+        "enabled": true,
+        "sort_order": 2
+      }
+    },
+    {
+      "key": "room-service",
+      "domain": "service",
+      "values": {
+        "title": "Room Service",
+        "icon": "BellRing",
+        "content": "Atendimento 24 horas. Consulte o cardápio digital e fale com a recepção pelo ramal *1. O LibGuest apresenta o canal de atendimento; não confirma pedidos.",
+        "category": "Room service",
+        "cta": "Abrir cardápio",
+        "url": "https://hotel-bugan.goomer.app/menu",
+        "service_action_type": "external_url",
+        "enabled": true,
+        "sort_order": 3
+      }
+    },
+    {
+      "key": "lavanderia",
+      "domain": "service",
+      "values": {
+        "title": "Lavanderia",
+        "icon": "Shirt",
+        "content": "Preencha o rol e utilize o saco de lavanderia. Coleta até 14h. Regular: entrega a partir das 14h do dia seguinte. Expresso: entrega até 20h do mesmo dia, adicional de 50%. Ultra expresso: entrega a partir das 18h do mesmo dia, adicional de 100%. Para modalidades expressas, avise a recepção pelo ramal *1.",
+        "category": "Lavanderia",
+        "cta": null,
+        "url": null,
+        "service_action_type": "standard",
+        "enabled": true,
+        "sort_order": 4
+      }
+    },
+    {
+      "key": "piscina",
+      "domain": "service",
+      "values": {
+        "title": "Piscina",
+        "icon": "Droplets",
+        "content": "Piscina no Piso L, disponível das 06:00 às 23:00.",
+        "category": "Piscina",
+        "cta": null,
+        "url": null,
+        "service_action_type": "standard",
+        "enabled": true,
+        "sort_order": 5
+      }
+    },
+    {
+      "key": "academia",
+      "domain": "service",
+      "values": {
+        "title": "Academia",
+        "icon": "Dumbbell",
+        "content": "Academia equipada no Piso L, próxima à piscina. Funcionamento das 06:00 às 23:00.",
+        "category": "Academia",
+        "cta": null,
+        "url": null,
+        "service_action_type": "standard",
+        "enabled": true,
+        "sort_order": 6
+      }
+    },
+    {
+      "key": "sauna",
+      "domain": "service",
+      "values": {
+        "title": "Sauna",
+        "icon": "Sparkles",
+        "content": "Sauna no Piso L. Funcionamento das 10:00 às 23:00.",
+        "category": "Bem-estar",
+        "cta": null,
+        "url": null,
+        "service_action_type": "standard",
+        "enabled": true,
+        "sort_order": 7
+      }
+    },
+    {
+      "key": "travesseiros",
+      "domain": "service",
+      "values": {
+        "title": "Menu de travesseiros",
+        "icon": "BedDouble",
+        "content": "Disponível nas categorias Luxo, Executive, Family, Business e Royal, conforme as condições do hotel. Consulte a recepção pelo ramal *1.",
+        "category": "Hospedagem",
+        "cta": null,
+        "url": null,
+        "service_action_type": "standard",
+        "enabled": true,
+        "sort_order": 8
+      }
+    },
+    {
+      "key": "spa-pes",
+      "domain": "service",
+      "values": {
+        "title": "Spa dos Pés",
+        "icon": "Heart",
+        "content": "Disponível nas suítes Executive, Business e Royal, conforme informação operacional do hotel. Consulte a recepção pelo ramal *1.",
+        "category": "Spa",
+        "cta": null,
+        "url": null,
+        "service_action_type": "standard",
+        "enabled": true,
+        "sort_order": 9
+      }
+    },
+    {
+      "key": "estacionamento",
+      "domain": "service",
+      "values": {
+        "title": "Estacionamento",
+        "icon": "Building2",
+        "content": "Disponível 24 horas, com operação Vaggo e serviço de manobrista. Consulte o valor vigente com a recepção.",
+        "category": "Estacionamento",
+        "cta": null,
+        "url": null,
+        "service_action_type": "standard",
+        "enabled": true,
+        "sort_order": 10
+      }
+    },
+    {
+      "key": "acomodacoes",
+      "domain": "service",
+      "values": {
+        "title": "Acomodações",
+        "icon": "BedDouble",
+        "content": "Quartos de aproximadamente 24 m² e suítes de 48 m². Opções Queen/Twin e categorias Standard, Superior, Luxo, Executive, Family, Business e Royal, além de opções adaptadas. Mesa de trabalho, frigobar, TV, ar-condicionado, blackout e apoio para bagagem conforme a categoria. Consulte o canal oficial para reservas.",
+        "category": "Hospedagem",
+        "cta": "Reservar",
+        "url": "https://atlantica.letsbook.com.br/reserva/busca?hotel=22",
+        "service_action_type": "standard",
+        "enabled": true,
+        "sort_order": 11
+      }
+    },
+    {
+      "key": "seguranca",
+      "domain": "service",
+      "values": {
+        "title": "Segurança",
+        "icon": "ShieldCheck",
+        "content": "O hotel informa operação de segurança 24 horas. Para orientação ou apoio durante a estadia, contate a recepção pelo ramal *1.",
+        "category": "Atendimento",
+        "cta": null,
+        "url": null,
+        "service_action_type": "standard",
+        "enabled": true,
+        "sort_order": 12
+      }
+    },
+    {
+      "key": "recepcao",
+      "domain": "department",
+      "values": {
+        "name": "Recepção",
+        "description": "Atendimento bilíngue 24 horas. Telefone principal/reservas: +55 81 3256-7700; contato operacional: +55 81 99298-5633; ramal *1. Orientações sobre táxi, enxoval, travesseiros extras, informações locais e itens de conveniência/higiene.",
+        "hours": "24 horas",
+        "action": null,
+        "url": null,
+        "enabled": true
+      }
+    },
+    {
+      "key": "governanca",
+      "domain": "department",
+      "values": {
+        "name": "Governança",
+        "description": "Para orientações de limpeza e enxoval, contate a recepção pelo ramal *1.",
+        "hours": "08:00–16:00",
+        "action": null,
+        "url": null,
+        "enabled": true
+      }
+    },
+    {
+      "key": "eventos",
+      "domain": "department",
+      "values": {
+        "name": "Eventos",
+        "description": "Eventos corporativos e sala VIP. Contatos: +55 81 98942-4297 e +55 81 3256-7729. Consulte a equipe para informações e condições.",
+        "hours": null,
+        "action": null,
+        "url": null,
+        "enabled": true
+      }
+    },
+    {
+      "key": "nao-fumante",
+      "domain": "policy",
+      "values": {
+        "title": "Hotel não fumante",
+        "description": "Todos os quartos são não fumantes. Para orientações, consulte a recepção.",
+        "enabled": true
+      }
+    },
+    {
+      "key": "menores",
+      "domain": "policy",
+      "values": {
+        "title": "Hospedagem de menores",
+        "description": "Menores devem estar acompanhados ou apresentar autorização conforme a legislação aplicável. Confirme a documentação necessária com o hotel antes da chegada.",
+        "enabled": true
+      }
+    },
+    {
+      "key": "praca-boa-viagem",
+      "domain": "tourism",
+      "values": {
+        "type": "PLACE",
+        "category_key": "sights",
+        "name": "Praça de Boa Viagem",
+        "short_description": "Praça no bairro de Boa Viagem, a aproximadamente 400 m do hotel segundo a página oficial. Uma opção próxima para conhecer a região.",
+        "full_description": "Praça no bairro de Boa Viagem, a aproximadamente 400 m do hotel segundo a página oficial. Uma opção próxima para conhecer a região.",
+        "is_published": true,
+        "recommended_by_hotel": false,
+        "featured": false
+      }
+    },
+    {
+      "key": "shopping-recife",
+      "domain": "tourism",
+      "values": {
+        "type": "PLACE",
+        "category_key": "shopping",
+        "name": "Shopping Recife",
+        "short_description": "Centro de compras a aproximadamente 1,2 km do hotel, segundo a página oficial. Consulte os canais do estabelecimento para horários e informações atuais.",
+        "full_description": "Centro de compras a aproximadamente 1,2 km do hotel, segundo a página oficial. Consulte os canais do estabelecimento para horários e informações atuais.",
+        "is_published": true,
+        "recommended_by_hotel": false,
+        "featured": false
+      }
+    },
+    {
+      "key": "flights",
+      "domain": "flights",
+      "values": {
+        "iata_code": "REC",
+        "home_card_enabled": true
+      }
+    }
+  ],
+  "media": [
+    {
+      "key": "hero",
+      "file": "hero-piscina-real.webp",
+      "values": {
+        "title": "Bem-vindo ao Bugan Recife",
+        "description": "Seu hotel, sua cidade, experiências únicas.",
+        "alt_text": "Piscina rooftop do Bugan Recife com vista urbana",
+        "focal_x": 50,
+        "focal_y": 55,
+        "mobile_focal_x": 55,
+        "mobile_focal_y": 50,
+        "cta_label": "Reservar",
+        "cta_url": "https://atlantica.letsbook.com.br/reserva/busca?hotel=22",
+        "is_published": true
+      }
+    },
+    {
+      "key": "about",
+      "file": "fachada-bugan-real.webp",
+      "serviceKey": "hotel",
+      "values": {
+        "title": "Design, conforto e a energia de Recife.",
+        "description": "Bugan Hotel Recife by Atlantica: uma estadia contemporânea em Boa Viagem, com conforto e hospitalidade para momentos de lazer ou viagens de negócios.",
+        "alt_text": "Fachada real do Bugan Hotel Recife",
+        "focal_x": 50,
+        "focal_y": 50,
+        "mobile_focal_x": 50,
+        "mobile_focal_y": 50,
+        "cta_label": "Conheça o hotel",
+        "is_published": true
+      }
+    },
+    {
+      "key": "restaurant",
+      "file": "restaurante-filipe-real.webp",
+      "serviceKey": "restaurante-filipe",
+      "values": {
+        "title": "Restaurante Filipe",
+        "description": "Ingredientes regionais e referências à cultura local em uma proposta gastronômica contemporânea.",
+        "alt_text": "Ambiente real do Restaurante Filipe no Bugan Recife",
+        "focal_x": 50,
+        "focal_y": 50,
+        "mobile_focal_x": 50,
+        "mobile_focal_y": 50,
+        "cta_label": "Conheça o restaurante",
+        "is_published": true
+      }
+    },
+    {
+      "key": "accommodation",
+      "file": "acomodacao-bugan-real.webp",
+      "values": {
+        "title": "Conforto em cada detalhe.",
+        "description": "Acomodações contemporâneas para descansar e aproveitar sua estadia em Recife, a lazer ou a trabalho.",
+        "alt_text": "Acomodação real do Bugan Recife",
+        "focal_x": 50,
+        "focal_y": 45,
+        "mobile_focal_x": 50,
+        "mobile_focal_y": 45,
+        "cta_label": "Ver acomodações",
+        "cta_url": "https://atlantica.letsbook.com.br/reserva/busca?hotel=22",
+        "is_published": true
+      }
+    }
+  ],
+  "logo": "bugan-logo-oficial.png",
+  "airport": {
+    "iata_code": "REC",
+    "icao_code": "SBRF",
+    "name": "Aeroporto Internacional do Recife/Guararapes – Gilberto Freyre",
+    "city": "Recife",
+    "country_code": "BR",
+    "timezone": "America/Recife",
+    "latitude": -8.126389,
+    "longitude": -34.922778,
+    "is_active": true
+  },
+  "expectedStatus": "suspended",
+  "publicOrigin": "https://buganrecife.libguest.digital",
+  "assetSha256": {
+    "hero-piscina-real.webp": "b9a557997448b6a1fa3062eebd48992ef3651c63aef4c9d4bbbf10521a428269",
+    "fachada-bugan-real.webp": "a4609b44c925cff7212339e8ec83103345d5e66c96136fdca55974be407f58ac",
+    "restaurante-filipe-real.webp": "59018bfe568e9c6e57d71dedc6f0e3fa0f20ab060999b443b2c70993fe410bbb",
+    "acomodacao-bugan-real.webp": "2e38c6501a24f4775aa68a6f8e8c7dfd8c31394fb3989b4c4ba575d8a980065c",
+    "bugan-logo-oficial.png": "74398fd72209aa7abde60ef5462a4a6325ebc497d3822dea19819b20ac0930f4"
+  }
+}

@@ -1,4 +1,5 @@
 'use server';
+import { syncExperienceMediaTranslations } from '@/lib/services/experience-media-translations';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -81,5 +82,7 @@ export async function updateExperienceMediaAction(form: FormData) {
     finish('Resposta de gravação incompleta. Nenhum arquivo foi removido. Recarregue para conferir.', true);
   }
   const cleaned = await cleanup([saved.previous_image_path, saved.previous_mobile_image_path], [values.image_path, values.mobile_image_path]);
+  const translation = await syncExperienceMediaTranslations({client,slot,revision:saved.revision,fields:{title:values.title,description:values.description,alt_text:values.alt_text,cta_label:values.cta_label}});
+  if(translation==='failed') finish('Conteúdo PT salvo. EN/ES não puderam ser concluídos; o fallback permanece PT.',true);
   finish(cleaned ? 'Mídia e conteúdo atualizados.' : 'Alteração salva; o arquivo anterior precisa de limpeza posterior.', !cleaned);
 }

@@ -53,6 +53,7 @@ export function PublicAnalytics({
   pageEventType = 'page_view',
 }: PublicAnalyticsProps) {
   useEffect(() => {
+    if (window.location.pathname === '/preview' || window.location.pathname.startsWith('/preview/')) return;
     const pageViewKey = `${pageEventType}:${hotelSlug}:${language}`;
 
     if (shouldTrackEvent(pageViewKey, PAGE_VIEW_COOLDOWN_MS)) {

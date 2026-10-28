@@ -99,7 +99,7 @@ export default async function AdminExperiencePage({ searchParams }: ExperiencePa
   const directoryStatus = hotel.platform_status === 'active' && !enabledModules.has('core.directory')
     ? { label: 'Offline', description: 'Diretório desabilitado pela plataforma', active: false }
     : statusCopy[hotel.platform_status];
-  const publicUrl = `/hotel/${encodeURIComponent(hotel.slug)}`;
+  const publicUrl = hotel.platform_status === 'active' ? `/hotel/${encodeURIComponent(hotel.slug)}` : '/preview';
   const previewVersion = layout.map((block) => `${block.blockKey}:${block.position}:${block.isEnabled}`).join('|');
   const dateLabel = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'America/Sao_Paulo' }).format(now);
   const timeLabel = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }).format(now);

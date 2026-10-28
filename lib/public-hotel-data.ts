@@ -9,7 +9,7 @@ import {
   type PublicNavigationAvailability,
 } from '@/lib/public-navigation';
 import type { Database } from '@/types/database';
-import type { ExperienceMedia } from './public-experience-media';
+import { localizeExperienceMedia, experienceMediaHasFallback, type ExperienceMedia } from './public-experience-media';
 import type { PublicTourismItem } from './tourism/public';
 
 type SupabaseClient = ReturnType<typeof createPublicClient>;
@@ -121,7 +121,11 @@ async function getHotelBySlugWithClient(supabase: SupabaseClient, slug: string) 
     return null;
   }
 
-  return (data || null) as PublicHotel | null;
+  if (data) return data as PublicHotel;
+  const resolved = await supabase.rpc('resolve_public_hotel_slug', { p_slug: normalizedSlug });
+  if (resolved.error || !resolved.data || resolved.data === normalizedSlug) return null;
+  const canonical = await supabase.from('public_hotels').select('*').eq('slug', resolved.data).maybeSingle();
+  return canonical.error ? null : canonical.data as PublicHotel | null;
 }
 
 async function getHotelBySubdomainWithClient(supabase: SupabaseClient, subdomain: string) {
@@ -149,10 +153,11 @@ async function getHotelBySubdomainWithClient(supabase: SupabaseClient, subdomain
   return getHotelBySlugWithClient(supabase, normalizedSubdomain);
 }
 
-async function getPublicHotelPageDataForHotel(
+export async function getPublicHotelPageDataForHotel(
   supabase: SupabaseClient,
   hotel: PublicHotel,
-  language: SupportedPublicLanguage
+  language: SupportedPublicLanguage,
+  authenticatedPreview = false
 ) {
   const now = new Date().toISOString();
   const [
@@ -197,8 +202,8 @@ async function getPublicHotelPageDataForHotel(
       .eq('hotel_id', hotel.id)
       .eq('enabled', true)
       .order('created_at', { ascending: true }),
-    supabase.rpc('get_public_hotel_experience_layout', { p_hotel_id: hotel.id }),
-    supabase.rpc('get_public_hotel_flight_home_card', { p_hotel_id: hotel.id }),
+    authenticatedPreview ? supabase.rpc('get_current_hotel_experience_layout') : supabase.rpc('get_public_hotel_experience_layout', { p_hotel_id: hotel.id }),
+    authenticatedPreview ? supabase.from('hotel_flight_settings').select('home_card_title,home_card_description').eq('hotel_id', hotel.id).eq('home_card_enabled', true) : supabase.rpc('get_public_hotel_flight_home_card', { p_hotel_id: hotel.id }),
   ]);
 
   if (bannersError) {
@@ -434,9 +439,12 @@ async function getPublicHotelPageDataForHotel(
     tourismHomeAvailable ? loadPublicTourism(supabase, hotel, language).catch(() => null) : Promise.resolve(null),
   ]);
   if (mediaResult.error) console.error('Public experience media unavailable; retaining theme fallback');
+  const mediaTranslations = language === 'pt' || !mediaResult.data?.length ? {data: [],error:null} : await supabase.from('hotel_public_experience_media_translations').select('slot,title,description,alt_text,cta_label').eq('hotel_id',hotel.id).eq('language',language);
+  const translatedMedia = new Map((mediaTranslations.error ? [] : mediaTranslations.data ?? []).map(row=>[row.slot,row]));
+
   return {
     hotel,
-    experienceMedia: (mediaResult.error ? [] : mediaResult.data ?? []).filter(row => row.hotel_id === hotel.id && row.is_published),
+    experienceMedia: (mediaResult.error ? [] : mediaResult.data ?? []).filter(row => row.hotel_id === hotel.id && row.is_published).map(row=>localizeExperienceMedia(row,translatedMedia.get(row.slot))),
     tourismPreview: tourismResult?.items.slice(0, 3) ?? [],
     tourismHomeAvailable,
     flightHomeCard: flightHomeCardRow ? {
@@ -449,7 +457,7 @@ async function getPublicHotelPageDataForHotel(
     departments: displayDepartments,
     policies: displayPolicies,
     layout: normalizeExperienceLayout(layoutRows),
-    hasFallbackContent,
+    hasFallbackContent: hasFallbackContent || (language !== 'pt' && (mediaResult.data ?? []).some(row=>experienceMediaHasFallback(row,translatedMedia.get(row.slot)))),
   } satisfies PublicHotelPageData;
 }
 

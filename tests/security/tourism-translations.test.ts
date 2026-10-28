@@ -86,9 +86,12 @@ function harness(options: Options = {}) {
       return { data: outcome === 'null' ? null : outcome !== 'stale', error: outcome === 'error' ? { message: 'internal database detail' } : null };
     },
   };
+  const logger = compile<typeof import('../../lib/services/operational-logger.ts')>('lib/services/operational-logger.ts', {}, {
+    console: { error: (...args: unknown[]) => logs.push(args) },
+  });
   const service = compile<Service>('lib/services/translation-service.ts', {
     'server-only': {}, '@/lib/tourism/translations': tourism,
-    '@/lib/services/translation-admin': { logOperationalError: (error: unknown) => logs.push(error) },
+    '@/lib/services/operational-logger': logger,
     '@/lib/env': {
       getRequiredEnvVar: () => { if (options.missingKey) throw new Error('missing'); return 'FAKE_TEST_KEY'; },
       logWarningOnce: (warning: unknown) => logs.push(warning),
@@ -108,6 +111,7 @@ function harness(options: Options = {}) {
     },
   });
   const admin = compile<Admin>('lib/services/translation-admin.ts', {
+    '@/lib/services/operational-logger': logger,
     '@/lib/services/translation-service': service, '@/lib/tourism/translations': tourism,
     '@/lib/admin-entitlements': entitlements, '@/lib/supabase/server': { createClient: async () => supabase },
   }, { console: { error: (...args: unknown[]) => logs.push(args) } });
