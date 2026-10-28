@@ -23,7 +23,7 @@ com validação Platform Admin ativa; helper interno revogado para aplicação; 
 DEFINER/search_path vazio. RLS, grants de tabelas e migrations históricas preservados.
 Writer controlado estendido apenas para `hotel.admin_added`; profile e audit atômicos.
 Audit registra executor, hotel, novo user UUID, papel, atividade, resultado, request_id
- e timestamp. Nome/e-mail ficam fora conforme política anterior da Sprint 47.
+e timestamp. Nome/e-mail ficam fora conforme política anterior da Sprint 47.
 
 [IMPLEMENTADO PARCIALMENTE] Identidade Auth/profile preexistente exige revisão; não
 há vínculo automático, convite/recovery completo ou reenvio nesta V1. Auth e DB não
@@ -49,9 +49,31 @@ A decisão atual é evoluir este tenant; os checkpoints antigos abaixo são hist
 Conteúdo, mídia e readiness aguardam terminar a correção e o cadastro humano do
 segundo administrador. As branches históricas permanecem intactas.
 
-[NÃO CONFIRMADO] Publicação/smoke autenticado do formulário ainda não alegados neste
-checkpoint. Após deploy, o usuário criará o segundo administrador manualmente na
-Platform, com senha somente local, seguido de verificação read-only.
+[IMPLEMENTADO E CONFIRMADO EM PRODUÇÃO] Commit funcional
+`1dd3e570c9a15b7a5a83910fa598b233c92624ba` publicado em main por SSH sem force.
+Migration aplicada via CLI linked ao projeto diretorio-hotel/micuekfznunwwofxnovw;
+dry-run posterior sem pendências. Fingerprints das três funções iguais ao laboratório.
+Deployment `dpl_5KjBFwk7nv1KynERDsAagThjQYrp`, READY/production, mesmo projeto/equipe,
+SHA e aliases libguest.digital/www/wildcards confirmados. Nenhum DNS alterado.
+
+[APROVADO] Gates finais: 409/409 security, 24/24 direcionados, TypeScript/build OK,
+lint zero erros e quatro warnings históricos; arquivos novos sem warnings; diff check
+OK. SQL local: 15 matrizes públicas, uma Bugan e uma nova de administrador, todas com
+rollback. Revisão React: action autenticada, mínimo de dados serializados, senha sem
+estado React, labels explícitos, feedback acessível e botão bloqueado durante envio.
+Smoke HTTP read-only: 10/10 verificações (landing/login, proteção de Platform/lista de
+hotel sem sessão, quatro hotéis ativos, Bugan/Default suspensos). Duas RPCs negaram
+anon via REST com 401. Não houve browser automation, criação de conta ou uso de senha
+real. Artefatos ignorados: out/platform-admin-*. Os hashes de hotéis, profiles e
+entitlements permaneceram idênticos; Auth permaneceu com 15 usuários e o novo e-mail
+ausente. Nenhuma branch histórica movida.
+
+[NÃO CONFIRMADO] Formulário autenticado e cadastro real em produção aguardam interação
+humana. Abra o detalhe do tenant na Platform, Acessos administrativos → Adicionar
+administrador, preencha nome Bugan Recife, e-mail libguestbugan@yahoo.com e senha
+inicial exclusivamente local. Papel Administrador e ativo=true são fixos. Preservar
+Karoline e manter suspended. Após confirmação humana, conferir Auth/profile/vínculo,
+audit e preservação do tenant por leitura; só depois retomar conteúdo/mídia/readiness.
 
 ## Prompt 2 — publicação técnica concluída; onboarding aguardando administrador (28/10/2026)
 
