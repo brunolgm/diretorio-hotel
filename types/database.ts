@@ -1142,6 +1142,14 @@ export interface Database {
       publish_airlabs_query: { Args: { p_canonical_key: string; p_owner_token: string; p_result: Json; p_ttl_seconds: number }; Returns: boolean };
       close_airlabs_query: { Args: { p_canonical_key: string; p_owner_token: string; p_error: string }; Returns: boolean };
       cleanup_airlabs_queries: { Args: { p_batch_size?: number }; Returns: number };
+      check_platform_hotel_admin_creation: {
+        Args: { p_hotel_id: string; p_email: string };
+        Returns: boolean;
+      };
+      add_platform_hotel_admin: {
+        Args: { p_hotel_id: string; p_user_id: string; p_email: string; p_full_name: string; p_operation_id: string };
+        Returns: { hotel_id: string; admin_user_id: string }[];
+      };
       create_platform_hotel_onboarding: {
         Args: { p_name: string; p_city: string; p_slug: string; p_subdomain: string; p_brand_code: string | null; p_theme_preset: string | null; p_admin_user_id: string; p_admin_email: string; p_admin_full_name: string };
         Returns: { hotel_id: string; platform_status: string; admin_user_id: string }[];

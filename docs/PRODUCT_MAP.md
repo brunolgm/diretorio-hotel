@@ -1,5 +1,58 @@
 # PRODUCT MAP
 
+## Platform — administrador adicional em hotel existente (28/10/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] A Platform antes só criava administrador no
+onboarding de hotel novo; o cadastro adicional exigia login do próprio hotel. Agora
+`/platform/hoteis/[id]` oferece **Acessos administrativos → Adicionar administrador**.
+Nome, e-mail e senha inicial digitada localmente; papel fixo Administrador, ativo=true.
+Mesma política de senha do cadastro atual (trim, mínimo 6), sem senha em estado React,
+URL, logs ou audit. Nenhuma conta/senha real é criada pelos testes/publicação.
+
+`addPlatformHotelAdminAction` valida a sessão e o formulário. A RPC autenticada
+`check_platform_hotel_admin_creation` verifica hotel e conflitos antes do Auth Admin
+server-only criar uma identidade nova, marcada em app_metadata por operação/hotel/
+executor. `add_platform_hotel_admin` repete a autorização no banco, trava autorização,
+hotel, identidade e profile, aceita suspended e rejeita archived. Rejeita origem
+incompatível, Platform user e profile já vinculado; não transfere nem substitui conta.
+O vínculo continua sendo profiles.hotel_id: um hotel por usuário, sem memberships
+adicionais. Profile vazio de hook pode ser completado com proveniência válida.
+
+Migration `20261028100544_platform_existing_hotel_admin.sql`: RPCs para authenticated
+com validação Platform Admin ativa; helper interno revogado para aplicação; SECURITY
+DEFINER/search_path vazio. RLS, grants de tabelas e migrations históricas preservados.
+Writer controlado estendido apenas para `hotel.admin_added`; profile e audit atômicos.
+Audit registra executor, hotel, novo user UUID, papel, atividade, resultado, request_id
+ e timestamp. Nome/e-mail ficam fora conforme política anterior da Sprint 47.
+
+[IMPLEMENTADO PARCIALMENTE] Identidade Auth/profile preexistente exige revisão; não
+há vínculo automático, convite/recovery completo ou reenvio nesta V1. Auth e DB não
+têm transação conjunta. Falha após possível criação Auth, inclusive timeout, retorna
+referência de reconciliação e nunca apaga Auth automaticamente. Mesmo erro SQL
+inequívoco não prova ausência de associação concorrente. Pode restar identidade sem
+acesso ao hotel, marcada para revisão; não se anuncia sucesso falso. Antes de repetir,
+conferir Auth/proveniência, profile e audit. Resposta perdida pode ter confirmado o
+vínculo; retry falha com conflito. Reconciliação exige fluxo/RPC canônica e sessão
+real compatível, não autoriza DML manual nem impersonação.
+
+[APROVADO] 24/24 direcionados e matriz SQL local com rollback: autorização real por
+papéis PostgreSQL, anon/sem identidade/comum/admin hotel/Platform inativo/ativo,
+hotel suspended/active/archived/ausente, conflitos, proveniência falsa, hook vazio,
+retry, falha de auditoria e preservação de hotéis/módulos/administradores. Concorrência
+simultânea e resposta perdida cobertas com dependências isoladas; não equivalem a
+carga no Auth remoto. Regressão SQL pública nas cinco marcas Grand Mercure/Novotel/
+Mercure/Bugan/Default passou. Artefatos regeneráveis em out/, ignorados pelo Git.
+
+Bugan preservado: ID 5eb7d695-ccf7-4594-b9df-fc46aaa25695, suspended, brand bugan,
+Turismo/Voos habilitados, Karoline ativa. Nome/slug/subdomain ainda Bugan/bugan/bugan.
+A decisão atual é evoluir este tenant; os checkpoints antigos abaixo são históricos.
+Conteúdo, mídia e readiness aguardam terminar a correção e o cadastro humano do
+segundo administrador. As branches históricas permanecem intactas.
+
+[NÃO CONFIRMADO] Publicação/smoke autenticado do formulário ainda não alegados neste
+checkpoint. Após deploy, o usuário criará o segundo administrador manualmente na
+Platform, com senha somente local, seguido de verificação read-only.
+
 ## Prompt 2 — publicação técnica concluída; onboarding aguardando administrador (28/10/2026)
 
 [IMPLEMENTADO E CONFIRMADO EM PRODUÇÃO] Main publicada por SSH, sem force, no

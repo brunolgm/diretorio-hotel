@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { AdminConfirmAction } from '@/components/admin/confirm-action';
 import { FeedbackToast } from '@/components/feedback-toast';
 import { HotelReadinessChecklist } from '@/components/readiness/hotel-readiness-checklist';
+import { AddHotelAdminForm } from './add-admin-form';
 import {
   getAllowedPlatformHotelStatusTransitions,
   getPlatformHotelBrandLabel,
@@ -152,6 +153,13 @@ export default async function PlatformHotelDetailPage({
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="rounded-[30px] bg-white p-6 shadow-sm ring-1 ring-slate-200/70 md:p-8">
+        <h2 className="text-xl font-semibold text-slate-950">Acessos administrativos</h2>
+        {hotel.platformStatus === 'archived'
+          ? <p className="mt-3 text-sm text-slate-600">Hotéis arquivados não recebem novos administradores.</p>
+          : <AddHotelAdminForm hotelId={hotel.id} />}
       </section>
 
       <section className="grid gap-6 xl:grid-cols-2">

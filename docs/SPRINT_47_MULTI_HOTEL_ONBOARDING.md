@@ -120,3 +120,18 @@ Os scripts SQL são destinados exclusivamente a banco local descartável e usam 
 Ficam fora desta Sprint: vinculação de usuário Auth existente, reenvio/gestão de convites, multi-property user, grupos/redes, prontidão calculada, billing, planos, contratos, DNS, integrações e módulos funcionais marcados como “Em breve”.
 
 A futura gestão comercial poderá governar quais módulos disponíveis compõem um plano, mas não deve enfraquecer o catálogo técnico, o lifecycle ou as garantias transacionais criadas aqui.
+
+## Evolução posterior — administrador adicional pela Platform (28/10/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] O onboarding de hotel/administrador inicial
+permanece intacto. A Platform passa a oferecer **Adicionar administrador** no detalhe
+de hotel existente, por action/RPC próprias, com papel fixo e senha inicial local.
+Aceita suspended e bloqueia archived; repete autorização no banco e exige identidade
+nova com proveniência de servidor e profile ausente ou sem vínculo. Preserva todos
+os administradores existentes, sem criar outro hotel.
+
+E-mail Auth preexistente continua bloqueado. O evento `hotel.admin_added` mantém a
+política sem nome/e-mail/senha no audit. Falhas após possível criação Auth exigem
+reconciliação, sem exclusão automática; operação e proveniência permitem conferir o
+estado sem confiar em timeout. Convite/recovery completo e vínculo de identidade
+existente continuam pendentes. Ver contratos, limites e gates em PRODUCT_MAP.md.
