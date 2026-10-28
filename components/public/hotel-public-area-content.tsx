@@ -1,3 +1,5 @@
+import { getOverviewNavigation } from '@/lib/public-experience-overview';
+import { getCanonicalPublicNavigationKeys } from '@/lib/public-navigation';
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -17,6 +19,8 @@ import {
   Utensils,
   Wifi,
 } from 'lucide-react';
+import { PublicAreaHero } from '@/components/public/public-area-hero';
+import { PublicBottomDock } from '@/components/public/public-bottom-dock';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { GrandMercureAreaHero } from '@/components/public/grand-mercure/grand-mercure-area-hero';
 import { GrandMercureGlobalMandala } from '@/components/public/grand-mercure/grand-mercure-ornament';
@@ -158,6 +162,7 @@ export function HotelPublicAreaContent({
   const copy = getPublicCopy(language);
   const areaCopy = getAreaCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
+  const isBugan = theme.preset === 'bugan';
   const isNovotel = theme.preset === 'novotel';
   const isGrandMercure = theme.preset === 'grand-mercure';
   const isMercure = theme.preset === 'mercure';
@@ -213,11 +218,13 @@ export function HotelPublicAreaContent({
   });
 
   return (
-    <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : 'pb-10'}`} style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+    <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isBugan ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-10'}`} style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
       <PublicAnalytics hotelSlug={hotel.slug} language={language} />
       {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
       <div className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
-        {isNovotel ? (
+        {isBugan ? (
+          <PublicAreaHero hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={areaCopy.back} title={areaMeta.title} description={areaMeta.description} icon={AreaIcon} />
+        ) : isNovotel ? (
           <NovotelAreaHero
             hotel={hotel}
             language={language}
@@ -336,6 +343,7 @@ export function HotelPublicAreaContent({
           </footer>
         ) : null}
       </div>
+      {isBugan ? <PublicBottomDock items={navigationItems.filter((item) => getCanonicalPublicNavigationKeys(getOverviewNavigation(pageData.layout, sections.length)).includes(item.key))} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
       {isNovotel ? <NovotelMobileNavigation items={navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
       {isGrandMercure ? <GrandMercureMobileNavigation items={navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
       {isMercure ? <MercureBottomDock items={navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}

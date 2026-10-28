@@ -1,0 +1,40 @@
+/* Identity only. No hidden content, capability overrides or tenant business rules. */
+[data-hotel-theme="bugan"] .hotel-theme-language-trigger {
+  min-height: 44px;
+  box-shadow: none;
+}
+[data-hotel-theme="bugan"] .hotel-theme-language-trigger svg {
+  color: var(--hotel-accent);
+}
+[data-hotel-theme="bugan"] .hotel-theme-language-menu {
+  background: var(--hotel-surface);
+  border-color: var(--hotel-border);
+}
+[data-hotel-theme="bugan"] .hotel-theme-language-menu a,
+[data-hotel-theme="bugan"] .hotel-theme-language-menu > div {
+  color: var(--hotel-text);
+}
+[data-hotel-theme="bugan"] .hotel-theme-language-menu a[aria-current="page"] {
+  background: var(--hotel-active-bg);
+}
+[data-hotel-theme="bugan"] .hotel-theme-language-trigger:focus-visible,
+[data-hotel-theme="bugan"] .hotel-theme-language-menu a:focus-visible {
+  outline: 2px solid var(--hotel-accent);
+  outline-offset: 2px;
+}
+[data-admin-theme="bugan"] {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+[data-admin-theme="bugan"] [class~="text-[10px]"],
+[data-admin-theme="bugan"] [class~="text-[11px]"] { font-size: 0.75rem; }
+[data-hotel-theme="bugan"] .hotel-theme-card { background: var(--hotel-surface); }
+[data-hotel-theme="bugan"] .hotel-theme-banner-fallback > div {
+  background: #2D2926;
+  color: #FFFDF9;
+}
+[data-hotel-theme="bugan"] .hotel-theme-banner-content {
+  background: var(--hotel-surface);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-hotel-theme="bugan"] * { transition-duration: 0s; }
+}

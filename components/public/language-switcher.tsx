@@ -17,10 +17,12 @@ export function LanguageSwitcher({
   slug,
   currentLanguage,
   basePath,
+  compact = false,
 }: {
   slug: string;
   currentLanguage: SupportedPublicLanguage;
   basePath?: string;
+  compact?: boolean;
 }) {
   const activeLanguage =
     LANGUAGE_OPTIONS.find((item) => item.code === currentLanguage) || LANGUAGE_OPTIONS[0];
@@ -31,11 +33,11 @@ export function LanguageSwitcher({
     <details className="group relative">
       <summary className="hotel-theme-language-trigger flex cursor-pointer list-none items-center gap-2 rounded-full border border-[color:var(--hotel-header-border)] bg-[var(--hotel-header-bg)] px-3.5 py-2.5 text-sm font-medium text-[color:var(--hotel-header-text)] shadow-[0_12px_32px_rgba(15,23,42,0.28)] backdrop-blur-xl transition hover:bg-white/12 focus:outline-none focus:ring-2 focus:ring-white/35 focus:ring-offset-2 focus:ring-offset-slate-950">
         <Languages className="h-4 w-4 text-slate-200" />
-        <span className="text-base leading-none" aria-hidden="true">
+        {!compact ? <span className="text-base leading-none" aria-hidden="true">
           {activeLanguage.flag}
-        </span>
-        <span className="hidden sm:inline">{activeLanguage.label}</span>
-        <span className="sm:hidden">{activeLanguage.shortLabel}</span>
+        </span> : null}
+        <span className={compact ? 'hidden' : 'hidden sm:inline'}>{activeLanguage.label}</span>
+        <span className={compact ? undefined : 'sm:hidden'}>{activeLanguage.shortLabel}</span>
         <ChevronDown className="h-4 w-4 text-slate-300 transition group-open:rotate-180" />
       </summary>
 

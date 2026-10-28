@@ -1,6 +1,7 @@
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
 type PublicCopy = {
+  stayInformation: string;
   welcome: string;
   navigationHome: string;
   navigationServices: string;
@@ -108,6 +109,7 @@ type PublicCopy = {
 
 const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
   pt: {
+    stayInformation: 'Informações da estadia',
     welcome: 'Bem-vindo!',
     navigationHome: 'Início',
     navigationServices: 'Serviços',
@@ -232,6 +234,7 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     clearRoomAccess: 'Trocar apartamento',
   },
   en: {
+    stayInformation: 'Stay information',
     welcome: 'Welcome!',
     navigationHome: 'Home',
     navigationServices: 'Services',
@@ -356,6 +359,7 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     clearRoomAccess: 'Switch room',
   },
   es: {
+    stayInformation: 'Información de la estadía',
     welcome: '¡Bienvenido!',
     navigationHome: 'Inicio',
     navigationServices: 'Servicios',

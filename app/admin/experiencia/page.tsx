@@ -1,3 +1,5 @@
+import { HotelReadinessChecklist } from '@/components/readiness/hotel-readiness-checklist';
+import { getAdminNavigationForRole } from '@/lib/admin-navigation';
 import Link from 'next/link';
 import { ExperienceHeader } from '@/components/admin/experience/experience-header';
 import { ExperienceMetrics } from '@/components/admin/experience/experience-metrics';
@@ -90,6 +92,13 @@ export default async function AdminExperiencePage({ searchParams }: ExperiencePa
   const languages = ['PT', ...(languageRows.some(({ language }) => language === 'en') ? ['EN'] : []), ...(languageRows.some(({ language }) => language === 'es') ? ['ES'] : [])];
   const timestamps = [hotel.updated_at, ...sources.flatMap(({ data }) => (data ?? []).map(({ updated_at }) => updated_at))].filter((value): value is string => Boolean(value));
   const latestUpdate = timestamps.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null;
+  const allowedHrefs = new Set(getAdminNavigationForRole(profile.normalizedRole, enabledModules).flatMap((group) => group.items.map((item) => item.href)));
+  const metricHref = (href: string) => allowedHrefs.has(href.split('?')[0]) ? href : undefined;
+  const metricHrefs = { status: metricHref('/admin/configuracoes'), updated: metricHref('/admin/experiencia'), languages: metricHref('/admin/idiomas'), published: metricHref('/admin/experiencia'), featured: metricHref('/admin/banners') };
+  const pendingReadiness = { ...readiness, checks: readiness.checks.filter((check) => !check.passed).map((check) => ({ ...check, href: check.href && allowedHrefs.has(check.href) ? check.href : undefined })) };
+  const directoryStatus = hotel.platform_status === 'active' && !enabledModules.has('core.directory')
+    ? { label: 'Offline', description: 'Diretório desabilitado pela plataforma', active: false }
+    : statusCopy[hotel.platform_status];
   const publicUrl = `/hotel/${encodeURIComponent(hotel.slug)}`;
   const previewVersion = layout.map((block) => `${block.blockKey}:${block.position}:${block.isEnabled}`).join('|');
   const dateLabel = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'America/Sao_Paulo' }).format(now);
@@ -98,7 +107,8 @@ export default async function AdminExperiencePage({ searchParams }: ExperiencePa
   return (
     <main className="min-w-0 space-y-4 font-sans">
       <ExperienceHeader hotelName={hotel.name} publicUrl={publicUrl} dateLabel={dateLabel} timeLabel={timeLabel} />
-      <ExperienceMetrics status={statusCopy[hotel.platform_status]} lastUpdated={formatLastUpdate(latestUpdate, now)} languages={languages} publishedAreas={publishedAreas} totalAreas={6} featuredItems={eligibleBanners.length} />
+      <ExperienceMetrics status={directoryStatus} hrefs={metricHrefs} lastUpdated={formatLastUpdate(latestUpdate, now)} languages={languages} publishedAreas={publishedAreas} totalAreas={6} featuredItems={eligibleBanners.length} />
+      {pendingReadiness.checks.length > 0 ? <details className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4"><summary className="min-h-11 cursor-pointer text-sm font-semibold">Atenção necessária · {readiness.blockingCount} bloqueios · {readiness.warningCount} avisos</summary><div className="mt-4"><HotelReadinessChecklist readiness={pendingReadiness} variant="admin" /></div></details> : null}
       <ExperienceTabs activeTab={activeTab} previewEnabled={previewEnabled} />
       {activeTab === 'composicao' ? <div className={previewEnabled ? "grid min-w-0 gap-4 xl:grid-cols-[minmax(340px,1fr)_minmax(430px,1.15fr)]" : "min-w-0"}><HomeCompositionCard layout={layout} enabledModules={enabledModules} canEdit={hasMinimumRole(profile.normalizedRole,'editor')} />{previewEnabled ? <PublicExperiencePreview publicUrl={publicUrl} hotelName={hotel.name} previewVersion={previewVersion} /> : null}</div> : activeTab === 'preview' ? <PublicExperiencePreview publicUrl={publicUrl} hotelName={hotel.name} previewVersion={previewVersion} /> : <section className="rounded-[12px] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5"><h2 className="text-base font-bold text-[var(--admin-text-strong)]">Aparência</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--admin-muted)]">A composição não altera a bandeira ou o tema. Continue usando os controles já existentes de identidade e mídia do hotel.</p><Link href="/admin/hotel" className="mt-4 inline-flex rounded-xl bg-[var(--admin-accent)] px-4 py-2.5 text-sm font-semibold text-white">Abrir aparência do hotel</Link></section>}
     </main>

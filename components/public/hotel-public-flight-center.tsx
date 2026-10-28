@@ -16,6 +16,8 @@ import { GrandMercureAreaHero } from '@/components/public/grand-mercure/grand-me
 import { GrandMercureMobileNavigation } from '@/components/public/grand-mercure/grand-mercure-mobile-navigation';
 import { GrandMercureGlobalMandala } from '@/components/public/grand-mercure/grand-mercure-ornament';
 import { GuestFlightManager } from '@/components/public/guest-flight-manager';
+import { PublicAreaHero } from '@/components/public/public-area-hero';
+import { PublicBottomDock } from '@/components/public/public-bottom-dock';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { MercureAreaHero } from '@/components/public/mercure/mercure-area-hero';
 import { MercureBottomDock } from '@/components/public/mercure/mercure-bottom-dock';
@@ -133,6 +135,7 @@ export function HotelPublicFlightCenter({
   const copy = getPublicFlightCenterCopy(language);
   const publicCopy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
+  const isBugan = theme.preset === 'bugan';
   const isNovotel = theme.preset === 'novotel';
   const isGrandMercure = theme.preset === 'grand-mercure';
   const isMercure = theme.preset === 'mercure';
@@ -183,7 +186,9 @@ export function HotelPublicFlightCenter({
     </aside>
   ) : null;
 
-  const hero = isNovotel ? (
+  const hero = isBugan ? (
+    <PublicAreaHero hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={copy.back} title={copy.title} description={copy.description} icon={Plane} />
+  ) : isNovotel ? (
     <NovotelAreaHero hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={copy.back} title={copy.title} description={copy.description} icon={Plane} />
   ) : isGrandMercure ? (
     <GrandMercureAreaHero hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={copy.back} title={copy.title} description={copy.description} icon={Plane} />
@@ -203,7 +208,7 @@ export function HotelPublicFlightCenter({
   );
 
   return (
-    <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : 'pb-10'}`} style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+    <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isBugan ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-10'}`} style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
       <PublicAnalytics hotelSlug={hotel.slug} language={language} pageEventType="flight_center_view" />
       {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
       <div className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
@@ -266,6 +271,7 @@ export function HotelPublicFlightCenter({
 
         {isMercure ? <footer className="mercure-internal-footer px-6 pt-2 pb-1 text-center text-[10px] font-medium tracking-[.18em] text-[#685d64]">Powered by <span className="tracking-normal text-[#52204f]">LibGuest</span></footer> : null}
       </div>
+      {isBugan ? <PublicBottomDock items={navigationItems} activeItem={"home"} ariaLabel={publicCopy.navigationLabel} /> : null}
       {isNovotel ? <NovotelMobileNavigation items={navigationItems} activeItem="home" ariaLabel={publicCopy.navigationLabel} /> : null}
       {isGrandMercure ? <GrandMercureMobileNavigation items={navigationItems} activeItem="home" ariaLabel={publicCopy.navigationLabel} /> : null}
       {isMercure ? <MercureBottomDock items={navigationItems} activeItem="home" ariaLabel={publicCopy.navigationLabel} /> : null}
