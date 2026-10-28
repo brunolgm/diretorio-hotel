@@ -104,3 +104,27 @@ de música, preço de estacionamento ou comunicado fictício. Banner vazio pode 
 recomendação legítima; readiness não é enfraquecido. Fontes licenciadas ausentes usam
 fallback aprovado. Focais iniciais exigem revisão no golden master; não são homologados
 por mera gravação no banco.
+
+## Readiness de hero legado e V3
+
+`20261028165619_readiness_published_experience_hero.sql` mantém o catálogo de 19
+critérios e o suporte ao `hero_image_url` legado. `visual.hero` também passa quando
+há slot `hero` V3 publicado, com título/alt preenchidos e path de imagem válido do
+próprio tenant, condicionado a `core.directory` e `experience.appearance`.
+O lifecycle não precisa estar ativo para avaliar a preparação; as regras públicas
+de lifecycle/RLS continuam intactas. A imagem V3 não é copiada para o campo legado.
+Não há escrita de conteúdo, alteração de entitlements ou abertura de EXECUTE do
+avaliador interno. Uma migration futura pode restaurar o comportamento anterior
+sem perda de dados.
+
+Regressão local com rollback: `supabase/tests/readiness_experience_hero_local_lab.ps1`.
+A matriz cobre Grand Mercure, Novotel, Mercure, Bugan e Default: legado somente,
+V3 publicado somente, nenhum hero, V3 não publicado, imagem ausente, isolamento
+entre tenants e entitlements desabilitados. Os outros critérios não mudam.
+Banners e UHs/QR continuam recomendações reais; não se criam fixtures em produção.
+
+Completude de EN/ES não certifica qualidade editorial. Revisar nomes próprios e
+identificadores físicos (por exemplo, `Piso L`, `Floor L`, `Piso L`) antes da
+homologação. Correções de traduções existentes usam sessão real e RLS das tabelas
+editoriais; Turismo usa `save_current_hotel_tourism_translation` com a revisão PT
+esperada. Não editar a fonte PT nem reaplicar o seed para corrigir texto traduzido.
