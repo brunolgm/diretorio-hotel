@@ -1,4 +1,24 @@
 # Sprint 52 — Turismo: contrato técnico canônico
+## Publicação técnica — Prompt 2 (28/10/2026)
+
+[IMPLEMENTADO E CONFIRMADO EM PRODUÇÃO] No Supabase LibGuest
+`micuekfznunwwofxnovw`, as três migrations de marca Bugan, disponibilidade Turismo
+(`20261028012744`) e mídia V3 foram aplicadas pelo CLI oficial, após dry-run e
+conferência de contratos. Dry-run posterior sem pendências; seis hotéis, 75
+entitlements e 48 layouts permaneceram com fingerprints idênticos. Turismo continua
+opt-in e nenhum conteúdo/entitlement de hotel foi provisionado nesta execução.
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] A linha foi integrada localmente em main
+(`cef70f1`) e o teste de imutabilidade das migrations foi tornado independente de
+CRLF (`b7a4564`), conferindo blobs históricos e cópia de trabalho sem alterar SQL.
+Security 398/398, TypeScript, lint sem erros, build e diff --check aprovados.
+
+[IMPLEMENTADO PARCIALMENTE] O push foi impedido por autenticação de escrita;
+produção Vercel ainda não recebeu a linha nova. Nenhum Bugan Recife foi criado,
+ativado ou convidado. O administrador inicial ainda não foi aprovado; onboarding
+não foi contornado. Detalhes e próximos passos em [PRODUCT_MAP.md](PRODUCT_MAP.md).
+O checkpoint local do Prompt 1 abaixo é histórico e não substitui este estado.
+
 
 
 ## Checkpoint vigente — Sprint 52 final reconciliada localmente com Bugan (28/10/2026)

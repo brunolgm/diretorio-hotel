@@ -1,4 +1,122 @@
 # PRODUCT MAP
+## Prompt 2 — publicação técnica e bloqueios operacionais (28/10/2026)
+
+[IMPLEMENTADO PARCIALMENTE] Publicação canônica: migrations remotas aplicadas;
+main integrada localmente; push bloqueado por autenticação. Nenhum tenant Bugan Recife
+foi criado, configurado ou ativado. Nenhum convite foi enviado. O usuário confirmou
+que ainda não existe nome/e-mail aprovado e proibiu inventar ou reutilizar contas.
+
+### Git e publicação
+
+Checkpoint inicial confirmado: `integration/bugan-s52-public-v3`, `a192cd6`, limpo.
+O SSH reconhece a chave existente, mas não conclui autenticação; `ssh-agent` está
+Disabled/Stopped e o Windows negou permissão para habilitá-lo nesta execução.
+Fetch HTTPS do mesmo repositório funcionou, sem alterar o remote salvo, e reconfirmou
+`origin/main` em `5b42ec1fdd31337efc367df7ea18420da314a10a`. Isso não comprovava
+credencial de escrita: o push HTTPS não interativo falhou ao obter autenticação.
+Nenhum token, passphrase ou conteúdo de chave privada foi exposto ou gravado.
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Merge não destrutivo em main: `cef70f1`.
+Correção test-only `b7a4564`: o gate antigo de hash dependia dos bytes do working tree
+antes do checkout. Com core.autocrlf=true ele falhava após trocar de branch. Agora
+compara os blobs HEAD com os commits originais `3e2be2b` e `f7e7aed`, verifica SHA-256
+e confere a cópia de trabalho admitindo somente conversão CRLF→LF. A fundação possui
+SHA-256 canônico `be1e6c4a81a9ef2830b54e6ee6c8ccd0d017dc6412db8b406255718cdbfeccd6`,
+comprovadamente igual em f7e7aed, 6551abd, efa4d88, a192cd6 e no merge. Nenhuma
+migration histórica ou regra de autorização foi modificada para fazer o teste passar.
+
+[APROVADO] Gates repetidos em main: security 398/398, TypeScript OK, lint 0 erros /
+4 warnings históricos, build OK, diff --check OK. As 16 execuções SQL locais também
+foram reconfirmadas antes da publicação. As branches históricas e a integração
+permanecem nos seus commits originais. Commits POC de IA não foram integrados.
+
+### Supabase remoto
+
+[IMPLEMENTADO E CONFIRMADO EM PRODUÇÃO] Projeto `diretorio-hotel`, ref
+`micuekfznunwwofxnovw`, URL `https://micuekfznunwwofxnovw.supabase.co`, consistente
+com o linkage CLI e a configuração da aplicação. Inventário remoto: 39 migrations
+antes; 42 depois. O dry-run listou somente as três abaixo e a execução oficial
+`supabase db push --linked --yes` aplicou exatamente essas versões, sem seed/roles:
+
+- `20261027215620_bugan_canonical_brand.sql`;
+- `20261028012744_52_2_tourism_governance_available.sql`;
+- `20261028034907_public_experience_media_v3.sql`.
+
+Dry-run posterior: `upToDate:true`, nenhuma pendência. Os quatro corpos de funções
+afetadas coincidiam com as versões locais anteriores, sem drift inexplicado nesses
+contratos. ACLs/SECURITY DEFINER/search_path foram conferidos. A tabela de mídia tem
+RLS, zero linhas e nenhum INSERT/UPDATE/DELETE para authenticated; anon não executa
+sua RPC. As migrations não provisionaram entitlements ou dados de cliente.
+
+Preservação antes/depois, inclusive fingerprints completos idênticos:
+
+| Objeto | Linhas | Fingerprint MD5 antes = depois |
+| --- | ---: | --- |
+| hotéis | 6 | `8eff6c792cb8cc6138021679167a6899` |
+| entitlements | 75 | `fb9925875059ed39e8cdb3abd369db99` |
+| layouts | 48 | `357d24af5bb609b30974a6ae930d59ff` |
+| Turismo | 0 | vazio |
+
+Existe tenant anterior chamado `Bugan`, slug/subdomain `bugan`, ativo e sem marca.
+Ele foi preservado e não foi confundido com o novo alvo `bugan-recife`/`buganrecife`.
+Nenhuma conta desse tenant foi reutilizada. REC não existe no catálogo remoto atual;
+Central de Voos do novo hotel continua sem configuração, sem aeroporto/parâmetros inventados.
+
+### Vercel e limites da homologação
+
+[APROVADO] Projeto reconfirmado: `diretorio-hotel`,
+`prj_EJ9BEIP0qvROaycswNZqp4bZGo0R`, equipe existente. A produção encontrada antes
+da tentativa de publicação estava READY em `dpl_4nZbNw6EU72wxxLrT7ct3ZVSsbcZ`, commit
+`5b42ec1`, branch main. O fluxo canônico é publicação Git; nenhum projeto/equipe/DNS
+foi criado ou trocado. Como o push não concluiu, nenhum novo deploy foi solicitado.
+Smoke pós-deploy, preview autenticado do novo tenant, homologação pública V3 e
+readiness do Bugan Recife ainda NÃO foram executados; não se presume aprovação.
+
+### Preparação independente do tenant
+
+[APROVADO] Fontes consultadas em 28/10/2026:
+[página oficial Atlantica](https://www.letsatlantica.com.br/hotel/bugan-hotel-recife-by-atlantica),
+[diretório operacional](https://www.descubraobugan.com/) e fotografias fornecidas.
+A ação oficial Reservar aponta para `https://atlantica.letsbook.com.br/reserva/busca?hotel=22`,
+sem datas/token de sessão persistidos. Nenhum conteúdo foi cadastrado no banco.
+
+As quatro fotos reais foram otimizadas localmente com Sharp já instalado, sem
+upscale nem alteração de cenas. Originais preservados em docs/references; derivados
+em `out/bugan-activation/media/`, ignorados pelo Git e ainda NÃO enviados ao Storage:
+
+| Slot | Arquivo WebP | Dimensões | Bytes |
+| --- | --- | --- | ---: |
+| hero | hero-piscina-real.webp | 1800×1000 | 350372 |
+| about | fachada-bugan-real.webp | 655×505 | 33356 |
+| restaurant | restaurante-filipe-real.webp | 1400×933 | 132944 |
+| accommodation | acomodacao-bugan-real.webp | 750×964 | 49706 |
+
+[APROVADO] Logo real localizado no link de imagem da página oficial:
+`https://letsimage.s3.amazonaws.com/editor/atlantica/imgs/1788505754743-bugan-by-atlantica.svg`.
+Foi preparado PNG proporcional 600×180, 10340 bytes, para upload pelo fluxo seguro;
+o SVG original não será enviado como imagem permitida. Não foi redesenhado logo.
+Fontes licenciadas Wask New/Astonia continuam pendentes. Golden master não foi
+convertido em fotografia nem enviado a Storage público.
+
+[PLANEJADO] Após onboarding: persistir dados/serviços/departamentos/políticas e
+slots via fluxos canônicos; Turismo com Praça de Boa Viagem e Shopping Recife;
+idiomas pelo fluxo oficial; Voos somente com catálogo/configuração válidos; avaliar
+readiness sem enfraquecê-lo. Não foram importados preços de diárias, promoções,
+horário conflitante de música, preço de estacionamento, WhatsApp sem confirmação
+ou números de apartamentos. Nenhum Google Translation real foi acionado nesta rodada.
+
+### Bloqueios e retomada
+
+Bloqueio imediato: push Git sem autenticação de escrita. Solicitado ao usuário,
+uma única vez, habilitar o ssh-agent e carregar a chave existente em PowerShell
+administrativo, digitando passphrase somente no terminal local. Nenhum segredo no chat.
+
+Bloqueio posterior confirmado no validador real e na RPC canônica: criar draft exige
+nome/e-mail aprovados e um usuário Auth compatível. Sem isso, o validador retorna
+`Informe o nome do administrador inicial.` A RPC rejeita ausência do administrador
+antes de inserir o hotel. Não houve INSERT manual, bypass ou convite fictício.
+A retomada no onboarding depende desses dados humanos e de autorização de convite.
+
 
 ## Reconciliação Sprint 52 + Bugan e Public Experience V3 (28/10/2026)
 
