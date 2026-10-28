@@ -1,5 +1,82 @@
 # PRODUCT MAP
-## Prompt 2 — publicação técnica e bloqueios operacionais (28/10/2026)
+
+## Prompt 2 — publicação técnica concluída; onboarding aguardando administrador (28/10/2026)
+
+[IMPLEMENTADO E CONFIRMADO EM PRODUÇÃO] Main publicada por SSH, sem force, no
+checkpoint funcional `0952b4cdb6bb468483ec010bc3ee7389e6bd8e7f`. O usuário carregou
+a chave existente no ssh-agent. Foi necessário selecionar explicitamente o OpenSSH
+do Windows no GIT_SSH_COMMAND da execução; nenhum remote, chave ou histórico foi
+reescrito. Fetch confirmou origin/main anterior em 5b42ec1; push e ls-remote
+confirmaram o novo SHA. As branches históricas e a integração permanecem intactas.
+
+Deployment automático validado: `dpl_4ni3MAzbnsYdnsk8ouh4mNERhC8n`, READY,
+target production, projeto `diretorio-hotel`, ID
+`prj_EJ9BEIP0qvROaycswNZqp4bZGo0R`, mesma equipe e Git source main/0952b4c.
+URL técnica: `diretorio-hotel-8cf05pxig-brunolgms-projects.vercel.app`.
+Aliases confirmados: libguest.digital, www.libguest.digital, *.libguest.digital,
+domínios legados e aliases Vercel existentes. Nenhuma alteração DNS/projeto/equipe.
+Esta atualização documental não altera o código funcional desse checkpoint.
+
+[IMPLEMENTADO E CONFIRMADO EM PRODUÇÃO] As três migrations aplicadas na primeira
+execução continuam sendo o contrato publicado: marca Bugan, Turismo available
+opt-in e mídia V3. Nenhum tenant, entitlement ou conteúdo de cliente foi criado.
+Os detalhes e fingerprints da aplicação remota estão no registro histórico abaixo.
+
+### Smoke público e seus limites
+
+[APROVADO] 43 verificações read-only em browser real após o deploy: landing,
+login, proteção da Platform sem sessão, QR inválido, Homes de cinco tenants em
+1440×900/390×844 sem overflow, slug fallback, EN/ES, áreas Serviços e Turismo/legado,
+detalhe de serviço publicado do Novotel Salvador e três rotas de Voos habilitadas.
+Zero pageerrors. Capturas/relatórios regeneráveis em `out/bugan-publication/`, fora do Git.
+O harness bloqueou requisições de escrita e APIs de provedores; não enviou formulários,
+mensagens, eventos analytics ou pedidos, e não consultou status real de voos.
+
+| Tenant existente | Tema efetivo preservado | Resultado |
+| --- | --- | --- |
+| Grand Mercure Copacabana | grand-mercure | Home/slug/idiomas/áreas/Voos HTTP 200 |
+| Novotel Salvador | novotel | Home/slug/idiomas/áreas/detalhe/Voos HTTP 200 |
+| Mercure Rio Boutique | mercure | Home/slug/idiomas/áreas/Voos HTTP 200 |
+| Novotel Leme | deep-ocean legado configurado | Home/slug/idiomas/áreas HTTP 200 |
+| Bugan antigo, slug bugan | deep-ocean, sem marca | fallback existente preservado |
+
+Não se confundiu brand_code com theme_preset: Novotel Leme já possuía deep-ocean
+no banco e manteve essa apresentação. Não foi redesenhado silenciosamente.
+A RPC pública de Voos retornou dois aeroportos e um card para Grand Mercure;
+Novotel Salvador e Mercure têm entitlement, mas não retornam configuração/card
+público. Essas ausências existentes não foram preenchidas por suposição.
+
+[NÃO CONFIRMADO] Smoke autenticado de Admin/Platform, QR válido com contexto de
+quarto, analytics efetivamente recebido e status via provedor não integram essa
+verificação read-only. Nenhuma homologação do novo tenant Bugan Recife foi alegada.
+Os gates técnicos anteriores continuam válidos: 398/398 security, 127/127
+direcionados, 16 SQL locais, TypeScript/build/diff OK, lint zero erros/quatro warnings
+históricos. Nesta retomada não houve alteração de aplicação, migration ou testes.
+
+### Ponto exato de parada
+
+[IMPLEMENTADO PARCIALMENTE] Publicação técnica encerrada; ativação operacional
+parada na etapa 13, antes de invocar o onboarding. O usuário declarou que não há
+administrador aprovado e proibiu inventar usuário, reutilizar conta ou enviar convite.
+O validador exige admin_full_name/admin_email; a RPC exige p_admin_user_id existente
+e compatível no Auth. O readiness também trata admin.active como blocker.
+Não existe caminho canônico para criar o draft sem esses dados. Nenhum INSERT manual
+ou enfraquecimento de validação/RLS/readiness foi feito.
+
+Alvo permanece não criado: Bugan Recife, marca bugan, slug bugan-recife,
+subdomain buganrecife. Não há tenant ID, lifecycle, conteúdo persistido, mídia em
+Storage, Turismo/Voos configurados, usuários, quartos/QR ou readiness executado para
+esse alvo. O Bugan antigo foi preservado. O hostname alvo está coberto pelo wildcard,
+mas ainda não constitui uma experiência ativada/homologada.
+
+Próxima ação humana necessária: aprovar nome e e-mail do administrador inicial e
+liberar o onboarding/convite em etapa posterior. Somente então criar draft pelo fluxo
+oficial, persistir o conteúdo/mídia já preparados, configurar opcionais com dados
+válidos e executar preview, readiness e eventual ativação. Sem inventário real de UHs,
+nenhum quarto será criado. REC continua ausente do catálogo atual; sem parâmetros
+inventados. A chave SSH não é mais bloqueio.
+
+## Histórico — primeira execução do Prompt 2 (28/10/2026)
 
 [IMPLEMENTADO PARCIALMENTE] Publicação canônica: migrations remotas aplicadas;
 main integrada localmente; push bloqueado por autenticação. Nenhum tenant Bugan Recife

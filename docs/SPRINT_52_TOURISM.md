@@ -1,5 +1,5 @@
 # Sprint 52 — Turismo: contrato técnico canônico
-## Publicação técnica — Prompt 2 (28/10/2026)
+## Publicação técnica concluída — Prompt 2 (28/10/2026)
 
 [IMPLEMENTADO E CONFIRMADO EM PRODUÇÃO] No Supabase LibGuest
 `micuekfznunwwofxnovw`, as três migrations de marca Bugan, disponibilidade Turismo
@@ -13,8 +13,9 @@ opt-in e nenhum conteúdo/entitlement de hotel foi provisionado nesta execução
 CRLF (`b7a4564`), conferindo blobs históricos e cópia de trabalho sem alterar SQL.
 Security 398/398, TypeScript, lint sem erros, build e diff --check aprovados.
 
-[IMPLEMENTADO PARCIALMENTE] O push foi impedido por autenticação de escrita;
-produção Vercel ainda não recebeu a linha nova. Nenhum Bugan Recife foi criado,
+[IMPLEMENTADO E CONFIRMADO EM PRODUÇÃO] Main publicada em 0952b4c;
+deployment dpl_4ni3MAzbnsYdnsk8ouh4mNERhC8n READY, com aliases de produção.
+Smoke read-only: 43 verificações públicas aprovadas. Nenhum Bugan Recife foi criado,
 ativado ou convidado. O administrador inicial ainda não foi aprovado; onboarding
 não foi contornado. Detalhes e próximos passos em [PRODUCT_MAP.md](PRODUCT_MAP.md).
 O checkpoint local do Prompt 1 abaixo é histórico e não substitui este estado.
