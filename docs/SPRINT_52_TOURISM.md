@@ -2,7 +2,12 @@
 
 ## Checkpoint atual — 52.2B2
 
-Base: branch `sprint-52-tourism`, HEAD `0b3e36ddc23d92bddfd47f96c042f042f17ca534`.
+Estado atual: homologação visual autenticada local da Sprint 52.2B2 concluída
+com sucesso no checkpoint `6551abdff53a7629ee6f9c0621b1b6b27bf51163`, branch
+`sprint-52-tourism`. Esse resultado não representa homologação com Google real
+ou validação em Supabase remoto.
+
+Na branch `sprint-52-tourism`, o checkpoint/base anterior à implementação da 52.2B2 era `0b3e36ddc23d92bddfd47f96c042f042f17ca534`; o checkpoint atual da B2 implementada e homologada localmente é `6551abdff53a7629ee6f9c0621b1b6b27bf51163`.
 Conforme checkpoint confirmado para esta etapa, 52.1 e 52.2A estão concluídas;
 52.2B1 está concluída e homologada, e o hotfix PT409 foi aplicado e validado no
 remoto. Os relatos de homologação pendente abaixo são registros históricos da
@@ -462,7 +467,30 @@ languages desligado, falhas independentes, stale sem retry, PT409, completude,
 viewer/operador, retradução manual, preservação dos cinco editoriais e arquivos
 protegidos. Testes de fundação e hotfix continuam verificando a invalidação e os
 contratos imutáveis do banco. A composição dos Server Components é testada com
-dependências simuladas; homologação visual autenticada da B2 não foi executada.
+dependências simuladas. A homologação visual autenticada local da B2 foi concluída
+com sucesso, conforme o registro abaixo.
+
+### Homologação visual autenticada local — 52.2B2
+
+Homologação concluída no laboratório integralmente local e descartável
+`libguest-52b2-6551abd`, banco `visual_b2`, com usuários e fixtures sintéticos.
+Foram homologados:
+
+- **Operator / Completo:** Português — Fonte; English — Completo;
+  Español — Completo; botão “Traduzir novamente” disponível.
+- **Operator / Parcial:** English — Parcial; Español — Parcial.
+- **Operator / Ausente:** English — Ausente; Español — Ausente.
+- **Retradução manual com Google deliberadamente indisponível:** PT permaneceu
+  preservado; EN/ES permaneceram Ausentes; nenhuma falsa confirmação de sucesso.
+  Foi exibido warning informando que as traduções não puderam ser concluídas
+  e que o fallback permanece PT.
+- **Viewer:** listagem somente leitura, com somente “Ver detalhes”; detalhe
+  somente leitura e badges de idiomas visíveis; botão “Traduzir novamente”
+  ausente; nenhuma ação de edição, publicação, reordenação ou exclusão.
+
+Google real não foi utilizado. Supabase remoto não foi acessado nem modificado.
+A branch `feat/bugan-recife-ux-v2` não foi tocada e nenhuma integração
+Turismo × Bugan foi realizada. Não houve push, merge ou deploy.
 
 Validação B2: `npm run test:security` aprovado (320 testes, incluindo 11 novos
 testes de tradução); testes específicos de Turismo/tradução também executados;
