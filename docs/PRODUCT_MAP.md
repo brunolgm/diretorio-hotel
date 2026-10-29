@@ -1,5 +1,50 @@
 # PRODUCT MAP
 
+## Hotfix público V4 e formulário de Voos (29/10/2026)
+
+Base técnica: main `a98c75b`. Bugan já estava `active` por ativação canônica
+externa a este hotfix; preservar esse estado. Nenhuma alteração de lifecycle,
+administradores, apresentação revisão 3, conteúdo, mídia, módulos ou aeroportos.
+
+As entradas públicas por subdomínio e `/hotel/[slug]` carregavam corretamente a
+apresentação, mas omitiam sua propagação ao renderer compartilhado. `/preview`
+propagava o contrato completo. Corrigida a passagem de dados nas duas entradas;
+sem alteração de RLS, Storage, cache, loaders ou seleção de tenant. A Home pública
+passa a usar a composição V4 e os benefícios/cards publicados já homologados.
+Testes executam os adapters reais com loaders sintéticos, além da matriz visual;
+smoke anônimo compara as duas entradas reais antes/depois da publicação.
+
+Na Central de Voos V4 faltava `data-public-internal-body` no conteúdo. A grade
+mobile limitava a altura, mas não criava a região rolável esperada, ocultando o
+fim do formulário. O conteúdo recebe o marcador compartilhado; a altura reage
+ao `visualViewport` e reposiciona o input focado quando o teclado reduz a área
+visível. Dock e safe area são preservados. Regressão do formulário cobre sete
+viewports, seis presets (incluindo Default), PT/EN/ES, validação, salvar, editar,
+remover, erro de armazenamento e respostas verificadas/indisponíveis simuladas.
+Teclado foi simulado por redução de `visualViewport`, sem alegar teste físico.
+
+Referência Azul: o alias ICAO `AZU` é normalizado para IATA `AD` somente na
+consulta e no fallback oficial, preservando zeros e o objeto manual v1. Prefixos
+conflitantes ou ICAO desconhecido não são convertidos por suposição. Não se trata
+de substituição de codeshare. `budget_unavailable` usa indisponibilidade, sem
+afirmar esgotamento da quota ou inventar dados operacionais.
+
+Diagnóstico real AirLabs: variáveis server-side presentes em produção; isso não
+comprova autenticação válida no provedor. O orçamento interno encontrado terminou
+em 07/10/2026, com 17/900 reservados históricos. O POST de diagnóstico da ocorrência
+AD4277, 29/10/2026, REC–CGH, 16:40 America/Recife retornou HTTP 503
+`budget_unavailable` antes de consultar a AirLabs. Requisições reais ao provedor:
+zero. Sem match, status ou comparação operacional confirmados. Não renovar período,
+resetar consumo, elevar teto ou contornar quota. Interface e integração real têm
+classificações separadas; mocks não homologam o provedor. Ver contrato operacional
+em `docs/airlabs-distributed-coordinator.md`.
+
+Sem migration, mudança de plano, scraping da Aena, polling ou alteração de dados
+editoriais/governança. As sondagens do endpoint passam pelos registros operacionais
+normais de rate limit/cache antes do bloqueio de orçamento, sem reserva de crédito.
+Os scripts de browser usam contextos isolados; os testes de formulário em produção
+interceptam o endpoint de status, sem gastar crédito nem persistir dados no servidor.
+
 ## Fechamento Public Experience V4 Universal — Bugan (29/10/2026)
 
 Checkpoint de entrada: main `390d1c2`, árvore limpa; apresentação Bugan revisão 3,

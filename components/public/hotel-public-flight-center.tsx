@@ -17,6 +17,7 @@ import { GrandMercureMobileNavigation } from '@/components/public/grand-mercure/
 import { GrandMercureGlobalMandala } from '@/components/public/grand-mercure/grand-mercure-ornament';
 import { GuestFlightManager } from '@/components/public/guest-flight-manager';
 import { PublicAreaHero } from '@/components/public/public-area-hero';
+import { PublicFlightViewport } from '@/components/public/public-flight-viewport';
 import { PublicBottomDock } from '@/components/public/public-bottom-dock';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
 import { MercureAreaHero } from '@/components/public/mercure/mercure-area-hero';
@@ -208,10 +209,11 @@ export function HotelPublicFlightCenter({
   );
 
   return (
-    <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isBugan ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-10'}`} style={theme.cssVars} data-public-internal-v4={data.experienceVersion==='v4'?'':undefined} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+    <main data-flight-viewport className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isBugan ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-10'}`} style={theme.cssVars} data-public-internal-v4={data.experienceVersion==='v4'?'':undefined} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+      {data.experienceVersion==='v4'?<PublicFlightViewport/>:null}
       <PublicAnalytics hotelSlug={hotel.slug} language={language} pageEventType="flight_center_view" />
       {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
-      <div className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
+      <div data-public-internal-body className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
         {hero}
 
         <nav aria-label={copy.title} className="mt-5 overflow-x-auto">

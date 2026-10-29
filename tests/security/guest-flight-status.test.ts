@@ -19,6 +19,12 @@ test('manual summary leaves status to its controller presentation and avoids dup
   assert.equal(status.match(/statusNotVerified/g)?.length, 1);
 });
 const query = guestStatusQuery(flight, 'hotel-test', 'America/Sao_Paulo')!;
+test('known Azul ICAO references resolve to AD without changing manual data, zeros or occurrence',()=>{
+ for(const [airlineCode,flightNumber,expected]of [['AZU','4277','AD4277'],[null,'AZU4277','AD4277'],['AD','AZU4277','AD4277'],['AZU','AD4277','AD4277'],['AZU','0427','AD0427']] as const){
+  const manual={...flight,airlineCode,flightNumber},before=JSON.stringify(manual);assert.equal(guestStatusQuery(manual,'hotel','America/Recife')?.flight_iata,expected);assert.equal(JSON.stringify(manual),before);
+ }
+ for(const [airlineCode,flightNumber]of [['XX','AZU4277'],['ZZZ','4277'],[null,'ZZZ4277']] as const)assert.equal(guestStatusQuery({...flight,airlineCode,flightNumber},'hotel','America/Recife'),null);
+});
 function payload(overrides: Record<string, unknown> = {}) {
   return { ok: true, data: { airlineCode: 'LA', flightNumber: '3530', departureAirport: 'GIG', arrivalAirport: 'VIX', scheduleStatus: 'active',
     scheduledDeparture: { local: '2026-09-07T07:55:00', utc: '2026-09-07T10:55:00Z' }, estimatedDeparture: { local: '2026-09-07T07:56:00' }, actualDeparture: null,
