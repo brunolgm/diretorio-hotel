@@ -1,3 +1,5 @@
+import {publicExperienceVersion} from '@/lib/public-experience-v4';
+import {PublicExperienceMobileTasks} from './public-experience-mobile-tasks';
 import Image from 'next/image';
 import { editorialText } from '@/lib/public-presentation';
 import { MapPin, BedDouble, Waves, Dumbbell } from 'lucide-react';
@@ -38,6 +40,7 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
 }) {
   const { hotel, sections, announcements, flightHomeCard, banners, layout } = pageData;
   const presentation = pageData.presentation;
+  const version=publicExperienceVersion(presentation);
   const benefitIcons = {location:MapPin,bed:BedDouble,pool:Waves,fitness:Dumbbell};
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const copy = getPublicCopy(language);
@@ -68,7 +71,7 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
   const heroForDisplay = hero && presentation?.heroDesktopFocal ? {...hero,focal_x:presentation.heroDesktopFocal.x,focal_y:presentation.heroDesktopFocal.y} : hero;
   const curated = pageData.tourismHomeAvailable ? presentation?.tourism.cards ?? [] : [];
   const tourism = pageData.tourismHomeAvailable ? (pageData.tourismPreview ?? []).filter(row => row.hotel_id === hotel.id && row.is_published) : [];
-  return <main className="hotel-theme-page public-experience-v3 min-h-dvh" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+  return <main className="hotel-theme-page public-experience-v3 min-h-dvh" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle} data-public-experience={version==='v4'?version:undefined}>
     <PublicAnalytics hotelSlug={hotel.slug} language={language} />
     <section className="v3-hero" data-v3-hero>
       <MediaPicture media={heroForDisplay} legacy={hotel.hero_image_url} hero />
@@ -86,8 +89,9 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
         <h1>{presentation?.heroTitleMode === 'hotel_name' ? hotel.name : hero?.title || hotel.name}</h1>
         <p className="v3-subtitle">{hero?.description || copy.heroDescription}</p>
       </div>
-      <nav className="v3-accesses" aria-label={copy.navigationLabel} data-v3-accesses>{accesses.map(item => <a key={item.key} href={item.href} data-access={item.key}><item.icon aria-hidden /><span>{item.label}</span><ChevronRight className="v3-access-arrow" aria-hidden /></a>)}</nav>
+      <nav className="v3-accesses" aria-label={copy.navigationLabel} data-v3-accesses data-legacy-home-access>{accesses.map(item => <a key={item.key} href={item.href} data-access={item.key}><item.icon aria-hidden /><span>{item.label}</span><ChevronRight className="v3-access-arrow" aria-hidden /></a>)}</nav>
     </section>
+    {version==='v4'?<PublicExperienceMobileTasks pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
     <div className="v3-body">
       {pageData.hasFallbackContent ? <p role="status" className="v3-fallback">{copy.fallbackNotice}</p> : null}
       {editorial.length ? <section className="v3-editorials" aria-label={t.hotel}>{editorial.map(row => <article key={row.slot} id={row.slot} className={`v3-editorial v3-editorial-${row.slot}`} data-editorial={row.slot}>

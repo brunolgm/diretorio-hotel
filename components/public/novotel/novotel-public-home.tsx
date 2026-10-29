@@ -1,3 +1,5 @@
+import {publicExperienceVersion} from '@/lib/public-experience-v4';
+import {PublicExperienceMobileTasks} from '@/components/public/public-experience-mobile-tasks';
 import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
 import type { ElementType } from 'react';
 import { BellRing, ChevronRight, CircleHelp, ConciergeBell, Info, MessageCircle } from 'lucide-react';
@@ -30,6 +32,7 @@ export function NovotelPublicHome({ pageData, language, domainContext, preferSub
   pageData: PublicHotelPageData; language: SupportedPublicLanguage; domainContext: DomainContext; preferSubdomainRoot: boolean;
 }) {
   const { hotel, banners, announcements, sections, layout, flightHomeCard } = pageData;
+  const version=publicExperienceVersion(pageData.presentation);
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const areaHref = (area: PublicHotelAreaKey) => buildPublicHotelAreaHref({ slug: hotel.slug, area, language, domainContext, preferSubdomainRoot });
@@ -62,7 +65,7 @@ export function NovotelPublicHome({ pageData, language, domainContext, preferSub
         <div className="mt-auto max-w-lg text-left drop-shadow-[0_2px_12px_rgba(0,25,65,0.46)]"><h1 className="text-2xl font-semibold tracking-tight md:text-4xl">{copy.welcome}</h1><p className="mt-1.5 max-w-md text-sm leading-5 text-white/92 sm:text-base sm:leading-6 md:mt-2 md:text-lg md:leading-7">{copy.novotelHeroDescription}</p></div>
       </div>
     </section>;
-  const cardGridSection = cardGrid ? <section className={`relative z-10 -mt-6 grid gap-2 px-4 md:-mt-10 md:gap-5 md:px-10 ${cardGrid.containerClassName} ${cardGrid.singleCard ? 'mx-auto w-full max-w-xl' : ''}`}>
+  const cardGridSection = cardGrid ? <section data-legacy-home-access className={`relative z-10 -mt-6 grid gap-2 px-4 md:-mt-10 md:gap-5 md:px-10 ${cardGrid.containerClassName} ${cardGrid.singleCard ? 'mx-auto w-full max-w-xl' : ''}`}>
       {cards.map((card, index) => { const Icon = card.icon; return <a key={card.area} href={areaHref(card.area)} className={`group flex min-h-[108px] min-w-0 items-center gap-2 overflow-hidden rounded-[22px] bg-white p-3 shadow-[0_14px_36px_-24px_rgba(0,43,92,0.32)] ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-[0_20px_42px_-24px_rgba(0,43,92,0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005DA8] focus-visible:ring-offset-2 md:min-h-[172px] md:gap-5 md:rounded-[28px] md:p-6 ${cardGrid.itemClassName(index)}`}>
         <Icon className="h-8 w-8 shrink-0 text-[#0052B4] md:h-14 md:w-14" strokeWidth={1.8} aria-hidden="true" />
         <div className="min-w-0 flex-1"><h2 className="break-words text-sm font-semibold leading-5 tracking-[-0.01em] text-[#002F6C] min-[390px]:text-[15px] md:text-xl md:leading-6">{card.title}</h2><p className="mt-1 break-words text-[11px] leading-[15px] text-slate-600 min-[360px]:text-xs min-[360px]:leading-4 md:mt-2 md:text-sm md:leading-5">{card.description}</p></div>
@@ -79,10 +82,11 @@ export function NovotelPublicHome({ pageData, language, domainContext, preferSub
       </div>
     </section> : null;
 
-  return <main className="hotel-theme-page min-h-screen pb-[calc(61px+env(safe-area-inset-bottom)+5rem)] min-[1025px]:pb-12" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+  return <main className="hotel-theme-page min-h-screen pb-[calc(61px+env(safe-area-inset-bottom)+5rem)] min-[1025px]:pb-12" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle} data-public-experience={version==='v4'?version:undefined}>
     <PublicAnalytics hotelSlug={hotel.slug} language={language} />
     <div className="mx-auto flex max-w-7xl flex-col md:px-6 md:py-8">
       {hero}
+      {version==='v4'?<PublicExperienceMobileTasks pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
       {cardGridSection}
       {flightCard}
       <PublicTourismHomeCard available={pageData.tourismHomeAvailable} slug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} />

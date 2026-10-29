@@ -1,0 +1,38 @@
+/* Universal opt-in mobile composition. Colors inherit each hotel's existing preset. */
+.public-v4-mobile-home { display:none; }
+@media(max-width:767px) {
+ [data-public-experience="v4"] [data-legacy-home-access],
+ [data-public-experience="v4"] [data-legacy-home-essential],
+ [data-public-experience="v4"] [data-public-flight-home-card] { display:none; }
+ [data-public-experience="v4"].public-experience-v3 .v3-hero { min-height:460px; }
+ .public-v4-mobile-home { display:block; position:relative; margin:0 16px 22px; color:var(--hotel-text); font-family:var(--hotel-font-family); }
+ .public-v4-mobile-home h2 { font-size:19px; line-height:1.3; font-weight:600; margin:0 0 12px; }
+ .public-v4-essentials { border:1px solid var(--hotel-border); background:var(--hotel-surface); padding:16px; border-radius:14px; box-shadow:0 6px 20px #0000000a; }
+ .public-v4-essential-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 14px; }
+ .public-v4-wifi { grid-column:1/-1; border-bottom:1px solid var(--hotel-border); margin-bottom:12px; }
+ .public-v4-mobile-home summary { display:flex; align-items:center; gap:10px; cursor:pointer; min-height:56px; padding:4px 0 10px; list-style:none; }
+ .public-v4-mobile-home summary::-webkit-details-marker { display:none; }
+ .public-v4-mobile-home summary>svg { width:21px; height:21px; flex-shrink:0; color:var(--hotel-accent); }
+ .public-v4-mobile-home summary>span { display:flex; flex-direction:column; gap:4px; min-width:0; }
+ .public-v4-mobile-home summary strong { font-size:13px; font-weight:600; line-height:1.3; }
+ .public-v4-mobile-home summary span>span { font-size:12px; line-height:1.4; overflow-wrap:anywhere; }
+ .public-v4-mobile-home summary .public-v4-disclosure { width:15px; height:15px; margin-left:auto; }
+ .public-v4-mobile-home details[open] summary .public-v4-disclosure { transform:rotate(180deg); }
+ .public-v4-breakfast[open] { grid-column:1/-1; }
+ .public-v4-instructions { font-size:13px; line-height:1.65; white-space:pre-line; overflow-wrap:anywhere; padding:0 0 12px; }
+ .public-v4-instructions h3 { font-weight:600; margin-bottom:6px; }
+ .public-v4-stay-hours { padding:4px 0; }
+ .public-v4-stay-hours h3 { display:flex; align-items:center; gap:7px; font-size:13px; line-height:1.3; font-weight:600; margin-bottom:8px; }
+ .public-v4-stay-hours h3 svg { width:18px; height:18px; color:var(--hotel-accent); }
+ .public-v4-stay-hours dl>div { display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px; font-size:12px; line-height:1.5; }
+ .public-v4-stay-hours dd { font-weight:600; }
+ .public-v4-tasks { margin-top:22px; }
+ .public-v4-tasks nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+ .public-v4-tasks a { display:flex; align-items:center; gap:10px; min-height:78px; padding:14px 12px; border:1px solid var(--hotel-border); border-radius:12px; background:var(--hotel-surface); color:var(--hotel-text); text-decoration:none; box-shadow:0 3px 10px #00000006; }
+ .public-v4-tasks a>svg { width:25px; height:25px; flex-shrink:0; color:var(--hotel-accent); }
+ .public-v4-tasks a>span { font-size:13px; line-height:1.35; font-weight:500; overflow-wrap:normal; }
+ .public-v4-tasks a .public-v4-action-arrow { margin-left:auto; width:14px; height:14px; }
+ .public-v4-tasks a:hover { border-color:var(--hotel-accent); }
+ .public-v4-tasks a:active { background:var(--hotel-accent-soft); }
+ .public-v4-mobile-home a:focus-visible,.public-v4-mobile-home summary:focus-visible { outline:3px solid var(--hotel-accent); outline-offset:3px; }
+}
