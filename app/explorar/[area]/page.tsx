@@ -15,7 +15,7 @@ export default async function PublicHotelAreaPage({
   searchParams,
 }: {
   params: Promise<{ area: string }>;
-  searchParams?: Promise<{ lang?: string; type?: string }>;
+  searchParams?: Promise<{ lang?: string; type?: string; collection?:string; category?:string }>;
 }) {
   const { area } = await params;
   if (!isPublicHotelAreaKey(area)) notFound();
@@ -27,7 +27,7 @@ export default async function PublicHotelAreaPage({
   const language = normalizePublicLanguage(resolvedSearchParams?.lang);
   if (area === 'turismo') {
     const data = await getPublicTourismDataBySubdomain(domainContext.subdomain, language);
-    if (data) return <PublicTourismContent data={data} language={language} domainContext={domainContext} preferSubdomainRoot={true} filter={resolvedSearchParams?.type} />;
+    if (data) return <PublicTourismContent data={data} language={language} domainContext={domainContext} preferSubdomainRoot={true} filter={resolvedSearchParams?.type} collection={resolvedSearchParams?.collection} category={resolvedSearchParams?.category} />;
   }
   const pageData = await getPublicHotelPageDataBySubdomain(domainContext.subdomain, language);
   if (!pageData) return <HotelExperienceUnavailable />;

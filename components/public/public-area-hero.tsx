@@ -9,7 +9,7 @@ export function PublicAreaHero({ hotel, language, languageBasePath, homeHref, ba
   hotel: PublicHotel; language: SupportedPublicLanguage; languageBasePath: string;
   homeHref: string; backLabel: string; title: string; description: string; icon: ElementType;
 }) {
-  return <header className="rounded-[20px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 text-[color:var(--hotel-text)] md:p-8">
+  return <header className="public-area-hero rounded-[20px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 text-[color:var(--hotel-text)] md:p-8">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <a href={homeHref} className="inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)]"><ArrowLeft className="h-4 w-4" aria-hidden="true" />{backLabel}</a>
       <LanguageSwitcher compact slug={hotel.slug} currentLanguage={language} basePath={languageBasePath} />

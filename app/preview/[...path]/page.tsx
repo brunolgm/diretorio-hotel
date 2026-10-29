@@ -16,7 +16,7 @@ import {normalizePublicFlightCenterTab} from '@/lib/public-flight-center-copy';
 export const dynamic='force-dynamic';
 export const metadata={robots:{index:false,follow:false}};
 
-export default async function PreviewDestination({params,searchParams}:{params:Promise<{path:string[]}>;searchParams:Promise<{lang?:string;tab?:string;type?:string}>}){
+export default async function PreviewDestination({params,searchParams}:{params:Promise<{path:string[]}>;searchParams:Promise<{lang?:string;tab?:string;type?:string;collection?:string;category?:string}>}){
  const {path}=await params,query=await searchParams,language=normalizePublicLanguage(query.lang);
  // Authorization precedes destination lookup. No hotel ID/slug is accepted from the request.
  const data=await getAuthenticatedHotelPreviewData(language);
@@ -24,7 +24,7 @@ export default async function PreviewDestination({params,searchParams}:{params:P
  if(path[0]==='servicos'&&path.length===2){
   const section=data.sections.find(s=>s.hotel_id===data.hotel.id&&s.id===path[1]&&s.enabled);
   if(!section||!canRenderServiceDetailPage(section))notFound();
-  return <HotelServiceDetailContent hotel={data.hotel} section={section} language={language} domainContext={domainContext} hasFallbackContent={data.hasFallbackContent} roomRestaurantState={section.service_action_type==='room_restaurant_menu'?'missing-context':null}/>;
+  return <HotelServiceDetailContent hotel={data.hotel} section={section} language={language} domainContext={domainContext} experienceVersion={data.presentation?.experienceVersion} hasFallbackContent={data.serviceFallbackIds?.includes(section.id)??false} roomRestaurantState={section.service_action_type==='room_restaurant_menu'?'missing-context':null}/>;
  }
  if(path[0]!=='explorar'||path.length<2||path.length>3)notFound();
  const area=path[1];
@@ -35,9 +35,9 @@ export default async function PreviewDestination({params,searchParams}:{params:P
  if(!isPublicHotelAreaKey(area))notFound();
  if(area==='turismo'){
   await requireHotelModule('content.tourism');
-  const tourism=await loadPublicTourism(await createClient(),data.hotel,language,path[2]);
+  const tourism=await loadPublicTourism(await createClient(),data.hotel,language,path[2],true);
   if(!tourism||(path[2]&&!tourism.items.length))notFound();
-  return <PublicTourismContent data={tourism} language={language} domainContext={domainContext} preferSubdomainRoot={false} detail={!!path[2]} filter={query.type}/>;
+  return <PublicTourismContent data={tourism} language={language} domainContext={domainContext} preferSubdomainRoot={false} detail={!!path[2]} filter={query.type} collection={query.collection} category={query.category}/>;
  }
  if(path.length!==2)notFound();
  return <HotelPublicAreaContent pageData={data} area={area} language={language} domainContext={domainContext} preferSubdomainRoot={false}/>;

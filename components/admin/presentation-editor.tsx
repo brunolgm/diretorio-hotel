@@ -1,7 +1,7 @@
 'use client';
 import {useState} from 'react';
 import {BENEFIT_ICONS,type EditorialText,type PublicPresentation} from '@/lib/public-presentation';
-export function PresentationEditor({initial,revision,action}:{initial:PublicPresentation;revision:number;action:(form:FormData)=>Promise<void>}){
+export function PresentationEditor({initial,revision,action,tourismItems=[]}:{initial:PublicPresentation;revision:number;action:(form:FormData)=>Promise<void>;tourismItems?:{slug:string;name:string}[]}){
  const [config,setConfig]=useState(initial);
  const [cardKeys,setCardKeys]=useState(()=>initial.tourism.cards.map((_,i)=>'card-'+i));
  const edit=(fn:(c:PublicPresentation)=>void)=>setConfig(prev=>{const next=structuredClone(prev);fn(next);return next;});
@@ -28,6 +28,11 @@ export function PresentationEditor({initial,revision,action}:{initial:PublicPres
    {fields('Texto de apoio',config.tourism.description,(lang,value)=>edit(c=>{c.tourism.description[lang]=value;}),600)}
    {config.tourism.cards.map((card,i)=><fieldset key={cardKeys[i]} className="space-y-3 rounded-xl border p-4"><legend>Card {i+1}</legend>
     {fields('Título do card',card.title,(lang,value)=>edit(c=>{c.tourism.cards[i].title[lang]=value;}),120)}
+    <label className="block">Destino <select className="ml-2 rounded border p-2" value={card.destination?.kind??'catalog'} onChange={e=>edit(c=>{if(e.target.value==='catalog')delete c.tourism.cards[i].destination;else c.tourism.cards[i].destination=e.target.value==='item'?{kind:'item',slug:''}:{kind:'collection',key:'',item_slugs:[],description:{pt:'',en:'',es:''}};})}><option value="catalog">Catálogo geral</option><option value="item">Item publicado</option><option value="collection">Seleção temática</option></select></label>
+    {card.destination?.kind==='item'?<label className="block">Item <select required value={card.destination.slug} className="ml-2 rounded border p-2" onChange={e=>edit(c=>{c.tourism.cards[i].destination={kind:'item',slug:e.target.value};})}><option value="">Selecione um item publicado</option>{tourismItems.map(t=><option key={t.slug} value={t.slug}>{t.name}</option>)}</select></label>:null}
+    {card.destination?.kind==='collection'?<div className="space-y-3"><label className="block">Identificador da seleção <input required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxLength={120} className="ml-2 rounded border p-2" value={card.destination.key} onChange={e=>edit(c=>{const d=c.tourism.cards[i].destination;if(d?.kind==='collection')d.key=e.target.value;})}/></label>
+     <label className="block">Itens publicados <select multiple required className="mt-1 block w-full rounded border p-2" value={card.destination.item_slugs} onChange={e=>{const selected=[...e.target.selectedOptions].map(o=>o.value);edit(c=>{const d=c.tourism.cards[i].destination;if(d?.kind==='collection')d.item_slugs=selected;});}}>{tourismItems.map(t=><option key={t.slug} value={t.slug}>{t.name}</option>)}</select></label>
+     {fields('Introdução da seleção',card.destination.description,(lang,value)=>edit(c=>{const d=c.tourism.cards[i].destination;if(d?.kind==='collection')d.description[lang]=value;}),600)}</div>:null}
     <label className="block">Imagem ilustrativa {card.image_path?'(imagem já associada)':''}<input className="block py-2" type="file" name={`image_${i}`} accept="image/jpeg,image/png,image/webp"/></label>
     <div className="flex gap-4"><button type="button" disabled={i===0} onClick={()=>{setCardKeys(keys=>{const next=[...keys];[next[i-1],next[i]]=[next[i],next[i-1]];return next;});edit(c=>{[c.tourism.cards[i-1],c.tourism.cards[i]]=[c.tourism.cards[i],c.tourism.cards[i-1]];});}}>Mover para cima</button><button type="button" onClick={()=>{setCardKeys(keys=>keys.filter((_,index)=>index!==i));edit(c=>{c.tourism.cards.splice(i,1);});}} className="underline">Remover card</button></div>
    </fieldset>)}

@@ -39,7 +39,7 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
 
     if (!roomContext?.roomToken || roomContext.hotelId !== pageData.hotel.id) {
       return (
-        <HotelServiceDetailContent
+        <HotelServiceDetailContent experienceVersion={pageData.experienceVersion}
           hotel={pageData.hotel}
           section={pageData.section}
           language={language}
@@ -60,7 +60,7 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
     }
 
     return (
-      <HotelServiceDetailContent
+      <HotelServiceDetailContent experienceVersion={pageData.experienceVersion}
         hotel={pageData.hotel}
         section={pageData.section}
         language={language}
@@ -73,7 +73,7 @@ export default async function HotelServiceDetailPage({ params, searchParams }: P
   }
 
   return (
-    <HotelServiceDetailContent
+    <HotelServiceDetailContent experienceVersion={pageData.experienceVersion}
       hotel={pageData.hotel}
       section={pageData.section}
       language={language}

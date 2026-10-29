@@ -1,3 +1,4 @@
+import {hasTranslationFallback,translatedText} from './translation-fallback';
 import { parsePublicPresentation, type PublicPresentation } from './public-presentation';
 import { loadPublicTourism, publicTourismHomeAvailable } from '@/lib/tourism/public';
 import { createPublicClient } from '@/lib/supabase/public';
@@ -34,6 +35,7 @@ type PublicHotelPromotionalBannerTranslation =
   Database['public']['Tables']['hotel_promotional_banner_translations']['Row'];
 
 export interface PublicHotelPageData {
+  serviceFallbackIds?: string[];
   presentation?: PublicPresentation | null;
   experienceMedia?: ExperienceMedia[];
   tourismPreview?: PublicTourismItem[];
@@ -50,6 +52,7 @@ export interface PublicHotelPageData {
 }
 
 export interface PublicHotelServiceDetailData {
+  experienceVersion?: 'v3'|'v4';
   hotel: PublicHotel;
   section: PublicHotelSection;
   hasFallbackContent: boolean;
@@ -80,6 +83,7 @@ export interface PublicFlightCenterAirport {
 }
 
 export interface PublicFlightCenterData {
+  experienceVersion?: 'v3'|'v4';
   hotel: PublicHotel;
   airports: PublicFlightCenterAirport[];
   navigationAvailability: PublicNavigationAvailability;
@@ -363,9 +367,9 @@ export async function getPublicHotelPageDataForHotel(
 
     return {
       ...item,
-      title: translation?.title ?? item.title,
-      subtitle: translation?.subtitle ?? item.subtitle,
-      cta_label: translation?.cta_label ?? item.cta_label,
+      title: translatedText(item.title,translation?.title),
+      subtitle: translatedText(item.subtitle,translation?.subtitle),
+      cta_label: translatedText(item.cta_label,translation?.cta_label),
     };
   });
 
@@ -374,8 +378,8 @@ export async function getPublicHotelPageDataForHotel(
 
     return {
       ...item,
-      title: translation?.title ?? item.title,
-      body: translation?.body ?? item.body,
+      title: translatedText(item.title,translation?.title),
+      body: translatedText(item.body,translation?.body),
     };
   });
 
@@ -384,10 +388,10 @@ export async function getPublicHotelPageDataForHotel(
 
     return {
       ...item,
-      title: translation?.title ?? item.title,
-      content: translation?.content ?? item.content,
-      cta: translation?.cta ?? item.cta,
-      category: translation?.category ?? item.category,
+      title: translatedText(item.title,translation?.title),
+      content: translatedText(item.content,translation?.content),
+      cta: translatedText(item.cta,translation?.cta),
+      category: translatedText(item.category,translation?.category),
     };
   });
 
@@ -396,9 +400,9 @@ export async function getPublicHotelPageDataForHotel(
 
     return {
       ...item,
-      name: translation?.name ?? item.name,
-      description: translation?.description ?? item.description,
-      action: translation?.action ?? item.action,
+      name: translatedText(item.name,translation?.name),
+      description: translatedText(item.description,translation?.description),
+      action: translatedText(item.action,translation?.action),
     };
   });
 
@@ -407,34 +411,18 @@ export async function getPublicHotelPageDataForHotel(
 
     return {
       ...item,
-      title: translation?.title ?? item.title,
-      description: translation?.description ?? item.description,
+      title: translatedText(item.title,translation?.title),
+      description: translatedText(item.description,translation?.description),
     };
   });
 
-  const hasFallbackContent =
-    language !== 'pt' &&
-    (typedBanners.some((item) => {
-      const translation = bannerTranslationsById.get(item.id);
-      return !translation || !translation.title || !translation.subtitle || !translation.cta_label;
-    }) ||
-      typedAnnouncements.some((item) => {
-      const translation = announcementTranslationsById.get(item.id);
-      return !translation || !translation.title || !translation.body;
-    }) ||
-      typedSections.some((item) => {
-      const translation = sectionTranslationsById.get(item.id);
-      return !translation || !translation.title || !translation.content || !translation.cta;
-    }) ||
-      typedDepartments.some((item) => {
-        const translation = departmentTranslationsById.get(item.id);
-        return !translation || !translation.name || !translation.description || !translation.action;
-      }) ||
-      typedPolicies.some((item) => {
-        const translation = policyTranslationsById.get(item.id);
-        return !translation || !translation.title || !translation.description;
-      }));
-
+  const hasFallbackContent = language !== 'pt' && (
+    typedBanners.some(i=>hasTranslationFallback(i,bannerTranslationsById.get(i.id),['title','subtitle','cta_label'])) ||
+    typedAnnouncements.some(i=>hasTranslationFallback(i,announcementTranslationsById.get(i.id),['title','body'])) ||
+    typedSections.some(i=>hasTranslationFallback(i,sectionTranslationsById.get(i.id),['title','content','cta','category'])) ||
+    typedDepartments.some(i=>hasTranslationFallback(i,departmentTranslationsById.get(i.id),['name','description','action'])) ||
+    typedPolicies.some(i=>hasTranslationFallback(i,policyTranslationsById.get(i.id),['title','description'])));
+  const serviceFallbackIds=language==='pt'?[]:typedSections.filter(i=>hasTranslationFallback(i,sectionTranslationsById.get(i.id),['title','content','cta','category'])).map(i=>i.id);
   const tourismHomeAvailable = await publicTourismHomeAvailable(supabase, hotel.id);
   const [mediaResult, tourismResult, presentationResult] = await Promise.all([
     supabase.from('hotel_public_experience_media').select('*').eq('hotel_id', hotel.id).eq('is_published', true),
@@ -447,9 +435,10 @@ export async function getPublicHotelPageDataForHotel(
 
   return {
     hotel,
+    serviceFallbackIds,
     presentation: presentationResult.error ? null : parsePublicPresentation(presentationResult.data?.configuration, hotel.id),
     experienceMedia: (mediaResult.error ? [] : mediaResult.data ?? []).filter(row => row.hotel_id === hotel.id && row.is_published).map(row=>localizeExperienceMedia(row,translatedMedia.get(row.slot))),
-    tourismPreview: tourismResult?.items.slice(0, 3) ?? [],
+    tourismPreview: tourismResult?.items ?? [],
     tourismHomeAvailable,
     flightHomeCard: flightHomeCardRow ? {
       title: flightHomeCardRow.home_card_title,
@@ -505,23 +494,19 @@ async function getPublicHotelServiceDetailDataForHotel(
   }
 
   const translation = (translationResult.data || null) as PublicHotelSectionTranslation | null;
+  const config=await supabase.from('hotel_public_presentation').select('configuration').eq('hotel_id',hotel.id).maybeSingle();
 
   return {
     hotel,
+    experienceVersion: parsePublicPresentation(config.data?.configuration,hotel.id)?.experienceVersion??'v3',
     section: {
       ...typedSection,
-      title: translation?.title ?? typedSection.title,
-      content: translation?.content ?? typedSection.content,
-      cta: translation?.cta ?? typedSection.cta,
-      category: translation?.category ?? typedSection.category,
+      title: translatedText(typedSection.title,translation?.title),
+      content: translatedText(typedSection.content,translation?.content),
+      cta: translatedText(typedSection.cta,translation?.cta),
+      category: translatedText(typedSection.category,translation?.category),
     },
-    hasFallbackContent:
-      language !== 'pt' &&
-      (!translation ||
-        !translation.title ||
-        !translation.content ||
-        !translation.cta ||
-        !translation.category),
+    hasFallbackContent: language !== 'pt' && hasTranslationFallback(typedSection,translation,['title','content','cta','category']),
   } satisfies PublicHotelServiceDetailData;
 }
 
@@ -542,6 +527,7 @@ async function getPublicFlightCenterDataForHotel(
   const firstRow = rows[0];
   if (!firstRow) return null;
   const timezones = await getFlightAirportTimezones(rows.map(row => row.airport_iata_code));
+  const config=await supabase.from('hotel_public_presentation').select('configuration').eq('hotel_id',hotel.id).maybeSingle();
 
   const [
     servicesModule,
@@ -587,6 +573,7 @@ async function getPublicFlightCenterDataForHotel(
 
   return {
     hotel,
+    experienceVersion: parsePublicPresentation(config.data?.configuration,hotel.id)?.experienceVersion??'v3',
     navigationAvailability: getPublicNavigationAvailability({
       layout: normalizeExperienceLayout(layoutResult.data),
       servicesModuleEnabled: servicesModule.data === true,
@@ -694,10 +681,10 @@ export async function getPublicFlightCenterDataBySubdomain(subdomain: string) {
 export async function getPublicTourismDataBySlug(slug: string, language: SupportedPublicLanguage, itemSlug?: string) {
   const client = createPublicClient();
   const hotel = await getHotelBySlugWithClient(client, slug);
-  return hotel ? loadPublicTourism(client, hotel, language, itemSlug) : null;
+  return hotel ? loadPublicTourism(client, hotel, language, itemSlug, true) : null;
 }
 export async function getPublicTourismDataBySubdomain(subdomain: string, language: SupportedPublicLanguage, itemSlug?: string) {
   const client = createPublicClient();
   const hotel = await getHotelBySubdomainWithClient(client, subdomain);
-  return hotel ? loadPublicTourism(client, hotel, language, itemSlug) : null;
+  return hotel ? loadPublicTourism(client, hotel, language, itemSlug, true) : null;
 }

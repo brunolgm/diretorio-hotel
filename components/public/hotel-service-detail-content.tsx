@@ -13,7 +13,6 @@ import { getPublicCopy } from '@/lib/public-copy';
 import type { PublicHotel, PublicHotelSection } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 import { buildPublicHotelAreaHref, buildPublicHotelServiceHref, buildPublicHotelHref, shouldPreferHotelSubdomainRoot } from '@/lib/public-routes';
-import { MIN_SERVICE_DETAIL_CONTENT_LENGTH } from '@/lib/service-destinations';
 
 type RoomRestaurantState = 'missing-context' | 'missing-menu' | 'invalid-context';
 
@@ -40,6 +39,7 @@ export function HotelServiceDetailContent({
   preferSubdomainRoot,
   roomRestaurantState,
   roomNumber,
+  experienceVersion,
 }: {
   hotel: PublicHotel;
   section: PublicHotelSection;
@@ -49,6 +49,7 @@ export function HotelServiceDetailContent({
   preferSubdomainRoot?: boolean;
   roomRestaurantState?: RoomRestaurantState | null;
   roomNumber?: string | null;
+  experienceVersion?:'v3'|'v4';
 }) {
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
@@ -78,6 +79,7 @@ export function HotelServiceDetailContent({
       className={`hotel-theme-page min-h-screen ${isGrandMercureExperience ? 'grand-mercure-dock-layout' : theme.preset === 'bugan' ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : ''}`}
       style={theme.cssVars}
       data-hotel-theme={theme.preset}
+      data-public-internal-v4={experienceVersion==='v4'?'':undefined}
       data-hotel-icon-style={theme.iconStyle}
     >
       <PublicAnalytics hotelSlug={hotel.slug} language={language} serviceId={section.id} />
@@ -209,7 +211,7 @@ export function HotelServiceDetailContent({
                   ? copy.roomMenuMissingMenuDescription(roomNumber)
                   : copy.roomMenuInvalidContextDescription}
             </p>
-            <div className="mt-4">
+            <div className="mt-4" hidden={domainContext.navigationScope==='authenticated-preview'}>
               <a
                 href="/room-context/clear"
                 className="inline-flex h-10 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
@@ -244,9 +246,6 @@ export function HotelServiceDetailContent({
           </div>
         </section>
 
-        <section className={`hotel-theme-surface hotel-theme-muted mt-6 rounded-[calc(var(--hotel-card-radius)-2px)] border border-dashed border-[color:var(--hotel-border)] px-6 py-5 text-sm leading-6 opacity-80 shadow-[0_18px_45px_-36px_rgba(15,23,42,0.18)] ${isGrandMercureExperience ? 'grand-mercure-last-content' : ''}`}>
-          {copy.internalPageRule(MIN_SERVICE_DETAIL_CONTENT_LENGTH)}
-        </section>
       </div>
       {theme.preset === 'bugan' ? <PublicBottomDock items={grandMercureNavigationItems.filter((item) => item.key === 'home' || item.key === 'services')} activeItem="services" ariaLabel={copy.navigationLabel} /> : null}
       {isGrandMercureExperience ? <GrandMercureMobileNavigation items={grandMercureNavigationItems} activeItem="services" ariaLabel={copy.navigationLabel} /> : null}

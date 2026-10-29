@@ -1,4 +1,5 @@
 import { Check, ChevronDown, Languages } from 'lucide-react';
+import {publicLanguageHref} from '@/lib/public-language-href';
 import { getPublicCopy } from '@/lib/public-copy';
 import { type SupportedPublicLanguage } from '@/lib/public-language';
 
@@ -53,7 +54,7 @@ export function LanguageSwitcher({
             return (
               <a
                 key={item.code}
-                href={`${resolvedBasePath}?lang=${item.code}`}
+                href={publicLanguageHref(resolvedBasePath,item.code)}
                 aria-current={isActive ? 'page' : undefined}
                 data-analytics-event="language_selected"
                 data-analytics-language={item.code}

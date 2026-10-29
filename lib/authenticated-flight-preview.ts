@@ -28,7 +28,7 @@ export async function getAuthenticatedFlightPreview(data:PublicHotelPageData):Pr
   internationalLeadMinutes:link.international_lead_minutes,safetyMarginMinutes:link.safety_margin_minutes,
  }]:[];});
  if(!airports.length)return null;
- return {hotel,airports,navigationAvailability:getPublicNavigationAvailability({layout:data.layout,servicesModuleEnabled:!!data.sections.length,servicesContentCount:data.sections.length,menuModuleEnabled:false,menuContentCount:0}),settings:{
+ return {hotel,airports,experienceVersion:data.presentation?.experienceVersion,navigationAvailability:getPublicNavigationAvailability({layout:data.layout,servicesModuleEnabled:!!data.sections.length,servicesContentCount:data.sections.length,menuModuleEnabled:false,menuContentCount:0}),settings:{
   departurePlanningEnabled:s.departure_planning_enabled,transferEnabled:s.transfer_enabled,wakeUpEnabled:s.wake_up_enabled,
   breakfastBoxEnabled:s.breakfast_box_enabled,receptionEnabled:s.reception_enabled,officialLinksEnabled:s.official_links_enabled,departureNotice:s.departure_notice,
  }};

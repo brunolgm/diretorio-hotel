@@ -1,4 +1,5 @@
 import {publicEditorialHref} from '@/lib/public-editorial-link';
+import {tourismEditorialHref} from '@/lib/tourism/editorial';
 import {publicExperienceVersion} from '@/lib/public-experience-v4';
 import {PublicExperienceMobileTasks} from './public-experience-mobile-tasks';
 import Image from 'next/image';
@@ -71,8 +72,8 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
   const links = [{ href: homeHref, label: copy.navigationHome }, ...accesses.slice().sort((a,b)=>['information','services','menu','tourism','flights','contact'].indexOf(a.key)-['information','services','menu','tourism','flights','contact'].indexOf(b.key)).map(({ href, key }) => ({ href, label: short[key as keyof typeof short] }))];
   const heroForDisplay = hero && presentation?.heroDesktopFocal ? {...hero,focal_x:presentation.heroDesktopFocal.x,focal_y:presentation.heroDesktopFocal.y} : hero;
   const editorialHref = (url:string|null) => publicEditorialHref({url,hotel,sections,language,domainContext,preferSubdomainRoot});
-  const curated = pageData.tourismHomeAvailable ? presentation?.tourism.cards ?? [] : [];
-  const tourism = pageData.tourismHomeAvailable ? (pageData.tourismPreview ?? []).filter(row => row.hotel_id === hotel.id && row.is_published) : [];
+  const curated = pageData.tourismHomeAvailable ? (presentation?.tourism.cards ?? []).map(card=>({card,href:tourismEditorialHref(card,pageData.tourismPreview??[],hotel.id,route)})).filter(row=>row.href) : [];
+  const tourism = pageData.tourismHomeAvailable ? (pageData.tourismPreview ?? []).filter(row => row.hotel_id === hotel.id && row.is_published).slice(0,3) : [];
   return <main className="hotel-theme-page public-experience-v3 min-h-dvh" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle} data-public-experience={version==='v4'?version:undefined}>
     <PublicAnalytics hotelSlug={hotel.slug} language={language} />
     <section className="v3-hero" data-v3-hero>
@@ -105,7 +106,7 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
       {enabled('announcements') && announcements.length ? <section className="v3-announcements"><h2>{copy.editorialAnnouncementsTitle}</h2>{announcements.map(row => <article key={row.id}><h3>{row.title}</h3><p>{row.body}</p></article>)}</section> : null}
       {curated.length || tourism.length ? <section className="v3-tourism" data-v3-tourism>
         <div className="v3-tourism-intro"><p className="v3-eyebrow">{t.explore} {hotel.city}</p><h2>{curated.length && presentation ? editorialText(presentation.tourism.title,language) : tourismPublicCopy(language).title}</h2><p>{curated.length && presentation ? editorialText(presentation.tourism.description,language) : tourismPublicCopy(language).intro}</p></div>
-        <div className="v3-tourism-cards">{curated.length ? curated.map((card,i)=><a key={i} href={areaHref('turismo')}>
+        <div className="v3-tourism-cards">{curated.length ? curated.map(({card,href},i)=><a key={i} href={href!}>
           {card.image_path ? <Image src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/hotel-assets/${card.image_path}`} alt={editorialText(card.title,language) + (language==='en'?' — illustrative image':language==='es'?' — imagen ilustrativa':' — imagem ilustrativa')} fill sizes="(max-width:767px) 200px, 180px" unoptimized/> : null}
           <h3>{editorialText(card.title,language)}<ChevronRight aria-hidden/></h3></a>) : tourism.map(row=><a key={row.id} href={buildPublicHotelTourismItemHref({...route,itemSlug:row.slug})}>
           <TourismImage src={tourismImageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL,row.main_image_path,hotel.id,row.id)} alt={row.name}/><h3>{row.name}<ChevronRight aria-hidden/></h3></a>)}</div>

@@ -1,5 +1,86 @@
 # PRODUCT MAP
 
+## V4 interna e destinos editoriais de Turismo — 29/10/2026
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] O domínio único da Sprint 52 continua sendo
+a fonte de Turismo. Os cards ilustrativos da Home não eram itens nem coleções:
+todos abriam o catálogo geral. A apresentação existente passa a aceitar, por card,
+`destination` opcional: item por slug ou coleção por chave e lista de slugs. A
+introdução da coleção usa PT/EN/ES e seu título reutiliza o título do card.
+Não há outro banco de Turismo, itinerário reservável ou conteúdo no TSX.
+Configurações antigas sem destino mantêm o contrato anterior. Destinos novos só
+aparecem quando resolvem conteúdo publicado do próprio hotel; ausência não promete
+um item inexistente. Remover a associação pelo mesmo Admin reverte a apresentação
+sem apagar itens. A RPC, revisão/PT409, RLS, auditoria e grants permanecem intactos.
+
+Catálogo e detalhe reutilizam as rotas públicas e privadas existentes. `collection`,
+`type`, `category` e idioma são filtros de apresentação, nunca hotel-alvo ou bypass.
+As opções refletem somente o conteúdo publicado da seleção. O catálogo geral segue
+acessível por “Ver todas as atrações”; detalhe preserva seleção e idioma no retorno.
+Sem imagem licenciada não há imagem/placeholder artificial no catálogo. “Ver detalhes”
+só é oferecido quando há informação além do resumo; descrição idêntica não é repetida.
+
+[PLANEJADO — DADOS PREPARADOS, EXECUÇÃO AUTENTICADA PENDENTE] Manifesto revisável
+`docs/bootstrap/bugan-tourism-v4-20261029.json`: cinco lugares, traduções autorais
+EN/ES, enriquecimento da Praça e preservação do nome Restaurante Filipe em Serviço
+e mídia EN. O executor `scripts/apply-bugan-tourism-v4.ps1` usa login normal com senha
+oculta, RLS, bootstrap/RPCs canônicas e revisão da apresentação. Antes de escrever,
+confere módulos via `get_current_hotel_modules()`, suspensão e snapshots aprovados;
+conflito com edição humana gera interrupção. Não usa service role, Google, Storage,
+onboarding ou escrita manual em hotéis/profiles. Retomada é idempotente; o bootstrap
+original passa a detectar a edição intencional da Praça, preservando o enriquecimento.
+
+| Card ilustrativo preservado | Destino canônico preparado |
+| --- | --- |
+| Praia de Boa Viagem | Novo item `praia-de-boa-viagem`, distinto da Praça |
+| Centro Histórico | Coleção `recife-antigo`: Marco Zero, Rua do Bom Jesus, Paço do Frevo |
+| Passeios Culturais | Coleção `visitas-culturais`: Paço do Frevo e Embaixada dos Bonecos Gigantes; visita independente, sem reserva |
+| Cultura Local | Coleção `cultura-local`: Paço do Frevo, Embaixada dos Bonecos Gigantes e Rua do Bom Jesus |
+
+Praça de Boa Viagem e Shopping Recife conservam IDs e dados aprovados. A Praça
+recebe contexto, endereço e fonte oficial, sem substituir seu resumo ou inventar
+distâncias. Shopping não é reescrito. Novos preços, horários, duração, mapa e fotos
+permanecem ausentes quando não confirmados. As quatro ilustrações aprovadas não são
+classificadas como fotografias oficiais e seus paths/focais permanecem intactos.
+
+Fontes: [roteiro municipal de um dia](https://visit.recife.pe.gov.br/roteiros/roteiro-teste-1-dia/),
+[roteiro municipal de três dias](https://visit.recife.pe.gov.br/roteiros/roteiro-teste-3-dias/),
+[Marco Zero](https://visit.recife.pe.gov.br/lugar/marco-zero/),
+[Paço do Frevo](https://pacodofrevo.org.br/visite/),
+[Embaixada dos Bonecos Gigantes](https://visit.recife.pe.gov.br/lugar/embaixada-dos-bonecos-gigantes/)
+e [Praça de Boa Viagem](https://visit.recife.pe.gov.br/lugar/praca-de-boa-viagem/).
+Textos são paráfrases; as páginas são referência, sem agenda, preços ou disponibilidade prometidos.
+
+Páginas internas usam acabamento compartilhado e tokens de cada marca. O seletor
+V4 controla o acabamento compacto; Homes e demais hotéis não são migrados. O texto
+técnico de 60 caracteres saiu da interface; a regra permanece no domínio. Fallback
+considera somente campos presentes na fonte, usa PT para tradução vazia e no preview
+do Serviço considera somente aquele item, preservando avisos legítimos. Contato
+reutiliza números internacionais explícitos do cadastro em links `tel:`, sem inferir
+WhatsApp. Preview permanece somente leitura, sem analytics/provedores/roomToken.
+
+[PENDENTE — CATÁLOGO GLOBAL] Existe [página oficial da Aena para REC](https://www.aenabrasil.com.br/pt/aeroportos/aeroporto-internacional-do-recife-guararapes-gilberto-freyre/Informacoes-de-voo.html),
+sem token na URL. Não existe manutenção canônica de links de aeroporto já cadastrado;
+o helper atual é insert-only. Não houve UPDATE direto ou fallback REC no TSX. O módulo
+informa que o canal ainda não foi configurado e mantém desabilitadas operações reais
+no preview. Cadastro global auditável é uma pendência específica; não habilitar
+transfer/despertar ou alterar REC para simular conclusão.
+
+[IMPLEMENTADO PARCIALMENTE] Até confirmação do executor, os novos registros e quatro
+associações são plano validado, não conteúdo aplicado em produção. Homologação humana
+das páginas internas e readiness pós-pré-cadastro permanecem pendentes. Bugan segue
+`suspended`; os dois administradores, entitlements, fotos reais e demais hotéis
+devem permanecer preservados. As cinco marcas/Default entram na regressão compartilhada.
+
+[APROVADO] Gates locais: 455/455 security, dez testes novos direcionados (incluindo
+executor sem rede, idempotência, conflito manual e falsa confirmação), TypeScript,
+build e diff check OK; lint zero erros/quatro warnings históricos. SQL local com
+rollback valida JSON legado/novo, RPC autenticada, PT409 e reversão da configuração.
+Browser: 54 cenários internos nos seis presets, PT/EN/ES, 390/430/1440 pixels, quatro
+destinos coerentes e links telefônicos; mais 152 cenários de preservação das Homes
+V4/V3. Zero chamadas de API nas fixtures. Isso não confirma aplicação do manifesto
+nem homologação humana em produção.
+
 ## Hotfix V4 — navegação privada de homologação — 29/10/2026
 
 [IMPLEMENTADO E CONFIRMADO NO CÓDIGO] `/explorar/...` já possui rotas canônicas:

@@ -1,3 +1,4 @@
+import tourismManifest from '../../docs/bootstrap/bugan-tourism-v4-20261029.json';
 // Local renderer fixture only. Approved photos/copy, no auth, database or provider.
 import {createRoot} from 'react-dom/client';
 import {HotelPublicPageContent} from '../../components/public/hotel-public-page-content';
@@ -56,6 +57,11 @@ const identities:Record<string,{name:string;subdomain:string;slug:string}>={
 };
 const identity=identities[args.get('property')??theme];
 if(identity){Object.assign(data.hotel,identity);data.hotel.logo_url=null;data.hotel.hero_image_url=null;}
+if(args.get('tourism')==='coherent'){
+ data.departments=source.entries.filter(e=>e.domain==='department').map((e,i)=>({id:'department-'+i,hotel_id:data.hotel.id,...e.values})) as PublicHotelPageData['departments'];
+ config.tourism.cards.forEach((c,i)=>{(c as PublicPresentation['tourism']['cards'][number]).destination=tourismManifest.destinations[i] as PublicPresentation['tourism']['cards'][number]['destination'];});
+ data.tourismPreview=tourismManifest.entries.map((e,i)=>({id:'verified-'+i,hotel_id:data.hotel.id,slug:e.key,...e.values,...(language==='pt'?{}:e.translations[language]),main_image_path:null})) as unknown as PublicTourismItem[];
+}
 const domain={kind:'localhost',isPotentialHotelSubdomain:false,shouldUseSlugFallback:true,productRootDomain:'libguest.digital',hostname:'127.0.0.1'} as DomainContext;
 if(args.get('scope')==='preview')domain.navigationScope='authenticated-preview';
 let content=<HotelPublicPageContent {...data} language={language} domainContext={domain}/>;
@@ -63,13 +69,13 @@ if(domain.navigationScope&&location.pathname!=='/preview'){
  const path=location.pathname.replace(/^\/preview\//,'').split('/');
  if(path[0]==='servicos'){
   const section=data.sections.find(s=>s.id===path[1]);
-  content=section?<HotelServiceDetailContent hotel={data.hotel} section={section} language={language} domainContext={domain} hasFallbackContent={false} roomRestaurantState={section.service_action_type==='room_restaurant_menu'?'missing-context':null}/>:<h1>404 fixture</h1>;
+  content=section?<HotelServiceDetailContent hotel={data.hotel} section={section} language={language} domainContext={domain} hasFallbackContent={false} experienceVersion={data.presentation?.experienceVersion} roomRestaurantState={section.service_action_type==='room_restaurant_menu'?'missing-context':null}/>:<h1>404 fixture</h1>;
  }else if(path[1]==='voos'){
-  const flights={hotel:data.hotel,airports:[{iataCode:'REC',name:'Synthetic REC airport',city:'Recife',timezone:'America/Recife',officialDeparturesUrl:null,officialArrivalsUrl:null,estimatedTransferMinutes:null,domesticLeadMinutes:null,internationalLeadMinutes:null,safetyMarginMinutes:null}],navigationAvailability:{services:true,menu:false,information:true,contact:true},settings:{departurePlanningEnabled:false,transferEnabled:false,wakeUpEnabled:false,breakfastBoxEnabled:false,receptionEnabled:false,officialLinksEnabled:false,departureNotice:null}} as PublicFlightCenterData;
+  const flights={hotel:data.hotel,experienceVersion:data.presentation?.experienceVersion,airports:[{iataCode:'REC',name:'Synthetic REC airport',city:'Recife',timezone:'America/Recife',officialDeparturesUrl:null,officialArrivalsUrl:null,estimatedTransferMinutes:null,domesticLeadMinutes:null,internationalLeadMinutes:null,safetyMarginMinutes:null}],navigationAvailability:{services:true,menu:false,information:true,contact:true},settings:{departurePlanningEnabled:false,transferEnabled:false,wakeUpEnabled:false,breakfastBoxEnabled:false,receptionEnabled:false,officialLinksEnabled:false,departureNotice:null}} as PublicFlightCenterData;
   content=<HotelPublicFlightCenter data={flights} language={language} domainContext={domain} preferSubdomainRoot={false} tab={normalizePublicFlightCenterTab(args.get('tab')??'partidas')}/>;
  }else if(path[1]==='turismo'){
-  const items=source.entries.filter(e=>e.domain==='tourism').map((e,i)=>({id:'tourism-'+i,hotel_id:data.hotel.id,...e.values,main_image_path:null})) as unknown as PublicTourismItem[];
-  content=<PublicTourismContent data={{hotel:data.hotel,items:path[2]?items.filter(i=>i.slug===path[2]):items}} language={language} domainContext={domain} preferSubdomainRoot={false} detail={!!path[2]}/>;
+  const items=args.get('tourism')==='coherent'?data.tourismPreview!:source.entries.filter(e=>e.domain==='tourism').map((e,i)=>({id:'tourism-'+i,hotel_id:data.hotel.id,...e.values,main_image_path:null})) as unknown as PublicTourismItem[];
+  content=<PublicTourismContent data={{hotel:data.hotel,presentation:data.presentation,items:path[2]?items.filter(i=>i.slug===path[2]):items}} language={language} domainContext={domain} preferSubdomainRoot={false} detail={!!path[2]} collection={args.get('collection')??undefined} category={args.get('category')??undefined} filter={args.get('type')??undefined}/>;
  }else if(isPublicHotelAreaKey(path[1]))content=<HotelPublicAreaContent pageData={data} area={path[1]} language={language} domainContext={domain} preferSubdomainRoot={false}/>;
  else content=<h1>404 fixture</h1>;
 }
