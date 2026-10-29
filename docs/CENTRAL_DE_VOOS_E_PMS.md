@@ -1,5 +1,17 @@
 # Central de Voos — arquitetura final do MVP e evolução PMS
 
+## Checkpoint canônico — Sprint 51.1 e continuidade operacional
+
+A V1 permanece identity-agnostic: consulta de voo informado manualmente não exige
+PMS, OPERA, reserva, identidade pessoal nem roomToken. A homologação de produção
+G3 1888 GIG–SSA de 10/09/2026 é o checkpoint aprovado informado pelo responsável.
+As limitações de status do MVP nas seções históricas abaixo não revogam a evolução
+AirLabs da 51.1. Em 29/10, budget_unavailable foi identificado como vigência interna
+expirada, sem chamada externa, não como defeito demonstrado do fornecedor.
+Renovação operacional conservadora, sem recarga de créditos ou datas de cobrança
+presumidas: [contrato e decisão](./airlabs-distributed-coordinator.md#decisão-operacional--renovação-conservadora-29102026).
+
+
 ## Estado da Sprint 51
 
 A Sprint 51 foi concluída em nove etapas. O MVP entrega uma Central de Voos pública, opt-in por hotel, configurável pelo Admin e governada pela Platform, sem consulta de status em tempo real e sem integração PMS.
