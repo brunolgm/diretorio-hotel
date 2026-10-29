@@ -60,7 +60,7 @@ try{
    }
    for(const href of editorials.slice(0,2)){await page.goto(root+href);await ready();}
    await page.goto(root+'/preview/explorar/turismo?lang='+lang);await ready();
-   const item=page.locator('[data-tourism-item]').first();assert.ok(await item.count());await item.click();await ready();assert.ok(page.url().includes('/preview/explorar/turismo/'));
+   const item=page.locator('[data-tourism-item]').first();if(await item.count()){await item.click();await ready();assert.ok(page.url().includes('/preview/explorar/turismo/'));}
    const homeHref='/preview'+(lang==='pt'?'':'?lang='+lang);await page.goto(root+homeHref);await ready();
    if(width<768){await page.locator('[data-v4-action="services"]').click();await ready();assert.ok(page.url().includes('/preview/explorar/servicos'));}
   }

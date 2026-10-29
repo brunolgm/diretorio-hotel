@@ -50,7 +50,7 @@ export default async function SubdomainHotelServiceDetailPage({
 
     if (!roomContext?.roomToken || roomContext.hotelId !== pageData.hotel.id) {
       return (
-        <HotelServiceDetailContent
+        <HotelServiceDetailContent experienceVersion={pageData.experienceVersion}
           hotel={pageData.hotel}
           section={pageData.section}
           language={language}
@@ -72,7 +72,7 @@ export default async function SubdomainHotelServiceDetailPage({
     }
 
     return (
-      <HotelServiceDetailContent
+      <HotelServiceDetailContent experienceVersion={pageData.experienceVersion}
         hotel={pageData.hotel}
         section={pageData.section}
         language={language}
@@ -86,7 +86,7 @@ export default async function SubdomainHotelServiceDetailPage({
   }
 
   return (
-    <HotelServiceDetailContent
+    <HotelServiceDetailContent experienceVersion={pageData.experienceVersion}
       hotel={pageData.hotel}
       section={pageData.section}
       language={language}

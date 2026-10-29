@@ -141,8 +141,9 @@ export function buildPublicHotelFlightCenterHref({
 }
 
 export function buildPublicHotelTourismItemHref(input: {
-  slug: string; itemSlug: string; language: SupportedPublicLanguage; domainContext?: DomainContext | null; preferSubdomainRoot?: boolean;
+  slug: string; itemSlug: string; language: SupportedPublicLanguage; domainContext?: DomainContext | null; preferSubdomainRoot?: boolean; collection?:string;
 }) {
   const base = buildPublicHotelAreaHref({ ...input, area: 'turismo', language: 'pt' });
-  return `${base}/${encodeURIComponent(input.itemSlug)}${buildLanguageQuery(input.language)}`;
+  const query=new URLSearchParams();if(input.language!=='pt')query.set('lang',input.language);if(input.collection)query.set('collection',input.collection);
+  return `${base}/${encodeURIComponent(input.itemSlug)}${query.size?'?'+query:''}`;
 }

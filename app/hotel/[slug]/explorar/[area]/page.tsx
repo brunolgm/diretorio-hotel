@@ -14,7 +14,7 @@ export default async function PublicHotelSlugAreaPage({
   searchParams,
 }: {
   params: Promise<{ slug: string; area: string }>;
-  searchParams?: Promise<{ lang?: string; type?: string }>;
+  searchParams?: Promise<{ lang?: string; type?: string; collection?:string; category?:string }>;
 }) {
   const { slug, area } = await params;
   if (!isPublicHotelAreaKey(area)) notFound();
@@ -24,7 +24,7 @@ export default async function PublicHotelSlugAreaPage({
   const domainContext = await getRequestDomainContext();
   if (area === 'turismo') {
     const data = await getPublicTourismDataBySlug(slug, language);
-    if (data) return <PublicTourismContent data={data} language={language} domainContext={domainContext} preferSubdomainRoot={false} filter={resolvedSearchParams?.type} />;
+    if (data) return <PublicTourismContent data={data} language={language} domainContext={domainContext} preferSubdomainRoot={false} filter={resolvedSearchParams?.type} collection={resolvedSearchParams?.collection} category={resolvedSearchParams?.category} />;
   }
   const pageData = await getPublicHotelPageDataBySlug(slug, language);
   if (!pageData) notFound();

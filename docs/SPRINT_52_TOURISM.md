@@ -951,3 +951,25 @@ no diff. Resultado: APROVADA para uma nova auditoria final, sem stage/commit/pus
 Bugan continua isolado em `feat/bugan-recife-ux-v2`, HEAD
 `6a117d7542b884315a6cef57281b0b1b70bc4cdd`, sem checkout, alteração, teste artificial
 ou integração. Sua regressão continua obrigatória após reconciliação explícita.
+
+## Extensão compartilhada pós-Sprint 52 — vitrine e coleções V4 (29/10/2026)
+
+O domínio de itens, categorias, publicação, imagem opcional, traduções, RLS e RPCs da
+Sprint 52 permanece preservado. A configuração editorial da Home pode referenciar
+um item publicado ou uma coleção temática de slugs do mesmo catálogo. Coleção não
+é estabelecimento, passeio contratado ou outro banco. A migration incremental
+20261029105535 amplia somente o validador da apresentação; não cria conteúdo nem
+entitlements e não modifica migrations históricas.
+
+Filtros mostram tipos/categorias que existem na seleção publicada, respeitando
+hotel/idioma/contexto privado. Slugs de terceiros ou itens não publicados nunca
+entram na seleção. Sem conteúdo elegível o card associado deixa de ser oferecido;
+sem dados adicionais o catálogo não promete detalhe repetitivo. Imagens editoriais
+aprovadas da Home permanecem ilustrações, separadas das fotos opcionais dos itens.
+
+Dados do piloto, fontes e quatro associações estão no manifesto
+`docs/bootstrap/bugan-tourism-v4-20261029.json`, como plano ainda dependente de
+execução autenticada. Praça de Boa Viagem e Shopping Recife são preservados; Praia
+de Boa Viagem será outro item. O bootstrap canônico protege contra duplicação e
+edição manual, e as traduções preparadas não usam Google. Detalhes da decisão e
+limitações estão no checkpoint mais recente de `docs/PRODUCT_MAP.md`.

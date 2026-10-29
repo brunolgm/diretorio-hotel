@@ -1,0 +1,267 @@
+{
+    "version":  1,
+    "projectRef":  "micuekfznunwwofxnovw",
+    "hotelId":  "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+    "namespace":  "bugan-tourism-v4-20261029",
+    "expectedStatus":  "suspended",
+    "expectedPresentationRevision":  2,
+    "sources":  [
+                    "https://visit.recife.pe.gov.br/roteiros/roteiro-teste-1-dia/",
+                    "https://visit.recife.pe.gov.br/lugar/marco-zero/",
+                    "https://pacodofrevo.org.br/visite/",
+                    "https://visit.recife.pe.gov.br/lugar/embaixada-dos-bonecos-gigantes/",
+                    "https://visit.recife.pe.gov.br/lugar/praca-de-boa-viagem/",
+                    "https://visit.recife.pe.gov.br/roteiros/roteiro-teste-3-dias/"
+                ],
+    "checkedOn":  "2026-10-29",
+    "photos":  "No new attraction photos: license not confirmed; approved illustrative Home assets preserved",
+    "entries":  [
+                    {
+                        "key":  "praia-de-boa-viagem",
+                        "domain":  "tourism",
+                        "values":  {
+                                       "name":  "Praia de Boa Viagem",
+                                       "type":  "PLACE",
+                                       "category_key":  "beaches_and_nature",
+                                       "short_description":  "Orla de Boa Viagem para apreciar a paisagem.",
+                                       "full_description":  "O roteiro municipal destaca caminhadas pela orla e a ciclovia como formas de conhecer a região.",
+                                       "official_website_url":  "https://visit.recife.pe.gov.br/roteiros/roteiro-teste-3-dias/",
+                                       "is_published":  true
+                                   },
+                        "translations":  {
+                                             "en":  {
+                                                        "name":  "Praia de Boa Viagem",
+                                                        "short_description":  "Boa Viagem waterfront and its coastal scenery.",
+                                                        "full_description":  "The municipal guide highlights waterfront walks and the cycle path as ways to explore the area."
+                                                    },
+                                             "es":  {
+                                                        "name":  "Praia de Boa Viagem",
+                                                        "short_description":  "La orla de Boa Viagem y su paisaje costero.",
+                                                        "full_description":  "La guía municipal destaca los paseos por la orla y la ciclovía para conocer la zona."
+                                                    }
+                                         }
+                    },
+                    {
+                        "key":  "marco-zero",
+                        "domain":  "tourism",
+                        "values":  {
+                                       "name":  "Marco Zero",
+                                       "type":  "PLACE",
+                                       "category_key":  "sights",
+                                       "short_description":  "Praça de referência na entrada do Recife Antigo.",
+                                       "full_description":  "A Praça Barão do Rio Branco, conhecida como Marco Zero, reúne um espaço aberto com vista para o rio e o porto, em meio à paisagem histórica do Bairro do Recife.",
+                                       "official_website_url":  "https://visit.recife.pe.gov.br/lugar/marco-zero/",
+                                       "is_published":  true
+                                   },
+                        "translations":  {
+                                             "en":  {
+                                                        "name":  "Marco Zero",
+                                                        "short_description":  "A landmark square at the entrance to Recife Antigo.",
+                                                        "full_description":  "Praça Barão do Rio Branco, known as Marco Zero, is an open square overlooking the river and port amid the historic setting of Bairro do Recife."
+                                                    },
+                                             "es":  {
+                                                        "name":  "Marco Zero",
+                                                        "short_description":  "Una plaza emblemática a la entrada del Recife Antigo.",
+                                                        "full_description":  "La Praça Barão do Rio Branco, conocida como Marco Zero, es un espacio abierto con vistas al río y al puerto, en el entorno histórico del Bairro do Recife."
+                                                    }
+                                         }
+                    },
+                    {
+                        "key":  "rua-do-bom-jesus",
+                        "domain":  "tourism",
+                        "values":  {
+                                       "name":  "Rua do Bom Jesus",
+                                       "type":  "PLACE",
+                                       "category_key":  "culture_and_history",
+                                       "short_description":  "Rua histórica no Bairro do Recife.",
+                                       "full_description":  "No Recife Antigo, integra o roteiro municipal de visita ao patrimônio do bairro.",
+                                       "official_website_url":  "https://visit.recife.pe.gov.br/roteiros/roteiro-teste-1-dia/",
+                                       "is_published":  true
+                                   },
+                        "translations":  {
+                                             "en":  {
+                                                        "name":  "Rua do Bom Jesus",
+                                                        "short_description":  "A historic street in Bairro do Recife.",
+                                                        "full_description":  "In Recife Antigo, it forms part of the municipal guide to the neighborhood\u0027s heritage."
+                                                    },
+                                             "es":  {
+                                                        "name":  "Rua do Bom Jesus",
+                                                        "short_description":  "Una calle histórica en el Bairro do Recife.",
+                                                        "full_description":  "En el Recife Antigo, forma parte de la guía municipal del patrimonio del barrio."
+                                                    }
+                                         }
+                    },
+                    {
+                        "key":  "paco-do-frevo",
+                        "domain":  "tourism",
+                        "values":  {
+                                       "name":  "Paço do Frevo",
+                                       "type":  "PLACE",
+                                       "category_key":  "culture_and_history",
+                                       "short_description":  "Centro de referência dedicado à música e à dança do frevo.",
+                                       "full_description":  "Instalado no Bairro do Recife, o espaço apresenta o frevo como patrimônio cultural, com ações de difusão, pesquisa e formação. Consulte o site do próprio equipamento para planejar a visita.",
+                                       "official_website_url":  "https://pacodofrevo.org.br/visite/",
+                                       "is_published":  true
+                                   },
+                        "translations":  {
+                                             "en":  {
+                                                        "name":  "Paço do Frevo",
+                                                        "short_description":  "A reference center dedicated to frevo music and dance.",
+                                                        "full_description":  "Located in Bairro do Recife, the center presents frevo as cultural heritage through outreach, research and education. Check the venue\u0027s own website to plan your visit."
+                                                    },
+                                             "es":  {
+                                                        "name":  "Paço do Frevo",
+                                                        "short_description":  "Centro de referencia dedicado a la música y la danza del frevo.",
+                                                        "full_description":  "En el Bairro do Recife, el centro presenta el frevo como patrimonio cultural mediante difusión, investigación y formación. Consulte el sitio del propio espacio para planificar su visita."
+                                                    }
+                                         }
+                    },
+                    {
+                        "key":  "embaixada-dos-bonecos-gigantes",
+                        "domain":  "tourism",
+                        "values":  {
+                                       "name":  "Embaixada dos Bonecos Gigantes",
+                                       "type":  "PLACE",
+                                       "category_key":  "culture_and_history",
+                                       "short_description":  "Espaço dedicado aos bonecos gigantes e à memória carnavalesca.",
+                                       "full_description":  "O acervo reúne bonecos históricos e contemporâneos, com personagens da cultura local, nacional e internacional. A visita permite conhecer essa expressão da cultura popular pernambucana.",
+                                       "address":  "Rua do Bom Jesus, 183, Recife – PE",
+                                       "official_website_url":  "https://visit.recife.pe.gov.br/lugar/embaixada-dos-bonecos-gigantes/",
+                                       "is_published":  true
+                                   },
+                        "translations":  {
+                                             "en":  {
+                                                        "name":  "Embaixada dos Bonecos Gigantes",
+                                                        "short_description":  "A venue devoted to giant puppets and carnival heritage.",
+                                                        "full_description":  "The collection brings together historic and contemporary puppets portraying local, national and international figures. A visit introduces this expression of Pernambuco\u0027s popular culture."
+                                                    },
+                                             "es":  {
+                                                        "name":  "Embaixada dos Bonecos Gigantes",
+                                                        "short_description":  "Espacio dedicado a los muñecos gigantes y la memoria del carnaval.",
+                                                        "full_description":  "La colección reúne muñecos históricos y contemporáneos de personajes locales, nacionales e internacionales. La visita permite conocer esta expresión de la cultura popular de Pernambuco."
+                                                    }
+                                         }
+                    }
+                ],
+    "destinations":  [
+                         {
+                             "kind":  "item",
+                             "slug":  "praia-de-boa-viagem"
+                         },
+                         {
+                             "kind":  "collection",
+                             "key":  "recife-antigo",
+                             "item_slugs":  [
+                                                "marco-zero",
+                                                "rua-do-bom-jesus",
+                                                "paco-do-frevo"
+                                            ],
+                             "description":  {
+                                                 "pt":  "Lugares publicados para conhecer a história e a paisagem do Recife Antigo.",
+                                                 "en":  "Published places to discover the history and setting of Recife Antigo.",
+                                                 "es":  "Lugares publicados para conocer la historia y el entorno del Recife Antigo."
+                                             }
+                         },
+                         {
+                             "kind":  "collection",
+                             "key":  "visitas-culturais",
+                             "item_slugs":  [
+                                                "paco-do-frevo",
+                                                "embaixada-dos-bonecos-gigantes"
+                                            ],
+                             "description":  {
+                                                 "pt":  "Espaços culturais para visita independente. Esta seleção não oferece passeio contratado ou reserva.",
+                                                 "en":  "Cultural venues for independent visits. This selection does not offer a contracted tour or booking.",
+                                                 "es":  "Espacios culturales para visitas independientes. Esta selección no ofrece excursión contratada ni reserva."
+                                             }
+                         },
+                         {
+                             "kind":  "collection",
+                             "key":  "cultura-local",
+                             "item_slugs":  [
+                                                "paco-do-frevo",
+                                                "embaixada-dos-bonecos-gigantes",
+                                                "rua-do-bom-jesus"
+                                            ],
+                             "description":  {
+                                                 "pt":  "Referências ao frevo, aos bonecos gigantes e ao patrimônio do Bairro do Recife.",
+                                                 "en":  "Explore frevo, giant puppets and the heritage of Bairro do Recife.",
+                                                 "es":  "Conozca el frevo, los muñecos gigantes y el patrimonio del Bairro do Recife."
+                                             }
+                         }
+                     ],
+    "updates":  [
+                    {
+                        "id":  "142ab4e0-5e13-4f18-bd6b-765dd457f155",
+                        "expected":  {
+                                         "name":  "Praça de Boa Viagem",
+                                         "slug":  "praca-de-boa-viagem",
+                                         "type":  "PLACE",
+                                         "category_key":  "sights",
+                                         "short_description":  "Praça no bairro de Boa Viagem, a aproximadamente 400 m do hotel segundo a página oficial. Uma opção próxima para conhecer a região.",
+                                         "full_description":  "Praça no bairro de Boa Viagem, a aproximadamente 400 m do hotel segundo a página oficial. Uma opção próxima para conhecer a região.",
+                                         "address":  null,
+                                         "map_url":  null,
+                                         "official_website_url":  null,
+                                         "phone":  null,
+                                         "whatsapp_number":  null,
+                                         "opening_hours":  null,
+                                         "price_info":  null,
+                                         "duration_info":  null,
+                                         "featured":  false,
+                                         "recommended_by_hotel":  false,
+                                         "is_published":  true,
+                                         "sort_order":  0,
+                                         "main_image_path":  null
+                                     },
+                        "values":  {
+                                       "full_description":  "A praça fica junto à orla de Boa Viagem e à Igreja de Nossa Senhora da Boa Viagem. Conta com áreas arborizadas e espaços de convivência.",
+                                       "address":  "Avenida Boa Viagem, s/n, Boa Viagem, Recife – PE",
+                                       "official_website_url":  "https://visit.recife.pe.gov.br/lugar/praca-de-boa-viagem/"
+                                   },
+                        "previousTranslations":  {
+                                                     "en":  {
+                                                                "name":  "Boa Viagem Square",
+                                                                "short_description":  "A square in the Boa Viagem neighborhood, approximately 400 meters from the hotel according to the official website. A nearby option for exploring the area.",
+                                                                "full_description":  "A square in the Boa Viagem neighborhood, approximately 400 meters from the hotel according to the official website. A nearby option for exploring the area.",
+                                                                "opening_hours":  null,
+                                                                "price_info":  null,
+                                                                "duration_info":  null
+                                                            },
+                                                     "es":  {
+                                                                "name":  "Plaza Boa Viagem",
+                                                                "short_description":  "Una plaza en el barrio de Boa Viagem, a unos 400 metros del hotel según la página web oficial. Una opción cercana para explorar la zona.",
+                                                                "full_description":  "Una plaza en el barrio de Boa Viagem, a unos 400 metros del hotel según la página web oficial. Una opción cercana para explorar la zona.",
+                                                                "opening_hours":  null,
+                                                                "price_info":  null,
+                                                                "duration_info":  null
+                                                            }
+                                                 },
+                        "translations":  {
+                                             "en":  {
+                                                        "full_description":  "The square is beside the Boa Viagem waterfront and Igreja de Nossa Senhora da Boa Viagem. It has shaded areas and spaces for gathering."
+                                                    },
+                                             "es":  {
+                                                        "full_description":  "La plaza está junto a la orla de Boa Viagem y la Igreja de Nossa Senhora da Boa Viagem. Cuenta con zonas arboladas y espacios de convivencia."
+                                                    }
+                                         }
+                    }
+                ],
+    "translationCorrection":  {
+                                  "sectionId":  "c0d9e423-fd45-4e35-a9c5-8dfa5ac01234",
+                                  "language":  "en",
+                                  "expectedTitle":  "Filipe Restaurant",
+                                  "title":  "Restaurante Filipe"
+                              },
+    "airportOfficialLink":  {
+                                "iata":  "REC",
+                                "url":  "https://www.aenabrasil.com.br/pt/aeroportos/aeroporto-internacional-do-recife-guararapes-gilberto-freyre/Informacoes-de-voo.html",
+                                "status":  "verified_source_pending_canonical_global_catalog_maintenance; no airport or operational flag changes"
+                            },
+    "mediaTranslationCorrection":  {
+                                       "slot":  "restaurant",
+                                       "language":  "en",
+                                       "expectedTitle":  "Filipe Restaurant",
+                                       "title":  "Restaurante Filipe"
+                                   }
+}
