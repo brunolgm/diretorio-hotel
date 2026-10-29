@@ -196,3 +196,14 @@
  .public-experience-v3 .v3-editorials { margin-bottom:8px; }
  .public-experience-v3 .v3-footer { padding-top:27px; }
 }
+
+/* Mobile finishing: keep the approved hero and desktop composition intact. */
+@media(max-width:767px) {
+ .public-experience-v3 .v3-editorial.v3-editorial-about .v3-editorial-copy { width:58%; padding:22px 16px; }
+ .public-experience-v3 .v3-editorial.v3-editorial-about .v3-editorial-picture { width:42%; }
+ .public-experience-v3 .v3-editorial.v3-editorial-about .v3-editorial-copy h2 { font-size:25px; line-height:1.12; }
+ .public-experience-v3 .v3-editorial.v3-editorial-about .v3-editorial-copy>p:not(.v3-eyebrow) { font-size:13px; line-height:1.6; }
+ .public-experience-v3 .v3-tourism-cards { scroll-padding-inline:8px; overscroll-behavior-inline:contain; scrollbar-width:thin; }
+ .public-experience-v3 .v3-tourism-cards>a { flex-basis:max(144px,min(180px,calc((100% - 44px)/2))); }
+ .public-experience-v3 .v3-footer { padding-top:28px; padding-bottom:24px; }
+}
