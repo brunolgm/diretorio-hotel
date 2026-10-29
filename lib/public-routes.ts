@@ -65,6 +65,7 @@ export function buildPublicHotelHref({
   domainContext?: DomainContext | null;
   preferSubdomainRoot?: boolean;
 }) {
+  if (domainContext?.navigationScope === 'authenticated-preview') return `/preview${buildLanguageQuery(language)}`;
   if (
     preferSubdomainRoot &&
     isHotelSubdomainContext(domainContext)
@@ -88,6 +89,7 @@ export function buildPublicHotelServiceHref({
   domainContext?: DomainContext | null;
   preferSubdomainRoot?: boolean;
 }) {
+  if (domainContext?.navigationScope === 'authenticated-preview') return `/preview/servicos/${encodeURIComponent(serviceId)}${buildLanguageQuery(language)}`;
   if (
     preferSubdomainRoot &&
     isHotelSubdomainContext(domainContext)
@@ -111,6 +113,7 @@ export function buildPublicHotelAreaHref({
   domainContext?: DomainContext | null;
   preferSubdomainRoot?: boolean;
 }) {
+  if (domainContext?.navigationScope === 'authenticated-preview') return `/preview/explorar/${area}${buildLanguageQuery(language)}`;
   const path = preferSubdomainRoot && isHotelSubdomainContext(domainContext)
     ? `/explorar/${area}`
     : `/hotel/${slug}/explorar/${area}`;
@@ -129,6 +132,7 @@ export function buildPublicHotelFlightCenterHref({
   domainContext?: DomainContext | null;
   preferSubdomainRoot?: boolean;
 }) {
+  if (domainContext?.navigationScope === 'authenticated-preview') return `/preview/explorar/voos${buildLanguageQuery(language)}`;
   const path = preferSubdomainRoot && isHotelSubdomainContext(domainContext)
     ? '/explorar/voos'
     : `/hotel/${slug}/explorar/voos`;

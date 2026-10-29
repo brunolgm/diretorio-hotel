@@ -7,7 +7,7 @@ export async function getAuthenticatedHotelPreviewData(language: SupportedPublic
   const { requireHotelModule, getCurrentHotelEntitlements } = await import('@/lib/admin-entitlements');
   const { createClient } = await import('@/lib/supabase/server');
   const { getRenderableExperienceLayout } = await import('@/lib/experience-layout');
-  const { profile } = await requireAdminAccess('editor');
+  const { profile } = await requireAdminAccess('administrador');
   await requireHotelModule('experience.preview');
   await requireHotelModule('core.directory');
   const client = await createClient();

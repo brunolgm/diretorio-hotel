@@ -152,7 +152,7 @@ export function HotelPublicFlightCenter({
   };
   const navigationItems = getCanonicalPublicNavigationKeys(navigationAvailability)
     .map((key) => navigationItemsByKey[key]);
-  const actionItems = [
+  const actionItems = domainContext.navigationScope === 'authenticated-preview' ? [] : [
     settings.transferEnabled ? { action: 'transfer' as const, label: copy.transfer, icon: BusFront, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.transferRequestMessage }) } : null,
     settings.wakeUpEnabled ? { action: 'wake_up' as const, label: copy.wakeUp, icon: AlarmClock, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.wakeUpRequestMessage }) } : null,
     settings.breakfastBoxEnabled ? { action: 'breakfast_box' as const, label: copy.breakfastBox, icon: Coffee, ...buildHotelServiceActionDestination({ whatsappNumber: hotel.whatsapp_number, contactHref, message: copy.breakfastBoxRequestMessage }) } : null,
@@ -223,7 +223,7 @@ export function HotelPublicFlightCenter({
         </nav>
 
         <section className={`mt-5 space-y-5 ${isGrandMercure ? 'grand-mercure-last-content mb-8 md:mb-4' : isNovotel || isMercure ? 'mb-8 md:mb-4' : ''}`}>
-          {tab === 'meu-voo' ? (
+          {domainContext.navigationScope === 'authenticated-preview' && tab === 'meu-voo' ? <p role="status">{language==='en'?'Read-only preview: flight queries and external operations are disabled.':language==='es'?'Vista previa de solo lectura: consultas de vuelos y operaciones externas desactivadas.':'Prévia somente leitura: consultas de voos e operações externas desativadas.'}</p> : tab === 'meu-voo' ? (
             <GuestFlightManager hotelId={hotel.id} hotelSlug={hotel.slug} language={language} airportOptions={flightAirportOptions}
               planning={{ enabled: settings.departurePlanningEnabled, notice: settings.departureNotice }} planningFallback={planningFallback} />
           ) : (

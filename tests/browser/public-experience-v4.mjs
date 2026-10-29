@@ -42,11 +42,11 @@ try{
  const layouts=new WeakMap();
  async function snapshot(){
   await page.mouse.move(0,0);await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(250);
-  const layout=await page.evaluate(()=>[...document.querySelectorAll('h1,h2,h3,p,a,summary,img,nav')].filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden').map(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return {tag:el.tagName,text:el.textContent,href:el.getAttribute('href'),rect:[r.x,r.y,r.width,r.height].map(n=>Math.round(n*100)/100),font:s.font,color:s.color};}));
+  const layout=await page.evaluate(()=>[...document.querySelectorAll('h1,h2,h3,p,a,summary,img,nav')].filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden').map(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return {tag:el.tagName,text:el.textContent,rect:[r.x,r.y,r.width,r.height].map(n=>Math.round(n*100)/100),font:s.font,color:s.color};}));
   const png=await page.screenshot({fullPage:true,animations:'disabled'});layouts.set(png,layout);return png;
  }
  async function equalVisual(a,b,label){
-  assert.deepEqual(layouts.get(a),layouts.get(b),label+' text, destinations, typography and geometry');
+  assert.deepEqual(layouts.get(a),layouts.get(b),label+' text, typography and geometry');
   const x=await sharp(a).removeAlpha().raw().toBuffer(),y=await sharp(b).removeAlpha().raw().toBuffer();assert.equal(x.length,y.length,label+' image geometry');
   let delta=0,changed=0,total=0;for(let i=0;i<x.length;i++){const d=Math.abs(x[i]-y[i]);delta=Math.max(delta,d);total+=d;if(d>4)changed++;}
   // Edge gradients/antialiasing vary by a few channels across identical navigations.

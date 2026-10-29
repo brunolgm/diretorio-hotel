@@ -78,9 +78,9 @@ test('slug alias is private and only resolves active, entitled public hotels',()
  assert.match(source,/\.from\('public_hotels'\)/);
 });
 
-test('suspended preview requires editor cookie session, own tenant and entitlements without bypassing public RLS',()=>{
+test('suspended preview requires administrator cookie session, own tenant and entitlements without bypassing public RLS',()=>{
  const preview=read('lib/authenticated-hotel-preview.ts');
- assert.match(preview,/requireAdminAccess\('editor'\)/);
+ assert.match(preview,/requireAdminAccess\('administrador'\)/);
  assert.match(preview,/requireHotelModule\('experience.preview'\)/);
  assert.match(preview,/requireHotelModule\('core.directory'\)/);
  assert.match(preview,/\.eq\('id',profile.hotel_id\)/);

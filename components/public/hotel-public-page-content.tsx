@@ -451,7 +451,7 @@ export function HotelPublicPageContent({
                   <LanguageSwitcher
                     slug={hotel.slug}
                     currentLanguage={language}
-                    basePath={useSubdomainRoot ? '/' : undefined}
+                    basePath={domainContext.navigationScope === 'authenticated-preview' ? '/preview' : useSubdomainRoot ? '/' : undefined}
                   />
                 </div>
               </div>
