@@ -27,7 +27,7 @@ export function GuestFlightStatus({ flight, hotelSlug, timezone, language, manua
   const message = state.error === 'outside_provider_window' ? copy.outside
     : state.error === 'unverifiable' || state.error === 'provider_window_unverified' ? copy.unverifiable
     : state.error === 'not_found' ? copy.notFound
-    : ['quota_exhausted','quota_exceeded','rate_limited','budget_unavailable','in_progress','provider_cooldown'].includes(state.error ?? '') ? copy.limited : copy.unavailable;
+    : ['quota_exhausted','quota_exceeded','rate_limited','in_progress'].includes(state.error ?? '') ? copy.limited : copy.unavailable;
   const updated = data ? new Intl.DateTimeFormat(language === 'pt' ? 'pt-BR' : language === 'es' ? 'es-ES' : 'en-US', {
     timeZone: timezone ?? 'UTC', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
   }).format(new Date(data.updatedAt)) : null;

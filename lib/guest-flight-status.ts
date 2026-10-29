@@ -1,5 +1,6 @@
 import { localTime, object, scheduleWindowError, validateFlightQuery, type FlightQuery, type FlightStatusRequest } from './flights/flight-status.ts';
 import type { SavedGuestFlight } from './guest-flight-storage.ts';
+import {flightIataReference} from './airline-official-links.ts';
 
 // Resolve a wall clock in the configured airport zone, never the device zone.
 // Reject DST gaps and folds instead of guessing which instant the guest meant.
@@ -25,9 +26,8 @@ export function airportDepartureInstant(local: string, zone: string | null | und
 }
 
 export function guestStatusQuery(flight: SavedGuestFlight, hotelSlug: string, zone: string | null | undefined): FlightStatusRequest | null {
-  const full = flight.flightNumber;
-  const flight_iata = /^\d{1,4}[A-Z]?$/.test(full) ? (flight.airlineCode ?? '') + full : full;
-  if (flight.airlineCode && flight_iata.slice(0, 2) !== flight.airlineCode) return null;
+  const flight_iata=flightIataReference(flight.airlineCode,flight.flightNumber);
+  if(!flight_iata)return null;
   const scheduledDepartureAt = airportDepartureInstant(`${flight.departureDate}T${flight.scheduledDepartureTime}:00`, zone);
   if (!scheduledDepartureAt) return null;
   const q = validateFlightQuery({ flight_iata, departureDate: flight.departureDate, scheduledDepartureAt,

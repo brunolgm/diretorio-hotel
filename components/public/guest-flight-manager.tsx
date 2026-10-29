@@ -7,6 +7,7 @@ import {
   buildAirlineOfficialFlightUrl,
   copyOfficialFlightReference,
   resolveAirlineOfficialLink,
+  flightIataReference,
 } from '@/lib/airline-official-links';
 import { buildAirportRouteUrl, buildFlightCalendarFile } from '@/lib/flight-center-actions';
 import {
@@ -123,10 +124,13 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
   }
 
   if (flight && !editing) {
-    const officialAirline = resolveAirlineOfficialLink(flight.airlineCode);
+    const canonicalReference=flightIataReference(flight.airlineCode,flight.flightNumber);
+    const officialCode=canonicalReference?.slice(0,2)??flight.airlineCode;
+    const officialNumber=canonicalReference?.slice(2)??flight.flightNumber;
+    const officialAirline = resolveAirlineOfficialLink(officialCode);
     const airline = flight.airlineCode || flight.airlineName;
     const identifier = [airline, flight.flightNumber].filter(Boolean).join(' ');
-    const officialAirlineUrl = buildAirlineOfficialFlightUrl(flight.airlineCode, flight.flightNumber);
+    const officialAirlineUrl = buildAirlineOfficialFlightUrl(officialCode, officialNumber);
     const departureAirport = airportOptions.find((item) => item.iataCode === flight.departureAirport) || null;
     const officialAirportUrl = departureAirport?.officialUrl || null;
     const officialUrl = officialAirlineUrl || officialAirportUrl;
@@ -177,7 +181,7 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
               data-analytics-event="flight_official_link_click"
               onClick={officialAirline && !officialAirline.supportsFlightNumberInUrl ? () => {
                 setOfficialMessage(null);
-                void copyOfficialFlightReference(navigator.clipboard, flight.airlineCode, flight.flightNumber)
+                void copyOfficialFlightReference(navigator.clipboard, officialCode, officialNumber)
                   .then((copied) => setOfficialMessage(copied ? copy.flightNumberCopied : copy.clipboardUnavailable));
               } : undefined}
               className="col-span-2 inline-flex min-h-12 items-center justify-center rounded-[14px] bg-[var(--hotel-accent)] px-3 py-2 text-center text-sm font-semibold text-[color:var(--hotel-accent-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"

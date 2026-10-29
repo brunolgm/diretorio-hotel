@@ -110,3 +110,42 @@ O rollback estrutural está em `supabase/tests/51_airlabs_rollback.sql`; remove
 apenas os objetos novos, mas descarta histórico de quota. Em ambiente implantado,
 exige interrupção dos callers e decisão operacional explícita. Não foi aplicado
 a ambiente remoto.
+
+## Diagnóstico operacional de 29/10/2026
+
+O único orçamento interno encontrado em produção cobre
+`2026-09-07T02:27:19Z` até `2026-10-07T00:00:00Z`: teto 900,
+17 unidades reservadas. É histórico e expirado. Nenhum contador ou período foi
+alterado. `AIRLABS_API_KEY` e `AIRLABS_ACCOUNT_SCOPE` estão configurados no escopo
+de produção, sem inspeção/divulgação dos valores; presença não valida a chave.
+
+O usuário informou aproximadamente quatro requisições usadas e mil disponíveis
+no painel do provedor, sem datas exatas do ciclo. Portanto período de faturamento,
+reconciliação de consumo e teto interno vigente continuam não confirmados.
+Disponibilidade aproximada no provedor não autoriza reset do controle LibGuest.
+Antes de outro teste real é necessária configuração operacional autorizada com
+início/fim válidos, consumo reconciliado e teto aprovado, preservando o histórico
+e os controles existentes; não há RPC pública para administrar esse orçamento.
+
+O teste controlado autorizado tinha limite de duas requisições ao provedor. A
+ocorrência fornecida manualmente foi Azul AZU4277 / IATA AD4277, 29/10/2026,
+REC–CGH, partida programada 16:40 America/Recife. O POST canônico respondeu HTTP
+503 `budget_unavailable`, antes da chamada externa. Uma sondagem sintética anterior
+também foi bloqueada. Total AirLabs: zero requisições; consumo interno permaneceu
+17. Sem retry, polling, mudança de plano, extração da Aena ou status inventado.
+As duas sondagens passam pelos registros operacionais normais de rate buckets e
+cache do coordenador, antes da validação de orçamento; isso não reserva crédito
+nem modifica o contrato v1 ou dados do voo manual.
+
+Estimativa 16:55, terminal T1, portão 16 e “CONFIRMADO” são somente a referência
+manual do usuário na Aena, não dados retornados pela AirLabs. Não houve match nem
+status do provedor e não é possível comparar fontes operacionalmente. A integração
+real permanece NÃO CONFIRMADA / NO-GO até resolver a configuração e obter evidência
+real elegível. Testes com fixtures não alteram essa classificação.
+
+O normalizador de consulta reconhece o alias Azul AZU → AD do catálogo oficial
+compartilhado, preservando o voo manual v1 e zeros. Identificadores conflitantes,
+ICAO desconhecido e codeshares não são convertidos arbitrariamente. Referência de
+identidade: [diretório oficial de companhias da Aena](https://www.aenabrasil.com.br/en/airports/maceio-zumbi-dos-palmares-international-airport/airline-companies.html).
+O fallback Azul usa o link oficial já existente. REC tem link oficial desabilitado
+no catálogo atual; não foi inserida URL por fora de seu contrato administrativo.

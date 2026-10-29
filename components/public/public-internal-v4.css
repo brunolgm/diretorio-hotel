@@ -25,6 +25,7 @@
  [data-public-internal-v4]:has(>.public-bottom-dock) { display:grid; grid-template-rows:minmax(0,1fr) auto; height:100dvh; min-height:0; overflow:hidden; padding-bottom:0; }
  [data-public-internal-v4]:has(>.public-bottom-dock)>[data-public-internal-body] { min-height:0; width:100%; overflow-y:auto; overscroll-behavior-y:contain; scroll-padding-block:16px 24px; }
  [data-public-internal-v4]>.public-bottom-dock { position:static; }
+ [data-public-internal-v4][data-flight-viewport]:has(>.public-bottom-dock) { height:var(--public-flight-viewport-height,100dvh); }
  [data-public-internal-v4] .public-area-hero { padding:12px 16px 16px; }
  [data-public-internal-v4] .public-area-hero h1 { font-size:25px; }
  [data-public-internal-v4] .hotel-service-detail-identity { margin-top:16px; }

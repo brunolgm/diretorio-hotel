@@ -297,6 +297,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 
     return (
       <HotelPublicPageContent
+        {...pageData}
         hotel={pageData.hotel}
         banners={pageData.banners}
         announcements={pageData.announcements}

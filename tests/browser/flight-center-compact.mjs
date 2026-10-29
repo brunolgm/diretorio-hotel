@@ -9,7 +9,7 @@ import { createServer } from 'node:http';
 const require = createRequire(import.meta.url);
 const toolRequire = createRequire(join(process.env.TOOL_NODE_MODULES, 'package.json'));
 const { build } = toolRequire('esbuild');
-const { chromium } = toolRequire('playwright');
+const { chromium } = require('playwright');
 const root = process.cwd();
 const output = resolve('out/flight-center-compact');
 mkdirSync(output, { recursive: true });
@@ -45,20 +45,23 @@ const server = createServer((req, res) => {
 await new Promise(resolve => server.listen(process.argv.includes('--serve') ? 4173 : 4174, '127.0.0.1', resolve));
 console.log('Fixture server: http://127.0.0.1:4173/after');
 if (process.argv.includes('--serve')) await new Promise(() => {});
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true,channel:process.env.V3_BROWSER_CHANNEL??'msedge' });
 const rows = [];
 try {
   const page = await browser.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
-  await page.clock.setFixedTime(new Date('2026-09-09T18:00:00Z'));
+  if(process.argv.includes('--form'))await page.clock.install({time:new Date('2026-09-09T18:00:00Z')});else await page.clock.setFixedTime(new Date('2026-09-09T18:00:00Z'));
   async function visit(version, query) {
     await page.goto(`http://127.0.0.1:4174/${version}?${query}`);
     await page.locator('[data-saved-guest-flight]').waitFor();
     await page.waitForFunction(() => document.querySelector('[data-guest-flight-status]')?.getAttribute('aria-busy') === 'false');
     if (!query.includes('generic')) await page.locator('[data-flight-recommendation]').waitFor();
   }
+  if(process.argv.includes('--form')){
+    const {runFlightForm}=await import('./flight-form-v4.mjs');rows.push(...await runFlightForm({page,output}));
+  }else{
   for (const theme of ['grand-mercure', 'novotel', 'mercure', 'default']) for (const lang of ['pt', 'en', 'es']) for (const width of [320, 360, 390, 430, ...(theme === 'grand-mercure' ? [1440] : [])]) {
     await page.setViewportSize({ width, height: 900 });
     const query = new URLSearchParams({ theme, lang, scenario: 'outside' });
@@ -129,6 +132,7 @@ try {
   await page.getByRole('button', { name: 'Cancelar', exact: true }).click();
   await page.getByRole('button', { name: 'Remover voo' }).click();
   assert.equal(await page.evaluate(() => localStorage.getItem('libguest:flight:50200000-0000-4000-8000-000000000001:v1')), null);
+  }
   assert.deepEqual(errors, []);
   writeFileSync(join(output, 'measurements.json'), JSON.stringify(rows, null, 2));
   console.log(JSON.stringify({ passed: true, comparisons: rows.length, rows: rows.filter(r => r.theme === 'grand-mercure' && r.lang === 'pt'), browserErrors: errors }, null, 2));
