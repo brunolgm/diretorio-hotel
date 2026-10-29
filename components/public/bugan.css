@@ -187,3 +187,12 @@
  .public-experience-v3 .v3-tourism-cards { padding:0 8px 12px; }
  .public-experience-v3 .v3-tourism-cards>a { flex:0 0 200px; height:165px; }
 }
+
+/* Desktop finishing: preserve the approved mobile composition and media framing. */
+@media(min-width:1200px) {
+ .public-experience-v3 .v3-subtitle { max-width:640px; }
+ .public-experience-v3 .v3-hero-treatment { background:linear-gradient(90deg,rgba(24,20,17,.64) 0%,rgba(24,20,17,.64) 22%,rgba(24,20,17,.28) 47%,rgba(24,20,17,.03) 61%,transparent 72%),linear-gradient(0deg,rgba(24,20,17,.16),transparent 48%); }
+ .public-experience-v3 .v3-body { padding-top:16px; }
+ .public-experience-v3 .v3-editorials { margin-bottom:8px; }
+ .public-experience-v3 .v3-footer { padding-top:27px; }
+}
