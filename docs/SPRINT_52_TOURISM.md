@@ -968,8 +968,19 @@ sem dados adicionais o catálogo não promete detalhe repetitivo. Imagens editor
 aprovadas da Home permanecem ilustrações, separadas das fotos opcionais dos itens.
 
 Dados do piloto, fontes e quatro associações estão no manifesto
-`docs/bootstrap/bugan-tourism-v4-20261029.json`, como plano ainda dependente de
-execução autenticada. Praça de Boa Viagem e Shopping Recife são preservados; Praia
-de Boa Viagem será outro item. O bootstrap canônico protege contra duplicação e
-edição manual, e as traduções preparadas não usam Google. Detalhes da decisão e
-limitações estão no checkpoint mais recente de `docs/PRODUCT_MAP.md`.
+`docs/bootstrap/bugan-tourism-v4-20261029.json`. A execução autenticada foi parcial:
+cinco novos itens e dez traduções completos; Praça enriquecida em PT com resumo
+preservado; Shopping intacto. Praia e Praça são itens distintos. A invalidação
+seletiva de `full_description` EN/ES da Praça foi indevidamente rejeitada pelo
+executor com PT409 local. As duas descrições, os dois títulos EN do Restaurante
+Filipe e as quatro associações ainda não foram concluídos. Apresentação: revisão 2.
+
+Retomada direcionada preparada em `scripts/resume-bugan-tourism-v4.ps1`, com snapshot
+auditado dos sete itens e 14 traduções. Não repete bootstrap nem o enriquecimento PT;
+confere dados concluídos, usa patches mínimos e as RPCs/revisões existentes. Mock da
+RPC corrigido para invalidar somente os campos cujo PT mudou. Idempotência, conflitos,
+persistência não confirmada e resposta ambígua têm regressão local. Sem migration,
+mudança em RLS/grants, Google, Storage, aeroporto, lifecycle ou administradores.
+Execução real da retomada e homologação dos quatro destinos em `/preview` continuam
+pendentes da sessão normal do administrador; Bugan permanece `suspended`. Detalhes
+da decisão e limitações estão no checkpoint mais recente de `docs/PRODUCT_MAP.md`.

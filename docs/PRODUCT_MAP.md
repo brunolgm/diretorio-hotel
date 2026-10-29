@@ -20,15 +20,45 @@ acessível por “Ver todas as atrações”; detalhe preserva seleção e idiom
 Sem imagem licenciada não há imagem/placeholder artificial no catálogo. “Ver detalhes”
 só é oferecido quando há informação além do resumo; descrição idêntica não é repetida.
 
-[PLANEJADO — DADOS PREPARADOS, EXECUÇÃO AUTENTICADA PENDENTE] Manifesto revisável
+[PARCIALMENTE APLICADO — AUDITORIA CONFIRMADA, RETOMADA AUTENTICADA PENDENTE] Manifesto revisável
 `docs/bootstrap/bugan-tourism-v4-20261029.json`: cinco lugares, traduções autorais
 EN/ES, enriquecimento da Praça e preservação do nome Restaurante Filipe em Serviço
 e mídia EN. O executor `scripts/apply-bugan-tourism-v4.ps1` usa login normal com senha
 oculta, RLS, bootstrap/RPCs canônicas e revisão da apresentação. Antes de escrever,
 confere módulos via `get_current_hotel_modules()`, suspensão e snapshots aprovados;
 conflito com edição humana gera interrupção. Não usa service role, Google, Storage,
-onboarding ou escrita manual em hotéis/profiles. Retomada é idempotente; o bootstrap
+onboarding ou escrita manual em hotéis/profiles. O bootstrap
 original passa a detectar a edição intencional da Praça, preservando o enriquecimento.
+
+A execução real criou cinco itens publicados e suas dez traduções EN/ES. Praça e
+Shopping conservaram seus IDs. O enriquecimento PT da Praça foi confirmado, com
+resumo preservado; a RPC invalidou somente `full_description` EN/ES. O executor
+interpretava incorretamente essa invalidação seletiva como PT409 local. O mock
+anterior apagava as linhas inteiras e não reproduzia o contrato real; foi corrigido.
+O estado auditado tem sete itens, 14 traduções, duas descrições pendentes, apresentação
+na revisão 2 e títulos EN do Restaurante Filipe ainda pendentes (serviço e mídia).
+
+`scripts/resume-bugan-tourism-v4.ps1` usa o modo explícito `--resume` e o checkpoint
+revisável `docs/bootstrap/bugan-tourism-v4-resume-20261029.json`. Confere os sete itens
+e as 14 traduções antes de escrever; não chama bootstrap nem regrava PT, Shopping
+ou as dez traduções novas. Conclui somente as duas descrições EN/ES da Praça, os dois
+títulos EN e os quatro destinos, mantendo imagens, benefícios e focais. A apresentação
+exige revisão 2/configuração anterior exata, ou revisão 3/configuração final exata
+para idempotência. Divergências interrompem; respostas ambíguas exigem releitura e
+nunca provocam exclusão/compensação. O relatório diferencia validação local de erro
+da operação, sem registrar credenciais. Senha exclusivamente no prompt oculto local.
+
+A RPC de tradução mantém o contrato existente: revisão do item fonte, sem CAS próprio
+da tradução. A retomada minimiza os patches e revalida o checkpoint antes das escritas;
+não adiciona garantia atômica que esse contrato não oferece. Nenhuma RPC, migration,
+RLS ou grant foi alterado. Publicação do executor não significa reconciliação dos dados:
+o resultado real e a homologação autenticada dos quatro destinos permanecem pendentes.
+
+Gates da preparação da retomada: 15/15 direcionados, 460/460 security, TypeScript e
+build OK, lint sem erros (quatro warnings históricos), `git diff --check` OK e 54
+cenários locais V4/Turismo em PT/EN/ES, 390/430/1440, cobrindo Bugan, Grand Mercure,
+Novotel Leme, Novotel Salvador, Mercure e Default. Fixtures isoladas, zero chamadas
+de API; esses gates não substituem a releitura pós-execução nem a homologação real.
 
 | Card ilustrativo preservado | Destino canônico preparado |
 | --- | --- |

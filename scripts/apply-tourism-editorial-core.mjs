@@ -5,7 +5,11 @@ const fields=['name','short_description','full_description','opening_hours','pri
 const canonical=x=>Array.isArray(x)?x.map(canonical):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x;
 export const equivalent=(a,b)=>JSON.stringify(canonical(a))===JSON.stringify(canonical(b));
 const match=(row,patch)=>Object.entries(patch).every(([k,v])=>row?.[k]===v);
-const must=(ok,code)=>{if(!ok)throw Object.assign(new Error(code),{code});};
+const must=(ok,code)=>{if(!ok)throw Object.assign(new Error(code),{code,origin:'executor_validation'});};
+const without=(row,keys)=>Object.fromEntries(Object.entries(row??{}).filter(([key])=>!keys.includes(key)));
+// The canonical source RPC invalidates only translated fields whose PT source changed.
+const invalidated=(update,language)=>Object.fromEntries(Object.entries(update.previousTranslations[language]).map(([key,value])=>[key,Object.hasOwn(update.values,key)&&update.values[key]!==update.expected[key]?null:value]));
+const acceptedTranslation=(row,update,language,done)=>match(row,update.previousTranslations[language])||match(row,{...update.previousTranslations[language],...update.translations[language]})||(done&&match(row,invalidated(update,language)));
 export function tourismEditorialPlan(manifest){
  must(manifest.version===1&&/^[0-9a-f-]{36}$/.test(manifest.hotelId)&&/^[a-z0-9-]{1,64}$/.test(manifest.namespace),'INVALID_MANIFEST');
  must(manifest.expectedStatus==='suspended'&&manifest.entries?.length<=32&&manifest.destinations?.length===4,'INVALID_MANIFEST');
@@ -15,9 +19,12 @@ export function tourismEditorialPlan(manifest){
  must(parsePublicPresentation(desired,manifest.hotelId),'INVALID_MANIFEST');
  return {expected,desired};
 }
-export async function applyTourismEditorial(client,manifest,onProgress=()=>{}){
+export async function applyTourismEditorial(client,manifest,onProgress=()=>{},options={}){
  const {expected,desired}=tourismEditorialPlan(manifest);let writesAttempted=false;
+ const checkpoint=options.resumeCheckpoint;
+ if(checkpoint)must(checkpoint.version===1&&checkpoint.hotelId===manifest.hotelId&&checkpoint.namespace===manifest.namespace&&checkpoint.presentationRevision===manifest.expectedPresentationRevision&&checkpoint.items?.length===7&&checkpoint.translations?.length===14,'INVALID_MANIFEST');
  const progress=(stage,operation)=>onProgress({stage,operation,writesAttempted});
+ const mutation=(stage,operation)=>{writesAttempted=true;progress(stage,operation);};
  const read=async(operation,promise)=>{progress(writesAttempted?'readback':'preflight',operation);const r=await promise;if(r.error)throw r.error;return r.data;};
  progress('authorization','auth.getUser');const user=await client.auth.getUser();must(!user.error&&user.data?.user,'AUTH_REQUIRED');
  const profile=await read('profile.read',client.from('profiles').select('hotel_id,role,is_active').eq('id',user.data.user.id).single());
@@ -28,14 +35,30 @@ export async function applyTourismEditorial(client,manifest,onProgress=()=>{}){
  must(['core.directory','content.tourism','content.languages','content.services','experience.appearance'].every(k=>modules?.some(m=>m.module_key===k&&m.is_enabled===true)),'MODULES_REQUIRED');
  const presentation=await read('presentation.read',client.from('hotel_public_presentation').select('configuration,revision').eq('hotel_id',manifest.hotelId).single());
  const already=equivalent(presentation?.configuration,desired);
- must(already||(presentation?.revision===manifest.expectedPresentationRevision&&equivalent(presentation.configuration,expected)),'PT409');
+ must((already&&presentation.revision===manifest.expectedPresentationRevision+1)||(presentation?.revision===manifest.expectedPresentationRevision&&equivalent(presentation.configuration,expected)),'PT409');
+ const verifyResume=async()=>{
+  if(!checkpoint)return;
+  const items=await read('resume.items.verify',client.from('hotel_tourism_items').select('*').eq('hotel_id',manifest.hotelId));
+  must(items.length===checkpoint.items.length&&checkpoint.items.every(i=>items.some(actual=>equivalent(actual,i))),'PT409');
+  const translations=await read('resume.translations.verify',client.from('hotel_tourism_item_translations').select('*').in('item_id',items.map(i=>i.id)));
+  must(translations.length===checkpoint.translations.length,'PT409');
+  for(const before of checkpoint.translations){
+   const actual=translations.find(t=>t.item_id===before.item_id&&t.language===before.language),update=manifest.updates.find(u=>u.id===before.item_id);
+   if(!update){must(equivalent(actual,before),'PT409');continue;}
+   const patch=update.translations[before.language];
+   must(actual&&equivalent(without(actual,['updated_at',...Object.keys(patch)]),without(before,['updated_at',...Object.keys(patch)]))&&(equivalent(actual,before)||match(actual,patch)),'PT409');
+  }
+  for(const e of manifest.entries){const item=items.find(i=>i.slug===e.key);must(item&&match(item,e.values),'PT409');for(const lang of ['en','es'])must(match(translations.find(t=>t.item_id===item.id&&t.language===lang),Object.fromEntries(fields.map(k=>[k,e.translations[lang][k]??null]))),'PT409');}
+ };
+ await verifyResume();
  const updates=[];
  for(const update of manifest.updates??[]){
   const source=await read('tourism.source.read',client.from('hotel_tourism_items').select('*').eq('hotel_id',manifest.hotelId).eq('id',update.id).single());
   const stable=Object.fromEntries(Object.entries(update.expected).filter(([key])=>!Object.hasOwn(update.values,key)));
   const done=match(source,update.values);must(source&&match(source,stable)&&(done||match(source,update.expected)),'PT409');
   const translations=await read('tourism.translations.read',client.from('hotel_tourism_item_translations').select('*').eq('item_id',update.id));
-  for(const lang of ['en','es']){const current=translations.find(t=>t.language===lang),before=update.previousTranslations[lang],after={...before,...update.translations[lang]};must((!current&&done)||match(current,before)||match(current,after),'PT409');}
+  for(const lang of ['en','es']){const current=translations.find(t=>t.language===lang);must((!checkpoint&&!current&&done)||acceptedTranslation(current,update,lang,done),'PT409');}
+  if(checkpoint)must(done,'PT409');
   updates.push({update,source,done});
  }
  const correction=manifest.translationCorrection;
@@ -47,9 +70,18 @@ export async function applyTourismEditorial(client,manifest,onProgress=()=>{}){
  const mediaSource=await read('media.source.read',client.from('hotel_public_experience_media').select('revision,title').eq('hotel_id',manifest.hotelId).eq('slot',mediaCorrection.slot).single());
  const mediaTranslation=await read('media.translation.read',client.from('hotel_public_experience_media_translations').select('*').eq('hotel_id',manifest.hotelId).eq('slot',mediaCorrection.slot).eq('language',mediaCorrection.language).single());
  must(mediaSource?.title===mediaCorrection.title&&mediaTranslation&&[mediaCorrection.title,mediaCorrection.expectedTitle].includes(mediaTranslation.title),'PT409');
+ const verifyTitles=(service,media)=>{if(checkpoint){
+  must(mediaSource.revision===checkpoint.mediaSourceRevision,'PT409');
+  for(const [actual,before]of [[service,checkpoint.serviceTranslation],[media,checkpoint.mediaTranslation]]){
+   must(equivalent(without(actual,['title','updated_at']),without(before,['title','updated_at']))&&(actual.title===before.title?equivalent(actual,before):actual.title===correction.title),'PT409');
+  }
+ }};
+ verifyTitles(titleRow,mediaTranslation);
  // All source, translation and presentation checks above complete before the first mutation.
- await checkHotel();writesAttempted=true;progress('content','apply_current_hotel_bootstrap');
- const applied=await client.rpc('apply_current_hotel_bootstrap',{p_hotel_id:manifest.hotelId,p_namespace:manifest.namespace,p_manifest:{entries:manifest.entries.map(({key,domain,values})=>({key,domain,values}))}});
+ await checkHotel();
+ // Directed resume never invokes either bootstrap RPC or rewrites confirmed PT/items.
+ let applied={data:checkpoint?manifest.entries.map(e=>({key:e.key,id:checkpoint.items.find(i=>i.slug===e.key)?.id,status:'confirmed'})):null};
+ if(!checkpoint){mutation('content','apply_current_hotel_bootstrap');applied=await client.rpc('apply_current_hotel_bootstrap',{p_hotel_id:manifest.hotelId,p_namespace:manifest.namespace,p_manifest:{entries:manifest.entries.map(({key,domain,values})=>({key,domain,values}))}});}
  if(applied.error)throw applied.error;must(Array.isArray(applied.data)&&applied.data.length===manifest.entries.length,'WRITE_UNCONFIRMED');
  for(const entry of manifest.entries){
   const record=applied.data.find(r=>r.key===entry.key);must(record,'WRITE_UNCONFIRMED');
@@ -57,27 +89,28 @@ export async function applyTourismEditorial(client,manifest,onProgress=()=>{}){
    await checkHotel();const values=Object.fromEntries(fields.map(k=>[k,entry.translations[lang][k]??null]));
    const existing=await read('new.translation.read',client.from('hotel_tourism_item_translations').select('*').eq('item_id',record.id).eq('language',lang).maybeSingle());
    if(existing){must(match(existing,values),'PT409');continue;}
-   progress('translations','apply_current_hotel_bootstrap_translation');
+   must(!checkpoint,'PT409');mutation('translations','apply_current_hotel_bootstrap_translation');
    const r=await client.rpc('apply_current_hotel_bootstrap_translation',{p_hotel_id:manifest.hotelId,p_namespace:manifest.namespace,p_key:entry.key,p_language:lang,p_fields:values});if(r.error)throw r.error;must(r.data===true,'WRITE_UNCONFIRMED');
   }
  }
  for(const {update,source,done} of updates){
   await checkHotel();let current=source;
-  if(!done){progress('enrichment','save_current_hotel_tourism_item');const r=await client.rpc('save_current_hotel_tourism_item',{p_item_id:update.id,p_changes:update.values,p_expected_updated_at:source.updated_at});if(r.error)throw r.error;must(r.data?.[0],'WRITE_UNCONFIRMED');current=r.data[0];}
+  if(!done){must(!checkpoint,'PT409');mutation('enrichment','save_current_hotel_tourism_item');const r=await client.rpc('save_current_hotel_tourism_item',{p_item_id:update.id,p_changes:update.values,p_expected_updated_at:source.updated_at});if(r.error)throw r.error;must(r.data?.[0],'WRITE_UNCONFIRMED');current=r.data[0];}
   for(const lang of ['en','es']){
    const values={...update.previousTranslations[lang],...update.translations[lang]};
    const translation=await read('enrichment.translation.read',client.from('hotel_tourism_item_translations').select('*').eq('item_id',update.id).eq('language',lang).maybeSingle());
    if(match(translation,values))continue;
-   must(!translation||match(translation,update.previousTranslations[lang]),'PT409');
-   progress('enrichment','save_current_hotel_tourism_translation');const r=await client.rpc('save_current_hotel_tourism_translation',{p_item_id:update.id,p_language:lang,p_expected_updated_at:current.updated_at,p_changes:values});if(r.error)throw r.error;must(r.data===true,'WRITE_UNCONFIRMED');
+   must((!checkpoint&&!translation)||acceptedTranslation(translation,update,lang,true),'PT409');
+   await checkHotel();await verifyResume();
+   mutation('enrichment','save_current_hotel_tourism_translation');const r=await client.rpc('save_current_hotel_tourism_translation',{p_item_id:update.id,p_language:lang,p_expected_updated_at:current.updated_at,p_changes:translation?update.translations[lang]:values});if(r.error)throw r.error;must(r.data===true,'WRITE_UNCONFIRMED');
   }
  }
  if(titleRow.title!==correction.title){
-  progress('editorial','service.translation.update');const r=await client.from('hotel_section_translations').update({title:correction.title,updated_at:new Date().toISOString()}).eq('section_id',correction.sectionId).eq('language',correction.language).eq('updated_at',titleRow.updated_at).select('id');if(r.error)throw r.error;must(r.data?.length===1,'PT409');
+  await checkHotel();mutation('editorial','service.translation.update');const r=await client.from('hotel_section_translations').update({title:correction.title,updated_at:new Date().toISOString()}).eq('section_id',correction.sectionId).eq('language',correction.language).eq('updated_at',titleRow.updated_at).select('id');if(r.error)throw r.error;must(r.data?.length===1,'PT409');
  }
  if(mediaTranslation.title!==mediaCorrection.title){
   const current=await read('media.translation.recheck',client.from('hotel_public_experience_media_translations').select('*').eq('hotel_id',manifest.hotelId).eq('slot',mediaCorrection.slot).eq('language',mediaCorrection.language).single());
-  must(equivalent(current,mediaTranslation),'PT409');progress('editorial','save_current_hotel_experience_media_translation');
+  must(equivalent(current,mediaTranslation),'PT409');await checkHotel();mutation('editorial','save_current_hotel_experience_media_translation');
   const r=await client.rpc('save_current_hotel_experience_media_translation',{p_slot:mediaCorrection.slot,p_language:mediaCorrection.language,p_expected_revision:mediaSource.revision,p_fields:{title:mediaCorrection.title,description:mediaTranslation.description,alt_text:mediaTranslation.alt_text,cta_label:mediaTranslation.cta_label}});if(r.error)throw r.error;must(r.data===true,'WRITE_UNCONFIRMED');
  }
  const items=await read('tourism.verify',client.from('hotel_tourism_items').select('*').eq('hotel_id',manifest.hotelId));
@@ -86,13 +119,14 @@ export async function applyTourismEditorial(client,manifest,onProgress=()=>{}){
  must(!pending,'TRANSLATIONS_REQUIRED');for(const e of manifest.entries)must(items.some(i=>i.slug===e.key&&i.is_published),'WRITE_UNCONFIRMED');
  for(const entry of manifest.entries){const item=items.find(i=>i.slug===entry.key);must(item&&match(item,entry.values),'WRITE_UNCONFIRMED');for(const lang of ['en','es'])must(match(translations.find(t=>t.item_id===item.id&&t.language===lang),Object.fromEntries(fields.map(k=>[k,entry.translations[lang][k]??null]))),'WRITE_UNCONFIRMED');}
  for(const {update,source} of updates){const item=items.find(i=>i.id===update.id);must(match(item,update.values)&&item.short_description===source.short_description,'WRITE_UNCONFIRMED');for(const lang of ['en','es'])must(match(translations.find(t=>t.item_id===update.id&&t.language===lang),{...update.previousTranslations[lang],...update.translations[lang]}),'WRITE_UNCONFIRMED');}
- const finalTitle=await read('service.translation.verify',client.from('hotel_section_translations').select('title').eq('section_id',correction.sectionId).eq('language',correction.language).single());must(finalTitle?.title===correction.title,'WRITE_UNCONFIRMED');
+ const finalTitle=await read('service.translation.verify',client.from('hotel_section_translations').select('*').eq('section_id',correction.sectionId).eq('language',correction.language).single());must(finalTitle?.title===correction.title,'WRITE_UNCONFIRMED');
  const finalMedia=await read('media.translation.verify',client.from('hotel_public_experience_media_translations').select('*').eq('hotel_id',manifest.hotelId).eq('slot',mediaCorrection.slot).eq('language',mediaCorrection.language).single());must(match(finalMedia,{title:mediaCorrection.title,description:mediaTranslation.description,alt_text:mediaTranslation.alt_text,cta_label:mediaTranslation.cta_label}),'WRITE_UNCONFIRMED');
+ verifyTitles(finalTitle,finalMedia);await verifyResume();
  await checkHotel();const latest=await read('presentation.recheck',client.from('hotel_public_presentation').select('configuration,revision').eq('hotel_id',manifest.hotelId).single());
  if(!equivalent(latest.configuration,desired)){
   must(latest.revision===manifest.expectedPresentationRevision&&equivalent(latest.configuration,expected),'PT409');
-  progress('presentation','save_current_hotel_public_presentation');const r=await client.rpc('save_current_hotel_public_presentation',{p_expected_revision:latest.revision,p_configuration:desired});if(r.error)throw r.error;must(r.data===latest.revision+1,'WRITE_UNCONFIRMED');
+  mutation('presentation','save_current_hotel_public_presentation');const r=await client.rpc('save_current_hotel_public_presentation',{p_expected_revision:latest.revision,p_configuration:desired});if(r.error)throw r.error;must(r.data===latest.revision+1,'WRITE_UNCONFIRMED');
  }
- const after=await read('presentation.verify',client.from('hotel_public_presentation').select('configuration,revision').eq('hotel_id',manifest.hotelId).single());must(equivalent(after.configuration,desired),'WRITE_UNCONFIRMED');await checkHotel();
- return {status:'tourism_editorial_confirmed',hotelId:manifest.hotelId,revision:after.revision,lifecycle:'suspended',newItems:manifest.entries.length,createdThisRun:applied.data.filter(r=>r.status==='created').length,publishedItems:items.filter(i=>i.is_published).length,translationsPending:pending,googleUsed:false,storageWrites:false,airportWrites:false};
+ const after=await read('presentation.verify',client.from('hotel_public_presentation').select('configuration,revision').eq('hotel_id',manifest.hotelId).single());must(equivalent(after.configuration,desired)&&after.revision===manifest.expectedPresentationRevision+1,'WRITE_UNCONFIRMED');await checkHotel();
+ return {status:checkpoint?'tourism_reconciliation_confirmed':'tourism_editorial_confirmed',hotelId:manifest.hotelId,revision:after.revision,lifecycle:'suspended',newItems:manifest.entries.length,createdThisRun:applied.data.filter(r=>r.status==='created').length,publishedItems:items.filter(i=>i.is_published).length,translationsPending:pending,bootstrapInvoked:!checkpoint,googleUsed:false,storageWrites:false,airportWrites:false};
 }
