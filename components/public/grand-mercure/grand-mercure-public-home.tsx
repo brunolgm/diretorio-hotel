@@ -1,3 +1,5 @@
+import {publicExperienceVersion} from '@/lib/public-experience-v4';
+import {PublicExperienceMobileTasks} from '@/components/public/public-experience-mobile-tasks';
 import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
 import type { ElementType } from 'react';
 import { BellRing, ChevronDown, CircleHelp, ConciergeBell, Info, MessageCircle } from 'lucide-react';
@@ -37,6 +39,7 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
   pageData: PublicHotelPageData; language: SupportedPublicLanguage; domainContext: DomainContext; preferSubdomainRoot: boolean;
 }) {
   const { hotel, banners, announcements, sections, layout, flightHomeCard } = pageData;
+  const version=publicExperienceVersion(pageData.presentation);
   const copy = getPublicCopy(language);
   const grandCopy = getGrandMercureCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
@@ -72,7 +75,7 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
         <p className="mx-auto mt-3 max-w-[280px] text-xs leading-5 tracking-wide text-[#625b53] min-[360px]:text-sm md:max-w-none md:text-lg">{grandCopy.description}</p>
       </div>
     </section>;
-  const cardGridSection = cardGrid ? <section className={`grand-mercure-access-grid grid gap-2 px-2 min-[360px]:gap-2.5 min-[360px]:px-3 md:mt-[-1px] md:gap-5 md:px-8 lg:px-14 ${cardGrid.containerClassName} ${cardGrid.singleCard ? 'mx-auto w-full max-w-md' : ''}`}>
+  const cardGridSection = cardGrid ? <section data-legacy-home-access className={`grand-mercure-access-grid grid gap-2 px-2 min-[360px]:gap-2.5 min-[360px]:px-3 md:mt-[-1px] md:gap-5 md:px-8 lg:px-14 ${cardGrid.containerClassName} ${cardGrid.singleCard ? 'mx-auto w-full max-w-md' : ''}`}>
       {cards.map((card, index) => { const Icon = card.icon; return <a key={card.area} href={areaHref(card.area)} className={`group flex min-h-[178px] min-w-0 flex-col items-center overflow-hidden rounded-[18px] border border-[#e4d8c7] bg-[#fffdf9] px-1 py-3.5 text-center shadow-[0_12px_28px_-20px_rgba(60,48,32,.42)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b38337] min-[360px]:min-h-[190px] min-[360px]:px-2 min-[360px]:py-4 md:min-h-[240px] md:rounded-[24px] md:px-5 md:py-7 ${cardGrid.itemClassName(index)}`}>
         <Icon className="h-8 w-8 shrink-0 text-[#ad7d30] min-[360px]:h-9 min-[360px]:w-9 md:h-14 md:w-14" strokeWidth={1.35} />
         <div className="mt-2.5 flex max-w-full flex-col gap-1 min-[360px]:gap-1.5 md:mt-5 md:gap-2">
@@ -92,11 +95,12 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
       </a>
     </section> : null;
 
-  return <main className="hotel-theme-page grand-mercure-dock-layout min-h-screen" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+  return <main className="hotel-theme-page grand-mercure-dock-layout min-h-screen" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle} data-public-experience={version==='v4'?version:undefined}>
     <PublicAnalytics hotelSlug={hotel.slug} language={language} />
     <GrandMercureGlobalMandala />
     <div className="grand-mercure-scroll-region mx-auto max-w-[1280px] md:px-6 md:py-7">
       {hero}
+      {version==='v4'?<PublicExperienceMobileTasks pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
       {cardGridSection}
       {flightCard}
       <PublicTourismHomeCard available={pageData.tourismHomeAvailable} slug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} />

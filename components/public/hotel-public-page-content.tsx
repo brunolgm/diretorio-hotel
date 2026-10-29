@@ -1,3 +1,5 @@
+import {publicExperienceVersion} from '@/lib/public-experience-v4';
+import {PublicExperienceMobileTasks} from './public-experience-mobile-tasks';
 import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
 import type { ElementType } from 'react';
 import {
@@ -347,6 +349,7 @@ export function HotelPublicPageContent({
     ? `https://wa.me/${String(hotel.whatsapp_number).replace(/\D/g, '')}`
     : null;
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
+  const version=publicExperienceVersion(presentation);
   const isNovotelExperience = theme.preset === 'novotel';
   const isGrandMercureExperience = theme.preset === 'grand-mercure';
   const isMercureExperience = theme.preset === 'mercure';
@@ -387,6 +390,7 @@ export function HotelPublicPageContent({
           layout,
           flightHomeCard,
           tourismHomeAvailable,
+          presentation, experienceMedia,
           hasFallbackContent,
         }}
         language={language}
@@ -399,7 +403,7 @@ export function HotelPublicPageContent({
   if (isGrandMercureExperience) {
     return (
       <GrandMercurePublicHome
-        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, hasFallbackContent }}
+        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -410,7 +414,7 @@ export function HotelPublicPageContent({
   if (isMercureExperience) {
     return (
       <MercurePublicHome
-        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, hasFallbackContent }}
+        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -424,6 +428,7 @@ export function HotelPublicPageContent({
       style={theme.cssVars}
       data-hotel-theme={theme.preset}
       data-hotel-icon-style={theme.iconStyle}
+      data-public-experience={version==='v4'?version:undefined}
     >
       <PublicAnalytics hotelSlug={hotel.slug} language={language} />
 
@@ -572,6 +577,7 @@ export function HotelPublicPageContent({
           </div>
         </section>
 
+        {version==='v4'?<PublicExperienceMobileTasks pageData={{hotel,banners,announcements,sections,departments,policies,layout,flightHomeCard,tourismHomeAvailable,presentation,experienceMedia,tourismPreview,hasFallbackContent}} language={language} domainContext={domainContext} preferSubdomainRoot={useSubdomainRoot} style={blockStyle('hero')}/>:null}
         {hasFallbackContent ? (
           <section style={blockStyle('hero')} className="mt-4 rounded-[24px] border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 shadow-[0_16px_35px_-30px_rgba(120,53,15,0.35)]">
             {copy.fallbackNotice}
@@ -628,7 +634,7 @@ export function HotelPublicPageContent({
           </section>
         ) : null}
 
-        {isBlockVisible('quick_info') ? <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4" style={blockStyle('quick_info')}>
+        {isBlockVisible('quick_info') ? <section data-legacy-home-essential className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4" style={blockStyle('quick_info')}>
           <QuickInfoCard
             icon={Coffee}
             title={copy.breakfast}

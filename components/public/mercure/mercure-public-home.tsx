@@ -1,3 +1,5 @@
+import {publicExperienceVersion} from '@/lib/public-experience-v4';
+import {PublicExperienceMobileTasks} from '@/components/public/public-experience-mobile-tasks';
 import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
 import type { ElementType } from 'react';
 import Image from 'next/image';
@@ -32,6 +34,7 @@ export function MercurePublicHome({ pageData, language, domainContext, preferSub
   pageData: PublicHotelPageData; language: SupportedPublicLanguage; domainContext: DomainContext; preferSubdomainRoot: boolean;
 }) {
   const { hotel, banners, announcements, sections, layout, flightHomeCard } = pageData;
+  const version=publicExperienceVersion(pageData.presentation);
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const areaHref = (area: PublicHotelAreaKey) => buildPublicHotelAreaHref({ slug: hotel.slug, area, language, domainContext, preferSubdomainRoot });
@@ -71,7 +74,7 @@ export function MercurePublicHome({ pageData, language, domainContext, preferSub
         </div>
       </div>
     </section>;
-  const cardGridSection = cardGrid ? <section className={`mercure-access-grid relative z-20 -mt-6 grid gap-3 px-3 md:-mt-8 md:gap-5 md:px-10 lg:px-14 ${cardGrid.containerClassName} ${cardGrid.singleCard ? 'mx-auto w-full max-w-lg' : ''}`}>
+  const cardGridSection = cardGrid ? <section data-legacy-home-access className={`mercure-access-grid relative z-20 -mt-6 grid gap-3 px-3 md:-mt-8 md:gap-5 md:px-10 lg:px-14 ${cardGrid.containerClassName} ${cardGrid.singleCard ? 'mx-auto w-full max-w-lg' : ''}`}>
       {cards.map((card, index) => { const Icon = card.icon; return <a key={card.area} href={areaHref(card.area)} className={`mercure-access-card group flex min-h-[166px] min-w-0 flex-col items-center justify-center overflow-hidden rounded-[19px] border border-[#52204f]/7 bg-[#fffdfd] px-3 py-5 text-center shadow-[0_16px_38px_-25px_rgba(61,23,60,.3)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_44px_-25px_rgba(61,23,60,.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#71386e] focus-visible:ring-offset-2 md:min-h-[224px] md:rounded-[26px] md:px-6 md:py-7 ${cardGrid.itemClassName(index)}`}>
         <Icon className="h-12 w-12 shrink-0 text-[#52204f] md:h-16 md:w-16" strokeWidth={1.55} aria-hidden="true" />
         <h2 className="mt-3 break-words text-sm leading-5 font-semibold text-[#52204f] min-[390px]:text-[15px] md:mt-5 md:text-xl">{card.title}</h2>
@@ -86,11 +89,12 @@ export function MercurePublicHome({ pageData, language, domainContext, preferSub
       <a href={helpHref} target={whatsappHref ? '_blank' : undefined} rel={whatsappHref ? 'noreferrer' : undefined} aria-label={whatsappHref ? copy.whatsappSupport : copy.editorialContactTitle} data-analytics-event={whatsappHref ? 'whatsapp_click' : undefined} data-analytics-target-url={whatsappHref || undefined} data-analytics-label={whatsappHref ? 'Mercure help card' : undefined} className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white shadow-[0_14px_28px_-18px_rgba(15,23,42,.5)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 md:h-16 md:w-16 ${whatsappHref ? 'bg-[#25d366] focus-visible:ring-[#25d366]' : 'bg-[#71386e] focus-visible:ring-[#71386e]'}`}><MessageCircle className="h-7 w-7 md:h-9 md:w-9" strokeWidth={1.8} aria-hidden="true" /></a>
     </section> : null;
 
-  return <main className="hotel-theme-page mercure-public-home min-h-screen pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-10" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+  return <main className="hotel-theme-page mercure-public-home min-h-screen pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-10" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle} data-public-experience={version==='v4'?version:undefined}>
     <PublicAnalytics hotelSlug={hotel.slug} language={language} />
     <div className="mercure-page-floral pointer-events-none fixed inset-0" aria-hidden="true" />
     <div className="relative mx-auto flex max-w-[1240px] flex-col md:px-6 md:py-7">
       {hero}
+      {version==='v4'?<PublicExperienceMobileTasks pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
       {cardGridSection}
       {flightCard}
       <PublicTourismHomeCard available={pageData.tourismHomeAvailable} slug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} />

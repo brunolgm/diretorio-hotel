@@ -1,6 +1,14 @@
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
 type PublicCopy = {
+  universalEssentialsTitle: string;
+  universalTasksTitle: string;
+  universalWifiInstructions: string;
+  universalViewHours: string;
+  universalStayHours: string;
+  universalDining: string;
+  universalFlights: string;
+  universalContact: string;
   stayInformation: string;
   welcome: string;
   navigationHome: string;
@@ -109,6 +117,14 @@ type PublicCopy = {
 
 const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
   pt: {
+    universalEssentialsTitle: "Informações essenciais",
+    universalTasksTitle: "O que você precisa?",
+    universalWifiInstructions: "Instruções de acesso",
+    universalViewHours: "Ver horários",
+    universalStayHours: "Horários",
+    universalDining: "Gastronomia",
+    universalFlights: "Central de Voos",
+    universalContact: "Fale com o hotel",
     stayInformation: 'Informações da estadia',
     welcome: 'Bem-vindo!',
     navigationHome: 'Início',
@@ -234,6 +250,14 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     clearRoomAccess: 'Trocar apartamento',
   },
   en: {
+    universalEssentialsTitle: "Essential information",
+    universalTasksTitle: "What do you need?",
+    universalWifiInstructions: "Connection instructions",
+    universalViewHours: "View hours",
+    universalStayHours: "Stay times",
+    universalDining: "Dining",
+    universalFlights: "Flight center",
+    universalContact: "Contact the hotel",
     stayInformation: 'Stay information',
     welcome: 'Welcome!',
     navigationHome: 'Home',
@@ -359,6 +383,14 @@ const COPY: Record<SupportedPublicLanguage, PublicCopy> = {
     clearRoomAccess: 'Switch room',
   },
   es: {
+    universalEssentialsTitle: "Información esencial",
+    universalTasksTitle: "¿Qué necesitas?",
+    universalWifiInstructions: "Instrucciones de acceso",
+    universalViewHours: "Ver horarios",
+    universalStayHours: "Horarios",
+    universalDining: "Gastronomía",
+    universalFlights: "Central de vuelos",
+    universalContact: "Contacta con el hotel",
     stayInformation: 'Información de la estadía',
     welcome: '¡Bienvenido!',
     navigationHome: 'Inicio',

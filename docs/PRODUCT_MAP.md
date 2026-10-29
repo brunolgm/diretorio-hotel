@@ -1,5 +1,61 @@
 # PRODUCT MAP
 
+## Public Experience V4 Universal — 29/10/2026
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Evolução compartilhada e opt-in da V3 premium.
+A decisão anterior mantinha seis acessos e apresentação editorial; a V4 prioriza
+informações essenciais e tarefas no mobile para reduzir navegação durante a estadia.
+Não depende de PMS, autenticação pessoal, reserva ou identificação por apartamento.
+QR/roomToken continuam apenas no contrato técnico existente.
+
+O editor existente em `/admin/hotel/apresentacao` permite selecionar a composição
+mobile V3 ou V4. `hotel_public_presentation.configuration.experienceVersion` é
+opcional: ausente significa V3. A gravação utiliza a mesma RPC autenticada,
+autorização, auditoria e controle de revisão/PT409. Retornar a V3 é uma alteração
+reversível pelo mesmo editor. A migration amplia somente o validador JSON existente;
+não altera hotéis, módulos, dados operacionais ou configurações automaticamente.
+
+A Home V4 usa SSID/senha existentes, instruções do serviço Wi-Fi, horários completos
+do café e check-in/out do hotel. Não replica dados em novos campos. Oculta valores
+ausentes e ações sem destino disponível. Serviços, Gastronomia, Central de Voos e
+Contato reutilizam as rotas, idiomas e dados já filtrados por tenant/entitlement.
+Não há chamadas de tradução, voos ou IA na composição. Gastronomia mantém o destino
+editorial real ou o cardápio existente; não implementa pedidos TheX.
+
+O componente mobile é compartilhado por Grand Mercure, Novotel Leme, Novotel
+Salvador, Mercure, Bugan e Default, com cores do respectivo preset. Nenhum outro
+hotel recebe V4 automaticamente. No desktop a V3 permanece como referência:
+header, hero, seis cards, editoriais, benefícios e Turismo são preservados.
+No piloto Bugan permanecem fotos reais, quatro ilustrações aprovadas, focais,
+traduções e conteúdo operacional. Não há fork funcional de Gastronomia ou Turismo.
+
+[APROVADO] Piloto Bugan Recife no tenant existente
+`5eb7d695-ccf7-4594-b9df-fc46aaa25695`, mantendo `suspended`. A seleção efetiva V4
+exige sessão normal do administrador e salvamento canônico após publicação; não
+se utiliza SQL direto, impersonação ou service role para essa escolha. `/preview`
+continua autenticado, sem analytics/provedores e sem liberar o hotel publicamente.
+Homologação visual humana em produção permanece distinta dos testes de fixtures.
+
+Regressões reproduzíveis: `tests/security/public-experience-v4.test.ts`, matriz SQL
+`supabase/tests/public_experience_v4_behavioral_matrix.sql` com rollback local e
+`tests/browser/public-experience-v4.mjs` com fixtures isoladas, PT/EN/ES, seis
+propriedades, mobile/tablet/desktop, fallback V3 e comparação visual com `0c0bda2`.
+Capturas e relatórios locais ficam em `out/v4-universal/`, fora do commit.
+Os registros históricos abaixo permanecem como evidência dos seus checkpoints.
+
+[APROVADO] Gates locais deste checkpoint: 8/8 testes direcionados, 436/436 security,
+matriz SQL com rollback, TypeScript, build e diff check OK. Lint: zero erros e
+quatro warnings históricos. Browser: 152 cenários de composição/fallback, além de
+estados sem módulos/dados e seleção no editor; zero chamadas de API. Viewports:
+360×800, 375×812, 390×844, 430×932, 1024×768, 1440×900 e 1536×864, em PT/EN/ES.
+Comparação exige conteúdo, destinos, tipografia e geometria idênticos; a imagem
+tolera somente ruído esparso de rasterização do Edge. Novotel Leme usa seu preset
+público atual `deep-ocean`; Novotel Salvador usa `novotel`. Isso confirma regressão
+de renderers com fixtures, sem equivaler à homologação humana dos hotéis reais.
+
+[EM ANÁLISE] F&B, TheX, OPERA/OHIP/PMS, IA, busca no diretório e implantação V4
+nos demais hotéis. Não fazem parte desta entrega nem são pré-requisitos da V4.
+
 ## Bootstrap compartilhado do pré-cadastro Bugan — 28/10/2026
 
 [IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Novo contrato autenticado para configuração

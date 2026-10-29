@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "../components/public/bugan.css";
+@import "../components/public/public-experience-v4.css";
 
 /* Hotel admin brand theme. Strictly scoped so /platform and public experiences stay neutral. */
 .admin-theme {

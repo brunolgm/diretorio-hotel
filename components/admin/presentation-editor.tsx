@@ -8,6 +8,10 @@ export function PresentationEditor({initial,revision,action}:{initial:PublicPres
  const fields=(label:string,text:EditorialText,change:(lang:keyof EditorialText,value:string)=>void,maxLength:number)=><fieldset className="space-y-2"><legend className="font-medium">{label}</legend><div className="grid gap-3 md:grid-cols-3">{(['pt','en','es'] as const).map(lang=><label key={lang} className="text-sm">{lang.toUpperCase()}<input className="mt-1 w-full rounded border p-2" value={text[lang]} maxLength={maxLength} onChange={e=>change(lang,e.target.value)}/></label>)}</div></fieldset>;
  return <form action={action} className="space-y-6">
   <input type="hidden" name="revision" value={revision}/><input type="hidden" name="configuration" value={JSON.stringify(config)}/>
+  <fieldset className="space-y-3 rounded-xl border p-4"><legend>Experiência pública</legend>
+   <label>Composição mobile <select className="ml-3 rounded border p-2" value={config.experienceVersion??'v3'} onChange={e=>edit(c=>{c.experienceVersion=e.target.value as 'v3'|'v4';})}><option value="v3">V3 — editorial aprovada</option><option value="v4">V4 Universal — essenciais e tarefas</option></select></label>
+   <p className="text-sm">Seleção somente deste hotel. Desktop e dados operacionais são preservados. É possível retornar à V3.</p>
+  </fieldset>
   <fieldset className="space-y-3 rounded-xl border p-4"><legend>Hero</legend>
    <label className="flex gap-2"><input type="checkbox" checked={config.heroTitleMode==='hotel_name'} onChange={e=>edit(c=>{c.heroTitleMode=e.target.checked?'hotel_name':'media_title';})}/>Usar nome do hotel como título</label>
    <label className="flex gap-2"><input type="checkbox" checked={!!config.heroDesktopFocal} onChange={e=>edit(c=>{c.heroDesktopFocal=e.target.checked?{x:50,y:50}:null;})}/>Ajustar enquadramento desktop nesta composição</label>
