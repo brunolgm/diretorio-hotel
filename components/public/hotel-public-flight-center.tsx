@@ -186,7 +186,7 @@ export function HotelPublicFlightCenter({
     </aside>
   ) : null;
 
-  const hero = isBugan ? (
+  const hero = isBugan || data.experienceVersion==='v4' ? (
     <PublicAreaHero hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={copy.back} title={copy.title} description={copy.description} icon={Plane} />
   ) : isNovotel ? (
     <NovotelAreaHero hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={copy.back} title={copy.title} description={copy.description} icon={Plane} />

@@ -36,7 +36,9 @@ try{
  const origin='http://127.0.0.1:4183';
  const properties=[['bugan','bugan'],['grand-mercure','grand-mercure'],['novotel-leme','deep-ocean'],['novotel-salvador','novotel'],['mercure','mercure'],['default','default']];
  async function ready(){await page.locator('h1').first().waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.ok(!(await page.locator('h1').first().innerText()).includes('404'));}
- for(const [property,theme]of properties)for(const lang of ['pt','en','es'])for(const [width,height]of [[390,844],[430,932],[1440,900]]){
+ if(process.argv.includes('--closure')){
+  const {runV4Closure}=await import('./public-v4-closure.mjs');rows.push(...await runV4Closure({page,origin,output}));
+ }else for(const [property,theme]of properties)for(const lang of ['pt','en','es'])for(const [width,height]of [[390,844],[430,932],[1440,900]]){
   await page.setViewportSize({width,height});const home=origin+'/preview?'+new URLSearchParams({scope:'preview',experience:'v4',tourism:'coherent',property,theme,lang});await page.goto(home);await ready();
   if(property==='bugan'){
    const cards=await page.locator('.v3-tourism-cards>a').evaluateAll(a=>a.map(el=>el.getAttribute('href')));assert.equal(cards.length,4);assert.equal(new Set(cards).size,4);
@@ -57,5 +59,5 @@ try{
   await page.goto(origin+'/preview/explorar/voos?lang='+lang);await ready();if(property==='bugan'&&lang==='pt')await page.screenshot({path:join(output,`flights-${width}.png`),fullPage:true});
   await page.goto(home);await ready();rows.push({property,lang,width,passed:true});
  }
- assert.deepEqual(errors,[]);assert.equal(apiRequests,0);writeFileSync(join(output,'browser-report.json'),JSON.stringify({scope:'isolated post-seed renderer fixtures; not production content confirmation',rows,errors,apiRequests},null,2));console.log(`PASS ${rows.length} V4 internal/Tourism scenarios; four coherent destinations; zero API calls`);
+ assert.deepEqual(errors,[]);assert.equal(apiRequests,0);writeFileSync(join(output,process.argv.includes('--closure')?'closure-report.json':'browser-report.json'),JSON.stringify({scope:'isolated renderer fixtures; not an authenticated production session',rows,errors,apiRequests},null,2));console.log(`PASS ${rows.length} V4 internal/Tourism scenarios; four coherent destinations; zero API calls`);
 }finally{await browser.close();await new Promise(r=>server.close(r));}

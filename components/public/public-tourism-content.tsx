@@ -37,7 +37,7 @@ export function PublicTourismContent({data,language,domainContext,preferSubdomai
  ]:[];
  return <main className="hotel-theme-page min-h-dvh" style={theme.cssVars} data-hotel-theme={theme.preset} data-public-internal-v4={data.presentation?.experienceVersion==='v4'?'':undefined}>
   <PublicAnalytics hotelSlug={hotel.slug} language={language}/>
-  <div className="mx-auto max-w-6xl px-4 py-5 md:px-8 md:py-8">
+  <div data-public-internal-body className="mx-auto max-w-6xl px-4 py-5 md:px-8 md:py-8">
    <PublicAreaHero hotel={hotel} language={language} languageBasePath={languageBase} homeHref={detail?catalogHref:homeHref} backLabel={detail?copy.back:copy.home} title={item?.name||selected.title||(selected.found?copy.title:labels.selection)} description={item?.short_description||selected.description||copy.intro} icon={MapPin}/>
    {collection?<a className="my-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-[color:var(--hotel-accent)]" href={generalHref}><ArrowLeft className="h-4 w-4" aria-hidden/>{labels.all}</a>:null}
    {!detail?<>

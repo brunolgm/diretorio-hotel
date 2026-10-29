@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "hotelId": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+  "projectRef": "micuekfznunwwofxnovw",
+  "expectedStatus": "suspended",
+  "corrections": [
+    {
+      "source": {
+        "id": "58fe0683-ba13-40c4-9562-7511b58b153b",
+        "cta": null,
+        "url": null,
+        "icon": "Dumbbell",
+        "title": "Academia",
+        "content": "Academia equipada no Piso L, próxima à piscina. Funcionamento das 06:00 às 23:00.",
+        "enabled": true,
+        "category": "Academia",
+        "hotel_id": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+        "created_at": "2026-10-28T16:44:28.07639+00:00",
+        "sort_order": 6,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00",
+        "service_action_type": "standard"
+      },
+      "translation": {
+        "id": "ed245428-3cc7-4305-bae2-578246deb6a2",
+        "cta": null,
+        "title": "Gym",
+        "content": "Fully equipped gym on Floor L, next to the pool. Open from 6:00 AM to 11:00 PM.",
+        "category": "Academy",
+        "language": "en",
+        "created_at": "2026-10-28T16:44:35.281885+00:00",
+        "section_id": "58fe0683-ba13-40c4-9562-7511b58b153b",
+        "updated_at": "2026-10-28T21:58:20.962+00:00"
+      },
+      "changes": {
+        "category": "Gym"
+      }
+    },
+    {
+      "source": {
+        "id": "58fe0683-ba13-40c4-9562-7511b58b153b",
+        "cta": null,
+        "url": null,
+        "icon": "Dumbbell",
+        "title": "Academia",
+        "content": "Academia equipada no Piso L, próxima à piscina. Funcionamento das 06:00 às 23:00.",
+        "enabled": true,
+        "category": "Academia",
+        "hotel_id": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+        "created_at": "2026-10-28T16:44:28.07639+00:00",
+        "sort_order": 6,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00",
+        "service_action_type": "standard"
+      },
+      "translation": {
+        "id": "68e31024-f580-4622-b4db-d785ab337e0a",
+        "cta": null,
+        "title": "Gimnasio",
+        "content": "Gimnasio equipado en el Piso L, junto a la piscina. Abierto de 06:00 a 23:00.",
+        "category": "Academia",
+        "language": "es",
+        "created_at": "2026-10-28T16:44:35.790476+00:00",
+        "section_id": "58fe0683-ba13-40c4-9562-7511b58b153b",
+        "updated_at": "2026-10-28T21:58:21.1+00:00"
+      },
+      "changes": {
+        "category": "Gimnasio"
+      }
+    },
+    {
+      "source": {
+        "id": "a9c578fe-c335-4a43-969a-5c3b45e4d52b",
+        "cta": "Reservar",
+        "url": "https://atlantica.letsbook.com.br/reserva/busca?hotel=22",
+        "icon": "BedDouble",
+        "title": "Acomodações",
+        "content": "Quartos de aproximadamente 24 m² e suítes de 48 m². Opções Queen/Twin e categorias Standard, Superior, Luxo, Executive, Family, Business e Royal, além de opções adaptadas. Mesa de trabalho, frigobar, TV, ar-condicionado, blackout e apoio para bagagem conforme a categoria. Consulte o canal oficial para reservas.",
+        "enabled": true,
+        "category": "Hospedagem",
+        "hotel_id": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+        "created_at": "2026-10-28T16:44:28.07639+00:00",
+        "sort_order": 11,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00",
+        "service_action_type": "standard"
+      },
+      "translation": {
+        "id": "63812fc5-709d-49b9-a815-b6a9a818696b",
+        "cta": "Libro",
+        "title": "Alojamiento",
+        "content": "Habitaciones de aproximadamente 24 m² y suites de 48 m². Opciones con cama queen o dos camas individuales y categorías Estándar, Superior, Lujo, Ejecutiva, Familiar, Business y Royal, además de opciones adaptadas. Escritorio, minibar, TV, aire acondicionado, cortinas opacas y portaequipajes según la categoría. Consulte el canal oficial para reservas.",
+        "category": "Alojamiento",
+        "language": "es",
+        "created_at": "2026-10-28T16:44:40.68264+00:00",
+        "section_id": "a9c578fe-c335-4a43-969a-5c3b45e4d52b",
+        "updated_at": "2026-10-28T16:44:40.68264+00:00"
+      },
+      "changes": {
+        "cta": "Reservar"
+      }
+    }
+  ]
+}

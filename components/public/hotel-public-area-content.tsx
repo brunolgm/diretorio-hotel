@@ -1,4 +1,5 @@
 import {publishedContactPhones} from '@/lib/contact-phones';
+import {getPublicEssentials} from '@/lib/public-essentials';
 import { getOverviewNavigation } from '@/lib/public-experience-overview';
 import { getCanonicalPublicNavigationKeys } from '@/lib/public-navigation';
 import {
@@ -162,6 +163,8 @@ export function HotelPublicAreaContent({
   const { hotel, sections, departments, policies, announcements } = pageData;
   const copy = getPublicCopy(language);
   const areaCopy = getAreaCopy(language);
+  const essentials=getPublicEssentials(pageData,language);
+  const isV4=pageData.presentation?.experienceVersion==='v4';
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const isBugan = theme.preset === 'bugan';
   const isNovotel = theme.preset === 'novotel';
@@ -222,8 +225,8 @@ export function HotelPublicAreaContent({
     <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isBugan ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-10'}`} style={theme.cssVars} data-public-internal-v4={pageData.presentation?.experienceVersion==='v4'?'':undefined} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
       <PublicAnalytics hotelSlug={hotel.slug} language={language} />
       {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
-      <div className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
-        {isBugan ? (
+      <div data-public-internal-body className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
+        {isBugan || isV4 ? (
           <PublicAreaHero hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={areaCopy.back} title={areaMeta.title} description={areaMeta.description} icon={AreaIcon} />
         ) : isNovotel ? (
           <NovotelAreaHero
@@ -280,24 +283,24 @@ export function HotelPublicAreaContent({
         <section className={`mt-6 ${isGrandMercure ? 'grand-mercure-last-content mb-8 md:mb-4' : isNovotel || isMercure ? 'mb-8 md:mb-4' : ''}`}>
           {area === 'informacoes' ? (
             <div className="space-y-5">
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div className="public-information-essentials grid grid-cols-2 gap-3 md:grid-cols-4">
                 {[
-                  { icon: Coffee, title: copy.breakfast, value: hotel.breakfast_hours || copy.notInformed },
+                  { icon: Coffee, title: copy.breakfast, value: essentials.breakfast || copy.notInformed, periods:essentials.breakfastPeriods },
                   {
                     icon: Wifi,
                     title: copy.wifi,
                     value: hotel.wifi_name || copy.notInformed,
-                    helper: hotel.wifi_password
-                      ? copy.passwordLabel(hotel.wifi_password)
-                      : copy.askFrontDesk,
+                    instructions:essentials.wifi?.instructions,
+                    helper: essentials.wifi?.password ? copy.passwordLabel(essentials.wifi.password) : !essentials.wifi?.instructions ? copy.askFrontDesk : null,
                   },
                   { icon: Clock3, title: copy.checkIn, value: hotel.checkin_time || copy.notInformed },
                   { icon: Clock3, title: copy.checkOut, value: hotel.checkout_time || copy.notInformed },
                 ].map((item) => (
-                  <div key={item.title} className="hotel-public-content-card rounded-[22px] bg-white p-4 shadow-[0_16px_36px_-30px_rgba(0,43,92,0.26)] ring-1 ring-[color:var(--hotel-border)]">
+                  <div key={item.title} data-essential={item.icon===Wifi?'wifi':item.icon===Coffee?'breakfast':'stay'} className="hotel-public-content-card rounded-[22px] bg-white p-4 shadow-[0_16px_36px_-30px_rgba(0,43,92,0.26)] ring-1 ring-[color:var(--hotel-border)]">
                     <item.icon className="h-6 w-6 text-[color:var(--hotel-accent)]" />
                     <p className="mt-3 text-xs font-medium uppercase tracking-[0.12em] text-[color:var(--hotel-text-muted)]">{item.title}</p>
-                    <p className="mt-1 break-words text-sm font-semibold text-[color:var(--hotel-primary)]">{item.value}</p>
+                    {'periods' in item&&item.periods?.length?<dl className="mt-2 space-y-3">{item.periods.map(p=><div key={p.days}><dt className="text-xs leading-5 text-[color:var(--hotel-text-muted)]">{p.days}</dt><dd className="font-semibold text-[color:var(--hotel-primary)]">{p.hours}</dd></div>)}</dl>:<p className="mt-1 break-words text-sm font-semibold text-[color:var(--hotel-primary)]">{item.value}</p>}
+                    {'instructions' in item&&item.instructions?<p className="mt-2 whitespace-pre-line break-words text-sm leading-6 text-[color:var(--hotel-text-muted)]">{item.instructions}</p>:null}
                     {'helper' in item && item.helper ? (
                       <p className="mt-1 break-words text-xs text-[color:var(--hotel-text-muted)]">{item.helper}</p>
                     ) : null}
@@ -322,8 +325,9 @@ export function HotelPublicAreaContent({
           {area === 'cardapio' ? roomMenuSection ? <ServiceList sections={[roomMenuSection]} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.noMenu} /> : null}
           {area === 'turismo' ? tourismSections.length ? <ServiceList sections={tourismSections} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
           {area === 'comunicados' ? announcements.length ? <div className="grid gap-4 md:grid-cols-2">{announcements.map((announcement) => <article key={announcement.id} className="hotel-public-content-card rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><BellRing className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{announcement.title}</h2><p className="mt-2 whitespace-pre-line text-sm leading-6 text-[color:var(--hotel-text-muted)]">{announcement.body}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
-          {area === 'servicos' ? sections.length ? isBrandExperience ? (
+          {area === 'servicos' ? sections.length ? isBrandExperience || isV4 ? (
             <NovotelServiceExplorer
+              compact={isV4}
               items={serviceExplorerItems}
               labels={{
                 searchPlaceholder: areaCopy.searchServices,

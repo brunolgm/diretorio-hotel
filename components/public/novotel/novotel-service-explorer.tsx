@@ -25,8 +25,10 @@ function normalizeSearchText(value: string | null | undefined) {
 export function NovotelServiceExplorer({
   items,
   labels,
+  compact=false,
 }: {
   items: NovotelServiceExplorerItem[];
+  compact?:boolean;
   labels: {
     searchPlaceholder: string;
     allCategories: string;
@@ -106,7 +108,7 @@ export function NovotelServiceExplorer({
                   {item.category ? <p className="hotel-service-card-category mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--hotel-accent)]">{item.category}</p> : null}
                 </div>
               </div>
-              <p className="mt-4 whitespace-pre-line break-words text-[15px] leading-6 text-[color:var(--hotel-text-muted)]">{item.content}</p>
+              {compact&&(item.content?.length??0)>180?<details className="public-service-disclosure mt-3"><summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-[color:var(--hotel-primary)]">{labels.open} — {item.title}</summary><p className="whitespace-pre-line break-words text-sm leading-6 text-[color:var(--hotel-text-muted)]">{item.content}</p></details>:<p className="mt-4 whitespace-pre-line break-words text-[15px] leading-6 text-[color:var(--hotel-text-muted)]">{item.content}</p>}
               {item.href ? (
                 <div className="mt-auto flex justify-end pt-5">
                   <span className="sr-only">{labels.actionAvailable}</span>

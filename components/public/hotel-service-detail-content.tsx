@@ -53,6 +53,7 @@ export function HotelServiceDetailContent({
 }) {
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
+  const isV4=experienceVersion==='v4';
   const isNovotelExperience = theme.preset === 'novotel';
   const isGrandMercureExperience = theme.preset === 'grand-mercure';
   const isBrandExperience = isNovotelExperience || isGrandMercureExperience;
@@ -85,8 +86,8 @@ export function HotelServiceDetailContent({
       <PublicAnalytics hotelSlug={hotel.slug} language={language} serviceId={section.id} />
       {isGrandMercureExperience ? <GrandMercureGlobalMandala internal /> : null}
 
-      <div className={`mx-auto px-4 py-6 md:px-6 md:py-8 ${isGrandMercureExperience ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-6xl' : 'max-w-4xl'}`}>
-        {theme.preset === 'bugan' ? <PublicAreaHero hotel={hotel} language={language}
+      <div data-public-internal-body className={`mx-auto px-4 py-6 md:px-6 md:py-8 ${isGrandMercureExperience ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-6xl' : 'max-w-4xl'}`}>
+        {theme.preset === 'bugan' || isV4 ? <PublicAreaHero hotel={hotel} language={language}
           languageBasePath={buildPublicHotelServiceHref({slug:hotel.slug,serviceId:section.id,language:'pt',domainContext,preferSubdomainRoot:useSubdomainRoot})}
           homeHref={grandMercureServicesHref} backLabel={copy.backToServices} title={section.title} description={section.category || copy.serviceDetails} icon={Hotel} /> : <section
           className={
@@ -104,7 +105,7 @@ export function HotelServiceDetailContent({
           <div className="relative">
             <div className="flex items-start justify-between gap-4">
               <a
-                href={isGrandMercureExperience ? grandMercureServicesHref : backHref}
+                href={isGrandMercureExperience || isV4 ? grandMercureServicesHref : backHref}
                 className="inline-flex items-center gap-2 rounded-full border border-[color:var(--hotel-badge-border)] bg-[var(--hotel-badge-bg)] px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--hotel-badge-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur transition hover:bg-white/15"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
@@ -176,11 +177,6 @@ export function HotelServiceDetailContent({
                   </span>
                 </div>
 
-                <p className="mt-3 text-xs uppercase tracking-[0.16em] text-[color:var(--hotel-hero-muted)]/85">
-                  {hotel.logo_url
-                    ? 'Identidade visual do hotel mantida nesta página de detalhe.'
-                    : 'Sem logo configurada, a página usa uma apresentação visual padrão e segura.'}
-                </p>
               </div>
             </div>
           </div>
@@ -222,7 +218,7 @@ export function HotelServiceDetailContent({
           </section>
         ) : null}
 
-        <section className="hotel-theme-surface mt-8 rounded-[var(--hotel-banner-radius)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] ring-1 ring-[color:var(--hotel-border)] md:p-8">
+        <section className="public-service-full-content hotel-theme-surface mt-8 rounded-[var(--hotel-banner-radius)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] ring-1 ring-[color:var(--hotel-border)] md:p-8">
           <div className="max-w-3xl">
             <p className="hotel-theme-muted text-xs font-medium uppercase tracking-[0.18em]">
               {copy.serviceDetails}
@@ -237,7 +233,7 @@ export function HotelServiceDetailContent({
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a
-              href={isGrandMercureExperience ? grandMercureServicesHref : backHref}
+              href={isGrandMercureExperience || isV4 ? grandMercureServicesHref : backHref}
               className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-[0_10px_20px_-18px_rgba(15,23,42,0.35)] transition hover:-translate-y-0.5 hover:bg-slate-50"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
