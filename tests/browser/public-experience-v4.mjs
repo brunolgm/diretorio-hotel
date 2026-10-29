@@ -57,6 +57,7 @@ try{
  }
  const properties=[['bugan','bugan'],['grand-mercure','grand-mercure'],['novotel-leme','deep-ocean'],['novotel-salvador','novotel'],['mercure','mercure'],['default','default']];
  for(const [property,theme]of properties.filter(([p])=>!process.env.V4_BROWSER_FILTER||p===process.env.V4_BROWSER_FILTER))for(const lang of ['pt','en','es'])for(const [width,height]of sizes){
+  if(width===360)console.log(`Home preservation ${property} ${lang}`);
   await page.setViewportSize({width,height});const query={theme,property,lang};
   await visit('/preview',query);assert.equal(await page.locator('[data-public-v4-mobile]').count(),0,'V3 default must stay unchanged');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,property+'/'+lang+'/'+width+' overflow');
@@ -64,15 +65,15 @@ try{
   rows.push({property,lang,width,height,mode:'V3 fallback',visualUnchanged:true});
  }
  for(const lang of ['pt','en','es'])for(const [width,height]of sizes){
-  await page.setViewportSize({width,height});await visit('/preview',{theme:'bugan',experience:'v4',lang});
+  await page.setViewportSize({width,height});await visit('/preview',{theme:'bugan',experience:'v4',lang,closure:'1',tourism:'coherent'});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   const mobile=width<768;assert.equal(await page.locator('[data-public-v4-mobile]').isVisible(),mobile);
   if(mobile){
    assert.equal(await page.locator('[data-legacy-home-access]').isVisible(),false);assert.equal(await page.locator('[data-v4-action]').count(),4);
    for(const a of await page.locator('[data-v4-action]').all()){const b=await a.boundingBox();assert.ok(b.height>=44&&b.width>=44);assert.ok(await a.getAttribute('href'));}
-   const wifi=page.locator('.public-v4-wifi');await wifi.locator('summary').click();assert.ok((await wifi.innerText()).includes('Bugan by Atlantica'));assert.ok((await wifi.innerText()).includes('sobrenome'));await wifi.locator('summary').click();
+   const wifi=page.locator('.public-v4-wifi');await wifi.locator('summary').click();assert.ok((await wifi.innerText()).includes('Bugan by Atlantica'));assert.ok((await wifi.innerText()).includes(lang==='en'?'last name':lang==='es'?'apellido':'sobrenome'));await wifi.locator('summary').click();
    const breakfast=page.locator('.public-v4-breakfast');await breakfast.locator('summary').click();
-   assert.equal(await breakfast.locator('p').innerText(),'Seg–Sex 06:00–10:00; sábados, domingos e feriados 06:00–10:30');
+   const schedule=await breakfast.locator('p').innerText();assert.ok(schedule.includes('06:00–10:00'));assert.ok(schedule.includes('06:00–10:30'));assert.ok(schedule.includes(lang==='en'?'Monday to Friday':lang==='es'?'Lunes a viernes':'Segunda a sexta'));
    assert.equal(await breakfast.locator('p').evaluate(el=>el.scrollHeight<=el.clientHeight+1),true);await breakfast.locator('summary').click();
    assert.ok((await page.locator('.public-v4-stay-hours').innerText()).includes('14:00'));assert.ok((await page.locator('.public-v4-stay-hours').innerText()).includes('12:00'));
    await page.locator('.v3-menu-trigger').click();assert.equal(await page.getByRole('dialog').isVisible(),true);await page.keyboard.press('Escape');await page.locator('.v3-menu-trigger').evaluate(el=>el.blur());
@@ -80,7 +81,7 @@ try{
    await page.locator('.v3-tourism-cards').evaluate(el=>el.scrollTo({left:0,behavior:'instant'}));
    await page.locator('[data-v4-action]').first().focus();assert.notEqual(await page.locator('[data-v4-action]').first().evaluate(el=>getComputedStyle(el).outlineStyle),'none');await page.locator('[data-v4-action]').first().evaluate(el=>el.blur());
   }else{
-   const v4=await snapshot();await visit('/preview/before',{theme:'bugan',experience:'v4',lang});await equalVisual(v4,await snapshot(),'Bugan desktop/tablet preserved '+width);await visit('/preview',{theme:'bugan',experience:'v4',lang});
+   const v4=await snapshot();await visit('/preview/before',{theme:'bugan',experience:'v4',lang,closure:'1',tourism:'coherent'});await equalVisual(v4,await snapshot(),'Bugan desktop/tablet preserved '+width);await visit('/preview',{theme:'bugan',experience:'v4',lang,closure:'1',tourism:'coherent'});
   }
   assert.equal(await page.locator('.v3-tourism-cards>a').count(),4);assert.equal(await page.locator('.v3-editorial').count(),3);
   if(lang==='pt')writeFileSync(join(output,`bugan-v4-${width}x${height}.png`),await snapshot());

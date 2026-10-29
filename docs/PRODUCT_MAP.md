@@ -1,5 +1,81 @@
 # PRODUCT MAP
 
+## Fechamento Public Experience V4 Universal — Bugan (29/10/2026)
+
+Checkpoint de entrada: main `390d1c2`, árvore limpa; apresentação Bugan revisão 3,
+lifecycle `suspended`, dois administradores ativos. A reconciliação turística anterior
+foi confirmada por releitura: sete itens publicados distintos, 14 traduções completas,
+duas descrições EN/ES da Praça e dois títulos EN do Restaurante Filipe corrigidos;
+quatro destinos editoriais persistidos. Não repetir bootstrap nem reconciliação.
+
+Refinamentos compartilhados: Informações e Home usam `getPublicEssentials`, que obtém
+instruções Wi-Fi do serviço próprio, publicado e já traduzido. Sem senha fixa inventada
+ou outra fonte. Grupos reconhecidos de dias do café são apresentados em PT/EN/ES,
+mantendo os horários cadastrados; formato desconhecido permanece literal. Check-in/out
+permanecem dados do hotel. Nenhuma consulta de tradução/provedor ocorre durante leitura.
+
+Somente hotéis com composição V4 recebem o cabeçalho interno compacto compartilhado,
+com logo/nome, Voltar, idioma e tokens da marca. Serviços reutilizam o explorador
+existente, com busca e categorias reais; textos longos ficam em disclosure nativo
+acessível, sem resumir/cortar dados nem alterar ordem ou destinos. Detalhe mantém
+conteúdo completo, regra de elegibilidade e retorno ao catálogo com idioma. Textos
+técnicos de identidade não aparecem na interface pública. Sem novos pedidos ou F&B.
+
+Estilos internos são escopados por `data-public-internal-v4`. No mobile com dock
+compartilhado, navegação tem faixa própria e o conteúdo rola acima dela; safe area,
+foco visível e acesso ao último CTA são verificados. As Homes aprovadas, fotos,
+focais, quatro ilustrações, benefícios e configuração da apresentação não são editados.
+Turismo continua no domínio único, sem opção vazia e sem entrar no dock. Nenhum
+hotel é selecionado/migrado automaticamente para V4.
+
+Correção editorial mínima preparada: categoria EN `Gym`, categoria ES `Gimnasio`
+no serviço Academia e CTA ES `Reservar` em Acomodações. Manifesto auditável em
+`docs/bootstrap/bugan-v4-closure-editorial-20261029.json`; executor único
+`scripts/finalize-bugan-public-copy.ps1`, com senha oculta e autenticação normal.
+Usa módulos via RPC canônica, RLS, comparação integral de fonte/tradução, CAS por
+`updated_at` e releitura; é idempotente e preserva PT. Sem service role, Google,
+Storage, bootstrap, compensação destrutiva ou alteração de administradores.
+Execução real desses três campos ainda depende da confirmação autenticada.
+
+Readiness lido: zero blockers; `visual.hero` aprovado; somente `content.banners`
+e `rooms.qr` como recomendações/pendências reais. Não criar banner ou UH fictícios.
+O readiness de idiomas não comprova completude editorial; a auditoria verifica
+campos obrigatórios em cada registro EN/ES, com fallback legítimo por campo.
+
+Voos: REC/SBRF preservado, flags operacionais desabilitadas, preview somente leitura
+nas três abas, sem consulta, pedido, alerta ou analytics. A fonte oficial
+[Aena — informações de voos REC](https://www.aenabrasil.com.br/pt/aeroportos/aeroporto-internacional-do-recife-guararapes-gilberto-freyre/Informacoes-de-voo.html)
+foi verificada. Links no catálogo global ainda estão ausentes: não existe fluxo
+canônico de edição desses campos para aeroporto existente; o helper é insert-only.
+Registrar por futura manutenção global auditada, sem UPDATE manual/service role,
+hardcode no renderer ou habilitação operacional. O estado vazio permanece honesto.
+
+Links oficiais cadastrados de hotel, reservas e cardápio foram verificados por GET;
+nenhuma reserva/pedido foi efetuada. Telefones públicos internacionais usam `tel:`,
+sem inferência de WhatsApp; ramal *1 permanece informativo. As quatro seleções de
+Turismo preservam contexto, nomes próprios, idioma e retorno.
+
+Evidências: fixtures de conteúdo público seguro (alvo editorial aprovado), não uma
+sessão simulada de produção; matriz automatizada com seis propriedades, PT/EN/ES,
+360/375/390/430/tablet/1440/1536, jornadas de essenciais, serviço, gastronomia,
+Turismo, três abas de Voos, contato e retorno. Contraste dos textos essenciais,
+disclosures por teclado, foco, dock/CTA e overflow entram no gate. Autorização real
+permanece no servidor: os testes de preview/entitlements e smoke anônimo são
+separados dos testes de renderização. Não alegar autenticação real por query string.
+
+Gates do fechamento: 12/12 direcionados (modelo V4 e correção editorial), 464/464
+security (incluindo rotas, preview, entitlements e idiomas), TypeScript/build OK,
+lint zero erros/quatro warnings históricos e `git diff --check` OK. Matriz interna
+126/126 e preservação visual da Home 152/152, zero APIs nas fixtures. Auditoria por
+campo: 58 pares EN/ES sem campos obrigatórios ausentes (26 serviços, seis departamentos,
+quatro políticas, 14 Turismo, oito mídias). Os três ajustes são de qualidade editorial,
+não ausência de registros. Execução autenticada desses campos ainda aguarda retorno.
+
+Go-Live: executar somente após gates, deploy READY, smoke e confirmação dos três
+campos editoriais. Procedimento canônico e pendências em
+`docs/SPRINT_48_ACTIVATION_READINESS.md`. Nenhuma ativação autorizada nesta sprint.
+Sprint 53 F&B, TheX, OPERA/OHIP e IA continuam no roadmap, fora deste fechamento.
+
 ## V4 interna e destinos editoriais de Turismo — 29/10/2026
 
 [IMPLEMENTADO E CONFIRMADO NO CÓDIGO] O domínio único da Sprint 52 continua sendo

@@ -114,3 +114,38 @@ Os testes SQL usam `BEGIN/ROLLBACK`, fixtures sintéticas `example.invalid` e de
 Ficam fora do escopo: override, dupla aprovação, SLA, billing/contratos, DNS/SSL, validação de URLs externas, SEO funcional, QA automatizada de conteúdo, métricas globais de prontidão e health monitoring.
 
 Uma evolução de operational health pode adicionar sinais não bloqueantes, histórico e observabilidade. Isso deve permanecer separado do lifecycle, evitar persistência prematura e definir novos blockers somente com evidência operacional. A eventual validação real de DNS/SSL e políticas comerciais exige contrato próprio antes de entrar no go-live.
+
+## Piloto Bugan — preparação V4 (29/10/2026)
+
+Tenant preservado `5eb7d695-ccf7-4594-b9df-fc46aaa25695`, nome Bugan Recife,
+slug `bugan-recife`, subdomínio `buganrecife`, alias histórico `bugan`, marca e
+preset `bugan`. Karoline e Bugan Recife permanecem administradores ativos.
+Estado obrigatório durante a preparação: `suspended`. Não existe retorno active→draft.
+
+Leitura canônica: zero blockers, hero V3 válido; warnings `content.banners` e
+`rooms.qr`. Banner é opcional; inventário de UHs real ainda não foi fornecido e
+QRs não são fabricados. O warning de idiomas atual só verifica existência em
+editoriais anteriores; completude dos conteúdos é auditada separadamente por campo.
+Turismo: sete itens publicados, 14 traduções completas, quatro destinos, revisão 3.
+
+Antes de solicitar autorização de ativação: concluir/verificar os três ajustes
+editoriais mínimos da sprint de fechamento, gates técnicos, regressão multi-hotel,
+deploy READY e smoke. Fixtures automatizadas não equivalem a uma nova sessão
+administrativa real nem a certificação integral de leitor de tela/dispositivo físico.
+Links oficiais de reservas/cardápio respondem por GET; nenhuma transação é testada.
+REC/SBRF está vinculado; fonte Aena foi verificada, mas seu cadastro no catálogo
+global carece de manutenção canônica e fica como pendência não bloqueante enquanto
+a UI informar a limitação sem CTA inválido. Integrações operacionais seguem desligadas.
+
+Após autorização expressa posterior, usar Platform → Hotéis → Bugan Recife
+(conferir o ID) → Lifecycle → Ativo, confirmando a transição suspended→active.
+O fluxo existente exige Platform Admin e chama `update_platform_hotel_status`,
+preservando governança, locks e auditoria. Recalcular readiness antes dessa ação;
+não considerar esta documentação uma autorização nem ampliar os critérios do gate.
+Depois, conferir domínio público, alias, idiomas e rotas sem realizar pedidos,
+reservas ou consultas operacionais reais. Em falha, usar somente a transição
+canônica active→suspended, mediante o escopo autorizado para a operação.
+
+Nenhuma transição foi executada no fechamento. IA, PMS, TheX e Sprint 53 F&B
+permanecem fora desta entrega. A decisão GO/NO-GO deve refletir as evidências finais,
+sem tratar recomendações como blockers nem pendências de validação como sucesso.

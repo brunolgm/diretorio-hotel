@@ -984,3 +984,19 @@ mudança em RLS/grants, Google, Storage, aeroporto, lifecycle ou administradores
 Execução real da retomada e homologação dos quatro destinos em `/preview` continuam
 pendentes da sessão normal do administrador; Bugan permanece `suspended`. Detalhes
 da decisão e limitações estão no checkpoint mais recente de `docs/PRODUCT_MAP.md`.
+
+### Confirmação posterior — reconciliação e fechamento V4 (29/10/2026)
+
+A retomada autenticada terminou com `tourism_reconciliation_confirmed`, revisão 3,
+`createdThisRun=0`, `bootstrapInvoked=false`, sete itens publicados e 14 traduções
+completas (`translationsPending=0`). Releitura confirmou apenas as duas descrições
+EN/ES da Praça, os dois títulos EN e as quatro associações planejadas. Shopping,
+PT, imagens, benefícios, focais e demais hotéis foram preservados. O usuário
+homologou os quatro destinos em PT, Passeios Culturais EN/ES e retorno com idioma.
+
+O fechamento posterior refina somente apresentação interna compartilhada e testes
+de jornadas. Não reexecuta seed/reconciliação, não cria dados turísticos, não altera
+contratos/RPCs/RLS/migrations nem ativa Bugan. As três correções editoriais pequenas
+de Academia/Acomodações pertencem a Serviços, não a Turismo. Estado operacional,
+readiness e plano de Go-Live estão nos checkpoints mais recentes de PRODUCT_MAP
+e SPRINT_48_ACTIVATION_READINESS.

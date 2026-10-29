@@ -1,4 +1,19 @@
 /* Internal opt-in only. No Home or non-selected hotel selector. */
+[data-public-internal-v4] { scroll-padding-bottom:calc(6rem + env(safe-area-inset-bottom)); }
+[data-public-internal-v4]:has(.public-bottom-dock) { padding-bottom:calc(6.5rem + env(safe-area-inset-bottom)); }
+[data-public-internal-v4] :is(a,button,input,select,summary):focus-visible { outline:2px solid var(--hotel-primary); outline-offset:3px; scroll-margin-block:1rem calc(7rem + env(safe-area-inset-bottom)); }
+[data-public-internal-v4] [data-public-internal-body] { padding-top:16px; padding-bottom:24px; }
+[data-public-internal-v4] .public-service-full-content { margin-top:16px; padding:20px; }
+[data-public-internal-v4] .public-service-full-content p { line-height:1.75; }
+[data-public-internal-v4] .public-service-full-content>div:last-child { margin-top:20px; }
+[data-public-internal-v4] .hotel-service-filters input:focus-visible,
+[data-public-internal-v4] .hotel-service-filters select:focus-visible { border-color:var(--hotel-accent); box-shadow:none; }
+[data-public-internal-v4] .public-information-essentials [data-essential='wifi'] { grid-column:span 2; }
+[data-public-internal-v4] .public-information-essentials [data-essential='breakfast'] { grid-column:span 2; }
+[data-public-internal-v4] .public-information-essentials [data-essential='breakfast'] dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+[data-public-internal-v4] .public-information-essentials .font-semibold { color:var(--hotel-text); }
+[data-public-internal-v4] .hotel-public-content-grid,
+[data-public-internal-v4] .hotel-service-filters+div { gap:12px; margin-top:16px; }
 [data-public-internal-v4] .public-area-hero { padding:16px 20px; }
 [data-public-internal-v4] .public-area-hero>div:nth-child(2) { margin-top:12px; }
 [data-public-internal-v4] .public-area-hero>svg { display:none; }
@@ -6,10 +21,17 @@
 [data-public-internal-v4] .public-area-hero>p:last-child { margin-top:8px; line-height:1.5; }
 [data-public-internal-v4] .public-area-hero img { max-height:36px; width:112px; }
 @media(max-width:767px) {
+ /* Keep the dock in its own row: content scrolls above it, never underneath. */
+ [data-public-internal-v4]:has(>.public-bottom-dock) { display:grid; grid-template-rows:minmax(0,1fr) auto; height:100dvh; min-height:0; overflow:hidden; padding-bottom:0; }
+ [data-public-internal-v4]:has(>.public-bottom-dock)>[data-public-internal-body] { min-height:0; width:100%; overflow-y:auto; overscroll-behavior-y:contain; scroll-padding-block:16px 24px; }
+ [data-public-internal-v4]>.public-bottom-dock { position:static; }
  [data-public-internal-v4] .public-area-hero { padding:12px 16px 16px; }
  [data-public-internal-v4] .public-area-hero h1 { font-size:25px; }
  [data-public-internal-v4] .hotel-service-detail-identity { margin-top:16px; }
  [data-public-internal-v4] .hotel-public-content-card { padding:16px; }
  [data-public-internal-v4] .tourism-filters { display:flex; flex-wrap:wrap; align-items:end; gap:8px; }
  [data-public-internal-v4] .tourism-filters label { flex:1 1 120px; min-width:0; }
+ [data-public-internal-v4] .public-service-full-content { padding:16px; }
+ [data-public-internal-v4] .hotel-service-editorial-card { padding:16px; }
+ [data-public-internal-v4] .public-information-essentials [data-essential='wifi'] { order:1; }
 }

@@ -1,4 +1,6 @@
 import tourismManifest from '../../docs/bootstrap/bugan-tourism-v4-20261029.json';
+import closureCopy from './fixtures/bugan-v4-public-copy.json';
+import tourismCheckpoint from '../../docs/bootstrap/bugan-tourism-v4-resume-20261029.json';
 // Local renderer fixture only. Approved photos/copy, no auth, database or provider.
 import {createRoot} from 'react-dom/client';
 import {HotelPublicPageContent} from '../../components/public/hotel-public-page-content';
@@ -61,6 +63,20 @@ if(args.get('tourism')==='coherent'){
  data.departments=source.entries.filter(e=>e.domain==='department').map((e,i)=>({id:'department-'+i,hotel_id:data.hotel.id,...e.values})) as PublicHotelPageData['departments'];
  config.tourism.cards.forEach((c,i)=>{(c as PublicPresentation['tourism']['cards'][number]).destination=tourismManifest.destinations[i] as PublicPresentation['tourism']['cards'][number]['destination'];});
  data.tourismPreview=tourismManifest.entries.map((e,i)=>({id:'verified-'+i,hotel_id:data.hotel.id,slug:e.key,...e.values,...(language==='pt'?{}:e.translations[language]),main_image_path:null})) as unknown as PublicTourismItem[];
+}
+if(args.get('closure')==='1'){
+ data.tourismPreview=tourismCheckpoint.items.map(item=>{
+  const tr=tourismCheckpoint.translations.find(t=>t.item_id===item.id&&t.language===language),update=tourismManifest.updates.find(u=>u.id===item.id);
+  return {...item,...(language==='pt'?{}:tr),...(language!=='pt'&&update?update.translations[language]:{}),id:item.id,hotel_id:data.hotel.id};
+ }) as PublicTourismItem[];
+ data.sections=closureCopy.services.map(s=>({...s,...(language==='pt'?{}:closureCopy.serviceTranslations.find(t=>t.section_id===s.id&&t.language===language))!,id:s.id,hotel_id:data.hotel.id})) as PublicHotelPageData['sections'];
+ data.departments=closureCopy.departments.map(d=>({...d,...(language==='pt'?{}:closureCopy.departmentTranslations.find(t=>t.department_id===d.id&&t.language===language))!,id:d.id,hotel_id:data.hotel.id})) as PublicHotelPageData['departments'];
+ data.policies=closureCopy.policies.map(p=>({...p,...(language==='pt'?{}:closureCopy.policyTranslations.find(t=>t.policy_id===p.id&&t.language===language))!,id:p.id,hotel_id:data.hotel.id})) as PublicHotelPageData['policies'];
+ data.experienceMedia=data.experienceMedia?.map(m=>{
+  const spec=source.media.find(s=>s.key===m.slot),serviceKey=spec&&'serviceKey' in spec?spec.serviceKey:null;
+  const index=source.entries.filter(e=>e.domain==='service').findIndex(e=>e.key===serviceKey);
+  return {...m,...(language==='pt'?{}:closureCopy.mediaTranslations.find(t=>t.slot===m.slot&&t.language===language)),slot:m.slot,hotel_id:m.hotel_id,...(index>=0?{cta_url:`https://libguest.digital/hotel/${data.hotel.slug}/servicos/${data.sections[index].id}`}:{})};
+ });
 }
 const domain={kind:'localhost',isPotentialHotelSubdomain:false,shouldUseSlugFallback:true,productRootDomain:'libguest.digital',hostname:'127.0.0.1'} as DomainContext;
 if(args.get('scope')==='preview')domain.navigationScope='authenticated-preview';
