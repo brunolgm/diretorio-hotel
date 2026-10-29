@@ -149,3 +149,42 @@ ICAO desconhecido e codeshares não são convertidos arbitrariamente. Referênci
 identidade: [diretório oficial de companhias da Aena](https://www.aenabrasil.com.br/en/airports/maceio-zumbi-dos-palmares-international-airport/airline-companies.html).
 O fallback Azul usa o link oficial já existente. REC tem link oficial desabilitado
 no catálogo atual; não foi inserida URL por fora de seu contrato administrativo.
+
+## Decisão operacional — renovação conservadora (29/10/2026)
+
+Sprint 51.1 permanece aprovada e identity-agnostic: voo manual, sem PMS, OPERA,
+reserva, identidade pessoal ou roomToken. Homologação histórica G3 1888 GIG–SSA
+em 10/09/2026 é o checkpoint aprovado informado pelo responsável. A expiração
+atual não demonstra falha do provedor nem invalida aquela entrega.
+
+Decisão anterior: períodos explícitos, configuração administrativa reconciliada,
+teto 900, sem renovação. Não há associação automática ao Billing AirLabs.
+Nova regra: rollover opt-in no orçamento, desabilitado por default. Na admissão
+já autorizada, sem período vigente, a última linha encerrada, não suspensa e
+habilitada gera uma sucessora de 720 horas a partir do instante real do banco.
+São datas operacionais, NÃO datas de cobrança. Limite novo = limite anterior
+menos consumo anterior; consumo da nova linha começa em zero. Datas, 17/900 e
+timestamps da linha anterior permanecem. FK identifica predecessor na mesma
+conta; UNIQUE permite uma só sucessora. Advisory lock, cache, leases, cooldowns,
+rate policies, autorização, grants e contrato v1 permanecem iguais.
+
+Impacto registrado antes da ativação: cadeia originada em 900 com 17 consumidos
+permite no máximo 883 chamadas futuras, não 900 a cada período. Renovar vigência
+não aumenta capacidade global. Esgotamento continua quota_exhausted; reposição
+exige decisão e reconciliação explícitas. A política pode subutilizar o plano,
+mas não inventa ciclo/saldo do fornecedor. Os valores aproximados quatro usadas
+ou mil disponíveis informados pelo operador não são usados como contador exato.
+
+Sem opt-in, suspensão, período futuro ou múltiplos períodos vigentes, permanece
+fail-closed. Cache fresco continua elegível sem nova reserva. Configuração pelo
+canal administrativo seguro existente, sem grant direto ou novo RPC de orçamento
+para browser/service_role. Desabilitar rollover na última linha impede novas
+vigências; suspender a vigente impede fetch. Rollback comportamental não apaga
+histórico. Sem scheduler, polling, retries ou chamada ao provedor na renovação.
+
+Validação reproduzível local: powershell -NoProfile -File
+./supabase/tests/51_airlabs_local_lab.ps1 -BudgetRollover. Executa matriz legada,
+matriz de renovação e duas corridas concorrentes no lab fixo; limpa somente a
+infraestrutura/fixtures sintéticas instaladas pelo teste. Migration remota/local
+alinhada: 20261029231150_airlabs_operational_budget_rollover.sql. Aplicação da
+migration mantém opt-in desligado; ativação é um checkpoint operacional separado.

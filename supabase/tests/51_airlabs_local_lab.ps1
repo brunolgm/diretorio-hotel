@@ -1,6 +1,7 @@
 # Fixed disposable local target from 45b_last_admin_concurrency.md. No remote URL.
 # Concurrent sessions require committed synthetic setup, unlike the rollback matrix.
 # Cleanup always removes this migration and the exact synthetic fixture namespace.
+param([switch]$BudgetRollover)
 $ErrorActionPreference = 'Stop'
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 function Invoke-LabSql([string]$Sql) {
@@ -9,10 +10,18 @@ function Invoke-LabSql([string]$Sql) {
   return $output
 }
 $migration = [IO.File]::ReadAllText((Join-Path $repoRoot 'supabase/migrations/20260907034531_51_airlabs_distributed_coordinator.sql'))
+if ($BudgetRollover) {
+  $migration += [IO.File]::ReadAllText((Join-Path $repoRoot 'supabase/migrations/20261029231150_airlabs_operational_budget_rollover.sql'))
+}
 $fixtures = [IO.File]::ReadAllText((Join-Path $PSScriptRoot '51_airlabs_fixtures.sql'))
 $matrix = [IO.File]::ReadAllText((Join-Path $PSScriptRoot '51_airlabs_behavioral_matrix.sql'))
 Invoke-LabSql ('begin;' + $migration + $fixtures + $matrix)
 Write-Output 'Rollback matrix: passed'
+if ($BudgetRollover) {
+  $renewalMatrix = [IO.File]::ReadAllText((Join-Path $PSScriptRoot '51_airlabs_budget_rollover_behavioral_matrix.sql'))
+  Invoke-LabSql ('begin;' + $migration + $fixtures + $renewalMatrix)
+  Write-Output 'Budget rollover matrix: passed'
+}
 
 $installed = $false
 try {
@@ -24,9 +33,16 @@ values('airlabs','test-only',now()-interval '1 hour',now()+interval '1 day',900,
 commit;
 '@)
   $installed = $true
+  if ($BudgetRollover) {
+    Invoke-LabSql "update flight_private.budgets set period_start='2001-01-01',period_end='2001-02-01',rollover_enabled=true where account_scope='test-only';"
+  }
   foreach ($mode in @('same','different')) {
     if ($mode -eq 'different') {
-      Invoke-LabSql "begin; delete from flight_private.query_cache; delete from flight_private.rate_buckets; update flight_private.budgets set used_total=895; commit;"
+      if ($BudgetRollover) {
+        Invoke-LabSql "begin; delete from flight_private.query_cache; delete from flight_private.rate_buckets; delete from flight_private.budgets where account_scope='test-only'; insert into flight_private.budgets(provider,account_scope,period_start,period_end,limit_total,used_total,rollover_enabled) values('airlabs','test-only','2001-01-01','2001-02-01',900,895,true); commit;"
+      } else {
+        Invoke-LabSql "begin; delete from flight_private.query_cache; delete from flight_private.rate_buckets; update flight_private.budgets set used_total=895; commit;"
+      }
     }
     $count = if ($mode -eq 'same') { 5 } else { 12 }
     $jobs = @()
@@ -54,7 +70,10 @@ commit;
       if (($mode -eq 'same' -and ($winners -ne 1 -or $others -ne 4)) -or ($mode -eq 'different' -and ($winners -ne 5 -or $others -ne 7))) {
         throw "Unexpected concurrency distribution: winners=$winners others=$others"
       }
-      Invoke-LabSql 'do $$ begin assert (select used_total=900 and used_total<=limit_total from flight_private.budgets where account_scope=''test-only''),''concurrent budget''; end; $$;'
+      Invoke-LabSql 'do $$ begin assert (select sum(used_total)=900 and bool_and(used_total<=limit_total) from flight_private.budgets where account_scope=''test-only''),''concurrent budget''; end; $$;'
+      if ($BudgetRollover) {
+        Invoke-LabSql 'do $$ begin assert (select count(*)=2 from flight_private.budgets where account_scope=''test-only''),''one successor''; assert (select used_total in (899,895) from flight_private.budgets where account_scope=''test-only'' and rolled_from is null),''parent counter preserved''; end; $$;'
+      }
       Write-Output "$mode concurrency: $winners fetch_allowed, $others blocked; budget=900/900"
     } finally {
       $jobs | Stop-Job -ErrorAction SilentlyContinue
