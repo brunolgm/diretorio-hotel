@@ -15,8 +15,15 @@ function harness(){
    const data=entries.map((e:typeof manifest.entries[number],i:number)=>{let row=registered.get(e.key);if(!row){row={id:'new-'+i,hotel_id:manifest.hotelId,slug:e.key,...e.values,updated_at:'new-source'};registered.set(e.key,row!);tables.hotel_tourism_items.push(row!);}return {key:e.key,id:row!.id,domain:'tourism'};});return {data};
   }
   if(name==='apply_current_hotel_bootstrap_translation'){const row=registered.get(String(p.p_key))!;tables.hotel_tourism_item_translations.push({item_id:row.id,language:p.p_language,...p.p_fields as object});return {data:true};}
-  if(name==='save_current_hotel_tourism_item'){const row=tables.hotel_tourism_items.find(i=>i.id===p.p_item_id)!;assert.equal(p.p_expected_updated_at,row.updated_at);Object.assign(row,p.p_changes,{updated_at:'changed-source'});tables.hotel_tourism_item_translations=tables.hotel_tourism_item_translations.filter(t=>t.item_id!==row.id);return {data:[row]};}
-  if(name==='save_current_hotel_tourism_translation'){const row=tables.hotel_tourism_items.find(i=>i.id===p.p_item_id)!;assert.equal(p.p_expected_updated_at,row.updated_at);tables.hotel_tourism_item_translations=tables.hotel_tourism_item_translations.filter(t=>!(t.item_id===row.id&&t.language===p.p_language));tables.hotel_tourism_item_translations.push({item_id:row.id,language:p.p_language,...p.p_changes as object});return {data:true};}
+  if(name==='save_current_hotel_tourism_item'){
+   const row=tables.hotel_tourism_items.find(i=>i.id===p.p_item_id)!;assert.equal(p.p_expected_updated_at,row.updated_at);
+   const patch=p.p_changes as Record<string,unknown>,changed=['name','short_description','full_description','opening_hours','price_info','duration_info'].filter(k=>Object.hasOwn(patch,k)&&row[k]!==patch[k]);
+   Object.assign(row,patch,{updated_at:'changed-source'});
+   tables.hotel_tourism_item_translations=tables.hotel_tourism_item_translations.filter(t=>t.item_id!==row.id||['name','short_description','full_description','opening_hours','price_info','duration_info'].some(k=>!changed.includes(k)&&t[k]!=null));
+   for(const t of tables.hotel_tourism_item_translations.filter(t=>t.item_id===row.id)){for(const k of changed)t[k]=null;t.updated_at='invalidated';}
+   return {data:[structuredClone(row)]};
+  }
+  if(name==='save_current_hotel_tourism_translation'){const row=tables.hotel_tourism_items.find(i=>i.id===p.p_item_id)!;if(p.p_expected_updated_at!==row.updated_at)return {data:false};const existing=tables.hotel_tourism_item_translations.find(t=>t.item_id===row.id&&t.language===p.p_language);if(existing)Object.assign(existing,p.p_changes,{updated_at:'translated'});else tables.hotel_tourism_item_translations.push({item_id:row.id,language:p.p_language,...p.p_changes as object});return {data:true};}
   if(name==='save_current_hotel_experience_media_translation'){assert.equal(p.p_expected_revision,1);Object.assign(tables.hotel_public_experience_media_translations[0],p.p_fields);return {data:true};}
   if(name==='save_current_hotel_public_presentation'){assert.equal(p.p_expected_revision,tables.hotel_public_presentation[0].revision);Object.assign(tables.hotel_public_presentation[0],{configuration:p.p_configuration,revision:3});return {data:3};}
   throw Error('Unexpected RPC');
@@ -40,4 +47,85 @@ test('a false successful translation response never associates cards before cont
  await assert.rejects(()=>applyTourismEditorial(h.client,manifest));
  assert.ok(!h.calls.includes('save_current_hotel_public_presentation'));
  assert.equal(h.tables.hotel_public_presentation[0].revision,2);
+});
+
+const resumeCheckpoint=JSON.parse(readFileSync('docs/bootstrap/bugan-tourism-v4-resume-20261029.json','utf8'));
+function resumeHarness(){
+ const h=harness();
+ h.tables.hotel_tourism_items=structuredClone(resumeCheckpoint.items);
+ h.tables.hotel_tourism_item_translations=structuredClone(resumeCheckpoint.translations);
+ h.tables.hotel_section_translations=[structuredClone(resumeCheckpoint.serviceTranslation)];
+ h.tables.hotel_public_experience_media_translations=[structuredClone(resumeCheckpoint.mediaTranslation)];
+ return h;
+}
+const resume=(h:ReturnType<typeof harness>)=>applyTourismEditorial(h.client,manifest,()=>{},{resumeCheckpoint});
+const mutations=(calls:string[])=>calls.filter(c=>c!=='get_current_hotel_modules');
+
+test('source RPC mock preserves translation rows and invalidates only the changed PT full_description',async()=>{
+ const h=harness(),before=structuredClone(h.tables.hotel_tourism_item_translations);
+ await h.client.rpc('save_current_hotel_tourism_item',{p_item_id:manifest.updates[0].id,p_expected_updated_at:'revision-1',p_changes:manifest.updates[0].values});
+ assert.equal(h.tables.hotel_tourism_item_translations.length,2);
+ for(const [index,row]of h.tables.hotel_tourism_item_translations.entries()){
+  assert.equal(row.full_description,null);assert.equal(row.name,before[index].name);assert.equal(row.short_description,before[index].short_description);
+ }
+});
+
+test('audited selective-invalidation resume writes only two full descriptions, two EN titles and presentation; second run writes nothing',async()=>{
+ const h=resumeHarness(),before=structuredClone(h.tables),rpc=h.client.rpc,translationPatches:unknown[]=[];
+ h.client.rpc=async(name,p={})=>{if(name==='save_current_hotel_tourism_translation')translationPatches.push(p.p_changes);return rpc(name,p);};
+ const result=await resume(h);
+ assert.equal(result.status,'tourism_reconciliation_confirmed');assert.equal(result.createdThisRun,0);assert.equal(result.publishedItems,7);assert.equal(result.translationsPending,0);assert.equal(result.revision,3);
+ assert.deepEqual(translationPatches,['en','es'].map(lang=>manifest.updates[0].translations[lang]));
+ assert.deepEqual(h.tables.hotel_tourism_items,before.hotel_tourism_items);
+ assert.deepEqual(h.tables.hotels,before.hotels);assert.deepEqual(h.tables.profiles,before.profiles);assert.deepEqual(h.tables.hotel_public_experience_media,before.hotel_public_experience_media);
+ const pracaId=manifest.updates[0].id;
+ assert.deepEqual(h.tables.hotel_tourism_item_translations.filter(t=>t.item_id!==pracaId),before.hotel_tourism_item_translations.filter(t=>t.item_id!==pracaId));
+ for(const row of h.tables.hotel_tourism_item_translations.filter(t=>t.item_id===pracaId)){
+  const old=before.hotel_tourism_item_translations.find(t=>t.id===row.id)!;
+  for(const key of Object.keys(old).filter(k=>!['full_description','updated_at'].includes(k)))assert.equal(row[key],old[key]);
+ }
+ assert.deepEqual(mutations(h.calls),['save_current_hotel_tourism_translation','save_current_hotel_tourism_translation','update:hotel_section_translations','save_current_hotel_experience_media_translation','save_current_hotel_public_presentation']);
+ const completed=structuredClone(h.tables);h.calls.length=0;await resume(h);assert.deepEqual(h.tables,completed);assert.deepEqual(mutations(h.calls),[]);
+});
+
+test('directed preflight rejects missing, duplicated or edited confirmed data and unexpected presentation revisions before all writes',async()=>{
+ for(const conflict of ['missing-item','duplicate-item','new-translation','missing-translation','shopping','praca-name','praca-full','title-content','media-alt','revision','changed-desired-revision','lifecycle','modules']){
+  const h=resumeHarness();
+  if(conflict==='missing-item')h.tables.hotel_tourism_items.pop();
+  if(conflict==='duplicate-item')h.tables.hotel_tourism_items.push(structuredClone(h.tables.hotel_tourism_items[0]));
+  if(conflict==='new-translation')h.tables.hotel_tourism_item_translations.find(t=>t.item_id!==manifest.updates[0].id)!.name='Manual edit';
+  if(conflict==='missing-translation')h.tables.hotel_tourism_item_translations.pop();
+  if(conflict==='shopping')h.tables.hotel_tourism_items.find(i=>i.slug==='shopping-recife')!.updated_at='edited';
+  if(conflict==='praca-name')h.tables.hotel_tourism_item_translations[0].name='Manual name';
+  if(conflict==='praca-full')h.tables.hotel_tourism_item_translations[0].full_description='Human translation';
+  if(conflict==='title-content')h.tables.hotel_section_translations[0].content='Manual content';
+  if(conflict==='media-alt')h.tables.hotel_public_experience_media_translations[0].alt_text='Manual alt';
+  if(conflict==='revision')h.tables.hotel_public_presentation[0].revision=99;
+  if(conflict==='changed-desired-revision')Object.assign(h.tables.hotel_public_presentation[0],{revision:4,configuration:tourismEditorialPlan(manifest).desired});
+  if(conflict==='lifecycle')h.tables.hotels[0].platform_status='active';
+  if(conflict==='modules')h.setModules([]);
+  await assert.rejects(()=>resume(h),conflict);assert.deepEqual(mutations(h.calls),[],conflict);
+ }
+});
+
+test('ambiguous EN translation response keeps committed data and next directed run skips it without bootstrap',async()=>{
+ const h=resumeHarness(),rpc=h.client.rpc;let once=true;
+ h.client.rpc=async(name,p={})=>{const r=await rpc(name,p);if(once&&name==='save_current_hotel_tourism_translation'){once=false;return {error:{code:'PT409'},data:null};}return r;};
+ await assert.rejects(()=>resume(h));assert.ok(!h.calls.includes('save_current_hotel_public_presentation'));
+ const committed=structuredClone(h.tables.hotel_tourism_item_translations.find(t=>t.item_id===manifest.updates[0].id&&t.language==='en'));
+ h.calls.length=0;await resume(h);assert.equal(h.calls.filter(c=>c==='save_current_hotel_tourism_translation').length,1);
+ assert.deepEqual(h.tables.hotel_tourism_item_translations.find(t=>t.item_id===manifest.updates[0].id&&t.language==='en'),committed);
+ assert.ok(!h.calls.some(c=>c.includes('bootstrap')));
+});
+
+test('stale parent, false persistence and presentation concurrency never associate cards or compensate destructively',async()=>{
+ for(const conflict of ['parent','unconfirmed','presentation']){
+  const h=resumeHarness(),rpc=h.client.rpc;
+  h.client.rpc=async(name,p={})=>{
+   if(name==='save_current_hotel_tourism_translation'&&conflict==='parent'){h.tables.hotel_tourism_items.find(i=>i.id===p.p_item_id)!.updated_at='concurrent';return rpc(name,p);}
+   if(name==='save_current_hotel_tourism_translation'&&conflict==='unconfirmed')return {data:true};
+   const result=await rpc(name,p);if(name==='save_current_hotel_experience_media_translation'&&conflict==='presentation')h.tables.hotel_public_presentation[0].revision=99;return result;
+  };
+  await assert.rejects(()=>resume(h));assert.ok(!h.calls.includes('save_current_hotel_public_presentation'));assert.ok(!h.calls.some(c=>/delete|bootstrap/.test(c)));
+ }
 });
