@@ -14,6 +14,8 @@ export type DomainContextKind =
   | 'other-domain';
 
 export interface DomainContext {
+  /** Server-selected link scope only. Every /preview destination authorizes independently. */
+  navigationScope?: 'authenticated-preview';
   rawHost: string | null;
   host: string | null;
   hostname: string | null;

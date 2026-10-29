@@ -12,7 +12,7 @@ import { resolveHotelTheme } from '@/lib/hotel-theme';
 import { getPublicCopy } from '@/lib/public-copy';
 import type { PublicHotel, PublicHotelSection } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
-import { buildPublicHotelAreaHref, buildPublicHotelHref, shouldPreferHotelSubdomainRoot } from '@/lib/public-routes';
+import { buildPublicHotelAreaHref, buildPublicHotelServiceHref, buildPublicHotelHref, shouldPreferHotelSubdomainRoot } from '@/lib/public-routes';
 import { MIN_SERVICE_DETAIL_CONTENT_LENGTH } from '@/lib/service-destinations';
 
 type RoomRestaurantState = 'missing-context' | 'missing-menu' | 'invalid-context';
@@ -85,7 +85,7 @@ export function HotelServiceDetailContent({
 
       <div className={`mx-auto px-4 py-6 md:px-6 md:py-8 ${isGrandMercureExperience ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-6xl' : 'max-w-4xl'}`}>
         {theme.preset === 'bugan' ? <PublicAreaHero hotel={hotel} language={language}
-          languageBasePath={useSubdomainRoot ? `/servicos/${section.id}` : `/hotel/${hotel.slug}/servicos/${section.id}`}
+          languageBasePath={buildPublicHotelServiceHref({slug:hotel.slug,serviceId:section.id,language:'pt',domainContext,preferSubdomainRoot:useSubdomainRoot})}
           homeHref={grandMercureServicesHref} backLabel={copy.backToServices} title={section.title} description={section.category || copy.serviceDetails} icon={Hotel} /> : <section
           className={
             isBrandExperience
@@ -112,11 +112,7 @@ export function HotelServiceDetailContent({
               <LanguageSwitcher
                 slug={hotel.slug}
                 currentLanguage={language}
-                basePath={
-                  useSubdomainRoot
-                    ? `/servicos/${section.id}`
-                    : `/hotel/${hotel.slug}/servicos/${section.id}`
-                }
+                basePath={buildPublicHotelServiceHref({slug:hotel.slug,serviceId:section.id,language:'pt',domainContext,preferSubdomainRoot:useSubdomainRoot})}
               />
             </div>
 

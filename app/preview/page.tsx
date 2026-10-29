@@ -8,5 +8,5 @@ export default async function PreviewPage({searchParams}:{searchParams:Promise<{
  const language = normalizePublicLanguage((await searchParams).lang);
  const data = await getAuthenticatedHotelPreviewData(language);
  const domainContext = await getRequestDomainContext();
- return <HotelPublicPageContent {...data} language={language} domainContext={domainContext} activeRoomContext={null}/>;
+ return <HotelPublicPageContent {...data} language={language} domainContext={{...domainContext,navigationScope:'authenticated-preview'}} activeRoomContext={null}/>;
 }

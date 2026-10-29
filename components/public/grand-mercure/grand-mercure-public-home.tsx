@@ -67,7 +67,7 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
   ];
   const hero = <section className="relative overflow-hidden bg-[#fbf7ef]/20 px-3 pt-3 pb-6 min-[360px]:px-4 md:rounded-[32px] md:border md:border-[#ddcfbb] md:px-10 md:pt-6 md:pb-10">
       {hotel.hero_image_url ? <div className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[.035] grayscale sepia" style={{ backgroundImage: `url(${JSON.stringify(hotel.hero_image_url)})` }} /> : null}
-      <div className="relative flex justify-end"><LanguageSwitcher slug={hotel.slug} currentLanguage={language} basePath={preferSubdomainRoot ? '/' : undefined} /></div>
+      <div className="relative flex justify-end"><LanguageSwitcher slug={hotel.slug} currentLanguage={language} basePath={domainContext.navigationScope === 'authenticated-preview' ? '/preview' : preferSubdomainRoot ? '/' : undefined} /></div>
       <div className="relative -mt-1 flex justify-center md:-mt-2"><GrandMercureBrandSignature logoUrl={hotel.logo_url} propertyLabel={propertyLabel} /></div>
       <div className="relative mx-auto mt-1 max-w-3xl text-center md:mt-3">
         <h1 className="whitespace-pre-line font-serif text-[clamp(1.4rem,6.6vw,2rem)] font-normal leading-[1.1] text-[#a9782a] md:text-5xl">{grandCopy.welcome}</h1>

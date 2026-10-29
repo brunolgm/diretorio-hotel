@@ -1,8 +1,9 @@
+import {publicEditorialHref} from './public-editorial-link.ts';
 import type { PublicHotelPageData } from './public-hotel-data';
 import type { DomainContext } from './domain-context';
 import type { SupportedPublicLanguage } from './public-language';
-import { buildPublicHotelAreaHref, buildPublicHotelFlightCenterHref, buildPublicHotelServiceHref } from './public-routes.ts';
-import {experienceHttpsUrl} from './public-experience-media.ts';
+import { buildPublicHotelAreaHref, buildPublicHotelFlightCenterHref } from './public-routes.ts';
+
 import type { PublicPresentation } from './public-presentation';
 
 export function publicExperienceVersion(presentation?: PublicPresentation | null) {
@@ -23,13 +24,7 @@ export function getUniversalMobileHome(data: PublicHotelPageData, language: Supp
   const checkin = enabled('quick_info') ? data.hotel.checkin_time?.trim() || null : null;
   const checkout = enabled('quick_info') ? data.hotel.checkout_time?.trim() || null : null;
   const restaurant = enabled('services') ? (data.experienceMedia ?? []).find(m => m.hotel_id === data.hotel.id && m.slot === 'restaurant' && m.is_published) : null;
-  let dining = experienceHttpsUrl(restaurant?.cta_url);
-  if (dining) {
-    const url = new URL(dining);
-    const ownHost = url.hostname === domainContext.productRootDomain || url.hostname === `${data.hotel.subdomain}.${domainContext.productRootDomain}`;
-    const section = ownHost ? sections.find(s => url.pathname === `/servicos/${s.id}` || url.pathname === `/hotel/${data.hotel.slug}/servicos/${s.id}`) : null;
-    if (section) dining = buildPublicHotelServiceHref({...route,serviceId:section.id});
-  }
+  let dining = publicEditorialHref({url:restaurant?.cta_url,hotel:data.hotel,sections,language,domainContext,preferSubdomainRoot});
   if (!dining && enabled('services') && sections.some(s => s.service_action_type === 'room_restaurant_menu')) dining = buildPublicHotelAreaHref({...route,area:'cardapio'});
   const actions: { key: 'services'|'dining'|'flights'|'contact'; href: string }[] = [
     ...(enabled('services') && sections.length ? [{key:'services' as const,href:buildPublicHotelAreaHref({...route,area:'servicos'})}] : []),

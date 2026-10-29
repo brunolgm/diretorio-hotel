@@ -60,7 +60,7 @@ export function NovotelPublicHome({ pageData, language, domainContext, preferSub
   const hero = <section className="relative min-h-[320px] overflow-hidden rounded-b-[34px] bg-[var(--hotel-hero-background)] px-6 pt-5 pb-14 text-white shadow-[0_30px_70px_-38px_rgba(0,43,92,0.72)] md:min-h-[540px] md:rounded-[34px] md:px-12 md:py-10">
       <NovotelHeroBackdrop imageUrl={hotel.hero_image_url} imageAlt={hotel.name} />
       <div className="relative flex min-h-[260px] flex-col md:min-h-[460px]">
-        <div className="flex justify-end"><LanguageSwitcher slug={hotel.slug} currentLanguage={language} basePath={preferSubdomainRoot ? '/' : undefined} /></div>
+        <div className="flex justify-end"><LanguageSwitcher slug={hotel.slug} currentLanguage={language} basePath={domainContext.navigationScope === 'authenticated-preview' ? '/preview' : preferSubdomainRoot ? '/' : undefined} /></div>
         <div className="mt-1 flex flex-1 items-center justify-center px-2 text-center md:mt-0"><NovotelBrandSignature logoUrl={hotel.logo_url} subtitle={hotelDisplayName} /></div>
         <div className="mt-auto max-w-lg text-left drop-shadow-[0_2px_12px_rgba(0,25,65,0.46)]"><h1 className="text-2xl font-semibold tracking-tight md:text-4xl">{copy.welcome}</h1><p className="mt-1.5 max-w-md text-sm leading-5 text-white/92 sm:text-base sm:leading-6 md:mt-2 md:text-lg md:leading-7">{copy.novotelHeroDescription}</p></div>
       </div>

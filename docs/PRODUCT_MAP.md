@@ -1,5 +1,63 @@
 # PRODUCT MAP
 
+## Hotfix V4 — navegação privada de homologação — 29/10/2026
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] `/explorar/...` já possui rotas canônicas:
+o problema da homologação era a saída da Home `/preview` para loaders públicos.
+Esses loaders resolvem apenas hotéis elegíveis em `public_hotels`: em hotel suspenso,
+catálogo/Voos/Contato chegam ao `notFound`, enquanto detalhe de serviço apresenta
+“Experiência indisponível”. Não eram caminhos inventados pela V4; V3 utiliza os
+mesmos construtores. O serviço informado `c0d9e423-fd45-4e35-a9c5-8dfa5ac01234`
+foi confirmado habilitado e pertencente ao Bugan, sem alteração do seu conteúdo.
+
+O preview passa a manter Home, idiomas, áreas, serviços e Turismo em `/preview`.
+Cada destino privado executa o mesmo guard no servidor: sessão real, administrador
+ativo do próprio hotel, lifecycle diferente de archived, `core.directory` e
+`experience.preview`. Editor/operador/visualizador não recebem acesso. O alvo vem
+exclusivamente do profile; a URL não recebe hotel ID ou slug. O escopo de links
+em `DomainContext` é somente apresentação, nunca autorização ou bypass de lifecycle.
+Rotas públicas, resolução por slug/subdomínio e alias histórico permanecem intactos.
+
+Renderers públicos são reutilizados, sem cópias de páginas por bandeira. Serviços
+continuam limitados a `enabled`; Turismo a itens publicados e entitlement ativo.
+Links editoriais de serviços são reconstruídos por associação publicada ao hotel,
+preservando idioma, contexto privado e fallback por slug. Links externos oficiais
+de reservas, acomodações e contato são preservados; não há operação externa automática.
+
+Voos no preview usa as tabelas/configuração existentes pelo cliente autenticado e
+RLS, exige `travel.flights` e aeroportos ativos. Não monta `GuestFlightManager` nem
+ações operacionais; “Meu voo” explica o estado somente leitura. Não resolve UH,
+roomToken ou cardápio contextual e não aciona Google, provedores ou analytics.
+Nenhuma migration, mudança de grants/RLS ou alteração operacional é necessária.
+
+| Acesso | Destino privado canônico | Público do Bugan suspenso |
+| --- | --- | --- |
+| Serviços | `/preview/explorar/servicos` | Bloqueado pelo lifecycle |
+| Gastronomia / Restaurante Filipe | `/preview/servicos/c0d9e423-fd45-4e35-a9c5-8dfa5ac01234` | Experiência indisponível |
+| Central de Voos | `/preview/explorar/voos` | Bloqueado pelo lifecycle |
+| Fale com o hotel | `/preview/explorar/contato` | Bloqueado pelo lifecycle |
+| Conheça o hotel | `/preview/servicos/820f3174-a704-44a0-a181-7de5f6415952` | Bloqueado pelo lifecycle |
+| Turismo / quatro cards | `/preview/explorar/turismo` | Bloqueado pelo lifecycle |
+| Detalhe de Turismo | `/preview/explorar/turismo/{slug-do-item}` | Bloqueado pelo lifecycle |
+| Acomodações / Reservar | HTTPS oficial já configurado, preservado | Destino externo existente |
+
+PT/EN/ES usam os mesmos caminhos com `lang`. Hotéis ativos continuam usando as
+rotas públicas anteriores conforme publicação e entitlement. O Bugan permanece
+`suspended`, com V4 selecionada na revisão 2 e os dois administradores preservados.
+[IMPLEMENTADO, MAS NÃO VALIDADO] A nova navegação ainda exige homologação visual
+humana autenticada em produção após a publicação deste hotfix; testes sintéticos
+não equivalem a essa aprovação nem à validação de disponibilidade de terceiros.
+
+[APROVADO] Gates do hotfix: 445/445 security, incluindo execução da rota privada
+real com SDK/sessões sintéticos (anônimo, visualizador, editor, inativo, archived,
+administrador suspended/active, entitlements, conteúdo publicado e isolamento).
+Browser: 54 cenários de navegação nos seis presets, PT/EN/ES, 390/430/1440 pixels,
+todos os acessos/editoriais/Turismo do Bugan e zero chamadas de API; mais 152
+cenários de preservação visual V4/fallback V3. Testes de URLs estão separados da
+comparação visual histórica. TypeScript, build e diff check OK; lint zero erros e
+quatro warnings históricos. Smoke anterior à publicação: Serviços e Contato dos
+quatro hotéis ativos retornam 200 (8/8), confirmando a diferença de lifecycle.
+
 ## Public Experience V4 Universal — 29/10/2026
 
 [IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Evolução compartilhada e opt-in da V3 premium.

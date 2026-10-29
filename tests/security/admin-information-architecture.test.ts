@@ -101,7 +101,7 @@ test('uses the authenticated hotel for a sandboxed public preview', () => {
   assert.match(page, /encodeURIComponent\(hotel\.slug\)/);
   assert.match(page, /: '\/preview'/);
   const authenticated = read('lib','authenticated-hotel-preview.ts');
-  assert.match(authenticated, /requireAdminAccess\('editor'\)/);
+  assert.match(authenticated, /requireAdminAccess\('administrador'\)/);
   assert.match(authenticated, /\.eq\('id',profile.hotel_id\)/);
   assert.doesNotMatch(page, /searchParams[^\n]*hotel|service_role|createAdminClient/i);
   assert.match(preview, /<iframe/);

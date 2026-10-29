@@ -66,7 +66,7 @@ export function MercurePublicHome({ pageData, language, domainContext, preferSub
       </div>
       <div className="mercure-hero-image-overlay pointer-events-none absolute inset-0" aria-hidden="true" />
       <div className="relative z-10 flex min-h-[430px] flex-col px-5 pt-4 pb-11 md:min-h-[540px] md:px-12 md:pt-7 md:pb-14">
-        <div className="flex justify-end"><LanguageSwitcher slug={hotel.slug} currentLanguage={language} basePath={preferSubdomainRoot ? '/' : undefined} /></div>
+        <div className="flex justify-end"><LanguageSwitcher slug={hotel.slug} currentLanguage={language} basePath={domainContext.navigationScope === 'authenticated-preview' ? '/preview' : preferSubdomainRoot ? '/' : undefined} /></div>
         <div className="mt-4 flex justify-center md:mt-2"><MercureBrandSignature logoUrl={hotel.logo_url} /></div>
         <div className="mt-auto max-w-[230px] text-left text-[#52204f] min-[390px]:max-w-[255px] md:max-w-md">
           <h1 className="text-[1.45rem] leading-tight font-semibold tracking-[-.02em] md:text-4xl">{copy.welcome}</h1>
