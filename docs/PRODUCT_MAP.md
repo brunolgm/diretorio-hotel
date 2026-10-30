@@ -2579,7 +2579,7 @@ de IA faz parte desta entrega.
 
 **Evidência e classificação.** Suíte de segurança: 500/500; matriz SQL real local
 em transação com rollback (roles/tenant/módulos/lifecycle/revisão/mídia/auditoria);
-browser isolado: 147 cenários de comunicações/voo e 148 de guias, seis identidades,
+browser isolado: 183 cenários de comunicações/voo e 148 de guias, seis identidades,
 PT/EN/ES e oito viewports. Capturas/relatórios ficam em `out/tourism-v4/` e gates em
 `out/v4-communications-guides/`, sem credenciais e fora do commit. Fixtures não
 comprovam sessão administrativa de produção nem revisão operacional da grade.
@@ -2591,3 +2591,7 @@ SECURITY DEFINER e proteção de senhas vazadas, fora do escopo). Os únicos avi
 novos são a exposição intencional das cinco RPCs de guias aos papéis declarados;
 foram revisados com as negativas reais da matriz SQL. Não representam grant de
 escrita em tabela/Storage nem dispensa dos gates de tenant, role e módulo.
+
+O smoke público também cobre seleção explícita da aba Meu voo e a regra de
+especificidade do wrapper no desktop: o resumo deve permanecer visível mesmo
+com os essenciais/tarefas mobile ocultos. Português usa a URL canônica sem lang.

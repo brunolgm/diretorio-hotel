@@ -163,7 +163,7 @@
   height: 18px;
 }
 @media (min-width: 768px) {
-  [data-public-v4-mobile] {
+  .public-v4-mobile-home[data-public-v4-mobile] {
     display: contents;
   }
   [data-public-v4-mobile] > .public-v4-essentials,
