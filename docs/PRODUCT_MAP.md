@@ -2870,3 +2870,51 @@ candidato preservados. Esta atualização é somente documental. GO técnico e
 retirada de testes confirmados; homologação visual humana final e revisão
 operacional de guias/equipamentos/grade permanecem necessárias. Gastronomia
 premium completa permanece Sprint 53 F&B. Não há autorização de publicar guias.
+
+#### TV e Canais — tutorial e catálogo separados (30/10/2026)
+
+Hotfix compartilhado do RoomGuideContent, sem novo módulo, cadastro, migration ou
+alteração de Auth/RLS/RPC. Como usar, Lista de canais e Precisa de ajuda são abas
+acessíveis com um único painel preenchido; os painéis inativos ficam vazios.
+Tutorial mantém uma etapa, fotos reais, progresso, Anterior/Próximo e acesso ao
+catálogo na última etapa. Setas/Home/End navegam nas abas, com foco visível.
+
+Busca normalizada por nome, número e categoria percorre todo o catálogo elegível
+antes da paginação de 12 canais. Filtros não inferem SD a partir de formato
+ausente. Aplicativos respeitam busca e formato e aparecem separados, sem exibir
+o número interno como canal linear. Status de revisão aparece somente na prévia
+privada; a leitura pública continua dependendo exclusivamente da versão publicada
+e dos gates anteriores. Estado local de aba/etapa/busca/formato/página usa apenas
+preferências de interface em sessionStorage por pathname, com fallback em memória;
+não armazena conteúdo, sessão Auth, status editorial ou autorização. Idioma segue
+a rota canônica e a seleção permanece ao trocar idioma na mesma rota.
+
+As cinco instruções e duas imagens foram conferidas contra o PDF original
+63e392_c3239d83658747758d22a813ea1e5847.pdf, SHA-256
+5d6535e3cce4d5b26e293dcac214bb0ecb7fc16f029ba49082d0033f003c6766.
+Não há uma entrada HDMI universal homologada. Nenhuma instrução, tradução ou
+imagem persistida foi substituída. Sobreposições de botões foram omitidas: o
+contrato atual não vincula coordenadas verificadas a uma versão imutável da foto
+quando o Admin troca a imagem. Não se desenha destaque presumido ou controle
+sintético. Revisão operacional dos equipamentos continua obrigatória.
+
+Gates: 525 testes de segurança, 44 cenários browser de TV e 148 de guias/Admin,
+PT/EN/ES, oito viewports e seis identidades; TypeScript/build OK, lint zero erros
+e quatro warnings históricos. SQL/RLS local passou com rollback. Cenários
+browser usam renderizadores isolados com fotos reais; não equivalem a login
+humano na produção. Prévia administrativa positiva e aceite visual final devem
+ser conferidos na sessão normal do hotel após READY. Capturas antes/depois e
+logs ficam em out/tv-premium e out/tourism-v4/tv-*, fora do commit.
+
+Releitura manteve os hashes dos 20 conjuntos protegidos, apresentação e guias.
+Bugan active, dois administradores ativos, 13 Serviços originais habilitados;
+quatro guias desabilitados e sem publicação; 222 registros, sendo 221 review e
+Netflix application. Busca real de leitura confirmou SporTV 37/38/39/537/538/539.
+Admin de passos, ordem, imagens, traduções, números, categorias, formatos e
+publicação permanece no fluxo existente. Home, comunicações, voos, F&B, QR e
+roomToken não foram alterados; nenhuma chamada Google/AirLabs ou escrita remota.
+Publicação técnica não autoriza habilitar guias ou publicar a grade.
+
+Regressões adicionais do candidato: composição 61/61 e matriz V4 premium 168/168,
+sem chamadas de API no harness. A seleção V3/V4 e as seis identidades foram
+preservadas. Smoke público real deve ser relido após o deployment READY.

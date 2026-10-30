@@ -35,6 +35,7 @@ export async function runRoomGuides({ page, origin, output }) {
             }),
         );
         await page.locator("[data-room-guide]").waitFor();
+        await page.evaluate(()=>{sessionStorage.clear();window.dispatchEvent(new Event("libguest:room-guide-view"));});
         const guide = page.locator("[data-room-guide]");
         assert.equal(
           await page.evaluate(
@@ -62,6 +63,7 @@ export async function runRoomGuides({ page, origin, output }) {
             .evaluate((e) => document.activeElement === e),
           true,
         );
+        await guide.getByRole("tab").nth(1).click();
         const search = guide.getByRole("searchbox");
         await search.fill("539");
         assert.equal(await guide.locator(".room-guide-channels [data-guide-channel]").count(), 1);
@@ -80,6 +82,7 @@ export async function runRoomGuides({ page, origin, output }) {
         );
         await guide.locator("select").selectOption("SD");
         assert.equal(await guide.locator(".room-guide-channels [data-guide-channel]").count(), 1);
+        await guide.locator("select").selectOption("all");
         await search.fill("Netflix");
         assert.equal(await guide.locator(".room-guide-channels [data-guide-channel]").count(), 0);
         assert.ok(await guide.getByText("Netflix", { exact: true }).count());

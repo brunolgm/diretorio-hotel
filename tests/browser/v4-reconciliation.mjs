@@ -194,6 +194,9 @@ export async function runV4Reconciliation({ page, origin, output }) {
         );
       }
       if (key === "draft") {
+        await page.evaluate(()=>{sessionStorage.clear();window.dispatchEvent(new Event('libguest:room-guide-view'));});
+        await page.locator('.room-guide-step img').evaluate(img=>img.decode());
+        await page.locator('[data-room-guide]').getByRole('tab').nth(1).click();
         assert.equal(
           await page.locator("[data-guide-draft-preview]").count(),
           1,
@@ -202,16 +205,14 @@ export async function runV4Reconciliation({ page, origin, output }) {
           await page
             .locator("[data-guide-channels] .room-guide-channels [data-guide-channel]")
             .count(),
-          221,
+          12,
         );
         assert.ok(
           (await page.locator(".room-guide-draft-notice").innerText()).includes(
             "não publicado",
           ),
         );
-        await page
-          .locator(".room-guide-step img")
-          .evaluate((img) => img.decode());
+
         assert.equal(
           await page.getByText("Netflix", { exact: true }).count(),
           1,

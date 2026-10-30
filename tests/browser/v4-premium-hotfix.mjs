@@ -35,7 +35,7 @@ export async function runPremiumHotfix({page,origin,output}){
    assert.equal(await page.locator('.public-internal-benefits li').count(),4);
    const targets=await page.locator('.public-internal-anchors a[href^="#"]').evaluateAll(a=>a.map(el=>document.getElementById(el.getAttribute('href').slice(1))!==null));assert.ok(targets.every(Boolean),'no empty anchors');
   }
-  if(code==='J'){assert.equal(await page.locator('[data-guide-draft-preview]').count(),1);assert.equal(await page.locator('.room-guide-channels [data-guide-channel]').count(),221);assert.equal(await page.getByText('Netflix',{exact:true}).count(),1);}
+  if(code==='J'){await page.locator('[data-room-guide]').getByRole('tab').nth(1).click();assert.equal(await page.locator('[data-guide-draft-preview]').count(),1);assert.equal(await page.locator('.room-guide-channels [data-guide-channel]').count(),12);assert.equal(await page.getByText('Netflix',{exact:true}).count(),1);}
  }
  for(const code of ['A','B','C','D','E','F','G','H','I','J'])for(const [width,height]of views){
   await visit(code,width,height);await check(code,width);

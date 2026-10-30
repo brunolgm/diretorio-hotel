@@ -1,320 +1,46 @@
 "use client";
-import { useId, useRef, useState } from "react";
-import Image from "next/image";
-import { BookOpen, ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { guideText, type RoomGuide } from "@/lib/room-guides";
-export function RoomGuideContent({
-  guide,
-  language,
-  helpHref,
-  draftPreview = false,
-}: {
-  guide: RoomGuide;
-  language: "pt" | "en" | "es";
-  helpHref: string;
-  draftPreview?: boolean;
-}) {
-  const guideId = useId();
-  const [active, setActive] = useState(0),
-    [search, setSearch] = useState(""),
-    [quality, setQuality] = useState("all"),
-    heading = useRef<HTMLHeadingElement>(null);
-  const copy =
-    language === "en"
-      ? {
-          how: "How to use",
-          step: "Step",
-          of: "of",
-          previous: "Previous",
-          next: "Next",
-          channels: "TV channels",
-          find: "Search by name, number or category",
-          all: "All formats",
-          unspecified: "Format not specified",
-          empty: "No matching channels.",
-          help: "Need help?",
-          contact: "Contact the hotel",
-          manual: "Complete manual",
-          apps: "Applications",
-          scope: "Available in",
-        }
-      : language === "es"
-        ? {
-            how: "Cómo usar",
-            step: "Paso",
-            of: "de",
-            previous: "Anterior",
-            next: "Siguiente",
-            channels: "Canales de TV",
-            find: "Buscar por nombre, número o categoría",
-            all: "Todos los formatos",
-            unspecified: "Formato no especificado",
-            empty: "No hay canales coincidentes.",
-            help: "¿Necesitas ayuda?",
-            contact: "Contactar al hotel",
-            manual: "Manual completo",
-            apps: "Aplicaciones",
-            scope: "Disponible en",
-          }
-        : {
-            how: "Como usar",
-            step: "Passo",
-            of: "de",
-            previous: "Anterior",
-            next: "Próximo",
-            channels: "Lista de canais",
-            find: "Buscar por nome, número ou categoria",
-            all: "Todos os formatos",
-            unspecified: "Formato não informado",
-            empty: "Nenhum canal corresponde à busca.",
-            help: "Precisa de ajuda?",
-            contact: "Falar com o hotel",
-            manual: "Manual completo",
-            apps: "Aplicativos",
-            scope: "Disponível em",
-          };
-  const step = guide.steps[active],
-    normalize = (s: string) =>
-      s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase(),
-    channels = guide.channels.filter(
-      (c) =>
-        (c.kind === "linear" || (draftPreview && c.kind === "review")) &&
-        (quality === "all" || c.quality === quality) &&
-        normalize([c.number, c.name, c.category ?? ""].join(" ")).includes(
-          normalize(search),
-        ),
-    ),
-    apps = guide.channels.filter((c) => c.kind === "application");
-  function move(n: number) {
-    setActive(n);
-    requestAnimationFrame(() => heading.current?.focus());
-  }
-  return (
-    <section
-      className="room-guide"
-      data-room-guide
-      data-guide-draft-preview={draftPreview ? "true" : undefined}
-    >
-      {draftPreview ? (
-        <p className="room-guide-draft-notice" role="status">
-          {language === "en"
-            ? "Private draft preview — not published. Equipment, availability, translations and channels await operational review."
-            : language === "es"
-              ? "Vista previa privada del borrador — no publicado. Equipos, disponibilidad, traducciones y canales pendientes de revisión operativa."
-              : "Prévia privada de rascunho — não publicado. Equipamentos, disponibilidade, traduções e canais aguardam revisão operacional."}
-        </p>
-      ) : null}
-      <nav
-        className="room-guide-sections"
-        aria-label={
-          language === "en"
-            ? "Guide sections"
-            : language === "es"
-              ? "Secciones de la guía"
-              : "Seções do guia"
-        }
-      >
-        <a href={"#" + guideId + "-how"}>{copy.how}</a>
-        {guide.channels.some(
-          (c) => c.kind === "linear" || (draftPreview && c.kind === "review"),
-        ) ? (
-          <a href={"#" + guideId + "-channels"}>{copy.channels}</a>
-        ) : null}
-        <a href={"#" + guideId + "-help"}>{copy.help}</a>
-        {guide.manual_url ? (
-          <a href={guide.manual_url} target="_blank" rel="noopener noreferrer">
-            {copy.manual}
-          </a>
-        ) : null}
-      </nav>
-      {guide.applicability.scope === "categories" ? (
-        <p className="room-guide-scope">
-          {copy.scope}: {guideText(guide.applicability.label, language)} ·{" "}
-          {guide.applicability.categories.join(", ")}
-        </p>
-      ) : null}
-      <h2 id={guideId + "-how"}>{copy.how}</h2>
-      <ol className="room-guide-step-nav">
-        {guide.steps.map((s, i) => (
-          <li key={s.key}>
-            <button
-              type="button"
-              onClick={() => move(i)}
-              aria-current={active === i ? "step" : undefined}
-            >
-              {i + 1}. {guideText(s.title, language)}
-            </button>
-          </li>
-        ))}
-      </ol>
-      {step ? (
-        <article
-          className="room-guide-step"
-          data-has-image={step.image_path ? "true" : undefined}
-        >
-          <p role="status" aria-live="polite">
-            {copy.step} {active + 1} {copy.of} {guide.steps.length}
-          </p>
-          <h3 ref={heading} tabIndex={-1}>
-            {guideText(step.title, language)}
-          </h3>
-          {step.image_path ? (
-            <Image
-              src={
-                process.env.NEXT_PUBLIC_SUPABASE_URL +
-                "/storage/v1/object/public/hotel-assets/" +
-                step.image_path
-              }
-              alt={guideText(step.alt, language)}
-              width={360}
-              height={480}
-              unoptimized
-            />
-          ) : null}
-          <p className="whitespace-pre-line">
-            {guideText(step.body, language)}
-          </p>
-          <nav aria-label={copy.how}>
-            <button
-              type="button"
-              disabled={active === 0}
-              onClick={() => move(active - 1)}
-            >
-              <ChevronLeft aria-hidden />
-              {copy.previous}
-            </button>
-            <button
-              type="button"
-              disabled={active === guide.steps.length - 1}
-              onClick={() => move(active + 1)}
-            >
-              {copy.next}
-              <ChevronRight aria-hidden />
-            </button>
-          </nav>
-        </article>
-      ) : null}
-      {guide.channels.some(
-        (c) => c.kind === "linear" || (draftPreview && c.kind === "review"),
-      ) ? (
-        <section data-guide-channels id={guideId + "-channels"}>
-          <h2>{copy.channels}</h2>
-          <div className="room-guide-search">
-            <label>
-              <Search aria-hidden />
-              <span>{copy.find}</span>
-              <input
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </label>
-            <label>
-              <span>{copy.all}</span>
-              <select
-                value={quality}
-                onChange={(e) => setQuality(e.target.value)}
-              >
-                <option value="all">{copy.all}</option>
-                <option value="HD">HD</option>
-                <option value="SD">SD</option>
-                <option value="unspecified">{copy.unspecified}</option>
-              </select>
-            </label>
-          </div>
-          <div
-            className="room-guide-channel-scroll"
-            tabIndex={0}
-            role="region"
-            aria-label={copy.channels}
-          >
-            <table className="room-guide-channels">
-              <caption className="sr-only">{copy.channels}</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Nº</th>
-                  <th scope="col">
-                    {language === "en"
-                      ? "Channel"
-                      : language === "es"
-                        ? "Canal"
-                        : "Canal"}
-                  </th>
-                  <th scope="col">
-                    {language === "en"
-                      ? "Format"
-                      : language === "es"
-                        ? "Formato"
-                        : "Formato"}
-                  </th>
-                  {guide.channels.some((c) => c.category) ? (
-                    <th scope="col">
-                      {language === "en"
-                        ? "Category"
-                        : language === "es"
-                          ? "Categoría"
-                          : "Categoria"}
-                    </th>
-                  ) : null}
-                  {draftPreview ? (
-                    <th scope="col">
-                      {language === "en"
-                        ? "Review"
-                        : language === "es"
-                          ? "Revisión"
-                          : "Revisão"}
-                    </th>
-                  ) : null}
-                </tr>
-              </thead>
-              <tbody>
-                {channels.map((c) => (
-                  <tr key={c.number} data-guide-channel>
-                    <th scope="row">{c.number}</th>
-                    <td>{c.name}</td>
-                    <td>{c.quality === "unspecified" ? "—" : c.quality}</td>
-                    {guide.channels.some((c) => c.category) ? (
-                      <td>{c.category ?? "—"}</td>
-                    ) : null}
-                    {draftPreview ? (
-                      <td>
-                        <span className="room-guide-review-tag">
-                          {language === "en"
-                            ? "Pending"
-                            : language === "es"
-                              ? "Pendiente"
-                              : "Pendente"}
-                        </span>
-                      </td>
-                    ) : null}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {!channels.length ? <p role="status">{copy.empty}</p> : null}
-        </section>
-      ) : null}
-      {apps.length ? (
-        <section>
-          <h2>{copy.apps}</h2>
-          <ul>
-            {apps.map((c) => (
-              <li key={c.number}>{c.name}</li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-      <footer id={guideId + "-help"}>
-        <h2>{copy.help}</h2>
-        <a href={helpHref}>{copy.contact}</a>
-        {guide.manual_url ? (
-          <a href={guide.manual_url} target="_blank" rel="noopener noreferrer">
-            <BookOpen aria-hidden />
-            {copy.manual}
-          </a>
-        ) : null}
-      </footer>
-    </section>
-  );
+import {useId,useRef,useSyncExternalStore} from 'react';
+import Image from 'next/image';
+import {BookOpen,ChevronLeft,ChevronRight,Search,LifeBuoy,ListVideo,ArrowUpRight} from 'lucide-react';
+import {guideText,type RoomGuide} from '@/lib/room-guides';
+import {guideChannelResults,guideChannelPage,parseGuideView,type GuideView,type GuideTab} from '@/lib/room-guide-view';
+const viewEvent='libguest:room-guide-view';
+const memoryViews=new Map<string,string>();
+const viewKey=()=> 'libguest.roomGuide.view.v1:'+window.location.pathname;
+function snapshot(){try{return sessionStorage.getItem(viewKey())??memoryViews.get(viewKey())??'';}catch{return memoryViews.get(viewKey())??'';}}
+function subscribe(listener:()=>void){window.addEventListener(viewEvent,listener);window.addEventListener('storage',listener);return()=>{window.removeEventListener(viewEvent,listener);window.removeEventListener('storage',listener);};}
+const serverSnapshot=()=>'';
+export function RoomGuideContent({guide,language,helpHref,draftPreview=false}:{guide:RoomGuide;language:'pt'|'en'|'es';helpHref:string;draftPreview?:boolean}){
+ const id=useId(),raw=useSyncExternalStore(subscribe,snapshot,serverSnapshot),view=parseGuideView(raw,guide,draftPreview),heading=useRef<HTMLHeadingElement>(null),tabRefs=useRef<Partial<Record<GuideTab,HTMLButtonElement|null>>>({});
+ function update(patch:Partial<GuideView>){const next=JSON.stringify({...view,...patch});memoryViews.set(viewKey(),next);try{sessionStorage.setItem(viewKey(),next);}catch{}window.dispatchEvent(new Event(viewEvent));}
+ const c=language==='en'?{how:'How to use',channels:'TV channels',help:'Need help?',sections:'Guide sections',step:'Step',of:'of',previous:'Previous',next:'Next',find:'Search by name, number or category',all:'All formats',unspecified:'Format not specified',empty:'No matching channels or applications.',contact:'Contact the hotel',manual:'Complete manual',apps:'Applications',scope:'Available in',draft:'Private draft preview — not published. Equipment, availability, translations and channels await operational review.',pending:'Pending review',results:'channels found',page:'Page',previousPage:'Previous page',nextPage:'Next page',clear:'Clear filters',format:'Channel format',openChannels:'View channel list',helpBody:'Use the hotel contact channels for assistance.',application:'Application'}:language==='es'?{how:'Cómo usar',channels:'Canales de TV',help:'¿Necesitas ayuda?',sections:'Secciones de la guía',step:'Paso',of:'de',previous:'Anterior',next:'Siguiente',find:'Buscar por nombre, número o categoría',all:'Todos los formatos',unspecified:'Formato no especificado',empty:'No hay canales ni aplicaciones coincidentes.',contact:'Contactar al hotel',manual:'Manual completo',apps:'Aplicaciones',scope:'Disponible en',draft:'Vista previa privada del borrador — no publicado. Equipos, disponibilidad, traducciones y canales pendientes de revisión operativa.',pending:'Pendiente de revisión',results:'canales encontrados',page:'Página',previousPage:'Página anterior',nextPage:'Página siguiente',clear:'Borrar filtros',format:'Formato del canal',openChannels:'Ver lista de canales',helpBody:'Utilice los canales de contacto del hotel para solicitar ayuda.',application:'Aplicación'}:{how:'Como usar',channels:'Lista de canais',help:'Precisa de ajuda?',sections:'Seções do guia',step:'Passo',of:'de',previous:'Anterior',next:'Próximo',find:'Buscar por nome, número ou categoria',all:'Todos os formatos',unspecified:'Formato não informado',empty:'Nenhum canal ou aplicativo corresponde à busca.',contact:'Falar com o hotel',manual:'Manual completo',apps:'Aplicativos',scope:'Disponível em',draft:'Prévia privada de rascunho — não publicado. Equipamentos, disponibilidade, traduções e canais aguardam revisão operacional.',pending:'Pendente de revisão',results:'canais encontrados',page:'Página',previousPage:'Página anterior',nextPage:'Próxima página',clear:'Limpar filtros',format:'Formato do canal',openChannels:'Ver lista de canais',helpBody:'Use os canais de contato do hotel para pedir ajuda.',application:'Aplicativo'};
+ const hasChannels=guide.channels.some(row=>row.kind==='linear'||row.kind==='application'||(draftPreview&&row.kind==='review'));
+ const tabs=[{key:'how' as const,label:c.how,Icon:BookOpen},...(hasChannels?[{key:'channels' as const,label:c.channels,Icon:ListVideo}]:[]),{key:'help' as const,label:c.help,Icon:LifeBuoy}];
+ const step=guide.steps[view.step],results=guideChannelResults(guide,view.search,view.quality,draftPreview),pagination=guideChannelPage(results.channels,view.page);
+ function chooseTab(tab:GuideTab,focus=false){update({tab});if(focus)requestAnimationFrame(()=>tabRefs.current[tab]?.focus());}
+ function move(n:number){update({step:n});requestAnimationFrame(()=>heading.current?.focus());}
+ return <section className="room-guide" data-room-guide data-guide-draft-preview={draftPreview?'true':undefined}>
+  {draftPreview?<p className="room-guide-draft-notice" role="note">{c.draft}</p>:null}
+  <div className="room-guide-sections" role="tablist" aria-label={c.sections}>{tabs.map(({key,label,Icon},index)=><button key={key} type="button" role="tab" id={id+'-tab-'+key} aria-controls={id+'-panel-'+key} aria-selected={view.tab===key} tabIndex={view.tab===key?0:-1} ref={el=>{tabRefs.current[key]=el;}} onClick={()=>chooseTab(key)} onKeyDown={e=>{let next:number|undefined;if(e.key==='ArrowRight')next=(index+1)%tabs.length;if(e.key==='ArrowLeft')next=(index+tabs.length-1)%tabs.length;if(e.key==='Home')next=0;if(e.key==='End')next=tabs.length-1;if(next!==undefined){e.preventDefault();chooseTab(tabs[next].key,true);}}}><Icon aria-hidden/><span>{label}</span></button>)}</div>
+  {guide.applicability.scope==='categories'?<p className="room-guide-scope">{c.scope}: {guideText(guide.applicability.label,language)} · {guide.applicability.categories.join(', ')}</p>:null}
+  <div id={id+'-panel-'+view.tab} role="tabpanel" aria-labelledby={id+'-tab-'+view.tab} tabIndex={0} className="room-guide-panel">
+   {view.tab==='how'?<>
+    <h2>{c.how}</h2>
+    <ol className="room-guide-step-nav">{guide.steps.map((s,i)=><li key={s.key}><button type="button" onClick={()=>move(i)} aria-current={view.step===i?'step':undefined} aria-label={(i+1)+'. '+guideText(s.title,language)}><span aria-hidden>{i+1}</span><span className="room-guide-step-label">{guideText(s.title,language)}</span></button></li>)}</ol>
+    {step?<article className="room-guide-step" data-has-image={step.image_path?'true':undefined}>
+     {step.image_path?<figure><Image src={process.env.NEXT_PUBLIC_SUPABASE_URL+'/storage/v1/object/public/hotel-assets/'+step.image_path} alt={guideText(step.alt,language)} width={360} height={480} unoptimized/></figure>:null}
+     <div className="room-guide-step-copy"><p className="room-guide-progress-copy" role="status" aria-live="polite">{c.step} {view.step+1} {c.of} {guide.steps.length}</p><progress max={guide.steps.length} value={view.step+1} aria-label={c.how}/><h3 ref={heading} tabIndex={-1}>{guideText(step.title,language)}</h3><p className="room-guide-instruction">{guideText(step.body,language)}</p></div>
+     <nav className="room-guide-step-actions" aria-label={c.how}><button type="button" disabled={view.step===0} onClick={()=>move(view.step-1)}><ChevronLeft aria-hidden/>{c.previous}</button>{view.step===guide.steps.length-1&&hasChannels?<button className="room-guide-primary" type="button" onClick={()=>chooseTab('channels',true)}>{c.openChannels}<ListVideo aria-hidden/></button>:<button className="room-guide-primary" type="button" disabled={view.step===guide.steps.length-1} onClick={()=>move(view.step+1)}>{c.next}<ChevronRight aria-hidden/></button>}</nav>
+    </article>:null}
+   </>:view.tab==='channels'?<section data-guide-channels>
+    <h2>{c.channels}</h2><div className="room-guide-search"><label><span><Search aria-hidden/>{c.find}</span><input type="search" maxLength={160} value={view.search} onChange={e=>update({search:e.target.value,page:1})}/></label><label><span>{c.format}</span><select value={view.quality} onChange={e=>update({quality:e.target.value as GuideView['quality'],page:1})}><option value="all">{c.all}</option><option value="HD">HD</option><option value="SD">SD</option><option value="unspecified">{c.unspecified}</option></select></label></div>
+    <div className="room-guide-result-summary"><p role="status" aria-live="polite">{results.channels.length} {c.results}{results.apps.length?' · '+results.apps.length+' '+c.apps.toLowerCase():''}</p>{view.search||view.quality!=='all'?<button type="button" onClick={()=>update({search:'',quality:'all',page:1})}>{c.clear}</button>:null}</div>
+    {pagination.items.length?<ul className="room-guide-channels" aria-label={c.channels}>{pagination.items.map(row=><li key={row.number} data-guide-channel><strong className="room-guide-channel-number">{row.number}</strong><div className="room-guide-channel-name"><span>{row.name}</span>{row.category?<small>{row.category}</small>:null}</div><div className="room-guide-channel-tags">{row.quality!=='unspecified'?<span className="room-guide-quality">{row.quality}</span>:null}{draftPreview&&row.kind==='review'?<span className="room-guide-review-tag">{c.pending}</span>:null}</div></li>)}</ul>:null}
+    {pagination.totalPages>1?<nav className="room-guide-pagination" aria-label={c.channels}><button type="button" disabled={pagination.page===1} aria-label={c.previousPage} onClick={()=>update({page:pagination.page-1})}><ChevronLeft aria-hidden/>{c.previous}</button><p role="status">{c.page} {pagination.page} {c.of} {pagination.totalPages}</p><button type="button" disabled={pagination.page===pagination.totalPages} aria-label={c.nextPage} onClick={()=>update({page:pagination.page+1})}>{c.next}<ChevronRight aria-hidden/></button></nav>:null}
+    {results.apps.length?<section className="room-guide-apps" data-guide-applications><h3>{c.apps}</h3><ul>{results.apps.map(row=><li key={row.number}><ListVideo aria-hidden/><strong>{row.name}</strong><span>{c.application}</span></li>)}</ul></section>:null}
+    {!results.channels.length&&!results.apps.length?<p className="room-guide-empty" role="status">{c.empty}</p>:null}
+   </section>:<section className="room-guide-help"><LifeBuoy aria-hidden/><h2>{c.help}</h2><p>{c.helpBody}</p><a className="room-guide-primary" href={helpHref}>{c.contact}<ArrowUpRight aria-hidden/></a>{guide.manual_url?<a href={guide.manual_url} target="_blank" rel="noopener noreferrer"><BookOpen aria-hidden/>{c.manual}</a>:null}</section>}
+  </div>
+  {tabs.filter(tab=>tab.key!==view.tab).map(tab=><div key={tab.key} id={id+'-panel-'+tab.key} role="tabpanel" aria-labelledby={id+'-tab-'+tab.key} hidden/>)}
+ </section>;
 }
