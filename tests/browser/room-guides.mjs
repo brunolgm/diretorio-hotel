@@ -113,6 +113,11 @@ export async function runRoomGuides({ page, origin, output }) {
     origin + "/preview?scope=preview&experience=v4&guideEditor=1",
   );
   await page.locator("[data-guide-editor] summary").click();
+  const categories = page.getByLabel("Categorias (separadas por vírgula)");
+  await categories.fill("Suíte A");
+  await categories.press("End");
+  await categories.pressSequentially(", Suíte B");
+  assert.equal(await categories.inputValue(), "Suíte A, Suíte B");
   const csv = page.getByLabel("CSV: number;name;quality;category;kind");
   await csv.fill("18;Globo;SD;;linear\n018;Duplicate;HD;;linear");
   await page.getByRole("button", { name: "Validar e pré-visualizar" }).click();
@@ -134,6 +139,7 @@ export async function runRoomGuides({ page, origin, output }) {
   const saved = JSON.parse(
     await page.locator("body").getAttribute("data-guide-saved"),
   );
+  assert.deepEqual(saved.applicability.categories, ["Suíte A", "Suíte B"]);
   assert.equal(saved.channels.length, 3);
   assert.equal(saved.channels[2].kind, "application");
   assert.equal(saved.applicability.scope, "unconfirmed");

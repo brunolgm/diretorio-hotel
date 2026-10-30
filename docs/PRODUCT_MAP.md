@@ -2585,3 +2585,9 @@ PT/EN/ES e oito viewports. Capturas/relatórios ficam em `out/tourism-v4/` e gat
 comprovam sessão administrativa de produção nem revisão operacional da grade.
 A publicação técnica e o resultado real do executor devem ser confirmados na
 entrega; até essa releitura, conteúdo operacional dos guias é [NÃO CONFIRMADO].
+
+A inspeção dos advisors antes/depois preservou os achados históricos (view pública
+SECURITY DEFINER e proteção de senhas vazadas, fora do escopo). Os únicos avisos
+novos são a exposição intencional das cinco RPCs de guias aos papéis declarados;
+foram revisados com as negativas reais da matriz SQL. Não representam grant de
+escrita em tabela/Storage nem dispensa dos gates de tenant, role e módulo.

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { useFormStatus } from "react-dom";
 import {
   emptyRoomGuide,
@@ -141,7 +142,7 @@ export function ServiceGuideEditor({
             Categorias (separadas por vírgula)
             <input
               className="block min-h-11 w-full rounded border p-2"
-              value={guide.applicability.categories.join(", ")}
+              defaultValue={guide.applicability.categories.join(", ")}
               onChange={(e) =>
                 setGuide({
                   ...guide,
@@ -183,6 +184,20 @@ export function ServiceGuideEditor({
           {guide.steps.map((step, i) => (
             <div key={step.key} className="space-y-2 rounded-xl border p-3">
               <h3>Passo {i + 1}</h3>
+              {step.image_path ? (
+                <Image
+                  src={
+                    process.env.NEXT_PUBLIC_SUPABASE_URL +
+                    "/storage/v1/object/public/hotel-assets/" +
+                    step.image_path
+                  }
+                  alt={step.alt.pt || "Foto do equipamento — rascunho"}
+                  width={240}
+                  height={360}
+                  unoptimized
+                  className="max-h-64 w-auto max-w-full object-contain"
+                />
+              ) : null}
               {(["pt", "en", "es"] as const).map((lang) => (
                 <div key={lang}>
                   <label>
