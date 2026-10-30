@@ -138,3 +138,133 @@
     grid-template-columns: 1fr;
   }
 }
+.room-guide-draft-notice {
+  padding: 14px;
+  border: 1px solid var(--hotel-border);
+  border-inline-start: 4px solid var(--hotel-accent);
+  border-radius: 12px;
+  background: var(--hotel-active-bg);
+  font-size: 13px;
+  line-height: 1.65;
+  margin-bottom: 20px;
+}
+.room-guide-sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  border-bottom: 1px solid var(--hotel-border);
+  margin-bottom: 22px;
+}
+.room-guide .room-guide-sections a {
+  border: 0;
+  border-radius: 0;
+  padding: 10px 0;
+  min-height: 44px;
+  font-size: 13px;
+  text-decoration: none;
+}
+.room-guide-sections a:hover,
+.room-guide-sections a:focus-visible {
+  box-shadow: inset 0 -2px var(--hotel-accent);
+}
+.room-guide [id] {
+  scroll-margin-top: 20px;
+}
+.room-guide-step[data-has-image] {
+  display: grid;
+  grid-template-columns: minmax(90px, 24%) minmax(0, 1fr);
+  gap: 8px 24px;
+  align-items: start;
+}
+.room-guide-step[data-has-image] > img {
+  grid-column: 1;
+  grid-row: 1/5;
+  justify-self: center;
+  max-height: 360px;
+  margin: 8px auto;
+  width: auto;
+  max-width: 100%;
+}
+.room-guide-step[data-has-image] > :not(img) {
+  grid-column: 2;
+}
+.room-guide-step[data-has-image] > nav {
+  grid-column: 1/-1;
+  justify-content: flex-end;
+}
+.room-guide-step > h3 {
+  font-size: 19px;
+  line-height: 1.4;
+}
+.room-guide-step-nav {
+  margin: 12px 0;
+  gap: 8px;
+}
+.room-guide-step-nav button {
+  font-size: 12px;
+}
+.room-guide-channel-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-top: 18px;
+  border: 1px solid var(--hotel-border);
+  border-radius: 12px;
+}
+.room-guide .room-guide-channels {
+  display: table;
+  width: 100%;
+  min-width: 360px;
+  border-collapse: collapse;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.room-guide-channels th,
+.room-guide-channels td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--hotel-border);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.room-guide-channels thead {
+  background: var(--hotel-active-bg);
+  font-size: 12px;
+}
+.room-guide-channels tbody th {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.room-guide-channels tr:last-child > * {
+  border-bottom: 0;
+}
+.room-guide-review-tag {
+  font-size: 11px;
+  color: var(--hotel-text-muted);
+}
+.room-guide footer {
+  padding-top: 20px;
+  border-top: 1px solid var(--hotel-border);
+}
+@media (max-width: 767px) {
+  .room-guide-sections {
+    gap: 2px 14px;
+  }
+  .room-guide-step[data-has-image] {
+    grid-template-columns: minmax(68px, 25%) minmax(0, 1fr);
+    gap: 6px 14px;
+  }
+  .room-guide-step[data-has-image] > img {
+    max-height: 300px;
+  }
+  .room-guide-step h3 {
+    font-size: 17px;
+  }
+  .room-guide-step p {
+    font-size: 13px;
+  }
+  .room-guide nav button {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+}

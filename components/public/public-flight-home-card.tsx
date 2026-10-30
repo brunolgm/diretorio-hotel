@@ -1,3 +1,4 @@
+import {SavedFlightLink} from './home-saved-flight';
 import { PublicFlightHomeCardContent } from '@/components/public/public-flight-home-card-content';
 import type { DomainContext } from '@/lib/domain-context';
 import { getPublicFlightCenterCopy } from '@/lib/public-flight-center-copy';
@@ -81,12 +82,15 @@ export function PublicFlightHomeCard({
 
   return (
     <section className={styles.section} style={style} data-public-flight-home-card>
-      <a
+      <SavedFlightLink
+        hotelId={hotelId}
+        enabled={domainContext.navigationScope!=='authenticated-preview'}
         href={href}
-        aria-label={`${copy.homeCardCta}: ${title}`}
+        ariaLabel={`${copy.homeCardCta}: ${title}`}
         className={`group flex min-w-0 items-center gap-3 overflow-hidden rounded-[22px] border p-4 transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:gap-5 sm:p-5 ${styles.link}`}
       >
         <PublicFlightHomeCardContent
+          enabled={domainContext.navigationScope!=='authenticated-preview'}
           hotelId={hotelId}
           language={language}
           fallbackTitle={title}
@@ -96,7 +100,7 @@ export function PublicFlightHomeCard({
           descriptionClassName={styles.description}
           ctaClassName={styles.cta}
         />
-      </a>
+      </SavedFlightLink>
     </section>
   );
 }

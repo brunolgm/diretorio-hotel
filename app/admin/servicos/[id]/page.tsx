@@ -43,7 +43,7 @@ interface PageProps {
 }
 
 export default async function EditServicePage({ params, searchParams }: PageProps) {
-  await requireAdminAccess('operador');
+  const {profile}=await requireAdminAccess('operador');
   const { id } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const success = resolvedSearchParams?.success;
@@ -82,6 +82,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
   const guideResult=guidesEnabled?await supabase.rpc('get_current_hotel_service_guide',{p_service_id:section.id}):{data:null,error:null};
   if(guideResult.error)throw new Error('Não foi possível carregar o guia deste serviço.');
   const guideRow=guideResult.data?.[0];
+  const canPreviewGuides=profile.normalizedRole==='administrador'&&['experience.preview','core.directory','content.services','content.languages'].every(key=>guideModules.data?.some(m=>m.module_key===key&&m.is_enabled));
   const action = updateSectionAction.bind(null, id);
   const serviceCategoryOptions = buildServiceCategoryOptions(
     (hotelSectionCategories || []).map((item) => item.category)
@@ -222,7 +223,8 @@ export default async function EditServicePage({ params, searchParams }: PageProp
           </div>
         </form>
       </AdminSurface>
-      {guidesEnabled&&section.service_action_type!=='room_restaurant_menu'?<ServiceGuideEditor serviceId={section.id} revision={guideRow?.revision??0} initial={parseRoomGuide(guideRow?.draft,hotel.id,section.id)} action={saveServiceGuideAction}/>:null}
+      {guideRow?.draft&&canPreviewGuides?<AdminSurface><h2 className="font-semibold">Prévia privada do rascunho</h2><p className="mt-2 text-sm">Somente leitura; não habilita o Serviço nem publica o guia.</p><nav className="mt-3 flex flex-wrap gap-3">{(['pt','en','es'] as const).map(lang=><a className="inline-flex min-h-11 items-center rounded-xl border px-4" key={lang} href={'/preview/guias/'+section.id+'?lang='+lang} target="_blank" rel="noopener noreferrer">Prévia {lang.toUpperCase()}</a>)}</nav></AdminSurface>:null}
+      {guidesEnabled&&section.service_action_type!=='room_restaurant_menu'?<ServiceGuideEditor published={Boolean(guideRow?.published)} serviceId={section.id} revision={guideRow?.revision??0} initial={parseRoomGuide(guideRow?.draft,hotel.id,section.id)} action={saveServiceGuideAction}/>:null}
     </main>
   );
 }

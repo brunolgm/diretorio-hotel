@@ -2604,38 +2604,174 @@ O candidato local, ainda não publicado, contém ajuste de gap/padding do header
 conter Reservar no viewport de 768 px; hero, desktop aprovado e mobile permanecem.
 
 
-#### Direção visual consolidada posterior — reconciliação pendente
+#### Reconciliação cirúrgica V4 — candidata para homologação (30/10/2026)
 
-[APROVADO] Referência canônica: `docs/references/bugan/public-v3/mockup_do_hotel_bugan_recife.png`,
-complementada pelas apresentações aprovadas das internas. O arquivo foi renomeado
-pelo usuário sem mudança de bytes (mesmo Git blob); não foram extraídas fotos
-sintetizadas para a aplicação. Hero real, seis acessos desktop, essenciais/quatro
-ações mobile, três editoriais, benefícios e Turismo devem ser preservados.
+Esta reconciliação sucede o checkpoint pendente de 7794fb0 na mesma branch
+`feat/v4-communications-flight-room-guides`. Main e produção permanecem em
+`4bff5e33fcdd78af19421c54ae7ebecbf66d98d2`; não houve merge, push ou deploy
+nesta rodada. O diff local é a candidata; não está disponível na produção.
 
-| Decisão atual | Estado confirmado neste checkpoint |
+**Referências conferidas.** Home: `mockup_do_hotel_bugan_recife.png`.
+Prancha complementar localizada em Documents/LibGuest Bugan Recife/Showcase UX_UI
+do Bugan Recife.png, confirmada byte a byte com o caminho canônico informado posteriormente:
+`docs/references/bugan/public-v4/prancha-paginas-internas-v4.png`.
+SHA-256: c2d55fd752d5ac48f972f8de91abd225d3c78ed74a4b5cb0e4e01684af9bc370.
+A prancha orienta hierarquia, não inventário ou instruções operacionais.
+
+| Decisão | Implementação desta candidata |
 | --- | --- |
-| Alerta elegível em faixa fina abaixo do header | Priorização e elegibilidade implementadas; acabamento responsivo ainda requer reconciliação visual com a referência. Não há alerta real publicado no piloto. |
-| Banners separados em Promoções e novidades | Separação implementada; título atual é Destaques e ofertas. Renomear e reconciliar a composição em etapa visual própria. |
-| Informativos em Atualizações do hotel | Implementado por categoria, sem misturar alertas ou promoções. |
-| Voo salvo discreto dentro do acesso existente da Central | Pendente de reconciliação: a implementação atual usa faixa independente. Não apresentar essa faixa como solução final aprovada. Não há consulta AirLabs na Home. |
-| Ausência de banners/comunicados sem espaços ou placeholders | Implementado; piloto confirmado com zero itens elegíveis. |
-| Admin com gestão real e prévia | Cadastros canônicos preservados, preview autenticado existente e editor de rascunhos de guias implementado. Homologação da apresentação consolidada ainda pendente. |
-| Internas TV/canais/guias com acabamento premium aprovado | Estrutura temática, passos ilustrados, busca e PT/EN/ES implementados/testados. Reconciliação visual final e conteúdo operacional ainda não homologados. |
+| Home aprovada | Header, fotos/focais, seis acessos desktop, essenciais/quatro ações mobile, três editoriais, quatro benefícios e Turismo preservados. Nenhuma migração automática de outras Homes para V4. |
+| Voo salvo | Resumo discreto dentro do acesso existente; segunda linha mobile. Sem faixa independente, mudança do storage v1, consulta AirLabs na Home ou status live inventado. Sem voo válido, mantém o acesso original. |
+| Avisos | Alerta/manutenção elegível em faixa fina abaixo do header; details nativo permite ler integralmente corpo e vigência, por teclado e toque. Hero não recebe deslocamento duplicado do header. |
+| Promoções | Somente banners elegíveis em “Promoções e novidades”, após editoriais/benefícios. Comunicados promocionais não viram banners automaticamente. |
+| Informativos | Somente informativo em “Atualizações do hotel”. Sem conteúdo elegível, seção, título e espaço não são renderizados. |
+| Tablet | Gap/padding dos acessos corrigem a causa do overflow em 768 px, sem overflow-x hidden global. |
+| Guias | Navegação interna, foto real ao lado do passo, canais em tabela pesquisável e aplicativos separados. Layout limitado às informações existentes. |
+| Admin | Edição real PT/EN/ES, passos e sua ordem, imagens, número/nome/categoria/qualidade dos canais, revisão/status/publicação e links de prévia privada. Persistência continua pelas actions/RPCs existentes. |
 
-Após essa orientação não fazer novas alterações visuais, substituir componentes
-homologados ou publicar o candidato visual pendente. Produção permanece no commit
-`4bff5e33fcdd78af19421c54ae7ebecbf66d98d2` (READY); o ajuste local de tablet e a
-compatibilidade de CTA ficam preservados para revisão, sem novo push/deploy.
-O smoke diagnóstico real aprovou 36 cenários excluindo explicitamente o breakpoint
-768 px, cujo overflow de aproximadamente 1,3 px foi identificado em produção.
-Isso NÃO equivale à aprovação do smoke completo nem à nova homologação visual.
-Os 291 cenários locais incluem o ajuste ainda não publicado; os 148 de guias são
-fixtures e não equivalem a conteúdo operacional confirmado.
+**Prévia privada de rascunhos.** `/preview/guias/<service-id>?lang=pt|en|es`
+exige sessão real de administrador ativo do próprio hotel, autorização no servidor,
+modules experience.preview/core.directory/content.services/content.languages e
+RPC existente `get_current_hotel_service_guide`. Tenant vem da sessão; compara-se
+novamente a propriedade do registro. Leitura apenas, com RLS; nenhum service role,
+impersonação, novo grant, migration ou alteração estrutural de autorização.
+Troca de idioma mantém a rota privada. Aviso explícito identifica conteúdo não publicado.
+Anônimo vai ao login; acesso público ao Serviço desabilitado conserva a resposta
+canônica “Experiência indisponível” (HTTP 200), sem conteúdo do rascunho.
 
-[IMPLEMENTADO PARCIALMENTE] Preparação dos dados do piloto autorizada: quatro
-Serviços novos desabilitados, traduções em rascunho e 222 registros históricos
-para revisão (Netflix separado como aplicativo). O plano/mocks estão validados.
-A persistência real exige a execução local do executor com sessão normal do
-administrador; autorização não fornece essa sessão. A última leitura antes da
-execução confirmou zero guias e os 13 Serviços originais. Não publicar grade,
-instruções ou disponibilidade por categoria de acomodação sem revisão do hotel.
+**Dados reais preservados, por releitura.** Quatro Serviços/Guias desabilitados,
+sem versão publicada; TV revisão 6, demais revisão 1. PT fonte e EN/ES preenchidos,
+mas traduções técnicas, instruções e aplicabilidade ainda exigem revisão operacional.
+222 registros únicos: 221 em revisão e Netflix 680 como aplicativo; 94 com HD explícito,
+128 sem formato presumido. Duas fotos reais do manual permanecem armazenadas, sem
+reenvio. Nenhum bootstrap repetido. Os 13 Serviços originais, dois administradores,
+conteúdo operacional, aeroportos, módulos e lifecycle active foram preservados.
+Comparação antes/depois dos hashes de 20 conjuntos de dados, guias e apresentação
+não encontrou mudanças, incluindo os demais hotéis abrangidos pelo snapshot.
+
+**Limites em relação à prancha.** Não foram copiados números ilustrativos de canais,
+HDMI, temperaturas, fotos sintéticas ou equipamentos não comprovados. Sem foto aprovada
+de ar-condicionado/chuveiro/Alexa, usa-se o conteúdo existente sem placeholder fictício.
+Manual complementar só aparece quando existe URL aprovada. Restaurante Filipe e Home
+não receberam novo redesenho. Grade, equipamentos, categorias de acomodação e direitos
+de uso permanecem sujeitos à homologação do hotel.
+
+**Gates e evidências.** Segurança 505/505; TypeScript OK; lint 0 erros e quatro warnings
+históricos; build OK; git diff --check OK. Matriz SQL/RLS local passou em transação
+com rollback (tenant/roles/módulos/lifecycle/revisão/mídia/auditoria). Browser: 327 cenários
+de comunicações/voo, 148 de guias/Admin e 61 da matriz A–F, incluindo PT/EN/ES e as
+larguras 360/375/390/430/768/1024/1440/1536. Seis identidades: Bugan, Grand Mercure,
+Novotel Leme, Novotel Salvador, Mercure e Default. Nenhum overflow do documento.
+Smoke do build SSR local com dados públicos reais: 42 cenários; escrita/API/provedor
+interceptados, somente leitura pública e localStorage de teste. Capturas/relatórios:
+`out/tourism-v4/reconciliation-*`, `out/v4-reconciliation-server/` e
+`out/v4-communications-guides/reconciliation-*` (artefatos locais fora do commit).
+As fixtures positivas do preview e negativas de autorização não equivalem a uma
+homologação com sessão real do administrador em produção. Não foram consumidos
+Google ou AirLabs, nem alterados lifecycle, Storage, entitlements ou dados reais.
+
+**Classificação.** Candidata técnica para homologação visual; não é GO de publicação
+operacional nem aprovação humana final. Próximo checkpoint: revisar Home A–E e os
+quatro guias privados em PT/EN/ES, com login normal no ambiente da candidata.
+Sem promover esta branch, o /preview de produção continua com o código anterior.
+Manter guias e grade não publicados até aprovação operacional e visual expressa.
+
+**Conferência da referência canônica informada posteriormente.**
+A prancha em public-v4 tem o mesmo SHA-256 da imagem já inspecionada; a cópia
+redundante criada em public-v3 foi retirada da candidata. Nenhum componente da Home
+foi alterado nessa conferência. A matriz de guias foi novamente executada: 148 PASS,
+zero API calls. Capturas adicionais: `out/tourism-v4/room-channels-390.png`,
+`room-channels-1440.png`, `room-guide-admin-desktop.png` e
+`room-guide-admin-channel-edit.png`. São componentes reais renderizados com fixtures
+isoladas; a gravação simulada do Admin não equivale a escrita no banco do piloto.
+
+Gastronomia foi capturada por leitura SSR local com dados públicos reais em
+`out/v4-reconciliation-server/restaurant-390.png` e `restaurant-1440.png`, sem
+overflow. Divergência explícita: a interna atual de Restaurante Filipe apresenta
+título e conteúdo do Serviço; ainda não reproduz o hero fotográfico, galeria ou
+abas Sobre/Menu/Horários/Galeria da prancha. Não foram criadas abas sem contratos
+de conteúdo nem reaproveitadas fotografias ilustrativas. O Admin conserva sua
+navegação/listagens canônicas; não recebeu a reformulação visual do exemplo da
+prancha. Esses exemplos não devem ser reportados como paridade visual concluída.
+
+#### Fechamento definitivo da evolução V4 — escopo de integração técnica
+
+O pedido de fechamento autoriza suceder o hold do checkpoint 7794fb0 e integrar
+esta candidata à linha canônica após todos os gates. Não inicia nova sprint,
+não publica conteúdo operacional, não altera IA, PMS, roomToken, lifecycle,
+quota/cache AirLabs ou outros hotéis. Main remota conferida em 4bff5e3, sem
+novos commits da Sprint 53; as diferenças concorrentes são merges da própria
+linhagem já incorporada. Preservar histórico com merge normal, sem rebase/reset
+ou force push. O resultado efetivo de commit/deployment/smoke consta na entrega.
+
+**Matriz de comparação visual e funcional antes da integração.** As referências
+A (Home) e B (prancha public-v4) foram abertas e comparadas às capturas reais.
+As capturas anteriores de 04:13 e 07:43–07:44 foram identificadas como evidência
+do diff local sobre 7794fb0; as novas execuções regeneram as capturas. O manifesto
+local registra timestamp, hash e origem da evidência, distinguindo fixtures de
+leitura SSR com dados reais. A referência não é o conteúdo operacional.
+
+| Área / referência | Implementação e comportamento | Divergência / prioridade / decisão |
+| --- | --- | --- |
+| Home A | Hero/focais/fotos reais, header, seis acessos desktop, essenciais/quatro ações mobile, editoriais, benefícios e Turismo preservados | Sem novo redesign. Preservação obrigatória. |
+| Avisos B | Faixa fina abaixo do header, expansão completa por details/teclado, vigência e link canônico | Alertas críticos ordenados antes de manutenção; demais avisos continuam acessíveis. Ajuste funcional concluído. |
+| Promoções B | Somente banners elegíveis; título Promoções e novidades | Conteúdo ilustrativo da prancha não foi importado. Sem banner, nenhuma seção/controle/espaço reservado. |
+| Informativos B | Somente categoria informativo em Atualizações do hotel | Sem comunicado, seção ausente. Falhas de leitura/tradução continuam erros explícitos no loader canônico. |
+| Voo A/B | Número/rota/salvo dentro do acesso existente; storage v1, isolamento/expiração e atualização por eventos | Faixa independente removida. Separador de texto com codificação inválida corrigido. Sem AirLabs na Home ou status inventado. |
+| TV/tutorial B | Navegação interna, passos ordenados, foco ao avançar e duas imagens reais disponíveis | Sem HDMI presumido ou controles artificiais. Revisão operacional pendente, somente prévia privada. |
+| Canais B | Busca por nome/número/categoria, formato explícito, tabela responsiva e aplicativos separados | 222 registros históricos continuam rascunho; não substituir por números/categorias ilustrativos. |
+| Admin B | Módulos e actions/RPCs canônicos; edição de passos, imagens, ordem, PT/EN/ES, canais, revisão e publicação controlada | Reutiliza composição administrativa existente; sem segundo Admin. Capturas de simulação explicitamente identificadas. |
+| Guias internos B | Leitura orientada à tarefa e prévia privada nos três idiomas | Sem hero fotográfico obrigatório ou fotos inventadas para equipamentos sem mídia aprovada. |
+| Gastronomia B | Restaurante Filipe continua como detalhe do Serviço atual | PLANEJADO: hero, galeria e abas premium na Sprint 53 F&B, reutilizando Gastronomia/Room Service/cardápios. Não declarar paridade visual integral. |
+
+**Admin e persistência.** Banners e Comunicados conservam título, texto, mídia/link,
+categoria, vigência/status e idiomas nos cadastros existentes. Idiomas seguem o
+módulo canônico, sem tradução Google na leitura. Guias usam revisão otimista,
+actions/RPCs reais, uploads server-only e confirmação explícita de revisão para
+publicação; o título/status do Serviço permanece no formulário nativo. Formato,
+tipo, categoria e número dos canais são enviados no JSON real. A importação tem
+validação e prévia antes de aplicar, sem publicar. A prova browser usa action
+simulada e confere o payload; a matriz SQL real local comprova persistência,
+autorização e revisão em transação com rollback, sem editar o piloto.
+
+**Prévia dinâmica.** /preview mostra conteúdo real elegível do hotel autenticado;
+/preview/guias/<id> lê o próprio rascunho somente para administrador ativo e com
+módulos obrigatórios. Não aceita escolha de tenant pelo navegador e não usa URL
+pública de bypass. Os cenários A–F são simulações exclusivamente no harness local,
+identificadas nos relatórios; o editor de fixture identifica visualmente simulação
+sem gravação. Não há query pública que injete banners, avisos ou rascunhos no
+/preview real. Prévia de voo salvo na Home é coberta na origem pública de teste,
+sem ler dados locais do hóspede na sessão administrativa privada.
+
+**Escopo técnico e gates.** Segurança 507/507; guias/Admin 148; comunicações/voo
+327; matriz A–F 61. TypeScript e build OK; lint zero erros e quatro warnings
+históricos; diff --check OK. SQL/RLS local passou com rollback. Testes abrangem
+anon, papel sem permissão, inativo/arquivado, tenant diferente, módulo desabilitado,
+revision, imagens, publicação e preservação do publicado ao salvar rascunho.
+Matriz ampliada: 126 jornadas aprovadas. Smoke SSR final: 50/50, incluindo oito
+negativas reais dos rascunhos, com zero chamadas reais ao provedor. O proxy local
+preserva redirects HTTP, sem absorver o 307 para /login. Smoke de produção deve
+ser confirmado após READY antes de declarar a publicação confirmada. Sem nova migration, dependência ou grant.
+
+**Regressão por identidade.** Bugan, Grand Mercure Copacabana, Novotel Leme,
+Novotel Salvador, Mercure Rio Boutique e Default exercitam os componentes
+compartilhados em fixtures PT/EN/ES. Smoke com leituras públicas reais verifica os
+cinco hotéis reais; Default permanece fixture, sem inventar tenant. V4 não é
+selecionada automaticamente nos demais hotéis. O preview positivo com login humano
+e revisão editorial/operacional não é substituído por mocks ou deploy READY.
+
+**Preservação e pendências.** Releitura confirmou 17 Serviços, sendo os 13 originais
+ativos e os quatro guias desabilitados, sem versões publicadas. Revisões 6/1/1/1;
+13 passos PT/EN/ES preenchidos, sem aceite editorial automático. 221 canais em
+review e Netflix como application; zero publicação da grade. Duas fotos do manual,
+dois administradores ativos, lifecycle active, mídias, traduções operacionais,
+aeroportos e módulos preservados. Nenhum bootstrap, reupload ou escrita real no
+piloto nesta integração. Aprovação humana de TV/grade/equipamentos/traduções e
+aplicabilidade continua obrigatória antes de habilitar/publicar os Serviços.
+LibGuest TV é projeto futuro em análise, fora deste escopo.
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Home dinâmica, voo salvo no acesso,
+preview privado, gestão e apresentação dos guias. [IMPLEMENTADO, MAS NÃO VALIDADO]
+homologação visual humana final e conteúdo operacional dos quatro guias.
+[PLANEJADO] Gastronomia premium na Sprint 53 F&B. Publicação técnica do código
+não altera estes estados nem equivale a GO operacional dos guias.

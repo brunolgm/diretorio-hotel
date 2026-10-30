@@ -36,7 +36,9 @@ export function ServiceGuideEditor({
   revision,
   serviceId,
   action,
+  published = false,
 }: {
+  published?: boolean;
   initial: RoomGuide | null;
   revision: number;
   serviceId: string;
@@ -78,6 +80,13 @@ export function ServiceGuideEditor({
         habilite o serviço nativo, confirme os equipamentos/aplicabilidade,
         revise PT/EN/ES e a grade atual. Sem tradução automática de instruções
         técnicas.
+      </p>
+      <p className="mb-3 text-sm font-medium" data-guide-publication-status>
+        {published
+          ? "Rascunho em edição — a versão pública é preservada ao salvar."
+          : revision === 0
+            ? "Guia opcional ainda não preparado."
+            : "Rascunho — nenhuma versão publicada."}
       </p>
       <form action={action} className="space-y-5">
         <input type="hidden" name="service_id" value={serviceId} />
@@ -184,6 +193,28 @@ export function ServiceGuideEditor({
           {guide.steps.map((step, i) => (
             <div key={step.key} className="space-y-2 rounded-xl border p-3">
               <h3>Passo {i + 1}</h3>
+              <div className="flex flex-wrap gap-2">
+                {([-1, 1] as const).map((direction) => (
+                  <button
+                    type="button"
+                    key={direction}
+                    className="min-h-11 rounded border p-2"
+                    disabled={
+                      i + direction < 0 || i + direction >= guide.steps.length
+                    }
+                    onClick={() => {
+                      const steps = [...guide.steps];
+                      [steps[i], steps[i + direction]] = [
+                        steps[i + direction],
+                        steps[i],
+                      ];
+                      setGuide({ ...guide, steps });
+                    }}
+                  >
+                    {direction === -1 ? "Subir passo" : "Descer passo"}
+                  </button>
+                ))}
+              </div>
               {step.image_path ? (
                 <Image
                   src={
@@ -365,12 +396,79 @@ export function ServiceGuideEditor({
           />
           {visible.map(({ c, i }) => (
             <div
-              key={c.number}
+              key={i}
               className="flex flex-wrap items-center gap-2 rounded border p-2"
             >
-              <span>
-                {c.number} — {c.name} {c.quality}
-              </span>
+              {(["number", "name", "category"] as const).map((field) => (
+                <label key={field}>
+                  {field === "number"
+                    ? "Número"
+                    : field === "name"
+                      ? "Nome"
+                      : "Categoria"}
+                  <input
+                    aria-label={
+                      (field === "number"
+                        ? "Número"
+                        : field === "name"
+                          ? "Nome"
+                          : "Categoria") +
+                      " do registro " +
+                      (i + 1)
+                    }
+                    className={
+                      "min-h-11 rounded border p-2 " +
+                      (field === "number" ? "w-20" : "max-w-full")
+                    }
+                    inputMode={field === "number" ? "numeric" : undefined}
+                    maxLength={
+                      field === "number" ? 4 : field === "name" ? 160 : 100
+                    }
+                    value={c[field] ?? ""}
+                    onChange={(e) =>
+                      setGuide({
+                        ...guide,
+                        channels: guide.channels.map((x, n) =>
+                          n === i
+                            ? {
+                                ...x,
+                                [field]:
+                                  field === "category"
+                                    ? e.target.value || null
+                                    : e.target.value,
+                              }
+                            : x,
+                        ),
+                      })
+                    }
+                  />
+                </label>
+              ))}
+              <label>
+                Formato
+                <select
+                  aria-label={"Formato do registro " + (i + 1)}
+                  className="min-h-11 rounded border p-2"
+                  value={c.quality}
+                  onChange={(e) =>
+                    setGuide({
+                      ...guide,
+                      channels: guide.channels.map((x, n) =>
+                        n === i
+                          ? {
+                              ...x,
+                              quality: e.target.value as typeof x.quality,
+                            }
+                          : x,
+                      ),
+                    })
+                  }
+                >
+                  <option value="unspecified">Não informado</option>
+                  <option value="HD">HD</option>
+                  <option value="SD">SD</option>
+                </select>
+              </label>
               <select
                 aria-label={"Tipo do registro " + c.number}
                 value={c.kind}

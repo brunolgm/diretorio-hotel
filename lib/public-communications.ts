@@ -31,10 +31,12 @@ export function publicCommunications(
     communicationEligible(row, hotelId, now),
   );
   return {
-    alerts: rows.filter((row) => row.category === "alerta"),
-    updates: rows.filter(
-      (row) => row.category !== "alerta" && row.category !== "promocao",
-    ),
+    // Critical alerts precede maintenance; keep the canonical order within each category.
+    alerts: [
+      ...rows.filter((row) => row.category === "alerta"),
+      ...rows.filter((row) => row.category === "manutencao"),
+    ],
+    updates: rows.filter((row) => row.category === "informativo"),
     promotions: rows.filter((row) => row.category === "promocao"),
     banners: banners
       .filter((row) => communicationEligible(row, hotelId, now))
@@ -44,7 +46,8 @@ export function publicCommunications(
 export function communicationCopy(lang: "pt" | "en" | "es") {
   return lang === "en"
     ? {
-        offers: "Highlights and offers",
+        important: "Important notices",
+        offers: "Promotions and news",
         updates: "Hotel updates",
         all: "All hotel announcements",
         read: "Read announcement",
@@ -56,7 +59,8 @@ export function communicationCopy(lang: "pt" | "en" | "es") {
       }
     : lang === "es"
       ? {
-          offers: "Destacados y ofertas",
+          important: "Avisos importantes",
+          offers: "Promociones y novedades",
           updates: "Novedades del hotel",
           all: "Todos los avisos del hotel",
           read: "Leer aviso",
@@ -67,7 +71,8 @@ export function communicationCopy(lang: "pt" | "en" | "es") {
           more: "Más información",
         }
       : {
-          offers: "Destaques e ofertas",
+          important: "Avisos importantes",
+          offers: "Promoções e novidades",
           updates: "Atualizações do hotel",
           all: "Todos os comunicados do hotel",
           read: "Ler comunicado",
@@ -78,11 +83,17 @@ export function communicationCopy(lang: "pt" | "en" | "es") {
           more: "Saiba mais",
         };
 }
-export function publicCommunicationUrl(value: string | null, purpose: "media" | "link" = "media") {
+export function publicCommunicationUrl(
+  value: string | null,
+  purpose: "media" | "link" = "media",
+) {
   if (!value) return null;
   try {
     const u = new URL(value);
-    return (u.protocol === "https:" || purpose === "link" && u.protocol === "http:") && !u.username && !u.password
+    return (u.protocol === "https:" ||
+      (purpose === "link" && u.protocol === "http:")) &&
+      !u.username &&
+      !u.password
       ? u.href
       : null;
   } catch {

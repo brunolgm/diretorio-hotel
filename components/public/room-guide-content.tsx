@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import Image from "next/image";
 import { BookOpen, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { guideText, type RoomGuide } from "@/lib/room-guides";
@@ -7,11 +7,14 @@ export function RoomGuideContent({
   guide,
   language,
   helpHref,
+  draftPreview = false,
 }: {
   guide: RoomGuide;
   language: "pt" | "en" | "es";
   helpHref: string;
+  draftPreview?: boolean;
 }) {
+  const guideId = useId();
   const [active, setActive] = useState(0),
     [search, setSearch] = useState(""),
     [quality, setQuality] = useState("all"),
@@ -75,7 +78,7 @@ export function RoomGuideContent({
       s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase(),
     channels = guide.channels.filter(
       (c) =>
-        c.kind === "linear" &&
+        (c.kind === "linear" || (draftPreview && c.kind === "review")) &&
         (quality === "all" || c.quality === quality) &&
         normalize([c.number, c.name, c.category ?? ""].join(" ")).includes(
           normalize(search),
@@ -87,14 +90,50 @@ export function RoomGuideContent({
     requestAnimationFrame(() => heading.current?.focus());
   }
   return (
-    <section className="room-guide" data-room-guide>
+    <section
+      className="room-guide"
+      data-room-guide
+      data-guide-draft-preview={draftPreview ? "true" : undefined}
+    >
+      {draftPreview ? (
+        <p className="room-guide-draft-notice" role="status">
+          {language === "en"
+            ? "Private draft preview — not published. Equipment, availability, translations and channels await operational review."
+            : language === "es"
+              ? "Vista previa privada del borrador — no publicado. Equipos, disponibilidad, traducciones y canales pendientes de revisión operativa."
+              : "Prévia privada de rascunho — não publicado. Equipamentos, disponibilidade, traduções e canais aguardam revisão operacional."}
+        </p>
+      ) : null}
+      <nav
+        className="room-guide-sections"
+        aria-label={
+          language === "en"
+            ? "Guide sections"
+            : language === "es"
+              ? "Secciones de la guía"
+              : "Seções do guia"
+        }
+      >
+        <a href={"#" + guideId + "-how"}>{copy.how}</a>
+        {guide.channels.some(
+          (c) => c.kind === "linear" || (draftPreview && c.kind === "review"),
+        ) ? (
+          <a href={"#" + guideId + "-channels"}>{copy.channels}</a>
+        ) : null}
+        <a href={"#" + guideId + "-help"}>{copy.help}</a>
+        {guide.manual_url ? (
+          <a href={guide.manual_url} target="_blank" rel="noopener noreferrer">
+            {copy.manual}
+          </a>
+        ) : null}
+      </nav>
       {guide.applicability.scope === "categories" ? (
         <p className="room-guide-scope">
           {copy.scope}: {guideText(guide.applicability.label, language)} ·{" "}
           {guide.applicability.categories.join(", ")}
         </p>
       ) : null}
-      <h2>{copy.how}</h2>
+      <h2 id={guideId + "-how"}>{copy.how}</h2>
       <ol className="room-guide-step-nav">
         {guide.steps.map((s, i) => (
           <li key={s.key}>
@@ -109,7 +148,10 @@ export function RoomGuideContent({
         ))}
       </ol>
       {step ? (
-        <article className="room-guide-step">
+        <article
+          className="room-guide-step"
+          data-has-image={step.image_path ? "true" : undefined}
+        >
           <p role="status" aria-live="polite">
             {copy.step} {active + 1} {copy.of} {guide.steps.length}
           </p>
@@ -152,8 +194,10 @@ export function RoomGuideContent({
           </nav>
         </article>
       ) : null}
-      {guide.channels.some((c) => c.kind === "linear") ? (
-        <section data-guide-channels>
+      {guide.channels.some(
+        (c) => c.kind === "linear" || (draftPreview && c.kind === "review"),
+      ) ? (
+        <section data-guide-channels id={guideId + "-channels"}>
           <h2>{copy.channels}</h2>
           <div className="room-guide-search">
             <label>
@@ -178,16 +222,76 @@ export function RoomGuideContent({
               </select>
             </label>
           </div>
-          <ul className="room-guide-channels">
-            {channels.map((c) => (
-              <li key={c.number}>
-                <strong>{c.number}</strong>
-                <span>{c.name}</span>
-                {c.quality !== "unspecified" ? <span>{c.quality}</span> : null}
-                {c.category ? <small>{c.category}</small> : null}
-              </li>
-            ))}
-          </ul>
+          <div
+            className="room-guide-channel-scroll"
+            tabIndex={0}
+            role="region"
+            aria-label={copy.channels}
+          >
+            <table className="room-guide-channels">
+              <caption className="sr-only">{copy.channels}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Nº</th>
+                  <th scope="col">
+                    {language === "en"
+                      ? "Channel"
+                      : language === "es"
+                        ? "Canal"
+                        : "Canal"}
+                  </th>
+                  <th scope="col">
+                    {language === "en"
+                      ? "Format"
+                      : language === "es"
+                        ? "Formato"
+                        : "Formato"}
+                  </th>
+                  {guide.channels.some((c) => c.category) ? (
+                    <th scope="col">
+                      {language === "en"
+                        ? "Category"
+                        : language === "es"
+                          ? "Categoría"
+                          : "Categoria"}
+                    </th>
+                  ) : null}
+                  {draftPreview ? (
+                    <th scope="col">
+                      {language === "en"
+                        ? "Review"
+                        : language === "es"
+                          ? "Revisión"
+                          : "Revisão"}
+                    </th>
+                  ) : null}
+                </tr>
+              </thead>
+              <tbody>
+                {channels.map((c) => (
+                  <tr key={c.number} data-guide-channel>
+                    <th scope="row">{c.number}</th>
+                    <td>{c.name}</td>
+                    <td>{c.quality === "unspecified" ? "—" : c.quality}</td>
+                    {guide.channels.some((c) => c.category) ? (
+                      <td>{c.category ?? "—"}</td>
+                    ) : null}
+                    {draftPreview ? (
+                      <td>
+                        <span className="room-guide-review-tag">
+                          {language === "en"
+                            ? "Pending"
+                            : language === "es"
+                              ? "Pendiente"
+                              : "Pendente"}
+                        </span>
+                      </td>
+                    ) : null}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {!channels.length ? <p role="status">{copy.empty}</p> : null}
         </section>
       ) : null}
@@ -201,7 +305,7 @@ export function RoomGuideContent({
           </ul>
         </section>
       ) : null}
-      <footer>
+      <footer id={guideId + "-help"}>
         <h2>{copy.help}</h2>
         <a href={helpHref}>{copy.contact}</a>
         {guide.manual_url ? (

@@ -43,6 +43,7 @@ export function HotelServiceDetailContent({
   roomNumber,
   experienceVersion,
   roomGuide,
+  guideDraftPreview=false,
 }: {
   hotel: PublicHotel;
   section: PublicHotelSection;
@@ -54,6 +55,7 @@ export function HotelServiceDetailContent({
   roomNumber?: string | null;
   experienceVersion?:'v3'|'v4';
   roomGuide?:RoomGuide|null;
+  guideDraftPreview?:boolean;
 }) {
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
@@ -92,7 +94,7 @@ export function HotelServiceDetailContent({
 
       <div data-public-internal-body className={`mx-auto px-4 py-6 md:px-6 md:py-8 ${isGrandMercureExperience ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-6xl' : 'max-w-4xl'}`}>
         {theme.preset === 'bugan' || isV4 ? <PublicAreaHero hotel={hotel} language={language}
-          languageBasePath={buildPublicHotelServiceHref({slug:hotel.slug,serviceId:section.id,language:'pt',domainContext,preferSubdomainRoot:useSubdomainRoot})}
+          languageBasePath={guideDraftPreview?'/preview/guias/'+section.id:buildPublicHotelServiceHref({slug:hotel.slug,serviceId:section.id,language:'pt',domainContext,preferSubdomainRoot:useSubdomainRoot})}
           homeHref={grandMercureServicesHref} backLabel={copy.backToServices} title={section.title} description={section.category || copy.serviceDetails} icon={Hotel} /> : <section
           className={
             isBrandExperience
@@ -222,7 +224,7 @@ export function HotelServiceDetailContent({
           </section>
         ) : null}
 
-        {roomGuide?<RoomGuideContent guide={roomGuide} language={language} helpHref={buildPublicHotelAreaHref({slug:hotel.slug,area:'contato',language,domainContext,preferSubdomainRoot:useSubdomainRoot})}/>:null}
+        {roomGuide?<RoomGuideContent guide={roomGuide} draftPreview={guideDraftPreview} language={language} helpHref={buildPublicHotelAreaHref({slug:hotel.slug,area:'contato',language,domainContext,preferSubdomainRoot:useSubdomainRoot})}/>:null}
         <section className="public-service-full-content hotel-theme-surface mt-8 rounded-[var(--hotel-banner-radius)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] ring-1 ring-[color:var(--hotel-border)] md:p-8">
           <div className="max-w-3xl">
             <p className="hotel-theme-muted text-xs font-medium uppercase tracking-[0.18em]">

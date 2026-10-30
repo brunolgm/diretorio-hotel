@@ -1,7 +1,10 @@
 "use client";
-import { useCallback, useEffect, useSyncExternalStore } from "react";
-import { ChevronRight } from "lucide-react";
-import { AirlineLogo } from "./airline-logo";
+import {
+  useCallback,
+  useEffect,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import { resolveFlightAirline } from "@/lib/airline-identity";
 import {
   GUEST_FLIGHT_CHANGED_EVENT,
@@ -10,22 +13,14 @@ import {
   subscribeToGuestFlight,
   formatDeviceWallClock,
 } from "@/lib/guest-flight-storage";
-export function HomeSavedFlight({
-  hotelId,
-  href,
-  language,
-}: {
-  hotelId: string;
-  href: string;
-  language: "pt" | "en" | "es";
-}) {
+export function useHomeSavedFlight(hotelId: string, enabled = true) {
   const subscribe = useCallback(
       (notify: () => void) => subscribeToGuestFlight(hotelId, notify),
       [hotelId],
     ),
     getSnapshot = useCallback(
-      () => getSavedGuestFlightSnapshot(hotelId),
-      [hotelId],
+      () => (enabled ? getSavedGuestFlightSnapshot(hotelId) : null),
+      [hotelId, enabled],
     );
   const snapshot = useSyncExternalStore(subscribe, getSnapshot, () => null),
     flight = snapshot ? parseSavedGuestFlight(snapshot, hotelId) : null;
@@ -63,60 +58,110 @@ export function HomeSavedFlight({
       document.removeEventListener("visibilitychange", visible);
     };
   }, [snapshot, hotelId]);
-  if (!flight) return null;
-  const resolved = resolveFlightAirline(
-      flight.airlineCode || flight.airlineName,
-      flight.flightNumber,
-      flight,
-    ),
-    identifier = resolved.flightIata
-      ? resolved.flightIata.slice(0, 2) + " " + resolved.flightIata.slice(2)
-      : [flight.airlineCode || flight.airlineName, flight.flightNumber]
-          .filter(Boolean)
-          .join(" ");
-  const copy =
-    language === "en"
-      ? {
-          title: "Your saved flight",
-          open: "View my flight",
-          manual: "Time provided by you · saved in this browser",
-        }
-      : language === "es"
-        ? {
-            title: "Tu vuelo guardado",
-            open: "Ver mi vuelo",
-            manual: "Horario indicado por ti · guardado en este navegador",
-          }
-        : {
-            title: "Seu voo salvo",
-            open: "Ver meu voo",
-            manual: "Horário informado por você · salvo neste navegador",
-          };
+
+  return flight;
+}
+function myFlightHref(href: string) {
+  const [path, query] = href.split("?");
+  const params = new URLSearchParams(query);
+  params.set("tab", "meu-voo");
+  return path + "?" + params;
+}
+export function SavedFlightLink({
+  hotelId,
+  href,
+  enabled = true,
+  children,
+  className,
+  ariaLabel,
+}: {
+  hotelId: string;
+  href: string;
+  enabled?: boolean;
+  children: ReactNode;
+  className?: string;
+  ariaLabel?: string;
+}) {
+  const flight = useHomeSavedFlight(hotelId, enabled);
   return (
-    <aside
-      className="v4-saved-flight"
-      data-home-saved-flight
-      aria-label={copy.title}
+    <a
+      href={flight ? myFlightHref(href) : href}
+      className={className}
+      aria-label={ariaLabel}
+      data-home-saved-flight={flight ? "true" : undefined}
     >
-      <AirlineLogo airline={resolved.airline} />
-      <div>
-        <p>{copy.title}</p>
-        <h2>{identifier}</h2>
-        <p>
-          {flight.departureAirport} → {flight.arrivalAirport} ·{" "}
-          {new Intl.DateTimeFormat(language, {
-            day: "2-digit",
-            month: "short",
-            timeZone: "UTC",
-          }).format(new Date(flight.departureDate + "T00:00:00Z"))}{" "}
-          · {flight.scheduledDepartureTime}
-        </p>
-        <small>{copy.manual}</small>
-      </div>
-      <a href={href}>
-        {copy.open}
-        <ChevronRight aria-hidden />
-      </a>
-    </aside>
+      {children}
+    </a>
+  );
+}
+export function FlightHomeAccess({
+  hotelId,
+  href,
+  language,
+  enabled = true,
+  label,
+  icon,
+  arrow,
+  access,
+  action,
+}: {
+  hotelId: string;
+  href: string;
+  language: "pt" | "en" | "es";
+  enabled?: boolean;
+  label: string;
+  icon: ReactNode;
+  arrow: ReactNode;
+  access?: string;
+  action?: string;
+}) {
+  const flight = useHomeSavedFlight(hotelId, enabled);
+  const resolved = flight
+    ? resolveFlightAirline(
+        flight.airlineCode || flight.airlineName,
+        flight.flightNumber,
+        flight,
+      )
+    : null;
+  const identifier = resolved?.flightIata
+    ? resolved.flightIata.slice(0, 2) + " " + resolved.flightIata.slice(2)
+    : flight
+      ? [flight.airlineCode || flight.airlineName, flight.flightNumber]
+          .filter(Boolean)
+          .join(" ")
+      : "";
+  const saved =
+    language === "en"
+      ? "Saved in this browser"
+      : language === "es"
+        ? "Guardado en este navegador"
+        : "Salvo neste navegador";
+  return (
+    <a
+      href={flight ? myFlightHref(href) : href}
+      data-access={access}
+      data-v4-action={action}
+      data-home-saved-flight={flight ? "true" : undefined}
+    >
+      {icon}
+      <span className="v4-flight-access-copy">
+        <span>{label}</span>
+        {flight ? (
+          <small className="v4-flight-access-summary">
+            <span>
+              {identifier} · {flight.departureAirport} → {flight.arrivalAirport}
+            </span>
+            <span className="v4-flight-saved-indicator" title={saved}>
+              {language === "en"
+                ? "Saved"
+                : language === "es"
+                  ? "Guardado"
+                  : "Salvo"}
+            </span>
+          </small>
+        ) : null}
+      </span>
+      {arrow}
+    </a>
   );
 }

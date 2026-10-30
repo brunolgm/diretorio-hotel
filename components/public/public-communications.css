@@ -121,61 +121,6 @@
   flex-shrink: 0;
   color: var(--hotel-accent);
 }
-.v4-saved-flight {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  margin: 16px 0;
-  border: 1px solid var(--hotel-border);
-  border-radius: 16px;
-  background: var(--hotel-surface);
-  color: var(--hotel-text);
-}
-.v4-saved-flight > div:nth-child(2) {
-  flex: 1;
-  min-width: 0;
-}
-.v4-saved-flight h2 {
-  font-size: 19px;
-  font-weight: 650;
-}
-.v4-saved-flight p,
-.v4-saved-flight small {
-  font-size: 12px;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-.v4-saved-flight small {
-  color: var(--hotel-text-muted);
-}
-.v4-saved-flight > a {
-  display: inline-flex;
-  gap: 4px;
-  align-items: center;
-  min-height: 44px;
-  font-size: 13px;
-  font-weight: 650;
-  color: var(--hotel-primary);
-}
-.v4-saved-flight > a svg {
-  width: 18px;
-  height: 18px;
-}
-@media (min-width: 768px) {
-  .public-v4-mobile-home[data-public-v4-mobile] {
-    display: contents;
-  }
-  [data-public-v4-mobile] > .public-v4-essentials,
-  [data-public-v4-mobile] > .public-v4-tasks {
-    display: none;
-  }
-  [data-public-v4-mobile] > .v4-saved-flight {
-    max-width: 1180px;
-    width: calc(100% - 48px);
-    margin: 20px auto;
-  }
-}
 @media (max-width: 767px) {
   .v4-offer-cards {
     display: flex;
@@ -187,12 +132,6 @@
   .v4-offer-cards article {
     flex: 0 0 86%;
     scroll-snap-align: start;
-  }
-  .v4-saved-flight {
-    flex-wrap: wrap;
-  }
-  .v4-saved-flight > a {
-    margin-left: auto;
   }
   .v4-header-strip .v3-header {
     border-radius: 0;
@@ -252,4 +191,191 @@
     font-size: 13px;
   }
 }
-@media(min-width:768px) and (max-width:1023px){.public-experience-v3[data-public-experience="v4"] .v3-header{gap:10px;padding-inline:18px}}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .public-experience-v3[data-public-experience="v4"] .v3-header {
+    gap: 10px;
+    padding-inline: 18px;
+  }
+}
+
+/* Reconciled access: no independent saved-flight section. */
+.v4-flight-access-copy {
+  min-width: 0;
+}
+.v4-flight-access-summary {
+  display: block;
+  font-size: 10px;
+  line-height: 1.4;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  margin-top: 4px;
+}
+.v4-flight-access-summary > span {
+  display: block;
+}
+.v4-flight-access-summary > span + span {
+  font-size: 9px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+.public-experience-v3 .v3-accesses a[data-home-saved-flight] {
+  gap: 8px;
+  padding: 14px 16px;
+}
+.public-experience-v3
+  .v3-accesses
+  a[data-home-saved-flight]
+  > .v4-flight-access-copy {
+  font-size: 12px;
+}
+.public-v4-tasks a[data-home-saved-flight] > .v4-flight-access-copy {
+  flex: 1;
+}
+.public-v4-tasks a[data-home-saved-flight] {
+  gap: 8px;
+}
+.v4-attention {
+  padding: 0 clamp(16px, 4vw, 64px);
+  background: var(--hotel-surface);
+  border-block: 1px solid var(--hotel-border);
+}
+.v4-attention details + details {
+  border-top: 1px solid var(--hotel-border);
+}
+.v4-attention summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  list-style: none;
+  cursor: pointer;
+  padding: 6px 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.v4-attention summary::-webkit-details-marker {
+  display: none;
+}
+.v4-attention summary > svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--hotel-accent);
+}
+.v4-attention summary > strong {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.v4-important-category {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--hotel-accent);
+}
+.v4-important-read {
+  font-size: 11px;
+  text-decoration: underline;
+  flex-shrink: 0;
+}
+.v4-important-detail {
+  padding: 6px 0 12px 30px;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.v4-important-detail p {
+  white-space: pre-line;
+}
+.v4-attention summary:focus-visible {
+  outline: 2px solid var(--hotel-accent);
+  outline-offset: 3px;
+}
+.v4-offer-cards article {
+  display: flex;
+  align-items: stretch;
+}
+.v4-offer-image {
+  flex: 0 0 112px;
+  width: 112px;
+  max-height: none;
+  min-height: 112px;
+  height: auto;
+  object-fit: cover;
+}
+.v4-offer-cards article > div {
+  flex: 1;
+  min-width: 0;
+  padding: 14px;
+}
+.v4-offer-cards h3 {
+  font-size: 15px;
+}
+.v4-offer-cards p {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.public-experience-v3 [data-v4-offers] {
+  clear: both;
+}
+.public-experience-v3
+  .v3-body:has(> [data-v4-offers], > [data-v4-updates])
+  > .v3-amenities {
+  float: none;
+  width: 100%;
+}
+@media (max-width: 767px) {
+  .v4-important-category {
+    display: none;
+  }
+  .v4-important-read {
+    font-size: 10px;
+  }
+  .v4-attention summary {
+    gap: 8px;
+    font-size: 12px;
+  }
+  .v4-offer-image {
+    flex-basis: 90px;
+    width: 90px;
+  }
+  .v4-offer-cards article {
+    flex-basis: 90%;
+  }
+}
+@media (max-width: 767px) {
+  .public-v4-tasks a[data-home-saved-flight] {
+    display: grid;
+    grid-template-columns: 25px minmax(0, 1fr) 14px;
+    gap: 5px 8px;
+  }
+  .public-v4-tasks a[data-home-saved-flight] > .v4-flight-access-copy {
+    display: contents;
+  }
+  .public-v4-tasks .v4-flight-access-summary {
+    grid-column: 1/-1;
+    grid-row: 2;
+    margin: 0;
+    font-size: 10px;
+    text-align: left;
+  }
+  .public-v4-tasks .v4-flight-access-summary > span {
+    display: inline;
+  }
+  .public-v4-tasks .v4-flight-access-summary .v4-flight-saved-indicator {
+    font-size: 9px;
+    margin: 0;
+  }
+  .public-v4-tasks .v4-flight-saved-indicator::before {
+    content: " \00b7 ";
+  }
+}
+@media (max-width: 767px) {
+  .public-experience-v3[data-public-experience="v4"]
+    .v3-hero.v4-hero-after-alert {
+    min-height: 372px;
+  }
+}
+.v4-offer-image {
+  object-fit: contain;
+}
+.v4-attention details[data-notice-category="alerta"] summary>svg,.v4-attention details[data-notice-category="alerta"] .v4-important-category{color:#b42318}.v4-attention:has(>details[data-notice-category="alerta"]:only-child){background:#fff2ed;border-color:#ead4ca}.v4-attention details[data-notice-category="manutencao"] summary>svg{color:#8a5b00}.v4-important-category{color:var(--hotel-text-muted)}

@@ -112,7 +112,7 @@ test('uses isolated client components without backend calls or false operational
   const storage = readFileSync(join(root, 'lib', 'guest-flight-storage.ts'), 'utf8');
   const manager = readFileSync(join(root, 'components', 'public', 'guest-flight-manager.tsx'), 'utf8');
   const homeCard = readFileSync(join(root, 'components', 'public', 'public-flight-home-card.tsx'), 'utf8');
-  const homeCardContent = readFileSync(join(root, 'components', 'public', 'public-flight-home-card-content.tsx'), 'utf8');
+  const homeCardContent = readFileSync(join(root, 'components', 'public', 'public-flight-home-card-content.tsx'), 'utf8')+readFileSync(join(root,'components','public','home-saved-flight.tsx'),'utf8');
   const source = `${storage}\n${manager}\n${homeCard}\n${homeCardContent}`;
   assert.doesNotMatch(source, /fetch\(|supabase|server action|roomToken|room_links/i);
   assert.doesNotMatch(source, /No horário|Atrasado|Cancelado|Embarcando|Terminal|Portão|On time|Delayed|Cancelled|Boarding|Gate/i);

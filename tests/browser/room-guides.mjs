@@ -64,7 +64,7 @@ export async function runRoomGuides({ page, origin, output }) {
         );
         const search = guide.getByRole("searchbox");
         await search.fill("539");
-        assert.equal(await guide.locator(".room-guide-channels li").count(), 1);
+        assert.equal(await guide.locator(".room-guide-channels [data-guide-channel]").count(), 1);
         assert.ok(
           (await guide.locator(".room-guide-channels").innerText()).includes(
             "SporTV HD",
@@ -72,16 +72,16 @@ export async function runRoomGuides({ page, origin, output }) {
         );
         await search.fill("Globo");
         assert.ok(
-          (await guide.locator(".room-guide-channels li").count()) >= 2,
+          (await guide.locator(".room-guide-channels [data-guide-channel]").count()) >= 2,
         );
         await guide.locator("select").selectOption("HD");
         assert.ok(
-          (await guide.locator(".room-guide-channels li").count()) >= 1,
+          (await guide.locator(".room-guide-channels [data-guide-channel]").count()) >= 1,
         );
         await guide.locator("select").selectOption("SD");
-        assert.equal(await guide.locator(".room-guide-channels li").count(), 1);
+        assert.equal(await guide.locator(".room-guide-channels [data-guide-channel]").count(), 1);
         await search.fill("Netflix");
-        assert.equal(await guide.locator(".room-guide-channels li").count(), 0);
+        assert.equal(await guide.locator(".room-guide-channels [data-guide-channel]").count(), 0);
         assert.ok(await guide.getByText("Netflix", { exact: true }).count());
         await search.fill("");
         await guide.locator("select").selectOption("all");
@@ -90,6 +90,10 @@ export async function runRoomGuides({ page, origin, output }) {
             path: join(output, `room-guide-${width}x${height}.png`),
             fullPage: true,
           });
+        if (theme === "bugan" && lang === "pt" && [390,1440].includes(width)) {
+          await guide.locator('[data-guide-channels]').scrollIntoViewIfNeeded();
+          await page.screenshot({path:join(output,`room-channels-${width}.png`)});
+        }
         rows.push({
           theme,
           lang,
@@ -112,7 +116,9 @@ export async function runRoomGuides({ page, origin, output }) {
   await page.goto(
     origin + "/preview?scope=preview&experience=v4&guideEditor=1",
   );
+  await page.setViewportSize({width:1440,height:900});
   await page.locator("[data-guide-editor] summary").click();
+  await page.screenshot({path:join(output,"room-guide-admin-desktop.png")});
   const categories = page.getByLabel("Categorias (separadas por vírgula)");
   await categories.fill("Suíte A");
   await categories.press("End");
@@ -132,6 +138,16 @@ export async function runRoomGuides({ page, origin, output }) {
   );
   await page.getByRole("button", { name: "Validar e pré-visualizar" }).click();
   await page.getByRole("button", { name: "Aplicar ao rascunho" }).click();
+  await page.getByLabel('Número do registro 1',{exact:true}).fill('19');await page.getByLabel('Nome do registro 1',{exact:true}).fill('Canal de teste');await page.getByLabel('Categoria do registro 1',{exact:true}).fill('Notícias');await page.getByLabel('Formato do registro 1',{exact:true}).selectOption('HD');await page.getByRole('button',{name:'Descer passo',exact:true}).first().click();
+  assert.equal(await page.getByLabel('Formato do registro 1',{exact:true}).inputValue(),'HD');
+  assert.equal(await page.getByLabel('Tipo do registro 19',{exact:true}).inputValue(),'linear');
+  await page.setViewportSize({width:390,height:844});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Admin editor must fit mobile');
+  await page.getByLabel('Número do registro 1',{exact:true}).scrollIntoViewIfNeeded();
+  await page.screenshot({path:join(output,'room-guide-admin-mobile.png')});
+  await page.setViewportSize({width:1440,height:900});
+  await page.getByLabel("Número do registro 1",{exact:true}).scrollIntoViewIfNeeded();
+  await page.screenshot({path:join(output,"room-guide-admin-channel-edit.png")});
   await page
     .getByRole("button", { name: "Salvar rascunho", exact: true })
     .click();
@@ -140,7 +156,8 @@ export async function runRoomGuides({ page, origin, output }) {
     await page.locator("body").getAttribute("data-guide-saved"),
   );
   assert.deepEqual(saved.applicability.categories, ["Suíte A", "Suíte B"]);
-  assert.equal(saved.channels.length, 3);
+  assert.equal(saved.channels.length, 3);assert.equal(saved.channels[0].number,'19');assert.equal(saved.channels[0].name,'Canal de teste');assert.equal(saved.channels[0].category,'Notícias');assert.equal(saved.channels[0].quality,'HD');assert.equal(saved.steps[0].key,'input');
+
   assert.equal(saved.channels[2].kind, "application");
   assert.equal(saved.applicability.scope, "unconfirmed");
   rows.push({
