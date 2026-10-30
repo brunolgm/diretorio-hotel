@@ -1,3 +1,7 @@
+import ad2891Replay from '../fixtures/flights/ad2891-retained-cache-20261030.json';
+import {parseFlightDisplay} from '../../lib/guest-flight-status';
+import {FlightVerifiedSummary} from '../../components/public/flight-verified-summary';
+import {resolveHotelTheme} from '../../lib/hotel-theme';
 import guideManifest from '../../docs/bootstrap/bugan-room-guides-20261030.json';
 import {ServiceGuideEditor} from '../../components/admin/service-guide-editor';
 import type {RoomGuide} from '../../lib/room-guides';
@@ -112,13 +116,19 @@ if(new URLSearchParams(location.search).get('seedFlight')==='1'){
 }
 Object.assign(window,{fixtureFlight:{hotelId:hotel.id,save:saveGuestFlight,remove:removeGuestFlight,create:createSavedGuestFlight}});
 if(args.get('scope')==='preview')domain.navigationScope='authenticated-preview';
+const premiumCase=args.get('premiumCase');
+if(premiumCase){
+ const alert=data.announcements.find(r=>r.id==='alert'),maintenance=data.announcements.find(r=>r.id==='maintenance'),info=data.announcements.find(r=>r.id==='info');
+ data.announcements=premiumCase==='B'&&alert?[{...alert,title:'Important notice '+language,body:('Complete operational fixture '+language+' ').repeat(70)}]:premiumCase==='C'&&alert&&maintenance?[maintenance,{...alert,id:'alert-2',title:'Second critical fixture'},alert]:premiumCase==='F'&&info?[info]:[];
+ if(premiumCase==='D'||premiumCase==='E'){data.banners=data.banners.map(r=>({...r,title:'Fixture promotion '+language,subtitle:'Isolated composition, not a published hotel offer',image_url:premiumCase==='E'?null:r.image_url}));}else data.banners=[];
+}
 let content=<HotelPublicPageContent {...data} language={language} domainContext={domain}/>;
 const destinationPath=location.pathname.replace(/^\/hotel\/[^/]+/,'/preview');
 if((domain.navigationScope||location.pathname.startsWith('/hotel/'))&&destinationPath!=='/preview'){
  const path=destinationPath.replace(/^\/preview\//,'').split('/');
  if(path[0]==='servicos'||path[0]==='guias'&&args.get('scope')==='preview'){
   const section=data.sections.find(s=>s.id===path[1]);
-  content=section?<HotelServiceDetailContent hotel={data.hotel} section={section} guideDraftPreview={path[0]==='guias'} roomGuide={fixtureGuides.get(section.id)} language={language} domainContext={domain} hasFallbackContent={false} experienceVersion={data.presentation?.experienceVersion} roomRestaurantState={section.service_action_type==='room_restaurant_menu'?'missing-context':null}/>:<h1>404 fixture</h1>;
+  content=section?<HotelServiceDetailContent hotel={data.hotel} section={section} guideDraftPreview={path[0]==='guias'} roomGuide={fixtureGuides.get(section.id)} editorialMedia={data.experienceMedia} language={language} domainContext={domain} hasFallbackContent={false} experienceVersion={data.presentation?.experienceVersion} roomRestaurantState={section.service_action_type==='room_restaurant_menu'?'missing-context':null}/>:<h1>404 fixture</h1>;
  }else if(path[1]==='voos'){
   const flights={hotel:data.hotel,experienceVersion:data.presentation?.experienceVersion,airports:[{iataCode:'REC',name:'Synthetic REC airport',city:'Recife',timezone:'America/Recife',officialDeparturesUrl:null,officialArrivalsUrl:null,estimatedTransferMinutes:null,domesticLeadMinutes:null,internationalLeadMinutes:null,safetyMarginMinutes:null}],navigationAvailability:{services:true,menu:false,information:true,contact:true},settings:{departurePlanningEnabled:false,transferEnabled:false,wakeUpEnabled:false,breakfastBoxEnabled:false,receptionEnabled:false,officialLinksEnabled:false,departureNotice:null}} as PublicFlightCenterData;
   content=<HotelPublicFlightCenter data={flights} language={language} domainContext={domain} preferSubdomainRoot={false} tab={normalizePublicFlightCenterTab(args.get('tab')??'partidas')}/>;
@@ -129,6 +139,11 @@ if((domain.navigationScope||location.pathname.startsWith('/hotel/'))&&destinatio
  else content=<h1>404 fixture</h1>;
 }
 if(location.pathname.startsWith('/preview/guias/')&&args.get('scope')!=='preview')content=<h1>404 fixture</h1>;
+if(premiumCase==='H'){
+ const {updatedAt,fetchedAt,...fields}=ad2891Replay.schedule.projection;
+ const display=parseFlightDisplay({ok:true,data:{...fields,liveStatus:null,liveSourceType:null,updatedAt:{schedule:updatedAt,live:null},provenance:{provider:'airlabs',schedule:'matched',live:ad2891Replay.live.error,fetchedAt}}},ad2891Replay.query)!;
+ content=<main data-flight-premium style={resolveHotelTheme(theme,null).cssVars} className="hotel-theme-page mx-auto max-w-3xl p-6"><h1>AD2891 — replay histórico isolado</h1><p>Cache de 30/10/2026 às 12:17 Recife; sem consulta real ou dados da Aena.</p><article className="relative mt-5 p-6 pt-24"><FlightVerifiedSummary data={display} language={language} timezone={ad2891Replay.timezone} stale={false}/></article></main>;
+}
 createRoot(document.getElementById('root')!).render(args.has('guideEditor')?<main className="mx-auto max-w-6xl p-4 font-sans"><p className="mb-4 rounded-xl border p-3 text-sm" role="note">Simulação isolada do editor — dados de teste, sem gravação no hotel.</p><ServiceGuideEditor initial={structuredClone(guideManifest.guides[0].configuration) as RoomGuide} revision={1} serviceId="52130000-0000-4000-8000-000000000001" action={async form=>{document.body.dataset.guideSaved=String(form.get('configuration'));}}/></main>:args.has('editor') ? <PresentationEditor initial={config as PublicPresentation} revision={0} action={async form=>{
  document.body.dataset.editorialSaved=JSON.stringify({configuration:JSON.parse(String(form.get('configuration'))),files:[...form.entries()].filter(([,v])=>v instanceof File&&v.name).map(([key,v])=>({key,name:(v as File).name}))});
 }}/> : content);

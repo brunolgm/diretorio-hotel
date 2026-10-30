@@ -1,3 +1,6 @@
+import {InternalHotelOverview,InternalAccommodation} from './public-internal-editorial';
+import {PublicAnnouncementDirectory} from './public-announcement-directory';
+import {communicationEligible} from '@/lib/public-communications';
 import {RoomGuideLinks} from './room-guide-links';
 import {publishedContactPhones} from '@/lib/contact-phones';
 import {getPublicEssentials} from '@/lib/public-essentials';
@@ -161,7 +164,8 @@ export function HotelPublicAreaContent({
   domainContext: DomainContext;
   preferSubdomainRoot: boolean;
 }) {
-  const { hotel, sections, departments, policies, announcements } = pageData;
+  const { hotel, sections, departments, policies } = pageData;
+  const announcements=pageData.announcements.filter(row=>communicationEligible(row,pageData.hotel.id));
   const copy = getPublicCopy(language);
   const areaCopy = getAreaCopy(language);
   const essentials=getPublicEssentials(pageData,language);
@@ -284,7 +288,8 @@ export function HotelPublicAreaContent({
         <section className={`mt-6 ${isGrandMercure ? 'grand-mercure-last-content mb-8 md:mb-4' : isNovotel || isMercure ? 'mb-8 md:mb-4' : ''}`}>
           {area === 'informacoes' ? (
             <div className="space-y-5">
-              <div className="public-information-essentials grid grid-cols-2 gap-3 md:grid-cols-4">
+              {isV4?<InternalHotelOverview data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
+              <div id="hotel-stay" className="public-information-essentials grid grid-cols-2 gap-3 md:grid-cols-4">
                 {[
                   { icon: Coffee, title: copy.breakfast, value: essentials.breakfast || copy.notInformed, periods:essentials.breakfastPeriods },
                   {
@@ -308,7 +313,7 @@ export function HotelPublicAreaContent({
                   </div>
                 ))}
               </div>
-              {policies.length ? <div className="grid gap-3 md:grid-cols-2">{policies.map((policy) => <article key={policy.id} className="hotel-public-content-card rounded-[22px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><ShieldCheck className="h-6 w-6 text-[color:var(--hotel-accent)]" /><h2 className="mt-3 font-semibold text-[color:var(--hotel-primary)]">{policy.title}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{policy.description}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} />}
+              {policies.length ? <div id="hotel-policies" className="grid gap-3 md:grid-cols-2">{policies.map((policy) => <article key={policy.id} className="hotel-public-content-card rounded-[22px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><ShieldCheck className="h-6 w-6 text-[color:var(--hotel-accent)]" /><h2 className="mt-3 font-semibold text-[color:var(--hotel-primary)]">{policy.title}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{policy.description}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} />}
             </div>
           ) : null}
           {area === 'contato' ? (
@@ -325,8 +330,9 @@ export function HotelPublicAreaContent({
           ) : null}
           {area === 'cardapio' ? roomMenuSection ? <ServiceList sections={[roomMenuSection]} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.noMenu} /> : null}
           {area === 'turismo' ? tourismSections.length ? <ServiceList sections={tourismSections} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
+          {area === 'informacoes'&&isV4?<><InternalAccommodation data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>{sections.length?<nav id="hotel-service-access" className="public-internal-service-access"><a href={buildAreaHref('servicos')}>{copy.navigationServices}<ChevronRight aria-hidden/></a></nav>:null}</>:null}
           {area === 'informacoes'?<RoomGuideLinks data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
-          {area === 'comunicados' ? announcements.length ? <div className="grid gap-4 md:grid-cols-2">{announcements.map((announcement) => <article key={announcement.id} id={`announcement-${announcement.id}`} className="hotel-public-content-card rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><BellRing className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{announcement.title}</h2><p className="mt-2 whitespace-pre-line text-sm leading-6 text-[color:var(--hotel-text-muted)]">{announcement.body}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
+          {area === 'comunicados' ? announcements.length ? isV4?<PublicAnnouncementDirectory hotelId={hotel.id} rows={announcements} language={language}/>:<div className="grid gap-4 md:grid-cols-2">{announcements.map((announcement) => <article key={announcement.id} id={`announcement-${announcement.id}`} className="hotel-public-content-card rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><BellRing className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{announcement.title}</h2><p className="mt-2 whitespace-pre-line text-sm leading-6 text-[color:var(--hotel-text-muted)]">{announcement.body}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
           {area === 'servicos' ? sections.length ? isBrandExperience || isV4 ? (
             <NovotelServiceExplorer
               compact={isV4}

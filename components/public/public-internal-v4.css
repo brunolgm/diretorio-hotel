@@ -36,3 +36,56 @@
  [data-public-internal-v4] .hotel-service-editorial-card { padding:16px; }
  [data-public-internal-v4] .public-information-essentials [data-essential='wifi'] { order:1; }
 }
+
+/* Task-oriented V4 interiors. No selector affects the approved Home or V3. */
+[data-public-internal-v4] .public-internal-overview {margin-bottom:24px}
+[data-public-internal-v4] .public-internal-anchors {display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
+[data-public-internal-v4] .public-internal-anchors a {display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:8px 13px;border:1px solid var(--hotel-border);border-radius:11px;background:var(--hotel-surface);color:var(--hotel-primary);font-size:12px;text-decoration:none}
+[data-public-internal-v4] .public-internal-anchors svg {width:16px;height:16px}
+[data-public-internal-v4] .public-internal-anchors a:hover {background:var(--hotel-active-bg)}
+[data-public-internal-v4] .public-internal-editorial {display:grid;grid-template-columns:minmax(0,44%) minmax(0,1fr);border:1px solid var(--hotel-border);border-radius:20px;overflow:hidden;background:var(--hotel-surface);margin:20px 0;color:var(--hotel-text)}
+[data-public-internal-v4] .public-internal-editorial>picture {width:100%;height:100%;min-height:240px;max-height:360px;object-fit:cover}
+[data-public-internal-v4] .public-internal-editorial>div {padding:clamp(20px,3vw,36px);min-width:0}
+[data-public-internal-v4] .public-internal-editorial:not(:has(>picture)) {grid-template-columns:1fr}
+[data-public-internal-v4] .public-internal-editorial h2 {font-size:clamp(24px,2.5vw,32px);line-height:1.2;letter-spacing:-.02em;font-weight:600;overflow-wrap:anywhere}
+[data-public-internal-v4] .public-internal-editorial p {margin-top:14px;font-size:14px;line-height:1.75;color:var(--hotel-text-muted);white-space:pre-line;overflow-wrap:anywhere}
+[data-public-internal-v4] .public-internal-editorial a,[data-public-internal-v4] .public-internal-service-access a {display:inline-flex;align-items:center;gap:8px;min-height:44px;margin-top:20px;border-radius:11px;padding:10px 16px;background:var(--hotel-primary);color:var(--hotel-surface);font-size:12px}
+[data-public-internal-v4] .public-internal-editorial a svg,[data-public-internal-v4] .public-internal-service-access svg {width:16px;height:16px}
+[data-public-internal-v4] .public-internal-benefits {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:24px 0}
+[data-public-internal-v4] .public-internal-benefits li {display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;font-size:12px;line-height:1.6;padding:12px;color:var(--hotel-text-muted)}
+[data-public-internal-v4] .public-internal-benefits svg {width:25px;height:25px;color:var(--hotel-accent)}
+[data-public-internal-v4] .public-internal-service-access {margin:22px 0}
+[data-public-internal-v4] .public-internal-service-access a {margin-top:0}
+[data-public-internal-v4] :is(#hotel-overview,#hotel-stay,#hotel-accommodation,#hotel-policies,#hotel-service-access,[id^="announcement-"],[id^="communication-category-"]) {scroll-margin-top:20px}
+[data-public-internal-v4] .public-communication-directory>section {margin:28px 0}
+[data-public-internal-v4] .public-communication-group {display:flex;gap:10px;align-items:center;font-size:18px;font-weight:600;margin-bottom:14px;color:var(--hotel-primary)}
+[data-public-internal-v4] .public-communication-group svg {width:20px;height:20px}
+[data-public-internal-v4] .public-communication-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+[data-public-internal-v4] .public-communication-grid article {display:flex;align-items:flex-start;gap:16px;padding:24px;border:1px solid var(--hotel-border);border-radius:18px;background:var(--hotel-surface);color:var(--hotel-text)}
+[data-public-internal-v4] .public-communication-grid article>div:last-child {min-width:0}
+[data-public-internal-v4] .public-communication-icon {padding:10px;flex-shrink:0;border-radius:12px;background:var(--hotel-active-bg);color:var(--hotel-accent)}
+[data-public-internal-v4] .public-communication-icon svg {width:21px;height:21px}
+[data-public-internal-v4] [data-communication-category="alerta"] .public-communication-icon {background:#fff0ea;color:#a72c19}
+[data-public-internal-v4] [data-communication-category="manutencao"] .public-communication-icon {background:#fff4d7;color:#805600}
+[data-public-internal-v4] .public-communication-category {font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--hotel-text-muted);margin-bottom:7px}
+[data-public-internal-v4] .public-communication-grid h3 {font-size:20px;line-height:1.35;font-weight:600;overflow-wrap:anywhere}
+[data-public-internal-v4] .public-communication-body {font-size:14px;line-height:1.8;margin-top:14px;white-space:pre-line;overflow-wrap:anywhere}
+[data-public-internal-v4] .public-communication-period {font-size:11px;line-height:1.5;color:var(--hotel-text-muted);margin-top:9px}
+[data-public-internal-v4] .hotel-service-editorial-card {border-color:var(--hotel-border);box-shadow:0 12px 30px -28px var(--hotel-primary)}
+@media(max-width:767px){
+ [data-public-internal-v4] .public-internal-editorial {grid-template-columns:1fr}
+ [data-public-internal-v4] .public-internal-editorial>picture {min-height:0;height:200px;max-height:240px}
+ [data-public-internal-v4] .public-internal-editorial>div {padding:22px}
+ [data-public-internal-v4] .public-internal-editorial h2 {font-size:25px}
+ [data-public-internal-v4] .public-internal-benefits {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ [data-public-internal-v4] .public-communication-grid {grid-template-columns:1fr}
+ [data-public-internal-v4] .public-communication-grid article {padding:20px;gap:12px}
+ [data-public-internal-v4] .public-communication-grid h3 {font-size:19px}
+}
+
+[data-public-internal-v4] .public-internal-editorial>picture>img {width:100%;height:100%;object-fit:cover;object-position:var(--internal-focal)}
+@media(max-width:767px){[data-public-internal-v4] .public-internal-editorial>picture>img{object-position:var(--internal-mobile-focal)}}
+
+[data-public-internal-v4] .public-internal-anchors a,[data-public-internal-v4] .public-communication-group {color:var(--hotel-text)}
+[data-public-internal-v4] .public-internal-editorial a,[data-public-internal-v4] .public-internal-service-access a {background:var(--hotel-text);color:var(--hotel-surface)}
+[data-public-internal-v4] :is(.public-internal-editorial,.public-internal-anchors,.public-internal-service-access) a:focus-visible {outline:2px solid var(--hotel-text);outline-offset:3px}

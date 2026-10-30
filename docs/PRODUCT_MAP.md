@@ -2796,3 +2796,51 @@ Falha de auditoria/resposta ambígua não é declarada sucesso e não gera compe
 destrutiva. Sem migration, grant ou bypass de RLS. Mocks, plano e 512 testes de
 segurança aprovados; TypeScript/build OK; lint quatro warnings históricos.
 Diagnóstico AD2891 e limite de evidência documentados em CENTRAL_DE_VOOS_E_PMS.md.
+
+#### Hotfix premium — composição compartilhada e interiores (30/10/2026)
+
+Home preserva hero, focais, acessos, três editoriais, benefícios, Turismo e dock.
+Avisos usam uma única faixa de 56 px com prioridade canônica, detalhe e acesso
+aos demais; banners proporcionais com imagem autorizada ou card tipográfico;
+informativos têm resumo limitado sem repetir o corpo completo. Seções sem
+conteúdo elegível não existem no layout. Voo salvo continua no acesso existente,
+com identificação e indicador discreto, storage v1 e zero consulta na Home.
+
+Interiores V4 compartilham fotografia editorial, âncoras condicionais, benefícios,
+estadia, políticas e acomodação cadastrada. Serviços preservam os fluxos atuais;
+o detalhe reutiliza mídia publicada somente quando seu CTA canônico associa
+explicitamente o próprio Serviço habilitado do mesmo hotel, com entitlement de
+aparência. Não há associação por nome, mídia de outro tenant ou foto inventada.
+Comunicações têm categorias reais, ícones semânticos, vigência e leitura integral.
+V3 mantém sua composição; outros hotéis não são migrados automaticamente.
+Restaurante Filipe reutiliza sua mídia publicada; hero/menu/galeria e domínio
+gastronômico completo permanecem no roadmap Sprint 53 F&B, sem alegar paridade.
+
+Referências comparadas: docs/references/bugan/public-v3/mockup_do_hotel_bugan_recife.png
+e docs/references/bugan/public-v4/prancha-paginas-internas-v4.png. Evidências antes
+em out/v4-premium-hotfix/before; depois isolado em out/tourism-v4/premium-* e
+SSR com leituras públicas reais em out/v4-reconciliation-server. Capturas de
+produção após READY ficam em out/v4-communications-production. Artefatos out
+são locais/ignorados. Fixtures são cenários identificados, sem novos dados reais.
+
+Gates do candidato: security 519/519; matriz A–L 168; comunicações 327; composição
+61; jornadas 126; guias/Admin 148; voos 148; duas matrizes SQL/RLS locais com
+rollback; TypeScript/build OK; lint zero erros e quatro warnings históricos;
+diff --check OK; SSR real 74/74, zero chamadas AirLabs. PT/EN/ES e seis identidades
+incluem Bugan, Grand Mercure, dois Novotel, Mercure e Default. Default é fixture;
+smoke real dos outros cinco não substitui homologação humana de seus painéis.
+
+Releitura de 20 conjuntos protegidos, apresentação e guias manteve os hashes
+antes/depois iguais: hotéis, administradores, mídias, módulos, aeroportos,
+Turismo, traduções operacionais e demais contratos preservados. Quatro guias
+continuam desabilitados, sem publicação; 13 passos PT/EN/ES preenchidos,
+221 canais em revisão e Netflix como aplicativo, duas fotos reais preservadas.
+Preview positivo é coberto por harness e SQL local; login humano de cada guia
+e aceite operacional permanecem pendentes. Nenhuma migration/grant/RLS alterada.
+
+Prioridade zero ainda depende do comando autenticado já disponibilizado: a última
+leitura registra um banner e quatro comunicados de teste ativos e zero auditorias
+de desativação. A publicação técnica não comprova sua retirada. Não há filtro
+textual para escondê-los, DELETE, service role para mutação editorial, nova
+publicação de fixtures ou autorização para habilitar guias. GO técnico deve ser
+separado de aceite integral de conteúdo e homologação visual humana.

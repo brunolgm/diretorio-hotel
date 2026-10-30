@@ -5,6 +5,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
+import { BookmarkCheck } from "lucide-react";
 import { resolveFlightAirline } from "@/lib/airline-identity";
 import {
   GUEST_FLIGHT_CHANGED_EVENT,
@@ -149,9 +150,9 @@ export function FlightHomeAccess({
         {flight ? (
           <small className="v4-flight-access-summary">
             <span>
-              {identifier} · {flight.departureAirport} → {flight.arrivalAirport}
+              <b>{identifier}</b> · {flight.departureAirport} → {flight.arrivalAirport}
             </span>
-            <span className="v4-flight-saved-indicator" title={saved}>
+            <span className="v4-flight-saved-indicator" title={saved}><BookmarkCheck aria-hidden/>
               {language === "en"
                 ? "Saved"
                 : language === "es"

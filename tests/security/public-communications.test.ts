@@ -4,6 +4,7 @@ import {
   publicCommunications,
   communicationEligible,
   publicCommunicationUrl,
+  communicationExcerpt,
 } from "../../lib/public-communications.ts";
 import type {
   PublicHotelAnnouncement,
@@ -114,3 +115,5 @@ test("critical alerts precede maintenance without hiding other eligible notices"
  const model = publicCommunications("hotel-a", [maintenance, alert, second], [], now);
  assert.deepEqual(model.alerts.map(r => r.id), ["critical", "second-critical", "maintenance"]);
 });
+
+test("Home excerpt preserves full source, avoids duplicate title and bounds Unicode summaries",()=>{const body="Operational notice ".repeat(100);assert.equal(communicationExcerpt("Same","Same"),null);assert.equal(communicationExcerpt("Title",null),null);const excerpt=communicationExcerpt("Title",body)!;assert.ok(Array.from(excerpt).length<=160);assert.ok(excerpt.endsWith("…"));assert.equal(body.length,1900);assert.equal(communicationExcerpt("Title","\nShort   body\n"),"Short body");});

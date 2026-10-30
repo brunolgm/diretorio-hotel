@@ -54,6 +54,7 @@ export interface PublicHotelPageData {
 }
 
 export interface PublicHotelServiceDetailData {
+  editorialMedia?: ExperienceMedia[];
   roomGuide?:import('./room-guides').RoomGuide|null;
   experienceVersion?: 'v3'|'v4';
   hotel: PublicHotel;
@@ -494,11 +495,21 @@ async function getPublicHotelServiceDetailDataForHotel(
 
   const translation = (translationResult.data || null) as PublicHotelSectionTranslation | null;
   const config=await supabase.from('hotel_public_presentation').select('configuration').eq('hotel_id',hotel.id).maybeSingle();
+  const experienceVersion=parsePublicPresentation(config.data?.configuration,hotel.id)?.experienceVersion??'v3';
+  let editorialMedia: ExperienceMedia[]=[];
+  if(experienceVersion==='v4'){
+    const enabled=await supabase.rpc('is_hotel_module_enabled',{p_hotel_id:hotel.id,p_module_key:'experience.appearance'});
+    if(!enabled.error&&enabled.data===true){
+      const [media,tr]=await Promise.all([supabase.from('hotel_public_experience_media').select('*').eq('hotel_id',hotel.id).eq('is_published',true),language==='pt'?Promise.resolve({data:[],error:null}):supabase.from('hotel_public_experience_media_translations').select('slot,title,description,alt_text,cta_label').eq('hotel_id',hotel.id).eq('language',language)]);
+      if(!media.error)editorialMedia=(media.data??[]).filter(m=>m.hotel_id===hotel.id&&m.is_published&&m.slot!=='hero').map(m=>localizeExperienceMedia(m,tr.error?null:tr.data?.find(t=>t.slot===m.slot)));
+    }
+  }
 
   return {
     hotel,
+    editorialMedia,
     roomGuide:await loadPublishedServiceGuide(supabase,hotel.id,serviceId),
-    experienceVersion: parsePublicPresentation(config.data?.configuration,hotel.id)?.experienceVersion??'v3',
+    experienceVersion,
     section: {
       ...typedSection,
       title: translatedText(typedSection.title,translation?.title),

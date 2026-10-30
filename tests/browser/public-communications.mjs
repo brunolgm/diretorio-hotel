@@ -81,12 +81,14 @@ export async function runCommunicationsAndFlight({ page, origin, output }) {
             );
             throw error;
           });
-        assert.equal(await page.locator("[data-v4-alerts] [data-important-notice]").count(), 2);
+        assert.equal(await page.locator("[data-v4-alerts] [data-important-notice]").count(), 1);
         assert.equal(
           await page.locator("[data-v4-updates] article").count(),
           1,
         );
         assert.equal(await page.locator("[data-v4-offers] article").count(), 1);
+        assert.equal(await page.locator("[data-v4-alerts]").getAttribute("data-important-count"),"2");
+        assert.equal(await page.locator(".v4-important-more").count(),1);
         assert.ok(
           !/DRAFT MUST|EXPIRED MUST|FOREIGN MUST/.test(
             await page.locator("body").innerText(),

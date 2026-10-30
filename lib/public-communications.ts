@@ -47,6 +47,7 @@ export function communicationCopy(lang: "pt" | "en" | "es") {
   return lang === "en"
     ? {
         important: "Important notices",
+        otherNotices: (n:number) => n+" more notice"+(n===1?"":"s"), until:"Until", scrollOffers:"Swipe to see more promotions",
         offers: "Promotions and news",
         updates: "Hotel updates",
         all: "All hotel announcements",
@@ -60,6 +61,7 @@ export function communicationCopy(lang: "pt" | "en" | "es") {
     : lang === "es"
       ? {
           important: "Avisos importantes",
+          otherNotices: (n:number) => n+" aviso"+(n===1?"":"s")+" más", until:"Hasta", scrollOffers:"Deslice para ver más novedades",
           offers: "Promociones y novedades",
           updates: "Novedades del hotel",
           all: "Todos los avisos del hotel",
@@ -72,6 +74,7 @@ export function communicationCopy(lang: "pt" | "en" | "es") {
         }
       : {
           important: "Avisos importantes",
+          otherNotices: (n:number) => "Mais "+n+" aviso"+(n===1?"":"s"), until:"Até", scrollOffers:"Deslize para ver mais novidades",
           offers: "Promoções e novidades",
           updates: "Atualizações do hotel",
           all: "Todos os comunicados do hotel",
@@ -100,3 +103,6 @@ export function publicCommunicationUrl(
     return null;
   }
 }
+
+/** Home summaries never replace or mutate the complete canonical message. */
+export function communicationExcerpt(title:string,body:string|null|undefined,limit=160){const text=body?.replace(/\s+/g," ").trim();if(!text||text===title.trim())return null;const chars=Array.from(text);return chars.length>limit?chars.slice(0,limit-1).join("")+"…":text;}
