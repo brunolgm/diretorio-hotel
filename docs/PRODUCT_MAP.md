@@ -2932,3 +2932,16 @@ solicitado ao usuário para restabelecer o checkpoint exigido; nenhuma escrita
 editorial foi executada por caminho alternativo. A autoria dessa habilitação
 não foi determinada. GO operacional e gate público integral permanecem pendentes
 da decisão/ação humana e releitura; guias e grade não foram publicados.
+
+**Checkpoint restabelecido pelo usuário.** O administrador informou a desativação
+somente do Serviço TV e Canais pela interface canônica. A releitura confirmou
+enabled=false, updated_at 30/10/2026 23:10:37 UTC; Bugan active, dois
+administradores ativos, 13 Serviços habilitados, quatro guias desabilitados e
+zero versões de guia publicadas. Os 222 registros continuam sem publicação.
+A falha de contagem acima corresponde à verificação intermediária anterior à
+ação humana; o smoke público integral foi solicitado novamente com o mesmo
+critério de 13, sem enfraquecer testes. O hash de hotel_sections deve mudar em
+relação ao início desta execução por essa ação explicitamente confirmada; os
+demais conjuntos e configurações de guia devem permanecer iguais. Nenhuma
+escrita editorial foi executada pelo agente. Publicação operacional de guias e
+grade continua sem autorização e depende de homologação humana.
