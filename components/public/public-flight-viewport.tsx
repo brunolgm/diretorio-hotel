@@ -6,15 +6,20 @@ export function PublicFlightViewport(){
  useEffect(()=>{
   const root=document.querySelector<HTMLElement>('main[data-flight-viewport]'),viewport=window.visualViewport;
   if(!root||!viewport)return;
+  let frame=0;
   const update=()=>{
    root.style.setProperty('--public-flight-viewport-height',`${viewport.height}px`);
    const active=document.activeElement;
    if(viewport.height<window.innerHeight-80&&active instanceof HTMLElement&&root.contains(active)&&active.matches('input,select,textarea')){
-    requestAnimationFrame(()=>active.scrollIntoView({block:'center',inline:'nearest'}));
+    cancelAnimationFrame(frame);
+    frame=requestAnimationFrame(()=>{
+     // The user may move focus before the keyboard resize frame is painted.
+     if(document.activeElement===active)active.scrollIntoView({block:'center',inline:'nearest'});
+    });
    }
   };
   update();viewport.addEventListener('resize',update);
-  return ()=>{viewport.removeEventListener('resize',update);root.style.removeProperty('--public-flight-viewport-height');};
+  return ()=>{cancelAnimationFrame(frame);viewport.removeEventListener('resize',update);root.style.removeProperty('--public-flight-viewport-height');};
  },[]);
  return null;
 }

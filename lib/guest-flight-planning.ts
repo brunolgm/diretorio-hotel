@@ -3,7 +3,7 @@ import type { SavedGuestFlight } from './guest-flight-storage.ts';
 import type { TravelType } from './flights/route-context.ts';
 
 export type FlightPlanningAirport = {
-  iataCode: string; timezone?: string | null;
+  iataCode: string; timezone?: string | null; countryCode?:string|null;
   estimatedTransferMinutes: number | null; domesticLeadMinutes: number | null;
   internationalLeadMinutes: number | null; safetyMarginMinutes: number | null;
 };

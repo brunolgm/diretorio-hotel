@@ -2,7 +2,7 @@ import {hasTranslationFallback,translatedText} from './translation-fallback';
 import { parsePublicPresentation, type PublicPresentation } from './public-presentation';
 import { loadPublicTourism, publicTourismHomeAvailable } from '@/lib/tourism/public';
 import { createPublicClient } from '@/lib/supabase/public';
-import { getFlightAirportTimezones } from '@/lib/flights/airport-timezones.server';
+import { getFlightAirportContexts } from '@/lib/flights/airport-timezones.server';
 import { normalizeExperienceLayout, type ExperienceLayoutBlock } from '@/lib/experience-layout';
 import { normalizeHotelSubdomainInput } from '@/lib/hotel-subdomain';
 import { type SupportedPublicLanguage } from '@/lib/public-language';
@@ -70,6 +70,7 @@ type PublicFlightCenterRow =
   Database['public']['Functions']['get_public_hotel_flight_center']['Returns'][number];
 
 export interface PublicFlightCenterAirport {
+  countryCode?: string | null;
   timezone: string | null;
   iataCode: string;
   name: string;
@@ -526,7 +527,7 @@ async function getPublicFlightCenterDataForHotel(
   const rows = (data || []) as PublicFlightCenterRow[];
   const firstRow = rows[0];
   if (!firstRow) return null;
-  const timezones = await getFlightAirportTimezones(rows.map(row => row.airport_iata_code));
+  const airportContexts = await getFlightAirportContexts(rows.map(row => row.airport_iata_code));
   const config=await supabase.from('hotel_public_presentation').select('configuration').eq('hotel_id',hotel.id).maybeSingle();
 
   const [
@@ -582,7 +583,8 @@ async function getPublicFlightCenterDataForHotel(
       menuContentCount: menuSectionsResult.count || 0,
     }),
     airports: rows.map((row) => ({
-      timezone: timezones[row.airport_iata_code] ?? null,
+      timezone: airportContexts[row.airport_iata_code]?.timezone ?? null,
+      countryCode: airportContexts[row.airport_iata_code]?.countryCode ?? null,
       iataCode: row.airport_iata_code,
       name: row.airport_name,
       city: row.airport_city,

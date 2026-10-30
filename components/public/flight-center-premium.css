@@ -1,0 +1,91 @@
+/* Shared opt-in V4, never a Home selector or hotel-specific functional fork. */
+[data-flight-premium] [data-public-internal-body] { max-width:1180px; padding-bottom:32px; }
+[data-flight-premium] .public-area-hero { position:relative; overflow:hidden; border-radius:20px; padding:12px 24px 26px; background:linear-gradient(115deg,color-mix(in srgb,var(--hotel-primary) 68%,#000),color-mix(in srgb,var(--hotel-accent) 68%,#000)); color:var(--hotel-accent-foreground); }
+[data-flight-premium] .public-area-hero::before { content:''; position:absolute; inset:0 0 auto; height:74px; background:var(--hotel-surface); }
+[data-flight-premium] .public-area-hero>div:first-child { position:relative; z-index:1; min-height:44px; color:var(--hotel-text); }
+[data-flight-premium] .public-area-hero>div:nth-child(2) { position:absolute; z-index:1; top:17px; left:50%; transform:translateX(-50%); margin:0; max-width:34%; color:var(--hotel-text); }
+[data-flight-premium] .public-area-hero img { max-height:40px; width:120px; }
+[data-flight-premium] .public-area-hero h1 { position:relative; margin:46px 0 0; font-size:36px; color:inherit; }
+[data-flight-premium] .public-area-hero>p:last-child { position:relative; color:inherit; max-width:650px; margin-top:8px; line-height:1.6; }
+[data-flight-premium][data-hotel-theme='bugan'] .public-area-hero h1 { font-family:Georgia,'Times New Roman',serif; font-weight:400; }
+[data-flight-premium] .flight-desktop-nav { display:none; }
+[data-flight-premium] [data-flight-tabs]>div { min-width:0; padding:5px; gap:4px; border-radius:16px; }
+[data-flight-premium] [data-flight-tabs] a { min-width:0; padding:10px 6px; border-radius:11px; }
+[data-flight-premium] [data-flight-card] { padding:24px; border-radius:22px; box-shadow:0 12px 38px -30px var(--hotel-primary); }
+[data-flight-premium] .flight-identity { padding-bottom:18px; border-bottom:1px solid var(--hotel-border); }
+[data-flight-premium] .flight-number { font-size:34px; line-height:1.2; letter-spacing:.01em; }
+[data-flight-premium] .flight-verification-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; }
+[data-flight-premium] .flight-verification-level { font-size:12px; color:var(--hotel-text-muted); }
+[data-flight-premium] .flight-status-badge { display:flex; align-items:center; gap:8px; border-radius:12px; padding:10px 14px; background:var(--hotel-accent-soft); color:var(--hotel-primary); font-size:18px; font-weight:650; }
+[data-flight-premium] .flight-status-badge svg { width:20px; height:20px; }
+[data-flight-premium] .flight-status-badge[data-state='inFlight'] { background:#e4f0e5; color:#174b2b; }
+[data-flight-premium] .flight-time-facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:16px; padding:18px 0; }
+[data-flight-premium] .flight-time-facts dt,[data-flight-premium] .flight-location-facts dt { display:flex; gap:6px; align-items:center; color:var(--hotel-text-muted); font-size:13px; line-height:1.5; }
+[data-flight-premium] .flight-time-facts svg,[data-flight-premium] .flight-location-facts svg { width:17px; height:17px; color:var(--hotel-accent); flex-shrink:0; }
+[data-flight-premium] .flight-time-facts dd { margin-top:4px; color:var(--hotel-primary); }
+[data-flight-premium] .flight-time-facts strong { font-size:30px; line-height:1.2; font-weight:650; font-variant-numeric:tabular-nums; }
+[data-flight-premium] .flight-time-facts dd span { display:block; font-size:12px; margin-top:3px; }
+[data-flight-premium] .flight-location-facts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; padding:14px 0; border-block:1px solid var(--hotel-border); }
+[data-flight-premium] .flight-location-facts dd { margin-top:4px; font-size:20px; font-weight:600; color:var(--hotel-primary); overflow-wrap:anywhere; }
+[data-flight-premium] .flight-provenance { display:flex; gap:10px; margin-top:14px; color:var(--hotel-text-muted); font-size:12px; line-height:1.6; }
+[data-flight-premium] .flight-number,
+[data-flight-premium] .flight-time-facts dd,
+[data-flight-premium] .flight-location-facts dd,
+[data-flight-premium] .flight-status-badge,
+[data-flight-premium] label,
+[data-flight-premium] [data-manual-flight-summary]>p:last-child,
+[data-flight-premium] [data-guest-flight-form] h2 { color:var(--hotel-text); }
+[data-flight-premium] [data-flight-tabs] a[aria-current],
+[data-flight-premium] .flight-trip-actions>div>a:first-child,
+[data-flight-premium] form button[type='submit'] { background:color-mix(in srgb,var(--hotel-accent) 70%,#000); color:var(--hotel-accent-foreground); }
+[data-flight-premium] .flight-trip-actions>div>button,
+[data-flight-premium] .flight-trip-actions>div>a:not(:first-child),
+[data-flight-premium] .flight-trip-actions~div>button,
+[data-flight-premium] [data-guest-flight-status]>button { color:var(--hotel-text); }
+[data-flight-premium] :is(a,button,input,select,summary):focus-visible { outline-color:var(--hotel-text); }
+[data-flight-premium] .flight-provenance>svg { flex-shrink:0; width:20px; color:var(--hotel-accent); }
+[data-flight-premium] [data-manual-flight-compact] { padding:12px 0; border-bottom:1px solid var(--hotel-border); font-size:12px; }
+[data-flight-premium] .flight-trip-actions>div { grid-template-columns:repeat(2,minmax(0,1fr)); }
+[data-flight-premium] .flight-trip-actions h3 { font-size:14px; }
+[data-flight-premium] .flight-trip-actions~div>button.flight-remove-button { border-color:#cba69e; color:#9c2e24; }
+[data-flight-premium] .flight-identification-note { color:var(--hotel-text); background:var(--hotel-accent-soft); border-radius:10px; padding:10px 12px; }
+[data-flight-premium] .flight-support { border:1px solid var(--hotel-border); background:var(--hotel-surface); border-radius:22px; padding:20px; }
+[data-flight-premium] .flight-support-eyebrow { color:var(--hotel-text-muted); text-transform:uppercase; letter-spacing:.16em; font-size:10px; font-weight:650; margin-bottom:6px; }
+[data-flight-premium] .flight-support h2 { font-size:23px; color:var(--hotel-text); }
+[data-flight-premium] [data-flight-service-list] { box-shadow:none; border:0; border-radius:0; }
+@media(min-width:768px) {
+ [data-flight-premium]:has(.public-bottom-dock) { padding-bottom:0; }
+ [data-flight-premium]>nav { display:none; }
+ [data-flight-premium] .flight-desktop-nav { display:flex; justify-content:center; flex-wrap:wrap; gap:8px 24px; margin:12px 0; padding:4px; }
+ [data-flight-premium] .flight-desktop-nav a { min-height:44px; display:flex; align-items:center; font-size:13px; color:var(--hotel-text); }
+ [data-flight-premium] .flight-trip-actions>div { grid-template-columns:2fr 1fr 1fr; }
+ [data-flight-premium] .flight-trip-actions>div>a:first-child { grid-column:auto; }
+ [data-flight-premium] [data-flight-service-list] { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; }
+ [data-flight-premium] [data-flight-service-list]>li { border:1px solid var(--hotel-border); border-radius:14px; }
+}
+@media(max-width:767px) {
+ [data-flight-premium] [data-public-internal-body] { padding:10px 12px 28px; }
+ [data-flight-premium] .public-area-hero { padding:10px 14px 20px; }
+ [data-flight-premium] .public-area-hero::before { height:68px; }
+ [data-flight-premium] .public-area-hero>div:nth-child(2) { top:14px; }
+ [data-flight-premium] .public-area-hero img { width:104px; max-height:36px; }
+ [data-flight-premium] .public-area-hero>div:first-child>a { font-size:0; min-width:44px; justify-content:center; gap:0; }
+ [data-flight-premium] .public-area-hero h1 { font-size:28px; margin-top:40px; }
+ [data-flight-premium] .public-area-hero>p:last-child { font-size:13px; line-height:1.5; }
+ [data-flight-premium] [data-flight-card] { padding:16px; }
+ [data-flight-premium] .flight-number { font-size:30px; }
+ [data-flight-premium] .flight-identity { gap:12px; padding-bottom:14px; }
+ [data-flight-premium] .flight-verification-heading { display:block; }
+ [data-flight-premium] .flight-status-badge { margin-top:6px; font-size:17px; }
+ [data-flight-premium] .flight-time-facts { grid-template-columns:repeat(2,minmax(0,1fr)); padding:14px 0; gap:12px; }
+ [data-flight-premium] .flight-time-facts strong { font-size:28px; }
+ [data-flight-premium] .flight-support { padding:16px; }
+ [data-flight-premium] .flight-support h2 { font-size:21px; }
+}
+@media(min-width:1024px) {
+ [data-flight-premium] .flight-identity { padding-right:280px; min-height:90px; }
+ [data-flight-premium] .flight-verification-heading { position:absolute; right:24px; top:26px; flex-direction:column; align-items:flex-end; }
+ [data-flight-premium] .flight-verified-summary { display:grid; grid-template-columns:2fr 1fr; column-gap:20px; }
+ [data-flight-premium] .flight-location-facts { border-block:0; border-left:1px solid var(--hotel-border); padding-left:20px; margin:18px 0; }
+ [data-flight-premium] .flight-provenance { grid-column:1/-1; border-top:1px solid var(--hotel-border); padding-top:14px; margin-top:0; }
+}

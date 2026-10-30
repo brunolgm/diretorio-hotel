@@ -1,0 +1,49 @@
+{
+  "source": "Read-only replay from the canonical cache of the user-reported real LA3565 lookup; no new provider request",
+  "capturedAt": "2026-10-29 23:40:42.740418+00",
+  "response": {
+    "ok": true,
+    "data": {
+      "airlineCode": "LA",
+      "arrivalGate": null,
+      "flightNumber": "3565",
+      "actualArrival": null,
+      "departureGate": "07",
+      "arrivalAirport": "BSB",
+      "delayedMinutes": {
+        "arrival": null,
+        "departure": null
+      },
+      "scheduleStatus": "scheduled",
+      "actualDeparture": null,
+      "arrivalTerminal": "1",
+      "departureAirport": "REC",
+      "estimatedArrival": {
+        "utc": "2026-10-30T02:26:00.000Z",
+        "local": "2026-10-29T23:26:00"
+      },
+      "scheduledArrival": {
+        "utc": "2026-10-30T02:30:00.000Z",
+        "local": "2026-10-29T23:30:00"
+      },
+      "departureTerminal": "T1",
+      "estimatedDeparture": null,
+      "scheduledDeparture": {
+        "utc": "2026-10-29T23:50:00.000Z",
+        "local": "2026-10-29T20:50:00"
+      },
+      "liveStatus": null,
+      "liveSourceType": null,
+      "updatedAt": {
+        "schedule": null,
+        "live": null
+      },
+      "provenance": {
+        "provider": "airlabs",
+        "schedule": "matched",
+        "live": "not_found",
+        "fetchedAt": "2026-10-29T23:40:42.654Z"
+      }
+    }
+  }
+}

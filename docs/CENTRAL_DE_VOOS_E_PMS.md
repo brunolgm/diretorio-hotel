@@ -293,3 +293,82 @@ Fronteiras obrigatórias da evolução:
 - não reutilizar tabelas do MVP como atalho para armazenar identidade futura.
 
 FlightAware/status ao vivo continua fora do produto até existir contrato/licença, fonte confiável, política de indisponibilidade e revisão de privacidade. Até lá, a Central informa explicitamente que os horários são fornecidos pelo hóspede e que a situação deve ser confirmada no canal oficial.
+
+## Central de Voos V4 premium — 29/10/2026
+
+Checkpoint: main a9118fb; arquitetura compartilhada e opt-in por composição V4.
+Referência fornecida: docs/references/bugan/public-v3/proposta_de_evolução_da_central_de_voos.png.
+O arquivo é referência de composição, não fotografia oficial nem fonte de status.
+O cabeçalho usa gradiente dos tokens da marca e logo oficial já cadastrado;
+não houve recorte/publicação da fotografia ilustrativa ou de logos do mockup.
+
+A Central V4 reorganiza identidade, número, programação/status, horários,
+terminal/portão, proveniência e ações. Número maior que o status. Abas e retorno
+com idioma preservado; navegação desktop própria, dock mobile em faixa reservada.
+A correção de visualViewport ignora um frame se o foco já mudou, evitando rolagem
+para o input anterior durante abertura do teclado. Nenhuma mudança na Home.
+
+O registro compartilhado airline-identity.ts reconhece exatamente nomes, IATA,
+ICAO e aliases revisados, com normalização de espaços/acentos/caixa e sem fuzzy.
+Catálogo: Azul AD/AZU; referência comercial LATAM LA/TAM; GOL G3/GLO; TAP TP/TAP;
+American AA/AAL; Delta DL/DAL; United UA/UAL; Air France AF/AFR; KLM KL/KLM;
+Iberia IB/IBE; Copa CM/CMP; Aerolíneas Argentinas AR/ARG; SKY Chile H2/SKU; JetSMART JA/JAT. Nomes comerciais e aliases
+explícitos constam do próprio registro; links novos usam os domínios oficiais
+HTTPS, sem prometer preenchimento automático do número no site externo.
+
+TAM não é declarado um sinônimo IATA universal de LA. O catálogo diferencia a
+referência operacional/comercial contemporânea da identificação histórica JJ.
+A derivação TAM → candidato LA exige origem com country_code BR confirmado no
+catálogo canônico, data/rota completas e data a partir do
+checkpoint observado de 29/10/2026; esse limite é suporte do catálogo LibGuest,
+não data histórica de mudança da companhia. O candidato é consultado uma única
+vez e só se torna ocorrência verificada se o contrato existente confirmar
+referência, data e aeroportos. JJ permanece JJ, sem tentativa de trocar codeshare
+ou descobrir operadora pelo número. Reconhecimento não comprova voo operado.
+
+LAT foi recusado: é ICAO atribuído a outra empresa, não alias inequívoco de LATAM.
+SKY/SKY Airline genéricos também não são convertidos entre filiais por suposição.
+JetSMART é aceito como referência comercial JA somente com data/rota completas e
+data a partir de 05/03/2024, conforme a unificação publicada pela própria empresa.
+Isso não identifica a operadora efetiva e não reescreve WJ/JZ/J6 explícitos. IATA explícito pode ser informado no lugar de um nome ambíguo. Conflito
+entre companhia e prefixo completo impede salvar até correção, sem escolher um
+deles silenciosamente. Nome desconhecido/ambíguo pode ser salvo manualmente sem
+consulta verificada. V1 e valores originais continuam preservados; nenhum campo
+de status é persistido no objeto local. Não há consulta por candidato alternativo.
+
+Programado, estimado e efetivo são apresentados separadamente e somente quando
+fornecidos. Programação verificada difere de live verificado; active de schedules
+não significa Em voo/Embarque próximo. FetchedAt é identificado como consulta do
+LibGuest; atualização da fonte só aparece quando há timestamp próprio válido.
+Refresh mantém cooldown/cache e nunca cria polling. Falha mantém a referência
+manual, ações e últimos dados com advertência de consulta não concluída.
+
+Replays: AD4277 é resposta real sanitizada da restauração; LA3565 é projeção real
+recuperada por leitura do cache existente (scheduled, 20:50, T1, 07; live não
+encontrado). Fixtures e capturas de replay não são novas consultas live. Testes
+usam relógio controlado e bloqueiam rede externa. Orçamento, renovação, cache,
+leases, backend, entitlements, lifecycle, PMS/roomToken e IA não foram alterados.
+Nenhuma migration ou chamada externa AirLabs é necessária nesta entrega.
+
+Fontes de identidade: [IATA](https://www.iata.org/en/about/members/airline-list/),
+[FAA — códigos ICAO, incluindo LAT](https://www.faa.gov/air_traffic/publications/atpubs/cnt_html/chap3_section_3.html),
+[diretório Aena](https://www.aenabrasil.com.br/en/airports/maceio-zumbi-dos-palmares-international-airport/airline-companies.html).
+A lista financeira IATA mantém TAM/JJ; isso não autoriza reescrever JJ para LA.
+A referência comercial LA do piloto é sustentada pelo match real já existente,
+não pelo mockup nem por uma equivalência genérica entre filiais LATAM.
+
+Validação reproduzível: node tests/browser/flight-center-compact.mjs --premium,
+--form e modo legado; TOOL_NODE_MODULES aponta para esbuild temporário e
+V3_BROWSER_CHANNEL=msedge. Oito viewports, seis presets, PT/EN/ES, abas,
+cooldown, contraste, ações e scroll. Teclado é simulado; aparelho físico permanece
+uma validação humana separada. Fixtures ficam apenas em tests/, referência em
+docs/, nunca como dados aeronáuticos ou fotos publicados na aplicação.
+
+Fonte adicional de equivalência comercial datada: [guia oficial JetSMART](https://www.jetsmart.com/ar/es/PreguntasFrecuentes).
+Identificadores JA/JAT: [IATA JetSMART Chile](https://www.iata.org/en/about/members/airline-list/jetsmart-chile/666/).
+SKY H2/SKU: [diretório oficial de aviação coreano](https://www.airportal.go.kr/file/htmlOpen/upload/airline/detail/Sky%20Airline%282024%29.pdf).
+
+O país/timezone é projetado somente para códigos já autorizados pelo RPC público
+do hotel, pela leitura server-side existente. Não há inferência de país pelo IATA
+ou timezone, nova concessão de tabela, campo no v1 ou parâmetro extra ao provider.
+País ausente/estrangeiro impede a conversão TAM; LA explícito continua disponível.
