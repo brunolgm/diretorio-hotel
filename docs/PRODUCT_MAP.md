@@ -2493,3 +2493,95 @@ exibir PT/EN/ES sem recorte pelo overflow do hero, mantendo o escopo do tema e
 a navegação nativa. Correção na origem para Home e internas, sem fork de hotel,
 novo pacote, mudança de layout, integração ou dados. Diagnóstico, estratégia e
 regressões constam da seção de seletor em CENTRAL_DE_VOOS_E_PMS.md.
+
+### V4 — comunicações, voo contextual e Guias do Quarto (30/10/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Evolução incremental da composição V4.
+A decisão anterior (essenciais, ações e editoriais) permanece; a nova decisão
+acrescenta conteúdo opcional por prioridade e utilidade, sem migrar os demais
+hotéis automaticamente para V4 ou mudar o catálogo de módulos. Bugan é piloto;
+Grand Mercure, Novotel Leme/Salvador, Mercure e Default usam contratos compartilhados.
+
+**Comunicações.** Reutiliza `hotel_announcements`, `hotel_promotional_banners`,
+traduções, Admin, datas e RLS existentes. Alerta ganha atenção antes do hero;
+manutenção/informativo ficam em Atualizações; promoção/banner em Destaques e
+ofertas. Sem autoplay, placeholder ou deduplicação por texto semelhante (não há
+vínculo canônico entre essas entidades). O layout continua respeitado. Falha de
+leitura de comunicações/traduções é explícita, não uma lista vazia silenciosa.
+Sem conteúdo elegível, os novos blocos não aparecem. Nas Homes legadas com
+header/hero inseparáveis, a atenção precede o hero composto, preservando-o.
+
+**Voo na Home.** Componente cliente usa exclusivamente o armazenamento local v1
+existente, por hotel/origem. SSR não mostra registro; após hidratação, há resumo
+manual e CTA para Meu voo quando válido. Salvar/editar/remover, eventos de retorno
+e timer de expiração atualizam o resumo. Mantém 12 horas após a partida informada,
+sem outro schema, PMS, roomToken, identidade pessoal ou sincronização entre
+dispositivos. Não chama AirLabs nem apresenta status inferido. Preview autenticado
+não lê o voo pessoal desse navegador. Ver CENTRAL_DE_VOOS_E_PMS.md.
+
+**Guias como extensão de Serviços.** O texto plano de `hotel_sections` não comporta
+passos, fotos, aplicabilidade e canais pesquisáveis sem perder a estrutura.
+`hotel_service_guides` é filho 1:1 do Serviço, com FK/cascade, rascunho e snapshot
+publicado separados, revisão otimista PT409, chave idempotente de importação e
+histórico dos paths de mídia. Não é um catálogo concorrente nem um novo módulo.
+Usa `content.services` e `content.languages`; não provisiona entitlement/baseline.
+O Admin existente recebe editor de passos PT/EN/ES, escopo por categoria de
+acomodação confirmada e CSV com prévia, normalização numérica, duplicidades,
+qualidade SD/HD/não informada e tipo canal/aplicativo/revisão. Nenhuma tradução
+automática é disparada por leitura ou pela preparação desses guias.
+
+Somente operador ativo do próprio hotel, com módulos válidos e hotel não arquivado,
+pode ler/alterar rascunhos pelas RPCs autenticadas. Publicar exige revisão explícita,
+conteúdo trilíngue, aplicabilidade confirmada, passos válidos, nenhuma linha de
+canal em revisão e Serviço nativo habilitado. Salvar rascunho não muda o snapshot
+público. A projeção anônima exige hotel ativo + core.directory + services + languages
+e devolve somente publicação de Serviço habilitado. Home recebe apenas resumo;
+passos/catálogo são carregados no detalhe canônico do Serviço. Preview usa sessão
+normal, tenant derivado do profile e snapshot publicado; nenhum draft é público.
+
+Storage permanece sem escrita de browser. Upload privado no servidor valida
+sessão/RPC antes de usar o cliente de Storage: JPEG/PNG/WebP, até 2 MB, dimensões
+6000×4000 e 24 milhões de pixels, assinatura/MIME existentes, UUID novo e upsert
+false. Paths: `<hotel>/room-guides/<service>/<uuid>.<ext>`. Associação ocorre pela
+RPC autenticada. Falha SQL definitiva compensa somente upload novo; resposta
+ambígua conserva arquivo. Atualizar não apaga mídia anterior, evitando corrida
+com versão publicada; os paths ficam retidos (até 512) para cleanup após exclusão
+confirmada do Serviço. Falha de cleanup gera aviso, sem alegar rollback do banco.
+PDF não é aceito nesse upload; manual complementar é URL HTTPS aprovada opcional.
+
+Migration incremental: `20261030034640_service_room_guides.sql`. Não altera
+migrations antigas, hotéis, módulos, lifecycle, Auth ou voos. SECURITY DEFINER
+tem search_path vazio e grants explícitos; clientes não têm escrita direta na
+tabela. Rollback comportamental por migration futura pode revogar a exposição
+das RPCs, preservando os dados. Editor não oferece publicação para ações F&B.
+
+**Fontes do piloto e limite operacional.** PDF real de duas páginas em
+`docs/references/bugan/public-v3/63e392_c3239d83658747758d22a813ea1e5847.pdf`,
+SHA-256 `5d6535e3cce4d5b26e293dcac214bb0ecb7fc16f029ba49082d0033f003c6766`.
+As duas fotos reais dos controles foram extraídas e otimizadas em `tv-manual/`;
+nada foi sintetizado. As páginas legadas guia-tv, guia-quarto e guia-alexa foram
+inventariadas; URLs, data e hashes constam no manifesto de preparação.
+222 números únicos foram encontrados, incluindo 18/501 Globo e 39/539 SporTV;
+HD só quando explícito. Netflix 680 é aplicativo; demais linhas ficam em revisão.
+Isso é inventário histórico, não homologação da grade atual. Não se presume SD,
+gênero, HDMI único ou Alexa em todos os quartos. Comandos de voz não são traduzidos
+como capacidades inexistentes. Mockup é referência de hierarquia, não de dados.
+
+`scripts/prepare-bugan-room-guides.ps1` prepara quatro novos Serviços **desabilitados**,
+rascunhos TV/chuveiro/ar-condicionado/assistente de voz e duas imagens. Usa senha
+somente no prompt oculto local, login normal, `get_current_hotel_modules()` com
+is_enabled=true, preflight dos dois administradores/lifecycle active e RPCs privadas.
+Não altera os 13 Serviços operacionais existentes. Retomada é idempotente, sem
+sobrescrever divergências ou compensações destrutivas. Antes de publicar, o hotel
+precisa confirmar grade, equipamentos/HDMI, categorias de acomodação, direitos de
+uso e instruções/traduções técnicas. Nenhuma ativação, suspensão ou configuração
+de IA faz parte desta entrega.
+
+**Evidência e classificação.** Suíte de segurança: 500/500; matriz SQL real local
+em transação com rollback (roles/tenant/módulos/lifecycle/revisão/mídia/auditoria);
+browser isolado: 147 cenários de comunicações/voo e 148 de guias, seis identidades,
+PT/EN/ES e oito viewports. Capturas/relatórios ficam em `out/tourism-v4/` e gates em
+`out/v4-communications-guides/`, sem credenciais e fora do commit. Fixtures não
+comprovam sessão administrativa de produção nem revisão operacional da grade.
+A publicação técnica e o resultado real do executor devem ser confirmados na
+entrega; até essa releitura, conteúdo operacional dos guias é [NÃO CONFIRMADO].

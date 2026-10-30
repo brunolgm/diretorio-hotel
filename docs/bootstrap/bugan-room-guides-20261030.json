@@ -1,0 +1,2003 @@
+{
+  "version": 1,
+  "hotelId": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+  "projectRef": "micuekfznunwwofxnovw",
+  "applicationOrigin": "https://libguest.digital",
+  "expectedLifecycle": "active",
+  "sourceDate": "2026-10-30",
+  "pdf": {
+    "path": "docs/references/bugan/public-v3/63e392_c3239d83658747758d22a813ea1e5847.pdf",
+    "sha256": "5d6535e3cce4d5b26e293dcac214bb0ecb7fc16f029ba49082d0033f003c6766"
+  },
+  "assets": {
+    "smart-remote": {
+      "path": "docs/references/bugan/public-v3/tv-manual/lg-smart-tv-remote.webp",
+      "sha256": "c6cb5e9138eee06e076f14a6c141609f2918fe7e2d94057d62bae4e4b1531700",
+      "width": 154,
+      "height": 546
+    },
+    "net-remote": {
+      "path": "docs/references/bugan/public-v3/tv-manual/net-receiver-remote.webp",
+      "sha256": "11984cff44f8b37ba190215fd12f953721f8cda7ddbe56660c101e9bbf2e7767",
+      "width": 148,
+      "height": 496
+    }
+  },
+  "guides": [
+    {
+      "key": "bugan-room-guide-tv",
+      "title": {
+        "pt": "TV e Canais",
+        "en": "TV and channels",
+        "es": "TV y canales"
+      },
+      "content": {
+        "pt": "Guia do quarto em preparação editorial. Consulte as instruções revisadas pelo hotel e confirme a aplicabilidade ao equipamento da sua acomodação.",
+        "en": "Room guide under editorial preparation. Read the instructions reviewed by the hotel and confirm that they apply to the equipment in your accommodation.",
+        "es": "Guía de la habitación en preparación editorial. Consulte las instrucciones revisadas por el hotel y confirme que corresponden al equipo de su alojamiento."
+      },
+      "configuration": {
+        "version": 1,
+        "category": "tv",
+        "applicability": {
+          "scope": "unconfirmed",
+          "label": {
+            "pt": "",
+            "en": "",
+            "es": ""
+          },
+          "categories": []
+        },
+        "steps": [
+          {
+            "key": "power",
+            "title": {
+              "pt": "Ligue a Smart TV",
+              "en": "Turn on the Smart TV",
+              "es": "Encienda la Smart TV"
+            },
+            "body": {
+              "pt": "Use o botão de ligar do controle da Smart TV mostrado no manual.",
+              "en": "Use the power button on the Smart TV remote shown in the manual.",
+              "es": "Use el botón de encendido del control de la Smart TV mostrado en el manual."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "Controle da Smart TV fotografado no manual do hotel",
+              "en": "Smart TV remote photographed in the hotel manual",
+              "es": "Control de la Smart TV fotografiado en el manual del hotel"
+            }
+          },
+          {
+            "key": "input",
+            "title": {
+              "pt": "Selecione a entrada do receptor",
+              "en": "Select the receiver input",
+              "es": "Seleccione la entrada del receptor"
+            },
+            "body": {
+              "pt": "Use os botões direcionais para selecionar a entrada HDMI conectada ao receptor NET. Confirme a conexão do quarto; não há uma entrada única homologada para todos os apartamentos.",
+              "en": "Use the arrow buttons to select the HDMI input connected to the NET receiver. Confirm the room connection; one input has not been verified for every room.",
+              "es": "Use los botones direccionales para seleccionar la entrada HDMI conectada al receptor NET. Confirme la conexión de la habitación; no se ha verificado una entrada única para todas las habitaciones."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "Controle da Smart TV fotografado no manual do hotel",
+              "en": "Smart TV remote photographed in the hotel manual",
+              "es": "Control de la Smart TV fotografiado en el manual del hotel"
+            }
+          },
+          {
+            "key": "receiver",
+            "title": {
+              "pt": "Confira o receptor NET",
+              "en": "Check the NET receiver",
+              "es": "Compruebe el receptor NET"
+            },
+            "body": {
+              "pt": "Verifique se o receptor NET está ligado. Caso esteja desligado, utilize o controle do receptor mostrado no manual.",
+              "en": "Check that the NET receiver is on. If it is off, use the receiver remote shown in the manual.",
+              "es": "Compruebe que el receptor NET esté encendido. Si está apagado, use el control del receptor mostrado en el manual."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "Controle do receptor NET fotografado no manual do hotel",
+              "en": "NET receiver remote photographed in the hotel manual",
+              "es": "Control del receptor NET fotografiado en el manual del hotel"
+            }
+          },
+          {
+            "key": "mosaic",
+            "title": {
+              "pt": "Abra o Mosaico",
+              "en": "Open Mosaico",
+              "es": "Abra Mosaico"
+            },
+            "body": {
+              "pt": "No controle do receptor, selecione Mosaico para visualizar os canais disponíveis. O nome do botão foi preservado conforme o equipamento.",
+              "en": "On the receiver remote, select Mosaico to view the available channels. The button name is kept as labelled on the device.",
+              "es": "En el control del receptor, seleccione Mosaico para ver los canales disponibles. Se conserva el nombre del botón indicado en el equipo."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "Controle do receptor NET fotografado no manual do hotel",
+              "en": "NET receiver remote photographed in the hotel manual",
+              "es": "Control del receptor NET fotografiado en el manual del hotel"
+            }
+          },
+          {
+            "key": "channel",
+            "title": {
+              "pt": "Escolha o canal",
+              "en": "Choose a channel",
+              "es": "Elija un canal"
+            },
+            "body": {
+              "pt": "Selecione o canal desejado na tela do receptor. A grade deste rascunho ainda precisa de confirmação operacional antes de ser publicada.",
+              "en": "Select the desired channel on the receiver screen. This draft lineup still requires operational confirmation before publication.",
+              "es": "Seleccione el canal deseado en la pantalla del receptor. La programación de este borrador requiere confirmación operativa antes de publicarse."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "Controle do receptor NET fotografado no manual do hotel",
+              "en": "NET receiver remote photographed in the hotel manual",
+              "es": "Control del receptor NET fotografiado en el manual del hotel"
+            }
+          }
+        ],
+        "channels": [
+          {
+            "number": "1",
+            "name": "NOW",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "2",
+            "name": "Canal 2",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "3",
+            "name": "TV Câmara",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "4",
+            "name": "TV Brasil",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "5",
+            "name": "Canal GOV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "6",
+            "name": "TV Justiça",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "7",
+            "name": "Assembleia Legislativa",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "8",
+            "name": "Canal Educação",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "9",
+            "name": "Canal Comunitário",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "10",
+            "name": "TV Senado",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "11",
+            "name": "Canal Universitário",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "12",
+            "name": "TV Pai Eterno",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "13",
+            "name": "Rede Brasil",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "14",
+            "name": "RIT TV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "15",
+            "name": "CNT",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "16",
+            "name": "Cultura",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "17",
+            "name": "SBT",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "18",
+            "name": "Globo",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "19",
+            "name": "Record",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "20",
+            "name": "Rede TV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "21",
+            "name": "Gazeta",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "22",
+            "name": "Band",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "23",
+            "name": "CBI",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "24",
+            "name": "Rede 21",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "25",
+            "name": "Ideal TV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "26",
+            "name": "Rede Gospel",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "28",
+            "name": "Polishop",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "30",
+            "name": "CANAL DO CLIENTE",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "34",
+            "name": "Futura",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "35",
+            "name": "OFF",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "37",
+            "name": "SporTV 3",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "38",
+            "name": "SporTV 2",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "39",
+            "name": "SporTV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "40",
+            "name": "GloboNews",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "41",
+            "name": "GNT",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "42",
+            "name": "Multishow",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "43",
+            "name": "Globoplay Novelas",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "44",
+            "name": "Modo Viagem",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "50",
+            "name": "E!",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "52",
+            "name": "TLC",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "53",
+            "name": "Arte 1",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "54",
+            "name": "Food Network",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "55",
+            "name": "Discovery Home & Health",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "56",
+            "name": "Curta!",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "58",
+            "name": "Fish TV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "60",
+            "name": "HGTV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "74",
+            "name": "ESPN 5",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "75",
+            "name": "Band Sports",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "77",
+            "name": "CNN Brasil",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "78",
+            "name": "Record News",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "79",
+            "name": "Band News",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "81",
+            "name": "Discovery Channel",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "82",
+            "name": "Animal Planet",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "83",
+            "name": "The History Channel",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "85",
+            "name": "Discovery Science",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "99",
+            "name": "Gloobinho",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "100",
+            "name": "Discovery Kids",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "101",
+            "name": "Gloob",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "103",
+            "name": "Nickelodeon",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "104",
+            "name": "Cartoon Network",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "107",
+            "name": "NICK Jr.",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "108",
+            "name": "Cartoonito",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "113",
+            "name": "DumDum",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "120",
+            "name": "BIS",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "121",
+            "name": "MTV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "122",
+            "name": "Play TV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "123",
+            "name": "Music Box Brazil",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "132",
+            "name": "Warner Channel",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "135",
+            "name": "AXN",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "136",
+            "name": "TNT Novelas",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "137",
+            "name": "Comedy Central",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "138",
+            "name": "A&E",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "139",
+            "name": "ID",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "140",
+            "name": "USA",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "141",
+            "name": "Lifetime",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "145",
+            "name": "AMC",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "148",
+            "name": "Film&Arts",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "150",
+            "name": "Canal Brasil",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "151",
+            "name": "TNT",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "152",
+            "name": "Megapix",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "154",
+            "name": "Space",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "155",
+            "name": "Cinemax",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "156",
+            "name": "Prime Box Brazil",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "157",
+            "name": "Studio Universal",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "179",
+            "name": "HBO Xtreme",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "183",
+            "name": "Terra Viva",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "184",
+            "name": "TV Novo Tempo",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "185",
+            "name": "Canal Rural",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "188",
+            "name": "SBN",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "189",
+            "name": "Agro Mais",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "190",
+            "name": "Canal do Boi",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "193",
+            "name": "Rede Vida",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "194",
+            "name": "TV Canção Nova",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "195",
+            "name": "TV Aparecida",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "196",
+            "name": "Boa Vontade TV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "197",
+            "name": "Canal do Criador",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "199",
+            "name": "CGTN",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "200",
+            "name": "CNN",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "201",
+            "name": "Bloomberg TV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "202",
+            "name": "BBC World News",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "203",
+            "name": "RAI International",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "204",
+            "name": "TV5 Monde",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "205",
+            "name": "TVE International",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "206",
+            "name": "DW-TV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "207",
+            "name": "NHK World Premium",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "250",
+            "name": "Canal de Vendas Net",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "253",
+            "name": "Jogos Interativos Cartoon",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "301",
+            "name": "Claro Música",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "501",
+            "name": "Globo HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "505",
+            "name": "Band HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "508",
+            "name": "Rede TV HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "509",
+            "name": "SBT HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "515",
+            "name": "CNT HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "516",
+            "name": "Cultura HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "519",
+            "name": "Record HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "521",
+            "name": "Gazeta HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "523",
+            "name": "CBI TV HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "525",
+            "name": "Ideal TV HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "526",
+            "name": "Rede Gospel HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "528",
+            "name": "Polishop TV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "530",
+            "name": "Like HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "531",
+            "name": "TV Brasil HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "532",
+            "name": "Claro Recomenda",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "534",
+            "name": "Futura HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "535",
+            "name": "OFF HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "537",
+            "name": "SporTV 3 HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "538",
+            "name": "SporTV 2 HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "539",
+            "name": "SporTV HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "540",
+            "name": "GloboNews HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "541",
+            "name": "GNT HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "542",
+            "name": "Multishow HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "543",
+            "name": "Globoplay Novelas HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "544",
+            "name": "Modo Viagem HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "545",
+            "name": "Travel Food & Drinks HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "547",
+            "name": "BM&C HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "548",
+            "name": "LM&C HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "549",
+            "name": "UOL TV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "550",
+            "name": "E! HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "551",
+            "name": "Fashion TV HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "552",
+            "name": "TLC HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "553",
+            "name": "Arte 1 HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "554",
+            "name": "Food Network HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "555",
+            "name": "Discovery Home & Health HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "556",
+            "name": "Curta! HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "557",
+            "name": "Travel Box Brasil HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "558",
+            "name": "FISH TV HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "559",
+            "name": "DogTV HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "560",
+            "name": "HGTV HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "562",
+            "name": "TIMES | EXCLUSIVO CNBC",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "563",
+            "name": "CNN Brasil Monney",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "564",
+            "name": "TBC - Trip Brasil Channel HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "565",
+            "name": "Woohoo HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "566",
+            "name": "Nsports HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "567",
+            "name": "Nosso Futebol HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "569",
+            "name": "ESPN 6 HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "576",
+            "name": "JP News HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "577",
+            "name": "CNN Brasil HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "578",
+            "name": "Record News HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "579",
+            "name": "Band News HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "581",
+            "name": "Discovery HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "582",
+            "name": "Animal Planet HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "583",
+            "name": "History HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "584",
+            "name": "Discovery Turbo HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "585",
+            "name": "Discovery Science HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "599",
+            "name": "Gloobinho HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "600",
+            "name": "Discovery Kids HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "601",
+            "name": "Gloob HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "603",
+            "name": "Nickelodeon HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "604",
+            "name": "Cartoon Network HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "607",
+            "name": "Nick Jr HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "608",
+            "name": "Cartoonito HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "609",
+            "name": "TV Rá Tim Bum HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "613",
+            "name": "DumDum HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "620",
+            "name": "BIS HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "621",
+            "name": "MTV HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "622",
+            "name": "Play TV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "623",
+            "name": "Music Box Brazil HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "624",
+            "name": "Trace Brazuca HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "628",
+            "name": "MTV Live HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "632",
+            "name": "Warner Channel HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "635",
+            "name": "AXN HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "636",
+            "name": "TNT Novelas HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "637",
+            "name": "Comedy Central HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "638",
+            "name": "A&E HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "639",
+            "name": "ID HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "640",
+            "name": "USA HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "641",
+            "name": "Lifetime HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "643",
+            "name": "TNT Séries HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "647",
+            "name": "Eurochannel HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "648",
+            "name": "Film&Arts HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "650",
+            "name": "Canal Brasil HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "651",
+            "name": "TNT HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "652",
+            "name": "Megapix HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "654",
+            "name": "Space HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "655",
+            "name": "Cinemax HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "656",
+            "name": "Prime Box Brazil HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "657",
+            "name": "Studio Universal HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "678",
+            "name": "HBO MUNDI HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "679",
+            "name": "HBO XTREME HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "680",
+            "name": "Netflix",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "application"
+          },
+          {
+            "number": "682",
+            "name": "C3 - TV",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "683",
+            "name": "Terra Viva HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "684",
+            "name": "TV Novo Tempo HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "685",
+            "name": "Canal Rural HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "688",
+            "name": "SBN",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "689",
+            "name": "Agro Mais HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "690",
+            "name": "Canal do Boi HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "692",
+            "name": "Markket HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "693",
+            "name": "Rede Vida HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "694",
+            "name": "Canção Nova HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "695",
+            "name": "TV Aparecida (espelho)",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "696",
+            "name": "LBV (Espelho)",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "697",
+            "name": "Canal do Criador",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "699",
+            "name": "CGTN HD",
+            "quality": "HD",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "700",
+            "name": "CNN International (Espelho)",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "701",
+            "name": "Bloomberg TV (Espelho)",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "702",
+            "name": "BBC World News (Espelho)",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "703",
+            "name": "RAI International",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "704",
+            "name": "TV5 Monde",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "705",
+            "name": "TVE International",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "707",
+            "name": "NHK World Premium",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          },
+          {
+            "number": "710",
+            "name": "France 24",
+            "quality": "unspecified",
+            "category": null,
+            "kind": "review"
+          }
+        ],
+        "source": {
+          "url": null,
+          "sha256": "5d6535e3cce4d5b26e293dcac214bb0ecb7fc16f029ba49082d0033f003c6766"
+        },
+        "manual_url": null
+      },
+      "images": {
+        "power": "smart-remote",
+        "input": "smart-remote",
+        "receiver": "net-remote",
+        "mosaic": "net-remote",
+        "channel": "net-remote"
+      }
+    },
+    {
+      "key": "bugan-room-guide-shower",
+      "title": {
+        "pt": "Como usar o chuveiro",
+        "en": "How to use the shower",
+        "es": "Cómo usar la ducha"
+      },
+      "content": {
+        "pt": "Guia do quarto em preparação editorial. Consulte as instruções revisadas pelo hotel e confirme a aplicabilidade ao equipamento da sua acomodação.",
+        "en": "Room guide under editorial preparation. Read the instructions reviewed by the hotel and confirm that they apply to the equipment in your accommodation.",
+        "es": "Guía de la habitación en preparación editorial. Consulte las instrucciones revisadas por el hotel y confirme que corresponden al equipo de su alojamiento."
+      },
+      "configuration": {
+        "version": 1,
+        "category": "shower",
+        "applicability": {
+          "scope": "unconfirmed",
+          "label": {
+            "pt": "",
+            "en": "",
+            "es": ""
+          },
+          "categories": []
+        },
+        "steps": [
+          {
+            "key": "open",
+            "title": {
+              "pt": "Abra o registro",
+              "en": "Open the shower control",
+              "es": "Abra el mando de la ducha"
+            },
+            "body": {
+              "pt": "O diretório antigo orienta abrir o registro para o lado esquerdo para utilizar água quente. Confirme a correspondência com o equipamento do quarto.",
+              "en": "The former directory instructs guests to turn the shower control to the left for hot water. Confirm that this matches the room equipment.",
+              "es": "El directorio anterior indica girar el mando de la ducha hacia la izquierda para usar agua caliente. Confirme que corresponde al equipo de la habitación."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "",
+              "en": "",
+              "es": ""
+            }
+          },
+          {
+            "key": "wait",
+            "title": {
+              "pt": "Aguarde o aquecimento",
+              "en": "Allow the water to warm up",
+              "es": "Espere a que el agua se caliente"
+            },
+            "body": {
+              "pt": "Aguarde alguns minutos. Se precisar de ajuda, procure a recepção pelos contatos do diretório.",
+              "en": "Allow a few minutes. If you need help, contact reception through the directory.",
+              "es": "Espere unos minutos. Si necesita ayuda, contacte con recepción mediante el directorio."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "",
+              "en": "",
+              "es": ""
+            }
+          }
+        ],
+        "channels": [],
+        "source": {
+          "url": "https://www.descubraobugan.com/guia-quarto",
+          "sha256": null
+        },
+        "manual_url": null
+      },
+      "images": {}
+    },
+    {
+      "key": "bugan-room-guide-air-conditioning",
+      "title": {
+        "pt": "Ar-condicionado: guia de uso",
+        "en": "Air conditioning: user guide",
+        "es": "Aire acondicionado: guía de uso"
+      },
+      "content": {
+        "pt": "Guia do quarto em preparação editorial. Consulte as instruções revisadas pelo hotel e confirme a aplicabilidade ao equipamento da sua acomodação.",
+        "en": "Room guide under editorial preparation. Read the instructions reviewed by the hotel and confirm that they apply to the equipment in your accommodation.",
+        "es": "Guía de la habitación en preparación editorial. Consulte las instrucciones revisadas por el hotel y confirme que corresponden al equipo de su alojamiento."
+      },
+      "configuration": {
+        "version": 1,
+        "category": "air_conditioning",
+        "applicability": {
+          "scope": "unconfirmed",
+          "label": {
+            "pt": "",
+            "en": "",
+            "es": ""
+          },
+          "categories": []
+        },
+        "steps": [
+          {
+            "key": "power",
+            "title": {
+              "pt": "Ligar e desligar",
+              "en": "Switch on and off",
+              "es": "Encender y apagar"
+            },
+            "body": {
+              "pt": "Pressione Power no controle do ar-condicionado, conforme o equipamento confirmado pelo hotel.",
+              "en": "Press Power on the air-conditioning remote, according to the equipment confirmed by the hotel.",
+              "es": "Pulse Power en el control del aire acondicionado, según el equipo confirmado por el hotel."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "",
+              "en": "",
+              "es": ""
+            }
+          },
+          {
+            "key": "temperature",
+            "title": {
+              "pt": "Ajustar a temperatura",
+              "en": "Adjust the temperature",
+              "es": "Ajustar la temperatura"
+            },
+            "body": {
+              "pt": "Use as setas de temperatura para aumentar ou diminuir o ajuste.",
+              "en": "Use the temperature arrows to increase or decrease the setting.",
+              "es": "Use las flechas de temperatura para aumentar o disminuir el ajuste."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "",
+              "en": "",
+              "es": ""
+            }
+          },
+          {
+            "key": "mode",
+            "title": {
+              "pt": "Selecionar o modo",
+              "en": "Select the mode",
+              "es": "Seleccionar el modo"
+            },
+            "body": {
+              "pt": "Pressione Mode e escolha uma opção disponível no equipamento. Os modos efetivamente oferecidos em cada quarto precisam ser confirmados pelo hotel.",
+              "en": "Press Mode and choose an option available on the device. The modes actually offered in each room must be confirmed by the hotel.",
+              "es": "Pulse Mode y elija una opción disponible en el equipo. El hotel debe confirmar los modos que se ofrecen en cada habitación."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "",
+              "en": "",
+              "es": ""
+            }
+          }
+        ],
+        "channels": [],
+        "source": {
+          "url": "https://www.descubraobugan.com/guia-quarto",
+          "sha256": null
+        },
+        "manual_url": null
+      },
+      "images": {}
+    },
+    {
+      "key": "bugan-room-guide-voice-assistant",
+      "title": {
+        "pt": "Alexa: suítes compatíveis",
+        "en": "Alexa: compatible suites",
+        "es": "Alexa: suites compatibles"
+      },
+      "content": {
+        "pt": "Guia do quarto em preparação editorial. Consulte as instruções revisadas pelo hotel e confirme a aplicabilidade ao equipamento da sua acomodação.",
+        "en": "Room guide under editorial preparation. Read the instructions reviewed by the hotel and confirm that they apply to the equipment in your accommodation.",
+        "es": "Guía de la habitación en preparación editorial. Consulte las instrucciones revisadas por el hotel y confirme que corresponden al equipo de su alojamiento."
+      },
+      "configuration": {
+        "version": 1,
+        "category": "voice_assistant",
+        "applicability": {
+          "scope": "unconfirmed",
+          "label": {
+            "pt": "",
+            "en": "",
+            "es": ""
+          },
+          "categories": []
+        },
+        "steps": [
+          {
+            "key": "compatible",
+            "title": {
+              "pt": "Confira a compatibilidade",
+              "en": "Check compatibility",
+              "es": "Compruebe la compatibilidad"
+            },
+            "body": {
+              "pt": "Este roteiro é destinado somente a suítes com o assistente e a automação compatíveis. A disponibilidade por categoria ainda precisa de confirmação.",
+              "en": "These instructions apply only to suites with a compatible assistant and automation setup. Availability by accommodation category still requires confirmation.",
+              "es": "Estas instrucciones se aplican solo a suites con asistente y automatización compatibles. La disponibilidad por categoría de alojamiento requiere confirmación."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "",
+              "en": "",
+              "es": ""
+            }
+          },
+          {
+            "key": "voice",
+            "title": {
+              "pt": "Use um comando habilitado",
+              "en": "Use an enabled command",
+              "es": "Use un comando habilitado"
+            },
+            "body": {
+              "pt": "Diga Alexa e um comando configurado para a suíte. O roteiro original inclui o exemplo Alexa ligar ar condicionado; confirme o idioma e os comandos disponíveis antes de usar.",
+              "en": "Say Alexa and a command configured for the suite. The original instructions include the example Alexa ligar ar condicionado; confirm the configured language and available commands before use.",
+              "es": "Diga Alexa y un comando configurado para la suite. Las instrucciones originales incluyen el ejemplo Alexa ligar ar condicionado; confirme el idioma configurado y los comandos disponibles antes de usarlo."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "",
+              "en": "",
+              "es": ""
+            }
+          },
+          {
+            "key": "help",
+            "title": {
+              "pt": "Peça ajuda à recepção",
+              "en": "Ask reception for help",
+              "es": "Solicite ayuda a recepción"
+            },
+            "body": {
+              "pt": "Se o equipamento não responder, procure a recepção pelos contatos do diretório. O LibGuest apresenta orientações e não controla os equipamentos.",
+              "en": "If the device does not respond, contact reception through the directory. LibGuest provides instructions and does not control the equipment.",
+              "es": "Si el equipo no responde, contacte con recepción mediante el directorio. LibGuest ofrece instrucciones y no controla los equipos."
+            },
+            "image_path": null,
+            "alt": {
+              "pt": "",
+              "en": "",
+              "es": ""
+            }
+          }
+        ],
+        "channels": [],
+        "source": {
+          "url": "https://www.descubraobugan.com/guia-alexa",
+          "sha256": null
+        },
+        "manual_url": null
+      },
+      "images": {}
+    }
+  ],
+  "reviewRequired": [
+    "Current channel lineup",
+    "Equipment and HDMI per room",
+    "Accommodation categories compatible with Alexa",
+    "Technical PT/EN/ES review"
+  ],
+  "publication": false,
+  "legacySources": [
+    {
+      "url": "https://www.descubraobugan.com/guia-tv",
+      "capturedOn": "2026-10-30",
+      "sha256": "3e81673f870fc81909a426abe7ad80d47461b67827bb2042573adfe4f870e2f1",
+      "status": "historical source; operational review pending"
+    },
+    {
+      "url": "https://www.descubraobugan.com/guia-quarto",
+      "capturedOn": "2026-10-30",
+      "sha256": "285eabae9dc271f339a80d6c1171dd24b15ca531335cd407ba2131134e4105cb",
+      "status": "historical source; operational review pending"
+    },
+    {
+      "url": "https://www.descubraobugan.com/guia-alexa",
+      "capturedOn": "2026-10-30",
+      "sha256": "542b554e47f460923d4b6049373afdf53071e09469186bb372720fc5111b663a",
+      "status": "historical source; operational review pending"
+    }
+  ]
+}

@@ -11,6 +11,7 @@ export const client={auth:{getUser:async()=>({data:{user:state.user?{id:'admin'}
  if(name==='get_current_hotel_modules')return {data:state.modules.map(module_key=>({module_key,is_enabled:true})),error:null};
  if(name==='is_hotel_module_enabled')return {data:state.modules.includes(args.p_module_key),error:null};
  if(name==='get_current_hotel_experience_layout')return {data:[],error:null};
+ if(name==='get_current_hotel_published_service_guides')return {data:[],error:null};
  throw Error('Unexpected RPC '+name);
 },from(table){let filters=[],single=false,limit=Infinity;const q={
  select(){return q;},eq(k,v){filters.push(r=>r[k]===v);state.queries.push({table,k,v});return q;},

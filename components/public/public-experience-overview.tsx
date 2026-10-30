@@ -1,3 +1,6 @@
+import {RoomGuideLinks} from './room-guide-links';
+import {PublicCommunications} from './public-communications';
+import {publicCommunications} from '@/lib/public-communications';
 import {publicEditorialHref} from '@/lib/public-editorial-link';
 import {tourismEditorialHref} from '@/lib/tourism/editorial';
 import {publicExperienceVersion} from '@/lib/public-experience-v4';
@@ -74,18 +77,21 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
   const editorialHref = (url:string|null) => publicEditorialHref({url,hotel,sections,language,domainContext,preferSubdomainRoot});
   const curated = pageData.tourismHomeAvailable ? (presentation?.tourism.cards ?? []).map(card=>({card,href:tourismEditorialHref(card,pageData.tourismPreview??[],hotel.id,route)})).filter(row=>row.href) : [];
   const tourism = pageData.tourismHomeAvailable ? (pageData.tourismPreview ?? []).filter(row => row.hotel_id === hotel.id && row.is_published).slice(0,3) : [];
-  return <main className="hotel-theme-page public-experience-v3 min-h-dvh" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle} data-public-experience={version==='v4'?version:undefined}>
-    <PublicAnalytics hotelSlug={hotel.slug} language={language} />
-    <section className="v3-hero" data-v3-hero>
-      <MediaPicture media={heroForDisplay} legacy={hotel.hero_image_url} hero />
-      <div className="v3-hero-treatment" aria-hidden />
-      <header className="v3-header">
+  const hasAlerts=version==='v4'&&enabled('announcements')&&publicCommunications(hotel.id,announcements,[]).alerts.length>0;
+  const header=(<header className="v3-header">
         <PublicExperienceMenu title={hotel.name} label={t.menu} links={reserve ? [...links, { href: reserve, label: t.reserve }] : links} style={theme.cssVars} />
         <a href={homeHref} className="v3-brand" aria-label={hotel.name}>{hotel.logo_url ? <><Image src={hotel.logo_url} alt={hotel.name} width={220} height={66} unoptimized /><small>{hotel.city}</small></> : <><span>{hotel.name}</span>{hotel.city ? <small>{hotel.city}</small> : null}</>}</a>
         <nav className="v3-desktop-nav" aria-label={copy.navigationLabel}>{links.map(link => <a key={link.href} href={link.href}>{link.label}</a>)}</nav>
         <LanguageSwitcher compact slug={hotel.slug} currentLanguage={language} basePath={domainContext.navigationScope === 'authenticated-preview' ? '/preview' : preferSubdomainRoot ? '/' : undefined} />
         {reserve ? <a className="v3-reserve" href={reserve} target="_blank" rel="noopener noreferrer">{t.reserve}</a> : null}
-      </header>
+      </header>);
+  return <main className="hotel-theme-page public-experience-v3 min-h-dvh" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle} data-public-experience={version==='v4'?version:undefined}>
+    <PublicAnalytics hotelSlug={hotel.slug} language={language} />
+    {hasAlerts?<><div className="v4-header-strip">{header}</div><PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="attention"/></>:null}
+    <section className={hasAlerts?"v3-hero v4-hero-after-alert":"v3-hero"} data-v3-hero>
+      <MediaPicture media={heroForDisplay} legacy={hotel.hero_image_url} hero />
+      <div className="v3-hero-treatment" aria-hidden />
+      {!hasAlerts?header:null}
       <div className="v3-headline">
         {activeRoomContext ? <p className="v3-room-context">{copy.activeRoomAccessLabel(activeRoomContext.roomNumber, activeRoomContext.label)}</p> : null}
         <p className="v3-eyebrow">{t.welcome}</p>
@@ -97,13 +103,16 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
     {version==='v4'?<PublicExperienceMobileTasks pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
     <div className="v3-body">
       {pageData.hasFallbackContent ? <p role="status" className="v3-fallback">{copy.fallbackNotice}</p> : null}
+      {version==='v4'?<PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="offers"/>:null}
       {editorial.length ? <section className="v3-editorials" aria-label={t.hotel}>{editorial.map(row => <article key={row.slot} id={row.slot} className={`v3-editorial v3-editorial-${row.slot}`} data-editorial={row.slot}>
         <MediaPicture media={row} />
         <div className="v3-editorial-copy"><p className="v3-eyebrow">{row.slot === 'restaurant' ? t.dining : row.slot === 'about' ? t.hotel : ''}</p><h2>{row.title}</h2>{row.description ? <p>{row.description}</p> : null}{editorialHref(row.cta_url) && row.cta_label ? <a href={editorialHref(row.cta_url)!} target={editorialHref(row.cta_url)?.startsWith('https://')?'_blank':undefined} rel="noopener noreferrer">{row.cta_label}<ArrowUpRight aria-hidden className="h-4 w-4" /></a> : null}</div>
       </article>)}</section> : null}
-      {enabled('banners') && banners.length ? <PromotionalBannerCarousel banners={banners} language={language} /> : null}
+      {version!=='v4' && enabled('banners') && banners.length ? <PromotionalBannerCarousel banners={banners} language={language} /> : null}
       {presentation?.benefits.length ? <section className="v3-amenities" aria-label={copy.editorialServicesTitle}>{presentation.benefits.map((b,i)=>{const Icon=benefitIcons[b.icon];return <div key={i}><Icon aria-hidden/><span>{editorialText(b.label,language)}</span></div>;})}</section> : enabled('services') && sections.length ? <nav className="v3-amenities" aria-label={copy.editorialServicesTitle}>{sections.slice(0, 4).map(row => <a key={row.id} href={buildPublicHotelServiceHref({ ...route, serviceId: row.id })}><ServiceIcon iconName={row.icon} className="h-7 w-7" /><span>{row.title}</span></a>)}</nav> : null}
-      {enabled('announcements') && announcements.length ? <section className="v3-announcements"><h2>{copy.editorialAnnouncementsTitle}</h2>{announcements.map(row => <article key={row.id}><h3>{row.title}</h3><p>{row.body}</p></article>)}</section> : null}
+      {version!=='v4' && enabled('announcements') && announcements.length ? <section className="v3-announcements"><h2>{copy.editorialAnnouncementsTitle}</h2>{announcements.map(row => <article key={row.id}><h3>{row.title}</h3><p>{row.body}</p></article>)}</section> : null}
+      {version==='v4'?<PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="updates"/>:null}
+      <RoomGuideLinks data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>
       {curated.length || tourism.length ? <section className="v3-tourism" data-v3-tourism>
         <div className="v3-tourism-intro"><p className="v3-eyebrow">{t.explore} {hotel.city}</p><h2>{curated.length && presentation ? editorialText(presentation.tourism.title,language) : tourismPublicCopy(language).title}</h2><p>{curated.length && presentation ? editorialText(presentation.tourism.description,language) : tourismPublicCopy(language).intro}</p></div>
         <div className="v3-tourism-cards">{curated.length ? curated.map(({card,href},i)=><a key={i} href={href!}>

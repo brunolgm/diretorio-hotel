@@ -1,0 +1,254 @@
+/* Optional V4 data only; legacy layouts and empty production states remain unchanged. */
+.v4-header-strip .v3-header {
+  position: relative;
+  inset: auto;
+}
+.v4-attention {
+  padding: 12px clamp(16px, 4vw, 64px);
+  background: var(--hotel-surface);
+  color: var(--hotel-text);
+  border-block: 1px solid var(--hotel-border);
+}
+.v4-attention article {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-inline-start: 4px solid var(--hotel-accent);
+}
+.v4-attention article > svg {
+  flex-shrink: 0;
+  color: var(--hotel-accent);
+  width: 24px;
+  height: 24px;
+}
+.v4-attention h2,
+.v4-communications h2 {
+  font-size: 20px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+.v4-communications {
+  margin: 28px 0;
+  color: var(--hotel-text);
+}
+.v4-communication-category {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 650;
+  margin-bottom: 6px;
+  color: var(--hotel-text-muted);
+}
+.v4-communication-category svg {
+  width: 16px;
+  height: 16px;
+}
+.v4-communication-summary {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.6;
+}
+.v4-offer-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+.v4-offer-cards article {
+  min-width: 0;
+  border: 1px solid var(--hotel-border);
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--hotel-surface);
+}
+.v4-offer-cards article > div {
+  padding: 18px;
+}
+.v4-offer-image {
+  width: 100%;
+  height: auto;
+  max-height: 240px;
+  object-fit: contain;
+  background: var(--hotel-surface-muted);
+}
+.v4-offer-cards h3,
+.v4-update-list h3 {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.v4-communications a,
+.v4-attention a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--hotel-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.v4-communications a svg,
+.v4-attention a svg {
+  width: 18px;
+  height: 18px;
+}
+.v4-communication-period,
+.v4-update-list time {
+  display: block;
+  font-size: 12px;
+  color: var(--hotel-text-muted);
+  margin-top: 8px;
+}
+.v4-update-list {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0;
+}
+.v4-update-list article {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--hotel-border);
+  border-radius: 14px;
+  background: var(--hotel-surface);
+}
+.v4-update-list article > svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: var(--hotel-accent);
+}
+.v4-saved-flight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin: 16px 0;
+  border: 1px solid var(--hotel-border);
+  border-radius: 16px;
+  background: var(--hotel-surface);
+  color: var(--hotel-text);
+}
+.v4-saved-flight > div:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.v4-saved-flight h2 {
+  font-size: 19px;
+  font-weight: 650;
+}
+.v4-saved-flight p,
+.v4-saved-flight small {
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.v4-saved-flight small {
+  color: var(--hotel-text-muted);
+}
+.v4-saved-flight > a {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  min-height: 44px;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--hotel-primary);
+}
+.v4-saved-flight > a svg {
+  width: 18px;
+  height: 18px;
+}
+@media (min-width: 768px) {
+  [data-public-v4-mobile] {
+    display: contents;
+  }
+  [data-public-v4-mobile] > .public-v4-essentials,
+  [data-public-v4-mobile] > .public-v4-tasks {
+    display: none;
+  }
+  [data-public-v4-mobile] > .v4-saved-flight {
+    max-width: 1180px;
+    width: calc(100% - 48px);
+    margin: 20px auto;
+  }
+}
+@media (max-width: 767px) {
+  .v4-offer-cards {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding-bottom: 12px;
+    scroll-padding-inline: 0;
+  }
+  .v4-offer-cards article {
+    flex: 0 0 86%;
+    scroll-snap-align: start;
+  }
+  .v4-saved-flight {
+    flex-wrap: wrap;
+  }
+  .v4-saved-flight > a {
+    margin-left: auto;
+  }
+  .v4-header-strip .v3-header {
+    border-radius: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v4-offer-cards {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .public-experience-v3 .v4-header-strip .v3-header {
+    gap: 10px;
+    padding-inline: 18px;
+  }
+}
+.public-experience-v3
+  .v4-hero-after-alert
+  :is(.v3-hero-picture, .v3-hero-treatment) {
+  top: 0;
+}
+.v4-offer-cards {
+  align-items: start;
+}
+.public-experience-v3 [data-v4-updates],
+.public-experience-v3 .room-guide-links {
+  clear: both;
+}
+@media (min-width: 768px) {
+  .v4-attention {
+    padding-block: 6px;
+  }
+  .v4-attention article {
+    padding-block: 4px;
+  }
+  .v4-attention article > div {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    width: 100%;
+  }
+  .v4-attention .v4-communication-category {
+    margin: 0;
+  }
+  .v4-attention h2 {
+    font-size: 15px;
+  }
+  .v4-attention .v4-communication-summary {
+    flex: 1;
+    min-width: 200px;
+    font-size: 13px;
+    -webkit-line-clamp: 2;
+  }
+  .v4-attention a {
+    font-size: 13px;
+  }
+}

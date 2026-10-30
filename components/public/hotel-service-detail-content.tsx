@@ -1,3 +1,5 @@
+import {RoomGuideContent} from './room-guide-content';
+import type {RoomGuide} from '@/lib/room-guides';
 import { PublicAreaHero } from '@/components/public/public-area-hero';
 import { PublicBottomDock } from '@/components/public/public-bottom-dock';
 import { ArrowLeft, CheckCircle2, Hotel, MapPin, Sparkles } from 'lucide-react';
@@ -40,6 +42,7 @@ export function HotelServiceDetailContent({
   roomRestaurantState,
   roomNumber,
   experienceVersion,
+  roomGuide,
 }: {
   hotel: PublicHotel;
   section: PublicHotelSection;
@@ -50,6 +53,7 @@ export function HotelServiceDetailContent({
   roomRestaurantState?: RoomRestaurantState | null;
   roomNumber?: string | null;
   experienceVersion?:'v3'|'v4';
+  roomGuide?:RoomGuide|null;
 }) {
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
@@ -218,6 +222,7 @@ export function HotelServiceDetailContent({
           </section>
         ) : null}
 
+        {roomGuide?<RoomGuideContent guide={roomGuide} language={language} helpHref={buildPublicHotelAreaHref({slug:hotel.slug,area:'contato',language,domainContext,preferSubdomainRoot:useSubdomainRoot})}/>:null}
         <section className="public-service-full-content hotel-theme-surface mt-8 rounded-[var(--hotel-banner-radius)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] ring-1 ring-[color:var(--hotel-border)] md:p-8">
           <div className="max-w-3xl">
             <p className="hotel-theme-muted text-xs font-medium uppercase tracking-[0.18em]">
