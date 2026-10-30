@@ -1,4 +1,7 @@
 'use server';
+import {recordAdminAuditEvent} from '@/lib/audit';
+import {setCommunicationStatus} from '@/lib/communications/status';
+
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -197,16 +200,12 @@ export async function toggleAnnouncementAction(formData: FormData) {
     );
   }
 
-  const { data: updatedAnnouncement, error } = await supabase
-    .from('hotel_announcements')
-    .update({
-      is_active: isActive,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', id)
-    .eq('hotel_id', hotel.id)
-    .select('id')
-    .maybeSingle();
+  let error: unknown = null;
+  let updatedAnnouncement = null;
+  try {
+    const result = await setCommunicationStatus(supabase,{kind:"announcement",id,isActive},recordAdminAuditEvent);
+    updatedAnnouncement = {id:result.id};
+  } catch (failure) { error = failure; }
 
   if (error || !updatedAnnouncement) {
     logOperationalError({
