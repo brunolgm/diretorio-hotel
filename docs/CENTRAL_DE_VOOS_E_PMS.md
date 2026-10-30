@@ -476,3 +476,27 @@ Regressão reproduzível: `tests/browser/tourism-v4.mjs --communications`, além
 retorno, expiry, idioma e isolamento sem chamadas reais de provider. Capturas e
 relatório ficam em `out/tourism-v4/`; testes locais não equivalem à aprovação humana
 de produção.
+
+## Diagnóstico AD2891 REC–VCP — 30/10/2026
+
+Leitura do cache privado preservado: schedules consultado às 15:17:46–47 UTC
+(12:17 Recife), ocorrência AD2891 em 30/10, REC→VCP, programado 13:00 Recife
+(16:00 UTC), chegada 16:10 local; status scheduled. Estimado/realizado, terminal,
+portão e timestamp de atualização da fonte nulos na projeção normalizada.
+Cache live separado: not_found às 15:17:47 UTC; portanto a UI não possui evidência
+AirLabs de embarque próximo. AZU→AD já está normalizado no contrato; nenhuma
+falha de identificação demonstrada. A consulta estava dentro da janela live
+elegível. O normalizador preserva dep_terminal/dep_gate válidos; a projeção/cache
+também. Payload bruto não é retido por contrato: não se afirma auditoria de um
+raw payload histórico inexistente. Fixture de campos válidos deve provar a cadeia.
+
+Aena informou manualmente EMBARQUE PRÓXIMO/T1/09, segundo o usuário; isso é outra
+fonte, não retorno AirLabs. Não houve scraping, integração Aena nem nova consulta
+aérea nesta auditoria. Cache schedules tinha fresh_until 15:32:47 UTC; live negativo
+até 15:27:47 UTC. São timestamps históricos, não garantia de atualidade posterior.
+Orçamento lido às 15:54 UTC: período operacional 29/10 23:17 a 28/11 23:17 UTC,
+teto 883, 15 reservas; histórico 17/900 intacto. Não foi alterado nem renovado.
+A documentação do fornecedor distingue schedules de live ADS-B e informa cobertura
+por voo: https://airlabs.co/docs/schedules e https://airlabs.co/docs/flights .
+Não converter active de schedules em Em voo, nem inferir atraso/cancelamento/
+embarque a partir do relógio ou de not_found. Home só reutiliza cadastro manual v1.

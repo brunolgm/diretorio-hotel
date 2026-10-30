@@ -2775,3 +2775,24 @@ preview privado, gestão e apresentação dos guias. [IMPLEMENTADO, MAS NÃO VAL
 homologação visual humana final e conteúdo operacional dos quatro guias.
 [PLANEJADO] Gastronomia premium na Sprint 53 F&B. Publicação técnica do código
 não altera estes estados nem equivale a GO operacional dos guias.
+
+#### Hotfix premium — retirada auditada dos testes (30/10/2026)
+
+Checkpoint ce41cfa, Bugan active. Auditoria identificou exatamente um banner TESTE
+e quatro comunicados TESTE MANUTENÇÃO/2/3/4, ativos, sem vigência. IDs e snapshots
+em docs/bootstrap/bugan-test-communications-20261030.json. Nenhum DELETE permitido.
+O executor scripts/retire-bugan-test-communications.ps1 usa senha somente no prompt
+oculto e sessão normal; valida todos os registros antes da primeira escrita,
+interrompe em divergências, confere RLS/revisão/readback e auditoria, sem retries.
+A retirada real permanece NÃO CONFIRMADA até execução pelo administrador.
+
+Admin e endpoint autenticado compartilham setCommunicationStatus: getUser, profile
+ativo, tenant da sessão, role, lifecycle não arquivado, entitlement com is_enabled
+true via get_current_hotel_modules, mutação normal/RLS e CAS de updated_at.
+O endpoint permite somente desativação, exige administrador e rejeita hotel_id,
+ativação, origem externa e campos extras. Audit writer canônico roda no servidor
+após autorização e mutação; seu privilégio não autoriza escrita editorial.
+Falha de auditoria/resposta ambígua não é declarada sucesso e não gera compensação
+destrutiva. Sem migration, grant ou bypass de RLS. Mocks, plano e 512 testes de
+segurança aprovados; TypeScript/build OK; lint quatro warnings históricos.
+Diagnóstico AD2891 e limite de evidência documentados em CENTRAL_DE_VOOS_E_PMS.md.

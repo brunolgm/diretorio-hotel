@@ -1,4 +1,6 @@
 'use server';
+import {setCommunicationStatus} from '@/lib/communications/status';
+
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -254,16 +256,12 @@ export async function togglePromotionalBannerAction(formData: FormData) {
     );
   }
 
-  const { data: updatedBanner, error } = await supabase
-    .from('hotel_promotional_banners')
-    .update({
-      is_active: isActive,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', id)
-    .eq('hotel_id', hotel.id)
-    .select('id')
-    .maybeSingle();
+  let error: unknown = null;
+  let updatedBanner = null;
+  try {
+    const result = await setCommunicationStatus(supabase,{kind:"banner",id,isActive},recordAdminAuditEvent);
+    updatedBanner = {id:result.id};
+  } catch (failure) { error = failure; }
 
   if (error || !updatedBanner) {
     logOperationalError({
