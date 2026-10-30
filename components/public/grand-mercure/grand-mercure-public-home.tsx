@@ -1,3 +1,4 @@
+import {PublicCommunications} from '@/components/public/public-communications';
 import {publicExperienceVersion} from '@/lib/public-experience-v4';
 import {PublicExperienceMobileTasks} from '@/components/public/public-experience-mobile-tasks';
 import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
@@ -85,7 +86,7 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
         <ChevronDown className="mt-auto h-4 w-4 text-[#b18134] transition group-hover:translate-y-0.5" strokeWidth={1.7} />
       </a>; })}
     </section> : null;
-  const highlights = showHighlights ? <section className={`grand-mercure-banner-zone mt-5 px-3 md:mt-8 md:px-8 lg:px-14 ${showRioCopacabanaEditorial ? 'grand-mercure-carioca-featured-banner' : ''}`}><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></section> : null;
+  const highlights = version==='v4'?<><PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="offers"/><PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="updates"/></> : showHighlights ? <section className={`grand-mercure-banner-zone mt-5 px-3 md:mt-8 md:px-8 lg:px-14 ${showRioCopacabanaEditorial ? 'grand-mercure-carioca-featured-banner' : ''}`}><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></section> : null;
   const flightCard = flightHomeCard ? <PublicFlightHomeCard card={flightHomeCard} hotelId={hotel.id} hotelSlug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} variant="grand-mercure" /> : null;
   const supportStrip = enabled('contact') ? <section className="grand-mercure-help-zone grand-mercure-last-content relative mx-3 mt-5 flex min-h-[82px] items-center gap-3 rounded-[20px] border border-[#dfd2c0] bg-[#fffdf9] py-4 pr-16 pl-4 shadow-[0_12px_30px_-24px_rgba(56,45,29,.42)] md:mx-8 md:mt-7 md:min-h-[96px] md:px-7 lg:mx-14">
       <CircleHelp className="h-7 w-7 shrink-0 text-[#b38234]" strokeWidth={1.4} />
@@ -99,6 +100,7 @@ export function GrandMercurePublicHome({ pageData, language, domainContext, pref
     <PublicAnalytics hotelSlug={hotel.slug} language={language} />
     <GrandMercureGlobalMandala />
     <div className="grand-mercure-scroll-region mx-auto max-w-[1280px] md:px-6 md:py-7">
+      {version==='v4'?<PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="attention"/>:null}
       {hero}
       {version==='v4'?<PublicExperienceMobileTasks pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
       {cardGridSection}

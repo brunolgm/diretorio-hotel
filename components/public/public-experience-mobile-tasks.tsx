@@ -1,3 +1,5 @@
+import {HomeSavedFlight} from './home-saved-flight';
+import {buildPublicHotelFlightCenterHref} from '@/lib/public-routes';
 import type { CSSProperties } from 'react';
 import { Wifi, Coffee, Clock3, ChevronDown, ChevronRight, ConciergeBell, Utensils, Plane, MessageCircle } from 'lucide-react';
 import {getPublicCopy} from '@/lib/public-copy';
@@ -19,6 +21,7 @@ export function PublicExperienceMobileTasks({pageData,language,domainContext,pre
     {model.checkin||model.checkout?<div className="public-v4-stay-hours"><h3><Clock3 aria-hidden/>{copy.universalStayHours}</h3><dl>{model.checkin?<div><dt>{copy.checkIn}</dt><dd>{model.checkin}</dd></div>:null}{model.checkout?<div><dt>{copy.checkOut}</dt><dd>{model.checkout}</dd></div>:null}</dl></div>:null}
    </div>
   </section>:null}
+  {pageData.flightHomeCard&&domainContext.navigationScope!=='authenticated-preview'?<HomeSavedFlight hotelId={pageData.hotel.id} href={buildPublicHotelFlightCenterHref({slug:pageData.hotel.slug,language,domainContext,preferSubdomainRoot})} language={language}/>:null}
   {model.actions.length?<section aria-label={copy.universalTasksTitle} className="public-v4-tasks"><h2>{copy.universalTasksTitle}</h2><nav aria-label={copy.universalTasksTitle}>{model.actions.map(action=>{const item=actions[action.key],Icon=item.icon;return <a key={action.key} href={action.href} data-v4-action={action.key}><Icon aria-hidden/><span>{item.label}</span><ChevronRight aria-hidden className="public-v4-action-arrow"/></a>;})}</nav></section>:null}
  </div>;
 }

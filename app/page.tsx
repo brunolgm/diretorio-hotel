@@ -301,7 +301,7 @@ export default async function Home({ searchParams }: HomePageProps) {
         hotel={pageData.hotel}
         banners={pageData.banners}
         announcements={pageData.announcements}
-        sections={pageData.sections}
+        sections={pageData.sections} serviceGuides={pageData.serviceGuides}
         departments={pageData.departments}
         policies={pageData.policies}
         layout={pageData.layout}

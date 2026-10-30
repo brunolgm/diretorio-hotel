@@ -49,7 +49,7 @@ export default async function HotelPublicPage({ params, searchParams }: PageProp
       hotel={renderHotel}
       banners={pageData.banners}
       announcements={pageData.announcements}
-      sections={pageData.sections}
+      sections={pageData.sections} serviceGuides={pageData.serviceGuides}
       departments={pageData.departments}
       policies={pageData.policies}
       layout={pageData.layout}

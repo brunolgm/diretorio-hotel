@@ -1,3 +1,6 @@
+import {ServiceGuideEditor} from '@/components/admin/service-guide-editor';
+import {saveServiceGuideAction} from './guide-actions';
+import {parseRoomGuide} from '@/lib/room-guides';
 import { FileText, Hash } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { ServiceGuidedFields } from '@/components/admin/service-guided-fields';
@@ -73,6 +76,12 @@ export default async function EditServicePage({ params, searchParams }: PageProp
     throw new Error('Não foi possível carregar as categorias de serviço do hotel.');
   }
 
+  const guideModules=await supabase.rpc('get_current_hotel_modules');
+  if(guideModules.error)throw new Error('Não foi possível validar os módulos do hotel.');
+  const guidesEnabled=guideModules.data?.some(m=>m.module_key==='content.languages'&&m.is_enabled);
+  const guideResult=guidesEnabled?await supabase.rpc('get_current_hotel_service_guide',{p_service_id:section.id}):{data:null,error:null};
+  if(guideResult.error)throw new Error('Não foi possível carregar o guia deste serviço.');
+  const guideRow=guideResult.data?.[0];
   const action = updateSectionAction.bind(null, id);
   const serviceCategoryOptions = buildServiceCategoryOptions(
     (hotelSectionCategories || []).map((item) => item.category)
@@ -213,6 +222,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
           </div>
         </form>
       </AdminSurface>
+      {guidesEnabled&&section.service_action_type!=='room_restaurant_menu'?<ServiceGuideEditor serviceId={section.id} revision={guideRow?.revision??0} initial={parseRoomGuide(guideRow?.draft,hotel.id,section.id)} action={saveServiceGuideAction}/>:null}
     </main>
   );
 }

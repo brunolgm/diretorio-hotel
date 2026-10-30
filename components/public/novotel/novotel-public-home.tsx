@@ -1,3 +1,4 @@
+import {PublicCommunications} from '@/components/public/public-communications';
 import {publicExperienceVersion} from '@/lib/public-experience-v4';
 import {PublicExperienceMobileTasks} from '@/components/public/public-experience-mobile-tasks';
 import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
@@ -72,7 +73,7 @@ export function NovotelPublicHome({ pageData, language, domainContext, preferSub
         <ChevronRight className="h-4 w-4 shrink-0 text-[#003B7A] transition group-hover:translate-x-0.5 md:h-5 md:w-5" aria-hidden="true" />
       </a>; })}
     </section> : null;
-  const highlights = showHighlights ? <section className="mt-5 px-4 md:mt-8 md:px-10"><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></section> : null;
+  const highlights = version==='v4'?<><PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="offers"/><PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="updates"/></> : showHighlights ? <section className="mt-5 px-4 md:mt-8 md:px-10"><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></section> : null;
   const flightCard = flightHomeCard ? <PublicFlightHomeCard card={flightHomeCard} hotelId={hotel.id} hotelSlug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} variant="novotel" /> : null;
   const supportCard = enabled('contact') ? <section className="mx-4 mt-4 rounded-[22px] bg-white p-4 shadow-[0_14px_36px_-24px_rgba(0,43,92,0.3)] ring-1 ring-slate-100 md:mx-10 md:mt-6 md:p-5">
       <div className="flex items-center gap-4">
@@ -85,6 +86,7 @@ export function NovotelPublicHome({ pageData, language, domainContext, preferSub
   return <main className="hotel-theme-page min-h-screen pb-[calc(61px+env(safe-area-inset-bottom)+5rem)] min-[1025px]:pb-12" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle} data-public-experience={version==='v4'?version:undefined}>
     <PublicAnalytics hotelSlug={hotel.slug} language={language} />
     <div className="mx-auto flex max-w-7xl flex-col md:px-6 md:py-8">
+      {version==='v4'?<PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="attention"/>:null}
       {hero}
       {version==='v4'?<PublicExperienceMobileTasks pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
       {cardGridSection}

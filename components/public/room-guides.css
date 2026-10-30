@@ -1,0 +1,140 @@
+.room-guide,
+.room-guide-links {
+  color: var(--hotel-text);
+  background: var(--hotel-surface);
+  border: 1px solid var(--hotel-border);
+  border-radius: 20px;
+  padding: 24px;
+  margin: 24px 0;
+  overflow-wrap: anywhere;
+}
+.room-guide h2,
+.room-guide-links h2 {
+  font-size: 21px;
+  font-weight: 650;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.room-guide-step-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+.room-guide-step-nav li {
+  flex-shrink: 0;
+}
+.room-guide button,
+.room-guide a,
+.room-guide-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--hotel-border);
+  border-radius: 12px;
+  color: var(--hotel-primary);
+}
+.room-guide button[aria-current] {
+  background: var(--hotel-active-bg);
+  font-weight: 650;
+}
+.room-guide button:disabled {
+  opacity: 0.5;
+}
+.room-guide-step {
+  margin-top: 16px;
+}
+.room-guide-step h3 {
+  font-size: 20px;
+  font-weight: 650;
+  margin: 12px 0;
+}
+.room-guide-step > img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 360px;
+  object-fit: contain;
+  margin: 16px auto;
+}
+.room-guide-step > p {
+  line-height: 1.7;
+}
+.room-guide nav,
+.room-guide footer,
+.room-guide-links nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.room-guide footer h2 {
+  flex-basis: 100%;
+}
+.room-guide-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.room-guide-search label {
+  display: grid;
+  gap: 8px;
+  flex: 1 1 180px;
+}
+.room-guide-search svg {
+  width: 20px;
+  height: 20px;
+}
+.room-guide input,
+.room-guide select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 10px;
+  border: 1px solid var(--hotel-border);
+  border-radius: 10px;
+  background: var(--hotel-surface);
+  color: var(--hotel-text);
+}
+.room-guide-channels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+.room-guide-channels li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--hotel-border);
+  border-radius: 10px;
+}
+.room-guide-channels small {
+  margin-left: auto;
+}
+.room-guide-scope {
+  padding: 12px;
+  background: var(--hotel-active-bg);
+  border-radius: 10px;
+}
+.room-guide :is(button, a, input, select, h3):focus-visible {
+  outline: 2px solid var(--hotel-primary);
+  outline-offset: 3px;
+}
+.room-guide svg {
+  width: 20px;
+  height: 20px;
+}
+@media (max-width: 767px) {
+  .room-guide,
+  .room-guide-links {
+    padding: 16px;
+  }
+  .room-guide-channels {
+    grid-template-columns: 1fr;
+  }
+}

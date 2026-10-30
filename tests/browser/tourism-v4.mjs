@@ -19,6 +19,7 @@ writeFileSync(join(output,'style.css'),css.css);
 const source='docs/references/bugan/public-v3/';
 const assetMap=new Map([['/assets/logo.png',source+'bugan-logo-oficial.png'],['/assets/hero.webp',source+'hero-piscina-real.png']]);
 for(const [slot,file] of [['hero','hero-piscina-real.png'],['about','fachada-bugan-real.png'],['restaurant','restaurante-filipe-real.png'],['accommodation','acomodacao-bugan-real.png']])assetMap.set(`/storage/v1/object/public/hotel-assets/5eb7d695-ccf7-4594-b9df-fc46aaa25695/hero/${slot}/52130000-0000-4000-8000-000000000001.webp`,source+file);
+for(const [n,file]of [[1,'lg-smart-tv-remote.webp'],[2,'net-receiver-remote.webp']])assetMap.set('/storage/v1/object/public/hotel-assets/5eb7d695-ccf7-4594-b9df-fc46aaa25695/room-guides/52130000-0000-4000-8000-000000000001/52140000-0000-4000-8000-00000000000'+n+'.webp',source+'tv-manual/'+file);
 const refinement=JSON.parse(readFileSync('docs/bootstrap/bugan-public-v3-refinement-20261028.json','utf8'));
 for(const a of refinement.assets)assetMap.set('/storage/v1/object/public/hotel-assets/'+a.storagePath,a.path);
 const server=createServer((req,res)=>{
@@ -36,7 +37,9 @@ try{
  const origin='http://127.0.0.1:4183';
  const properties=[['bugan','bugan'],['grand-mercure','grand-mercure'],['novotel-leme','deep-ocean'],['novotel-salvador','novotel'],['mercure','mercure'],['default','default']];
  async function ready(){await page.locator('h1').first().waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.ok(!(await page.locator('h1').first().innerText()).includes('404'));}
- if(process.argv.includes('--languages')){const {runPublicLanguageSwitcher}=await import('./public-language-switcher.mjs');rows.push(...await runPublicLanguageSwitcher({page,origin,output}));}
+ if(process.argv.includes('--guides')){const {runRoomGuides}=await import('./room-guides.mjs');rows.push(...await runRoomGuides({page,origin,output}));}
+ else if(process.argv.includes('--communications')){const {runCommunicationsAndFlight}=await import('./public-communications.mjs');rows.push(...await runCommunicationsAndFlight({page,origin,output}));}
+ else if(process.argv.includes('--languages')){const {runPublicLanguageSwitcher}=await import('./public-language-switcher.mjs');rows.push(...await runPublicLanguageSwitcher({page,origin,output}));}
  else if(process.argv.includes('--closure')){
   const {runV4Closure}=await import('./public-v4-closure.mjs');rows.push(...await runV4Closure({page,origin,output}));
  }else for(const [property,theme]of properties)for(const lang of ['pt','en','es'])for(const [width,height]of [[390,844],[430,932],[1440,900]]){
@@ -60,5 +63,5 @@ try{
   await page.goto(origin+'/preview/explorar/voos?lang='+lang);await ready();if(property==='bugan'&&lang==='pt')await page.screenshot({path:join(output,`flights-${width}.png`),fullPage:true});
   await page.goto(home);await ready();rows.push({property,lang,width,passed:true});
  }
- assert.deepEqual(errors,[]);assert.equal(apiRequests,0);writeFileSync(join(output,process.argv.includes('--languages')?'language-report.json':process.argv.includes('--closure')?'closure-report.json':'browser-report.json'),JSON.stringify({scope:'isolated renderer fixtures; not an authenticated production session',rows,errors,apiRequests},null,2));console.log(process.argv.includes('--languages')?`PASS ${rows.length} public language scenarios; zero API calls`:`PASS ${rows.length} V4 internal/Tourism scenarios; four coherent destinations; zero API calls`);
+ assert.deepEqual(errors,[]);assert.equal(apiRequests,0);writeFileSync(join(output,process.argv.includes('--guides')?'guides-report.json':process.argv.includes('--communications')?'communications-report.json':process.argv.includes('--languages')?'language-report.json':process.argv.includes('--closure')?'closure-report.json':'browser-report.json'),JSON.stringify({scope:'isolated renderer fixtures; not an authenticated production session',rows,errors,apiRequests},null,2));console.log(process.argv.includes('--languages')?`PASS ${rows.length} public language scenarios; zero API calls`:`PASS ${rows.length} V4 internal/Tourism scenarios; four coherent destinations; zero API calls`);
 }finally{await browser.close();await new Promise(r=>server.close(r));}

@@ -1,3 +1,4 @@
+import {loadServiceGuideSummaries,loadPublishedServiceGuide,type ServiceGuideSummary} from './room-guides/read.server';
 import {hasTranslationFallback,translatedText} from './translation-fallback';
 import { parsePublicPresentation, type PublicPresentation } from './public-presentation';
 import { loadPublicTourism, publicTourismHomeAvailable } from '@/lib/tourism/public';
@@ -35,6 +36,7 @@ type PublicHotelPromotionalBannerTranslation =
   Database['public']['Tables']['hotel_promotional_banner_translations']['Row'];
 
 export interface PublicHotelPageData {
+  serviceGuides?:ServiceGuideSummary[];
   serviceFallbackIds?: string[];
   presentation?: PublicPresentation | null;
   experienceMedia?: ExperienceMedia[];
@@ -52,6 +54,7 @@ export interface PublicHotelPageData {
 }
 
 export interface PublicHotelServiceDetailData {
+  roomGuide?:import('./room-guides').RoomGuide|null;
   experienceVersion?: 'v3'|'v4';
   hotel: PublicHotel;
   section: PublicHotelSection;
@@ -213,6 +216,7 @@ export async function getPublicHotelPageDataForHotel(
     authenticatedPreview ? supabase.from('hotel_flight_settings').select('home_card_title,home_card_description').eq('hotel_id', hotel.id).eq('home_card_enabled', true) : supabase.rpc('get_public_hotel_flight_home_card', { p_hotel_id: hotel.id }),
   ]);
 
+  if(bannersError||announcementsError)throw new Error('Não foi possível carregar as comunicações do hotel.');
   if (bannersError) {
     console.error('Failed to load hotel promotional banners:', bannersError);
   }
@@ -315,15 +319,7 @@ export async function getPublicHotelPageDataForHotel(
         ]);
 
   if (language !== 'pt') {
-    if (bannerTranslationsResult.error) {
-      console.error('Failed to load banner translations:', bannerTranslationsResult.error);
-    }
-    if (announcementTranslationsResult.error) {
-      console.error(
-        'Failed to load announcement translations:',
-        announcementTranslationsResult.error
-      );
-    }
+    if(bannerTranslationsResult.error||announcementTranslationsResult.error)throw new Error('Não foi possível carregar as traduções das comunicações.');
     if (sectionTranslationsResult.error) {
       console.error('Failed to load section translations:', sectionTranslationsResult.error);
     }
@@ -434,8 +430,10 @@ export async function getPublicHotelPageDataForHotel(
   const mediaTranslations = language === 'pt' || !mediaResult.data?.length ? {data: [],error:null} : await supabase.from('hotel_public_experience_media_translations').select('slot,title,description,alt_text,cta_label').eq('hotel_id',hotel.id).eq('language',language);
   const translatedMedia = new Map((mediaTranslations.error ? [] : mediaTranslations.data ?? []).map(row=>[row.slot,row]));
 
+  const serviceGuides=await loadServiceGuideSummaries(supabase,hotel.id,authenticatedPreview);
   return {
     hotel,
+    serviceGuides,
     serviceFallbackIds,
     presentation: presentationResult.error ? null : parsePublicPresentation(presentationResult.data?.configuration, hotel.id),
     experienceMedia: (mediaResult.error ? [] : mediaResult.data ?? []).filter(row => row.hotel_id === hotel.id && row.is_published).map(row=>localizeExperienceMedia(row,translatedMedia.get(row.slot))),
@@ -499,6 +497,7 @@ async function getPublicHotelServiceDetailDataForHotel(
 
   return {
     hotel,
+    roomGuide:await loadPublishedServiceGuide(supabase,hotel.id,serviceId),
     experienceVersion: parsePublicPresentation(config.data?.configuration,hotel.id)?.experienceVersion??'v3',
     section: {
       ...typedSection,

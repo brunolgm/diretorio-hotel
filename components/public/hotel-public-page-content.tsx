@@ -1,3 +1,4 @@
+import {PublicCommunications} from './public-communications';
 import {publicExperienceVersion} from '@/lib/public-experience-v4';
 import {PublicExperienceMobileTasks} from './public-experience-mobile-tasks';
 import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
@@ -43,7 +44,7 @@ import type {
 } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 import type { ExperienceBlockKey, ExperienceLayoutBlock } from '@/lib/experience-layout';
-import { shouldPreferHotelSubdomainRoot } from '@/lib/public-routes';
+import { buildPublicHotelAreaHref, shouldPreferHotelSubdomainRoot } from '@/lib/public-routes';
 import { getServiceDestination } from '@/lib/service-destinations';
 
 function SectionIcon({
@@ -309,6 +310,7 @@ export function HotelPublicPageContent({
   banners,
   announcements,
   sections,
+  serviceGuides = [],
   departments,
   policies,
   layout,
@@ -327,6 +329,7 @@ export function HotelPublicPageContent({
   banners: PublicHotelPromotionalBanner[];
   announcements: PublicHotelAnnouncement[];
   sections: PublicHotelSection[];
+  serviceGuides?:import('@/lib/room-guides/read.server').ServiceGuideSummary[];
   departments: PublicHotelDepartment[];
   policies: PublicHotelPolicy[];
   layout: ExperienceLayoutBlock[];
@@ -362,6 +365,7 @@ export function HotelPublicPageContent({
     });
   const layoutByKey = new Map(layout.map((block) => [block.blockKey, block]));
   const isBlockVisible = (key: ExperienceBlockKey) => layoutByKey.get(key)?.isEnabled ?? true;
+  const communicationData={hotel,banners,announcements,sections,departments,policies,layout,flightHomeCard,tourismHomeAvailable,presentation,experienceMedia,tourismPreview,hasFallbackContent};
   const highlightsState = getPublicHighlightsState(isBlockVisible('banners'), banners.length);
   const blockStyle = (key: ExperienceBlockKey) => ({ order: layoutByKey.get(key)?.position ?? 99 });
   const hasContact = Boolean(hotel.website_url || hotel.booking_url || whatsappHref);
@@ -371,7 +375,7 @@ export function HotelPublicPageContent({
 
   if (theme.preset === 'bugan') {
     return <PublicExperienceOverview
-      pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, tourismPreview, hasFallbackContent }}
+      pageData={{ hotel, banners, announcements, sections, serviceGuides, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, tourismPreview, hasFallbackContent }}
       language={language} domainContext={domainContext} preferSubdomainRoot={useSubdomainRoot}
       activeRoomContext={activeRoomContext}
     />;
@@ -385,6 +389,7 @@ export function HotelPublicPageContent({
           banners,
           announcements,
           sections,
+          serviceGuides,
           departments,
           policies,
           layout,
@@ -403,7 +408,7 @@ export function HotelPublicPageContent({
   if (isGrandMercureExperience) {
     return (
       <GrandMercurePublicHome
-        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, hasFallbackContent }}
+        pageData={{ hotel, banners, announcements, sections, serviceGuides, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -414,7 +419,7 @@ export function HotelPublicPageContent({
   if (isMercureExperience) {
     return (
       <MercurePublicHome
-        pageData={{ hotel, banners, announcements, sections, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, hasFallbackContent }}
+        pageData={{ hotel, banners, announcements, sections, serviceGuides, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -600,11 +605,11 @@ export function HotelPublicPageContent({
         <PublicTourismHomeCard available={tourismHomeAvailable} slug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={useSubdomainRoot} style={blockStyle('banners')} />
         {highlightsState !== 'hidden' ? (
           <section className="mt-8" style={blockStyle('banners')}>
-            <PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback />
+            {version==='v4'?<PublicCommunications data={communicationData} language={language} announcementsHref={buildPublicHotelAreaHref({slug:hotel.slug,area:'comunicados',language,domainContext,preferSubdomainRoot:useSubdomainRoot})} mode="offers"/>:<PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback />}
           </section>
         ) : null}
 
-        {isBlockVisible('announcements') && announcements.length ? (
+        {version!=='v4' && isBlockVisible('announcements') && announcements.length ? (
           <section className="mt-8" style={blockStyle('announcements')}>
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
@@ -634,6 +639,7 @@ export function HotelPublicPageContent({
           </section>
         ) : null}
 
+        {version==='v4'?<><PublicCommunications data={communicationData} language={language} announcementsHref={buildPublicHotelAreaHref({slug:hotel.slug,area:'comunicados',language,domainContext,preferSubdomainRoot:useSubdomainRoot})} mode="attention"/><PublicCommunications data={communicationData} language={language} announcementsHref={buildPublicHotelAreaHref({slug:hotel.slug,area:'comunicados',language,domainContext,preferSubdomainRoot:useSubdomainRoot})} mode="updates"/></>:null}
         {isBlockVisible('quick_info') ? <section data-legacy-home-essential className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4" style={blockStyle('quick_info')}>
           <QuickInfoCard
             icon={Coffee}

@@ -9,6 +9,7 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      hotel_service_guides:{Row:{service_id:string;hotel_id:string;source_key:string|null;media_paths:string[];draft:Json;published:Json|null;revision:number;published_revision:number|null;published_at:string|null;updated_at:string};Insert:never;Update:never;Relationships:[]};
       hotel_public_presentation: {
         Row: {hotel_id:string;configuration:Json;revision:number};
         Insert:never;Update:never;Relationships:[];
@@ -1138,6 +1139,11 @@ export interface Database {
       };
     };
     Functions: {
+      get_current_hotel_service_guide:{Args:{p_service_id:string};Returns:{hotel_id:string;service_id:string;draft:Json|null;published:Json|null;revision:number}[]};
+      save_current_hotel_service_guide:{Args:{p_service_id:string;p_expected_revision:number;p_configuration:Json;p_publish?:boolean;p_review_confirmed?:boolean};Returns:{revision:number;is_published:boolean}[]};
+      create_current_hotel_room_guide:{Args:{p_source_key:string;p_title:Json;p_content:Json;p_configuration:Json};Returns:{service_id:string;revision:number}[]};
+      get_public_hotel_service_guides:{Args:{p_hotel_id:string;p_service_id?:string};Returns:{service_id:string;configuration:Json;revision:number}[]};
+      get_current_hotel_published_service_guides:{Args:{p_service_id?:string};Returns:{service_id:string;configuration:Json;revision:number}[]};
       save_current_hotel_public_presentation: {Args:{p_expected_revision:number;p_configuration:Json};Returns:number};
       update_current_hotel_experience_media: {
         Args: { p_slot: string; p_expected_revision: number; p_values: Json };

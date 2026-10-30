@@ -455,3 +455,24 @@ Gates do candidato: 6/6 direcionados de URLs/escopo, 485/485 segurança e
 12 jornadas de teclado/navegação, 24 cantos/zoom). TypeScript e build aprovados;
 lint zero erros/quatro warnings históricos; git diff --check limpo. Publicação
 Git com preview READY/smoke antes da integração em main e smoke público.
+## Resumo contextual do voo na Home V4 — 30/10/2026
+
+A Home V4 pode mostrar o voo manual já salvo no armazenamento local v1 do mesmo
+hotel/origem. `HomeSavedFlight` reutiliza os validadores, eventos e expiração de
+12 horas após a partida informada; não cria outra persistência nem muda a Central
+de Voos. SSR retorna vazio e o estado aparece após hidratação, sem mismatch.
+Edição/remoção, retorno por pageshow/foco/visibilidade e timer de expiração
+atualizam o resumo. Não aparece no preview administrativo autenticado.
+
+Mostra número, rota, data/hora informada e CTA canônico com idioma preservado.
+A logo depende da resolução existente; ambiguidade mantém fallback. Não consulta
+AirLabs na Home, não afirma status operacional nem vincula identidade/PMS/roomToken.
+Ausência, registro inválido ou expirado não geram card vazio. Entitlement e
+disponibilidade da Central continuam obrigatórios. Cache, orçamento, leases,
+normalização, endpoints e regras da Sprint 51.1 permanecem inalterados.
+
+Regressão reproduzível: `tests/browser/tourism-v4.mjs --communications`, além de
+`tests/security/guest-flight-storage.test.ts`. O harness cobre save/edit/remove,
+retorno, expiry, idioma e isolamento sem chamadas reais de provider. Capturas e
+relatório ficam em `out/tourism-v4/`; testes locais não equivalem à aprovação humana
+de produção.

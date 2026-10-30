@@ -1,3 +1,4 @@
+import {PublicCommunications} from '@/components/public/public-communications';
 import {publicExperienceVersion} from '@/lib/public-experience-v4';
 import {PublicExperienceMobileTasks} from '@/components/public/public-experience-mobile-tasks';
 import { PublicTourismHomeCard } from '@/components/public/public-tourism-home-card';
@@ -81,7 +82,7 @@ export function MercurePublicHome({ pageData, language, domainContext, preferSub
         <p className="mt-1 max-w-[180px] break-words whitespace-normal text-[11px] leading-[15px] text-[#685d64] max-md:w-full max-md:min-w-0 min-[390px]:text-xs min-[390px]:leading-4 md:mt-2 md:text-sm md:leading-5">{card.description}</p>
       </a>; })}
     </section> : null;
-  const highlights = showHighlights ? <div className="mt-4 px-3 md:mt-7 md:px-10 lg:px-14">{highlightsState === 'content' ? <MercurePromotionalBanner banners={banners} language={language} /> : <div className="[--hotel-accent:var(--mercure-plum-medium)] [--hotel-border:rgba(82,32,79,.14)] [--hotel-surface-muted:linear-gradient(145deg,var(--mercure-warm-white)_0%,var(--mercure-rose)_100%)] [--hotel-text:var(--mercure-plum)] [--hotel-text-muted:var(--mercure-text-muted)]"><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></div>}</div> : null;
+  const highlights = version==='v4'?<><PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="offers"/><PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="updates"/></> : showHighlights ? <div className="mt-4 px-3 md:mt-7 md:px-10 lg:px-14">{highlightsState === 'content' ? <MercurePromotionalBanner banners={banners} language={language} /> : <div className="[--hotel-accent:var(--mercure-plum-medium)] [--hotel-border:rgba(82,32,79,.14)] [--hotel-surface-muted:linear-gradient(145deg,var(--mercure-warm-white)_0%,var(--mercure-rose)_100%)] [--hotel-text:var(--mercure-plum)] [--hotel-text-muted:var(--mercure-text-muted)]"><PromotionalBannerCarousel banners={banners} language={language} showEmptyFallback /></div>}</div> : null;
   const flightCard = flightHomeCard ? <PublicFlightHomeCard card={flightHomeCard} hotelId={hotel.id} hotelSlug={hotel.slug} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} variant="mercure" /> : null;
   const supportCard = enabled('contact') ? <section className="mx-3 mt-4 flex min-h-[84px] items-center gap-3 overflow-visible rounded-[20px] border border-[#52204f]/7 bg-[#fffdfd] p-3.5 shadow-[0_16px_38px_-27px_rgba(61,23,60,.3)] max-md:relative max-md:z-10 max-md:isolate md:mx-10 md:mt-6 md:min-h-[104px] md:gap-5 md:rounded-[26px] md:p-5 lg:mx-14">
       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#71386e] text-white md:h-16 md:w-16"><Headphones className="h-7 w-7 md:h-9 md:w-9" strokeWidth={1.7} aria-hidden="true" /></div>
@@ -93,6 +94,7 @@ export function MercurePublicHome({ pageData, language, domainContext, preferSub
     <PublicAnalytics hotelSlug={hotel.slug} language={language} />
     <div className="mercure-page-floral pointer-events-none fixed inset-0" aria-hidden="true" />
     <div className="relative mx-auto flex max-w-[1240px] flex-col md:px-6 md:py-7">
+      {version==='v4'?<PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="attention"/>:null}
       {hero}
       {version==='v4'?<PublicExperienceMobileTasks pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
       {cardGridSection}

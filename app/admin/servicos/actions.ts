@@ -1,5 +1,8 @@
 'use server';
 
+import {createAdminClient} from '@/lib/supabase/admin';
+import {roomGuideImagePath} from '@/lib/room-guides';
+
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
@@ -122,6 +125,8 @@ export async function deleteSectionAction(formData: FormData) {
     );
   }
 
+  const guideMedia=await supabase.from('hotel_service_guides').select('media_paths').eq('hotel_id',hotel.id).eq('service_id',id).maybeSingle();
+  if(guideMedia.error)redirect(buildFeedbackRedirect('/admin/servicos',{error:'Não foi possível conferir a mídia do guia antes da exclusão.'}));
   const { data: deletedSection, error } = await supabase
     .from('hotel_sections')
     .delete()
@@ -150,11 +155,15 @@ export async function deleteSectionAction(formData: FormData) {
     );
   }
 
+  let mediaWarning:string|undefined;
+  const paths=(guideMedia.data?.media_paths??[]).filter(p=>roomGuideImagePath(p,hotel.id,id));
+  if(paths.length){const result=await createAdminClient().storage.from('hotel-assets').remove(paths);if(result.error)mediaWarning='Serviço excluído. A limpeza de mídia precisa de conferência administrativa.';}
   revalidatePath('/admin/servicos');
   revalidatePath(`/hotel/${hotel.slug}`);
 
   redirect(
     buildFeedbackRedirect('/admin/servicos', {
+      warning:mediaWarning,
       success: 'Serviço excluído com sucesso',
     })
   );
