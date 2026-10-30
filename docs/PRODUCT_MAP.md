@@ -2485,3 +2485,11 @@ slot fixo de 56×56 px. Nenhuma alteração em identidade aeronáutica, AirLabs,
 cache/quota, lifecycle, entitlements ou dados do hotel. Partidas/Chegadas não
 recebem logos decorativos. Procedência, hashes, dimensões, limites e comandos de
 regressão estão na seção de logomarcas de CENTRAL_DE_VOOS_E_PMS.md.
+
+### Idiomas públicos — popup compartilhado fora do header (30/10/2026)
+
+LanguageSwitcher utiliza o portal/posicionador acessível Base UI existente para
+exibir PT/EN/ES sem recorte pelo overflow do hero, mantendo o escopo do tema e
+a navegação nativa. Correção na origem para Home e internas, sem fork de hotel,
+novo pacote, mudança de layout, integração ou dados. Diagnóstico, estratégia e
+regressões constam da seção de seletor em CENTRAL_DE_VOOS_E_PMS.md.
