@@ -1,0 +1,49 @@
+{
+  "scope": "Sanitized retained normalized cache; not a raw provider payload or a current flight status",
+  "query": {
+    "flight_iata": "AD2891",
+    "departureDate": "2026-10-30",
+    "departureAirport": "REC",
+    "arrivalAirport": "VCP",
+    "scheduledDepartureAt": "2026-10-30T13:00:00-03:00"
+  },
+  "timezone": "America/Recife",
+  "schedule": {
+    "fetched_at": "2026-10-30T15:17:47.073661+00:00",
+    "fresh_until": "2026-10-30T15:32:47.073661+00:00",
+    "projection": {
+      "fetchedAt": "2026-10-30T15:17:46.711Z",
+      "updatedAt": null,
+      "airlineCode": "AD",
+      "arrivalGate": null,
+      "flightNumber": "2891",
+      "actualArrival": null,
+      "departureGate": null,
+      "arrivalAirport": "VCP",
+      "delayedMinutes": {
+        "arrival": null,
+        "departure": null
+      },
+      "scheduleStatus": "scheduled",
+      "actualDeparture": null,
+      "arrivalTerminal": null,
+      "departureAirport": "REC",
+      "estimatedArrival": null,
+      "scheduledArrival": {
+        "utc": "2026-10-30T19:10:00.000Z",
+        "local": "2026-10-30T16:10:00"
+      },
+      "departureTerminal": null,
+      "estimatedDeparture": null,
+      "scheduledDeparture": {
+        "utc": "2026-10-30T16:00:00.000Z",
+        "local": "2026-10-30T13:00:00"
+      }
+    }
+  },
+  "live": {
+    "fetched_at": "2026-10-30T15:17:47.847547+00:00",
+    "fresh_until": "2026-10-30T15:27:47.847547+00:00",
+    "error": "not_found"
+  }
+}

@@ -67,3 +67,5 @@ test('authenticated disable API rejects anonymous/cross-origin/extra tenant or a
  assert.equal(constructed,0);assert.deepEqual(l.events,[]);
  const response=await invoke(valid);assert.equal(response.status,200);assert.equal((await response.json()).is_active,false);assert.equal(revalidated,1);assert.deepEqual(l.events,['update','audit']);
 });
+
+test("normal Admin operator toggle stays allowed, while automation requires administrator",async()=>{const item=manifest.records[0].record,l=lab({role:"operador"});await assert.rejects(()=>l.disable({kind:"banner",id:item.id,expected_updated_at:item.updated_at}));assert.deepEqual(l.events,[]);const result=await setCommunicationStatus(l.client as never,{kind:"banner",id:item.id,isActive:false},l.audit);assert.equal(result.is_active,false);assert.deepEqual(l.events,["update","audit"]);});

@@ -89,3 +89,8 @@
  [data-flight-premium] .flight-location-facts { border-block:0; border-left:1px solid var(--hotel-border); padding-left:20px; margin:18px 0; }
  [data-flight-premium] .flight-provenance { grid-column:1/-1; border-top:1px solid var(--hotel-border); padding-top:14px; margin-top:0; }
 }
+
+[data-flight-premium] .flight-location-pending {font-size:12px;line-height:1.6;color:var(--hotel-text-muted);align-self:center;padding-block:12px}
+[data-flight-premium] .flight-official-airport {display:inline-flex;gap:8px;align-items:center;min-height:44px;margin-top:12px;font-size:12px;text-decoration:underline;text-underline-offset:4px;color:var(--hotel-primary)}
+
+[data-flight-premium] .flight-official-airport {color:var(--hotel-text)}

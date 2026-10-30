@@ -19,10 +19,10 @@ export function FlightVerifiedSummary({data,language,timezone,stale}:{
     <dl className="flight-time-facts">{times.map(({label,value})=><div key={label}>
       <dt><Clock3 aria-hidden="true"/>{label}</dt><dd><strong>{value.slice(11,16)}</strong>{label===copy.scheduled||value.slice(0,10)!==data.scheduled.slice(0,10)?<span>{date(value)}</span>:null}</dd>
     </div>)}</dl>
-    <dl className="flight-location-facts">
-      <div><dt><DoorOpen aria-hidden="true"/>{copy.terminal}</dt><dd>{data.terminal??'—'}</dd></div>
-      <div><dt><DoorOpen aria-hidden="true"/>{copy.gate}</dt><dd>{data.gate??'—'}</dd></div>
-    </dl>
+    {data.terminal||data.gate?<dl className="flight-location-facts">
+      {data.terminal?<div><dt><DoorOpen aria-hidden="true"/>{copy.terminal}</dt><dd>{data.terminal}</dd></div>:null}
+      {data.gate?<div><dt><DoorOpen aria-hidden="true"/>{copy.gate}</dt><dd>{data.gate}</dd></div>:null}
+    </dl>:<p className="flight-location-pending">{premium.locationPending}</p>}
     <div className="flight-provenance"><Radio aria-hidden="true"/><div>
       {data.consultedAt?<p data-flight-consulted>{premium.consulted}: <time dateTime={data.consultedAt}>{stamp(data.consultedAt)}</time> · {copy.source}</p>:<p>{copy.source}</p>}
       {data.sourceUpdatedAt?<p data-flight-source-updated>{premium.sourceUpdated}: <time dateTime={data.sourceUpdatedAt}>{stamp(data.sourceUpdatedAt)}</time></p>:null}

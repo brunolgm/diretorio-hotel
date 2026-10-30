@@ -179,6 +179,7 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
             {departed ? copy.pastFlightWarning : copy.officialCheckNotice}
           </p>}
         />
+        {premium && officialAirportUrl && officialAirportUrl !== officialUrl ? <a className="flight-official-airport" href={officialAirportUrl} target="_blank" rel="noopener noreferrer">{copy.officialAirportAction}<ExternalLink aria-hidden className="h-4 w-4"/></a> : null}
         <section className="flight-trip-actions mt-4" aria-labelledby="guest-flight-trip-actions">
           <h3 id="guest-flight-trip-actions" className="text-base font-semibold text-[color:var(--hotel-primary)]">{copy.tripActionsTitle}</h3>
           <div className="mt-3 grid grid-cols-2 gap-2">

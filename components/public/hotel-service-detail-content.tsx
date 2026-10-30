@@ -1,3 +1,6 @@
+import {InternalEditorialMedia} from './public-internal-editorial';
+import {serviceEditorialMedia} from '@/lib/public-editorial-link';
+import type {ExperienceMedia} from '@/lib/public-experience-media';
 import {RoomGuideContent} from './room-guide-content';
 import type {RoomGuide} from '@/lib/room-guides';
 import { PublicAreaHero } from '@/components/public/public-area-hero';
@@ -44,6 +47,7 @@ export function HotelServiceDetailContent({
   experienceVersion,
   roomGuide,
   guideDraftPreview=false,
+  editorialMedia=[],
 }: {
   hotel: PublicHotel;
   section: PublicHotelSection;
@@ -56,10 +60,12 @@ export function HotelServiceDetailContent({
   experienceVersion?:'v3'|'v4';
   roomGuide?:RoomGuide|null;
   guideDraftPreview?:boolean;
+  editorialMedia?:ExperienceMedia[];
 }) {
   const copy = getPublicCopy(language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const isV4=experienceVersion==='v4';
+  const editorial=isV4&&!guideDraftPreview?serviceEditorialMedia({media:editorialMedia,hotel,section,productRootDomain:domainContext.productRootDomain}):null;
   const isNovotelExperience = theme.preset === 'novotel';
   const isGrandMercureExperience = theme.preset === 'grand-mercure';
   const isBrandExperience = isNovotelExperience || isGrandMercureExperience;
@@ -224,6 +230,7 @@ export function HotelServiceDetailContent({
           </section>
         ) : null}
 
+        {editorial?<InternalEditorialMedia media={editorial} hotelId={hotel.id}/>:null}
         {roomGuide?<RoomGuideContent guide={roomGuide} draftPreview={guideDraftPreview} language={language} helpHref={buildPublicHotelAreaHref({slug:hotel.slug,area:'contato',language,domainContext,preferSubdomainRoot:useSubdomainRoot})}/>:null}
         <section className="public-service-full-content hotel-theme-surface mt-8 rounded-[var(--hotel-banner-radius)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] ring-1 ring-[color:var(--hotel-border)] md:p-8">
           <div className="max-w-3xl">

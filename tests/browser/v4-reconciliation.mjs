@@ -227,22 +227,12 @@ export async function runV4Reconciliation({ page, origin, output }) {
         fullPage: key !== "draft",
       });
       if (key === "attention") {
-        const summary = page.locator("[data-important-notice] summary");
-        await summary.focus();
+        const link = page.locator(".v4-important-read");
+        await link.focus();
         await page.keyboard.press("Enter");
-        await page.locator(".v4-important-detail").waitFor();
-        assert.ok(
-          (await page.locator(".v4-important-detail").innerText()).includes(
-            "Operational details",
-          ),
-        );
-        assert.equal(
-          await page
-            .locator(".v4-important-detail p")
-            .evaluate((el) => getComputedStyle(el).overflow),
-          "visible",
-        );
-        await page.keyboard.press("Enter");
+        await page.locator("[data-communication-directory]").waitFor();
+        assert.ok(new URL(page.url()).pathname.endsWith("/explorar/comunicados"));
+        assert.ok((await page.locator(".public-communication-body").first().innerText()).includes("Operational details"));
       }
       rows.push({ scenario, width, height, passed: true });
     }

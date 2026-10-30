@@ -500,3 +500,13 @@ A documentação do fornecedor distingue schedules de live ADS-B e informa cober
 por voo: https://airlabs.co/docs/schedules e https://airlabs.co/docs/flights .
 Não converter active de schedules em Em voo, nem inferir atraso/cancelamento/
 embarque a partir do relógio ou de not_found. Home só reutiliza cadastro manual v1.
+
+**Acabamento premium de 30/10/2026.** A UI exibe somente terminal/portão
+fornecidos: na ausência de ambos, uma mensagem compacta localizada substitui
+dois grandes blocos vazios. Consulta externa distingue companhia de aeroporto
+e usa somente o URL oficial já cadastrado. Resumo da Home mantém apenas dados
+manuais e indicador de voo salvo, sem novo storage ou consulta automática.
+Regressão reproduz o cache histórico AD2891 e valores sintéticos de terminal/portão
+que sobrevivem à projeção; não é teste live nem integração Aena. Zero chamadas
+reais adicionais. Normalizador, orçamento, cache, leases e política de status
+permanecem inalterados.
