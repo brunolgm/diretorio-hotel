@@ -418,3 +418,40 @@ Gates do candidato: 13/13 direcionados, 482/482 segurança, 168/168 browser de
 logos, 148/148 regressão Premium; TypeScript e build aprovados, lint com zero
 erros e quatro warnings históricos, git diff --check limpo. Verificação de
 produção usa --logos (replays interceptados), sem consumo AirLabs.
+
+### Hotfix compartilhado — seletor de idiomas sem recorte (30/10/2026)
+
+Causa reproduzida na Central pública no checkpoint 187d382: o menu absoluto
+ficava dentro do header/hero com overflow hidden. A linha ES ultrapassava o
+limite inferior do hero tanto em 390 px quanto em 1440 px; elementFromPoint
+atingia o conteúdo subjacente em vez do link. Z-index local não vence esse recorte.
+
+LanguageSwitcher usa agora Menu do Base UI já instalado: portal fora do header,
+no ancestral data-hotel-theme existente, positioner fixed alinhado ao fim do
+seletor, z-index 100, margem de colisão 8 px, flip/shift e limites de largura/altura
+disponíveis. Portal display contents não acrescenta uma linha ao grid do dock.
+Tokens e seletores das marcas continuam herdados; não há cópia de tema para body,
+nova dependência, alteração de hero/overflow/dock ou CSS de layout compartilhado.
+
+Trigger nativo e links reais mantêm aria-expanded/controls/haspopup, menu/menuitem,
+aria-current e os eventos de analytics existentes. O primitive fornece navegação
+por teclado, Escape, clique externo e retorno de foco. closeOnClick fecha após
+seleção. publicLanguageHref e os builders de navegação permanecem inalterados,
+preservando idioma, rota, filtros e hash. Opções continuam Português, English e
+Español com indicação da selecionada e alvos de pelo menos 44 px.
+
+Regressão reproduzível: node tests/browser/tourism-v4.mjs --languages, com o
+esbuild temporário apontado em TOOL_NODE_MODULES e Edge headless. Cobertura de
+Home V4, Central, Serviços, Turismo, Contato, Informações e detalhes de serviço
+e Turismo, seis presets, PT/EN/ES, oito viewports, hit tests das três opções,
+geometria preservada, teclado, navegação, cantos e zoom 200% simulado por reflow/DPR via DevTools.
+Smoke publicado: node tests/browser/public-language-production.mjs; somente
+GET permitido, APIs bloqueadas, nenhum seed de voo ou consumo AirLabs.
+Nenhum dado de hotel, lifecycle, entitlement, armazenamento v1, logomarca,
+normalização, endpoint, status/cache/quota, PMS, roomToken ou migration foi alterado.
+
+Gates do candidato: 6/6 direcionados de URLs/escopo, 485/485 segurança e
+1.188/1.188 cenários browser (1.152 combinações de página/preset/idioma/viewport,
+12 jornadas de teclado/navegação, 24 cantos/zoom). TypeScript e build aprovados;
+lint zero erros/quatro warnings históricos; git diff --check limpo. Publicação
+Git com preview READY/smoke antes da integração em main e smoke público.
