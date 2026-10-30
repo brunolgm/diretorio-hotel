@@ -2549,7 +2549,7 @@ com versão publicada; os paths ficam retidos (até 512) para cleanup após excl
 confirmada do Serviço. Falha de cleanup gera aviso, sem alegar rollback do banco.
 PDF não é aceito nesse upload; manual complementar é URL HTTPS aprovada opcional.
 
-Migration incremental: `20261030034640_service_room_guides.sql`. Não altera
+Migration incremental: `20261030045619_service_room_guides.sql`. Não altera
 migrations antigas, hotéis, módulos, lifecycle, Auth ou voos. SECURITY DEFINER
 tem search_path vazio e grants explícitos; clientes não têm escrita direta na
 tabela. Rollback comportamental por migration futura pode revogar a exposição
