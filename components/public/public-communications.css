@@ -252,3 +252,4 @@
     font-size: 13px;
   }
 }
+@media(min-width:768px) and (max-width:1023px){.public-experience-v3[data-public-experience="v4"] .v3-header{gap:10px;padding-inline:18px}}

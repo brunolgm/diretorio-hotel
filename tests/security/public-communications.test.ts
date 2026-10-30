@@ -75,7 +75,7 @@ test("empty does not manufacture content; similar texts are not deduplicated wit
     2,
   );
 });
-test("banner cap is preserved and links reject scripts, credentials and arbitrary browser input", () => {
+test("banner cap is preserved and media rejects scripts, credentials and insecure URLs", () => {
   assert.equal(
     publicCommunications(
       "hotel-a",
@@ -104,3 +104,5 @@ test("banner cap is preserved and links reject scripts, credentials and arbitrar
     "https://example.test/offers",
   );
 });
+
+test("CTA preserves canonical Admin HTTP/HTTPS contract while media remains HTTPS",()=>{assert.equal(publicCommunicationUrl("http://example.test/offer","link"),"http://example.test/offer");assert.equal(publicCommunicationUrl("http://example.test/image.png"),null);assert.equal(publicCommunicationUrl("http://user:secret@example.test/","link"),null);});

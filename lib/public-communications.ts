@@ -78,11 +78,11 @@ export function communicationCopy(lang: "pt" | "en" | "es") {
           more: "Saiba mais",
         };
 }
-export function publicCommunicationUrl(value: string | null) {
+export function publicCommunicationUrl(value: string | null, purpose: "media" | "link" = "media") {
   if (!value) return null;
   try {
     const u = new URL(value);
-    return u.protocol === "https:" && !u.username && !u.password
+    return (u.protocol === "https:" || purpose === "link" && u.protocol === "http:") && !u.username && !u.password
       ? u.href
       : null;
   } catch {

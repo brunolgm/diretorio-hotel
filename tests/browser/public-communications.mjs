@@ -180,7 +180,7 @@ export async function runCommunicationsAndFlight({ page, origin, output }) {
   });
   await card.waitFor({ state: "hidden" });
   rows.push({ tenantIsolation: true, passed: true });
-  for(const theme of ['bugan','grand-mercure','deep-ocean','novotel','mercure','default'])for(const lang of ['pt','en','es'])for(const [width,height]of [[390,844],[1440,900]]){
+  for(const theme of ['bugan','grand-mercure','deep-ocean','novotel','mercure','default'])for(const lang of ['pt','en','es'])for(const [width,height]of [[360,640],[375,667],[390,645],[390,844],[430,932],[768,1024],[1440,900],[1536,864]]){
     await page.setViewportSize({width,height});await page.goto(origin+'/hotel/bugan-recife?'+new URLSearchParams({scope:'public',experience:'v4',theme,lang,seedFlight:'1'}));const saved=page.locator('[data-home-saved-flight]');await saved.waitFor();assert.equal(new URL(await saved.locator('a').getAttribute('href'),origin).searchParams.get('tab'),'meu-voo');assert.ok((await saved.innerText()).includes('LA 3565'));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(statuses,0);rows.push({theme,lang,width,savedFlightVisible:true,passed:true});
   }
   // Edit, BFCache-style return and canonical 12h expiry with the browser clock.

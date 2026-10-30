@@ -59,7 +59,7 @@ export function PublicCommunications({
         <div className="v4-offer-cards">
           {model.banners.map((row) => {
             const image = publicCommunicationUrl(row.image_url),
-              cta = publicCommunicationUrl(row.cta_url);
+              cta = publicCommunicationUrl(row.cta_url, "link");
             return (
               <article key={row.id}>
                 {image ? (

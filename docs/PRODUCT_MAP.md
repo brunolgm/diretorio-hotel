@@ -2577,9 +2577,9 @@ precisa confirmar grade, equipamentos/HDMI, categorias de acomodação, direitos
 uso e instruções/traduções técnicas. Nenhuma ativação, suspensão ou configuração
 de IA faz parte desta entrega.
 
-**Evidência e classificação.** Suíte de segurança: 500/500; matriz SQL real local
+**Evidência e classificação.** Suíte de segurança: 501/501; matriz SQL real local
 em transação com rollback (roles/tenant/módulos/lifecycle/revisão/mídia/auditoria);
-browser isolado: 183 cenários de comunicações/voo e 148 de guias, seis identidades,
+browser isolado: 291 cenários de comunicações/voo e 148 de guias, seis identidades,
 PT/EN/ES e oito viewports. Capturas/relatórios ficam em `out/tourism-v4/` e gates em
 `out/v4-communications-guides/`, sem credenciais e fora do commit. Fixtures não
 comprovam sessão administrativa de produção nem revisão operacional da grade.
@@ -2595,3 +2595,47 @@ escrita em tabela/Storage nem dispensa dos gates de tenant, role e módulo.
 O smoke público também cobre seleção explícita da aba Meu voo e a regra de
 especificidade do wrapper no desktop: o resumo deve permanecer visível mesmo
 com os essenciais/tarefas mobile ocultos. Português usa a URL canônica sem lang.
+
+No candidato local ainda não publicado, CTAs preservam o contrato HTTP/HTTPS
+já permitido pelo Admin; mídia exige HTTPS.
+URLs com credenciais ou protocolos executáveis são rejeitadas na apresentação.
+
+O candidato local, ainda não publicado, contém ajuste de gap/padding do header para
+conter Reservar no viewport de 768 px; hero, desktop aprovado e mobile permanecem.
+
+
+#### Direção visual consolidada posterior — reconciliação pendente
+
+[APROVADO] Referência canônica: `docs/references/bugan/public-v3/mockup_do_hotel_bugan_recife.png`,
+complementada pelas apresentações aprovadas das internas. O arquivo foi renomeado
+pelo usuário sem mudança de bytes (mesmo Git blob); não foram extraídas fotos
+sintetizadas para a aplicação. Hero real, seis acessos desktop, essenciais/quatro
+ações mobile, três editoriais, benefícios e Turismo devem ser preservados.
+
+| Decisão atual | Estado confirmado neste checkpoint |
+| --- | --- |
+| Alerta elegível em faixa fina abaixo do header | Priorização e elegibilidade implementadas; acabamento responsivo ainda requer reconciliação visual com a referência. Não há alerta real publicado no piloto. |
+| Banners separados em Promoções e novidades | Separação implementada; título atual é Destaques e ofertas. Renomear e reconciliar a composição em etapa visual própria. |
+| Informativos em Atualizações do hotel | Implementado por categoria, sem misturar alertas ou promoções. |
+| Voo salvo discreto dentro do acesso existente da Central | Pendente de reconciliação: a implementação atual usa faixa independente. Não apresentar essa faixa como solução final aprovada. Não há consulta AirLabs na Home. |
+| Ausência de banners/comunicados sem espaços ou placeholders | Implementado; piloto confirmado com zero itens elegíveis. |
+| Admin com gestão real e prévia | Cadastros canônicos preservados, preview autenticado existente e editor de rascunhos de guias implementado. Homologação da apresentação consolidada ainda pendente. |
+| Internas TV/canais/guias com acabamento premium aprovado | Estrutura temática, passos ilustrados, busca e PT/EN/ES implementados/testados. Reconciliação visual final e conteúdo operacional ainda não homologados. |
+
+Após essa orientação não fazer novas alterações visuais, substituir componentes
+homologados ou publicar o candidato visual pendente. Produção permanece no commit
+`4bff5e33fcdd78af19421c54ae7ebecbf66d98d2` (READY); o ajuste local de tablet e a
+compatibilidade de CTA ficam preservados para revisão, sem novo push/deploy.
+O smoke diagnóstico real aprovou 36 cenários excluindo explicitamente o breakpoint
+768 px, cujo overflow de aproximadamente 1,3 px foi identificado em produção.
+Isso NÃO equivale à aprovação do smoke completo nem à nova homologação visual.
+Os 291 cenários locais incluem o ajuste ainda não publicado; os 148 de guias são
+fixtures e não equivalem a conteúdo operacional confirmado.
+
+[IMPLEMENTADO PARCIALMENTE] Preparação dos dados do piloto autorizada: quatro
+Serviços novos desabilitados, traduções em rascunho e 222 registros históricos
+para revisão (Netflix separado como aplicativo). O plano/mocks estão validados.
+A persistência real exige a execução local do executor com sessão normal do
+administrador; autorização não fornece essa sessão. A última leitura antes da
+execução confirmou zero guias e os 13 Serviços originais. Não publicar grade,
+instruções ou disponibilidade por categoria de acomodação sem revisão do hotel.
