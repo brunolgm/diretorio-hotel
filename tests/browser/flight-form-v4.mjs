@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {join} from 'node:path';
 export async function runFlightForm({page,output}){
  const rows=[];
- for(const theme of ['bugan','grand-mercure','deep-ocean','novotel','mercure','default'])for(const lang of ['pt','en','es'])for(const [width,height]of [[360,640],[375,667],[390,645],[390,844],[430,932],[1024,768],[1440,900]]){
+ for(const theme of ['bugan','grand-mercure','deep-ocean','novotel','mercure','default'])for(const lang of ['pt','en','es'])for(const [width,height]of [[360,640],[375,667],[390,645],[390,844],[430,932],[1024,768],[1440,900],[1536,864]]){
   if(width===360)console.log(`Public flight form ${theme} ${lang}`);
   await page.setViewportSize({width,height});await page.goto('http://127.0.0.1:4174/after?'+new URLSearchParams({scenario:'form',theme,lang,experience:'v4'}));
   await page.locator('#guest-flight-flightNumber').waitFor();const labels=await page.evaluate(()=>window.fixtureLabels);
@@ -49,6 +49,17 @@ export async function runFlightForm({page,output}){
    }
   }
   rows.push({scenario,width:390,height:645,canonicalAzul:true,passed:true});
+ }
+ await page.clock.setFixedTime(new Date('2026-10-29T23:40:45Z'));
+ for(const [airline,flightNumber,expected]of [['TAM','3565','LA3565'],['LA','3565','LA3565'],['LATAM','3565','LA3565'],['LATAM Airlines Brasil','3565','LA3565'],['','TAM3565','LA3565'],['','LA3565','LA3565'],['GOL','1888','G31888'],['GLO','0188','G30188'],['Azul','0427','AD0427'],['LAT','3565',null],['LATAM','AD4277','conflict']]){
+  await page.goto('http://127.0.0.1:4174/after?scenario=form&theme=bugan&lang=pt&experience=v4');await page.locator('#guest-flight-flightNumber').waitFor();
+  for(const [key,value]of Object.entries({airline,flightNumber,departureAirport:'REC',arrivalAirport:'BSB',departureDate:'2026-10-29',scheduledDepartureTime:'20:50'}))await page.locator('#guest-flight-'+key).fill(value);
+  await page.locator('button[type="submit"]').evaluate(el=>el.scrollIntoView({block:'center'}));await page.locator('button[type="submit"]').click();
+  if(expected==='conflict'){assert.ok(await page.locator('[aria-invalid="true"]').count());assert.equal(await page.evaluate(()=>window.fixturePayloads.length),0);}
+  else{await page.locator('[data-saved-guest-flight]').waitFor();if(expected){await page.waitForFunction(()=>window.fixturePayloads.length===1);assert.equal(await page.evaluate(()=>window.fixturePayloads[0].flight_iata),expected);}else assert.equal(await page.evaluate(()=>window.fixturePayloads.length),0);
+   const saved=await page.evaluate(()=>Object.values(localStorage).map(v=>{try{return JSON.parse(v)}catch{return null}}).find(v=>v?.version===1));assert.equal(saved.flightNumber,flightNumber);await page.getByRole('button',{name:'Editar voo',exact:true}).click();assert.equal(await page.locator('#guest-flight-airline').inputValue(),airline);assert.equal(await page.locator('#guest-flight-flightNumber').inputValue(),flightNumber);
+  }
+  rows.push({airline,flightNumber,expected,passed:true});
  }
  return rows;
 }

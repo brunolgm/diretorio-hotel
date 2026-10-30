@@ -30,7 +30,7 @@ import type { FlightServiceAnalyticsAction } from '@/lib/analytics';
 import { buildHotelServiceActionDestination } from '@/lib/flight-center-actions';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
 import {
-  getPublicFlightCenterCopy,
+  getPremiumFlightCopy, getPublicFlightCenterCopy,
   PUBLIC_FLIGHT_CENTER_TABS,
   type PublicFlightCenterTab,
 } from '@/lib/public-flight-center-copy';
@@ -173,6 +173,7 @@ export function HotelPublicFlightCenter({
     internationalLeadMinutes: airport.internationalLeadMinutes,
     safetyMarginMinutes: airport.safetyMarginMinutes,
     timezone: airport.timezone,
+    countryCode: airport.countryCode,
     iataCode: airport.iataCode,
     name: airport.name,
     city: airport.city,
@@ -209,14 +210,17 @@ export function HotelPublicFlightCenter({
   );
 
   return (
-    <main data-flight-viewport className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isBugan ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-10'}`} style={theme.cssVars} data-public-internal-v4={data.experienceVersion==='v4'?'':undefined} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+    <main data-flight-premium={data.experienceVersion==='v4'?'':undefined} data-flight-viewport className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isBugan ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-10'}`} style={theme.cssVars} data-public-internal-v4={data.experienceVersion==='v4'?'':undefined} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
       {data.experienceVersion==='v4'?<PublicFlightViewport/>:null}
       <PublicAnalytics hotelSlug={hotel.slug} language={language} pageEventType="flight_center_view" />
       {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
       <div data-public-internal-body className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
         {hero}
+        {data.experienceVersion==='v4'?<nav className="flight-desktop-nav" aria-label={publicCopy.navigationLabel}>
+          {navigationItems.map(item=><a key={item.key} href={item.href}>{item.label}</a>)}
+        </nav>:null}
 
-        <nav aria-label={copy.title} className="mt-5 overflow-x-auto">
+        <nav aria-label={copy.title} data-flight-tabs className="mt-5 overflow-x-auto">
           <div className="grid min-w-[330px] grid-cols-3 gap-2 rounded-[18px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-1.5 shadow-[0_14px_34px_-30px_rgba(15,23,42,.35)]">
             {PUBLIC_FLIGHT_CENTER_TABS.map((item) => (
               <a key={item} href={buildTabHref(basePath, language, item)} aria-current={tab === item ? 'page' : undefined} className={`flex min-h-11 items-center justify-center rounded-[13px] px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] ${tab === item ? 'bg-[var(--hotel-accent)] text-[color:var(--hotel-accent-foreground)] shadow-sm' : 'text-[color:var(--hotel-text-muted)] hover:bg-[var(--hotel-surface-muted)]'}`}>{copy.tabs[item]}</a>
@@ -227,7 +231,7 @@ export function HotelPublicFlightCenter({
         <section className={`mt-5 space-y-5 ${isGrandMercure ? 'grand-mercure-last-content mb-8 md:mb-4' : isNovotel || isMercure ? 'mb-8 md:mb-4' : ''}`}>
           {domainContext.navigationScope === 'authenticated-preview' && tab === 'meu-voo' ? <p role="status">{language==='en'?'Read-only preview: flight queries and external operations are disabled.':language==='es'?'Vista previa de solo lectura: consultas de vuelos y operaciones externas desactivadas.':'Prévia somente leitura: consultas de voos e operações externas desativadas.'}</p> : tab === 'meu-voo' ? (
             <GuestFlightManager hotelId={hotel.id} hotelSlug={hotel.slug} language={language} airportOptions={flightAirportOptions}
-              planning={{ enabled: settings.departurePlanningEnabled, notice: settings.departureNotice }} planningFallback={planningFallback} />
+              premium={data.experienceVersion==='v4'} planning={{ enabled: settings.departurePlanningEnabled, notice: settings.departureNotice }} planningFallback={planningFallback} />
           ) : (
             <div className="space-y-4">
               <div><h2 className="text-2xl font-semibold text-[color:var(--hotel-primary)]">{listTitle}</h2><p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{listDescription}</p></div>
@@ -250,8 +254,9 @@ export function HotelPublicFlightCenter({
           {tab !== 'meu-voo' ? planningFallback : null}
 
           {actionItems.length > 0 ? (
-            <section aria-labelledby="flight-hotel-services">
-              <h2 id="flight-hotel-services" className="text-xl font-semibold text-[color:var(--hotel-primary)]">{copy.actionsTitle}</h2>
+            <section className="flight-support" aria-labelledby="flight-hotel-services">
+              {data.experienceVersion==='v4'?<p className="flight-support-eyebrow">{getPremiumFlightCopy(language).support}</p>:null}
+              <h2 id="flight-hotel-services" className="text-xl font-semibold text-[color:var(--hotel-primary)]">{data.experienceVersion==='v4'?getPremiumFlightCopy(language).supportTitle:copy.actionsTitle}</h2>
               <p className="mt-2 text-sm leading-6 text-[color:var(--hotel-text-muted)]">{copy.actionsDescription}</p>
               <ul className="mt-3 overflow-hidden rounded-[20px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] divide-y divide-[color:var(--hotel-border)]" data-flight-service-list>
                 {actionItems.map((action) => {

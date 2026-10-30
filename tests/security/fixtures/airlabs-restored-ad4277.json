@@ -1,0 +1,52 @@
+{
+  "source": "Sanitized real response captured by the authorized 29/10/2026 controlled test; replay is not a new live query",
+  "capturedAt": "2026-10-29T23:17:10.844Z",
+  "response": {
+    "ok": true,
+    "data": {
+      "flightNumber": "4277",
+      "airlineCode": "AD",
+      "departureAirport": "REC",
+      "arrivalAirport": "CGH",
+      "scheduledDeparture": {
+        "local": "2026-10-29T16:40:00",
+        "utc": "2026-10-29T19:40:00.000Z"
+      },
+      "estimatedDeparture": {
+        "local": "2026-10-29T17:20:00",
+        "utc": "2026-10-29T20:20:00.000Z"
+      },
+      "actualDeparture": {
+        "local": "2026-10-29T17:20:00",
+        "utc": "2026-10-29T20:20:00.000Z"
+      },
+      "scheduledArrival": {
+        "local": "2026-10-29T20:00:00",
+        "utc": "2026-10-29T23:00:00.000Z"
+      },
+      "estimatedArrival": null,
+      "actualArrival": null,
+      "departureTerminal": "T1",
+      "departureGate": "16",
+      "arrivalTerminal": null,
+      "arrivalGate": null,
+      "scheduleStatus": "active",
+      "liveStatus": "en-route",
+      "liveSourceType": "adsb",
+      "delayedMinutes": {
+        "departure": 40,
+        "arrival": null
+      },
+      "updatedAt": {
+        "schedule": null,
+        "live": "2026-10-29T23:16:55.000Z"
+      },
+      "provenance": {
+        "provider": "airlabs",
+        "schedule": "matched",
+        "live": "matched",
+        "fetchedAt": "2026-10-29T23:17:09.549Z"
+      }
+    }
+  }
+}

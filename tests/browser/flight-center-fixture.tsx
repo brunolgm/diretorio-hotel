@@ -5,17 +5,25 @@ import { createSavedGuestFlight } from '../../lib/guest-flight-storage';
 import type { PublicFlightCenterData } from '../../lib/public-hotel-data';
 import type { DomainContext } from '../../lib/domain-context';
 import type { SupportedPublicLanguage } from '../../lib/public-language';
-import {getPublicFlightCenterCopy} from '../../lib/public-flight-center-copy';
+import laReplay from '../security/fixtures/airlabs-la3565-cache-replay.json';
+import adReplay from '../security/fixtures/airlabs-restored-ad4277.json';
+import {normalizePublicFlightCenterTab,getPublicFlightCenterCopy} from '../../lib/public-flight-center-copy';
 
 const params = new URLSearchParams(location.search);
+if(params.get('scenario')==='premium')sessionStorage.setItem('premium-fixture-settings',params.toString());
+else if(!params.has('scenario')&&sessionStorage.getItem('premium-fixture-settings')){
+ const stored=new URLSearchParams(sessionStorage.getItem('premium-fixture-settings')!);for(const [key,value]of stored)if(!params.has(key))params.set(key,value);
+}
+
 const theme = params.get('theme') || 'grand-mercure';
 const language = (params.get('lang') || 'pt') as SupportedPublicLanguage;
 const scenario = params.get('scenario') || 'outside';
 const hotelId = `50200000-0000-4000-8000-00000000000${['grand-mercure', 'novotel', 'mercure', 'default'].indexOf(theme) + 1}`;
-const date = scenario === 'outside' ? '2026-09-20' : '2026-09-09';
-const result = createSavedGuestFlight(hotelId, { airline: 'LA', flightNumber: '3530', departureAirport: 'GIG', arrivalAirport: 'VIX', departureDate: date, scheduledDepartureTime: '23:15' });
+const date = scenario==='form'?new Date().toISOString().slice(0,10):scenario==='premium'?'2026-10-29':scenario === 'outside' ? '2026-09-20' : '2026-09-09';
+const result = createSavedGuestFlight(hotelId, { airline: 'LA', flightNumber: scenario==='premium'?'3565':'3530', departureAirport: scenario==='premium'?'REC':'GIG', arrivalAirport: scenario==='premium'?'BSB':'VIX', departureDate: date, scheduledDepartureTime: scenario==='premium'?'20:50':'23:15' });
 if (!result.ok) throw new Error(`Invalid synthetic flight: ${JSON.stringify(result.errors)}`);
-if(scenario==='form')localStorage.removeItem(`libguest:flight:${hotelId}:v1`);
+if(scenario==='premium'&&params.get('status')==='live'&&result.ok){Object.assign(result.flight,{airlineCode:'AD',flightNumber:'4277',arrivalAirport:'CGH',scheduledDepartureTime:'16:40',scheduledDepartureAt:'2026-10-29T16:40:00',expiresAt:'2026-10-30T04:40:00'});}
+if(scenario==='form'||(scenario==='premium'&&params.get('status')==='form'))localStorage.removeItem(`libguest:flight:${hotelId}:v1`);
 else localStorage.setItem(`libguest:flight:${hotelId}:v1`, JSON.stringify(result.flight));
 
 // Fail closed: every browser fetch is handled locally or rejected. No real API.
@@ -28,6 +36,12 @@ window.fetch = async (input,init) => {
   if (url === '/api/analytics') return Response.json({ ok: true });
   if (url === '/api/flights/route-context') return Response.json({ travelType: scenario === 'generic' ? 'unknown' : 'domestic' });
   if (url === '/api/flights/status') {
+    if(scenario==='premium'){
+      const q=JSON.parse(String(init?.body));(window as unknown as {fixturePayloads:unknown[]}).fixturePayloads.push(q);
+      const kind=params.get('status');
+      if(kind&&['not_found','budget_unavailable','rate_limited','timeout'].includes(kind))return Response.json({ok:false,error:kind},{status:kind==='not_found'?404:503});
+      return Response.json(kind==='live'?adReplay.response:laReplay.response);
+    }
     if(scenario==='form'){
       const q=JSON.parse(String(init?.body));(window as unknown as {fixturePayloads:unknown[]}).fixturePayloads.push(q);
       const failure=params.get('status');if(failure&&failure!=='matched')return Response.json({ok:false,error:failure},{status:failure==='not_found'?404:503});
@@ -47,12 +61,12 @@ navigator.sendBeacon = () => false;
 
 const data = {
   experienceVersion:params.get('experience')==='v4'?'v4':'v3',
-  hotel: { id: hotelId, slug: hotelId, name: theme === 'grand-mercure' ? 'Grand Mercure Copacabana' : `${theme} Fixture`, theme_preset: theme, theme_primary_color: null, logo_url: null, hero_image_url: null, whatsapp_number: '5521999999999' },
-  airports: [{ iataCode: 'GIG', name: 'Aeroporto Internacional do Rio de Janeiro', city: 'Rio de Janeiro', timezone: 'America/Sao_Paulo', officialDeparturesUrl: 'https://www.riogaleao.com/', officialArrivalsUrl: 'https://www.riogaleao.com/', estimatedTransferMinutes: 40, domesticLeadMinutes: 120, internationalLeadMinutes: 180, safetyMarginMinutes: 30 }],
+  hotel: { id: hotelId, slug: hotelId, name: theme === 'grand-mercure' ? 'Grand Mercure Copacabana' : `${theme} Fixture`, theme_preset: theme, theme_primary_color: null, logo_url: scenario==='premium'&&theme==='bugan'?'/approved-bugan-logo.png':null, hero_image_url: null, whatsapp_number: '5521999999999' },
+  airports: [{ iataCode: 'GIG', countryCode:'BR', name: 'Aeroporto Internacional do Rio de Janeiro', city: 'Rio de Janeiro', timezone: 'America/Sao_Paulo', officialDeparturesUrl: 'https://www.riogaleao.com/', officialArrivalsUrl: 'https://www.riogaleao.com/', estimatedTransferMinutes: 40, domesticLeadMinutes: 120, internationalLeadMinutes: 180, safetyMarginMinutes: 30 }],
   navigationAvailability: { services: true, menu: false, information: true, contact: true },
   settings: { departurePlanningEnabled: true, officialLinksEnabled: true, departureNotice: null, transferEnabled: true, wakeUpEnabled: true, breakfastBoxEnabled: params.get('breakfast') === '1', receptionEnabled: true },
 } as PublicFlightCenterData;
-if(scenario==='form')data.airports=[{...data.airports[0],iataCode:'REC',name:'Synthetic REC airport',city:'Recife',timezone:'America/Recife'}];
+if(scenario==='form'||scenario==='premium')data.airports=[{...data.airports[0],iataCode:'REC',name:'Synthetic REC airport',city:'Recife',timezone:'America/Recife'}];
 if (params.has('services')) {
   const count = Number(params.get('services'));
   data.settings.transferEnabled = count > 0;
@@ -60,5 +74,5 @@ if (params.has('services')) {
   data.settings.breakfastBoxEnabled = count > 2;
   data.settings.receptionEnabled = count > 3;
 }
-createRoot(document.getElementById('root')!).render(<HotelPublicFlightCenter data={data} language={language} tab="meu-voo"
+createRoot(document.getElementById('root')!).render(<HotelPublicFlightCenter data={data} language={language} tab={normalizePublicFlightCenterTab(params.get('tab'))}
   domainContext={{ kind: 'localhost', shouldUseSlugFallback: true } as DomainContext} preferSubdomainRoot={false} />);

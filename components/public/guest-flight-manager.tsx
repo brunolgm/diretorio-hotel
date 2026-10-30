@@ -23,7 +23,8 @@ import {
   type GuestFlightValidationErrors,
   type SavedGuestFlight,
 } from '@/lib/guest-flight-storage';
-import { getPublicFlightCenterCopy } from '@/lib/public-flight-center-copy';
+import {resolveFlightAirline} from '@/lib/airline-identity';
+import { getPremiumFlightCopy, getPublicFlightCenterCopy } from '@/lib/public-flight-center-copy';
 import { GuestFlightStatus } from '@/components/public/guest-flight-status';
 import { sendPublicAnalyticsEvent } from '@/lib/public-analytics-client';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
@@ -59,7 +60,8 @@ function formatFlightDate(date: string, language: SupportedPublicLanguage) {
   }).format(new Date(Date.UTC(year, month - 1, day, 12)));
 }
 
-export function GuestFlightManager({ hotelId, hotelSlug, language, airportOptions, planning, planningFallback }: {
+export function GuestFlightManager({ hotelId, hotelSlug, language, airportOptions, planning, planningFallback, premium=false }: {
+  premium?:boolean;
   hotelId: string;
   hotelSlug: string;
   language: SupportedPublicLanguage;
@@ -67,6 +69,7 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
   planning: FlightPlanning; planningFallback: ReactNode;
 }) {
   const copy = getPublicFlightCenterCopy(language);
+  const premiumCopy=getPremiumFlightCopy(language);
   const subscribe = useCallback((onStoreChange: () => void) => subscribeToGuestFlight(hotelId, onStoreChange), [hotelId]);
   const getSnapshot = useCallback(() => getSavedGuestFlightSnapshot(hotelId), [hotelId]);
   const snapshot = useSyncExternalStore(subscribe, getSnapshot, () => null);
@@ -93,8 +96,11 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
     setCalendarMessage(null);
   }
 
+  const draftIdentity=resolveFlightAirline(draft.airline,draft.flightNumber,{...draft,departureCountryCode:airportOptions.find(item=>item.iataCode===draft.departureAirport)?.countryCode});
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if(draftIdentity.kind==='conflict'){setErrors({airline:'airline_conflict',flightNumber:'airline_conflict'});fieldRefs.current.airline?.focus();return;}
     const result = createSavedGuestFlight(hotelId, draft);
     if (!result.ok) {
       setErrors(result.errors);
@@ -124,17 +130,17 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
   }
 
   if (flight && !editing) {
-    const canonicalReference=flightIataReference(flight.airlineCode,flight.flightNumber);
+    const canonicalReference=flightIataReference(flight.airlineCode || flight.airlineName,flight.flightNumber,{...flight,departureCountryCode:airportOptions.find(item=>item.iataCode===flight.departureAirport)?.countryCode});
     const officialCode=canonicalReference?.slice(0,2)??flight.airlineCode;
     const officialNumber=canonicalReference?.slice(2)??flight.flightNumber;
     const officialAirline = resolveAirlineOfficialLink(officialCode);
     const airline = flight.airlineCode || flight.airlineName;
-    const identifier = [airline, flight.flightNumber].filter(Boolean).join(' ');
+    const identifier = canonicalReference ? canonicalReference.slice(0,2)+' '+canonicalReference.slice(2) : (airline&&flight.flightNumber.startsWith(airline)?flight.flightNumber:[airline,flight.flightNumber].filter(Boolean).join(' '));
     const officialAirlineUrl = buildAirlineOfficialFlightUrl(officialCode, officialNumber);
     const departureAirport = airportOptions.find((item) => item.iataCode === flight.departureAirport) || null;
     const officialAirportUrl = departureAirport?.officialUrl || null;
     const officialUrl = officialAirlineUrl || officialAirportUrl;
-    const officialActionLabel = officialAirline ? copy.officialAirlineAction : copy.officialAirportAction;
+    const officialActionLabel = officialAirline ? (premium ? premiumCopy.official(officialAirline.shortName) : copy.officialAirlineAction) : copy.officialAirportAction;
     const airportRouteUrl = buildAirportRouteUrl(departureAirport);
     const calendarFile = buildFlightCalendarFile({
       flight,
@@ -148,16 +154,17 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
     });
     const departed = hasSavedGuestFlightDeparted(flight);
     return (
-      <article className="hotel-public-content-card relative overflow-hidden rounded-[26px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 shadow-[var(--hotel-card-shadow)] sm:p-6 md:p-8" data-saved-guest-flight>
-        <div className="flex items-start gap-4">
+      <article className="hotel-public-content-card relative overflow-hidden rounded-[26px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 shadow-[var(--hotel-card-shadow)] sm:p-6 md:p-8" data-saved-guest-flight data-flight-card={premium?"premium":undefined}>
+        <div className="flight-identity flex items-start gap-4">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[19px] bg-[var(--hotel-accent-soft)] text-[color:var(--hotel-accent)]"><Plane className="h-7 w-7" aria-hidden="true" /></div>
           <div className="min-w-0 flex-1">
-            <p className="break-words text-xl font-semibold text-[color:var(--hotel-primary)] sm:text-2xl">{identifier}</p>
+            <p className="flight-number break-words text-xl font-semibold text-[color:var(--hotel-primary)] sm:text-2xl">{identifier}</p>
             {officialAirline ? <p className="mt-1 text-sm text-[color:var(--hotel-text-muted)]">{officialAirline.name}</p> : null}
             <p className="mt-1 text-base font-semibold text-[color:var(--hotel-text)]">{flight.departureAirport} → {flight.arrivalAirport}</p>
+            {premium&&canonicalReference&&[airline,flight.flightNumber].filter(Boolean).join('').replace(/\s/g,'')!==canonicalReference?<p className="mt-1 text-xs text-[color:var(--hotel-text-muted)]">{copy.providedByYou}: {airline&&flight.flightNumber.startsWith(airline)?flight.flightNumber:[airline,flight.flightNumber].filter(Boolean).join(' ')}</p>:null}
           </div>
         </div>
-        <GuestFlightStatus key={`${snapshot}:${departureAirport?.timezone ?? ''}`} flight={flight} hotelSlug={hotelSlug} timezone={departureAirport?.timezone ?? null} language={language}
+        <GuestFlightStatus key={`${snapshot}:${departureAirport?.timezone ?? ''}:${departureAirport?.countryCode ?? ''}`} flight={flight} hotelSlug={hotelSlug} timezone={departureAirport?.timezone ?? null} language={language} premium={premium}
           planning={planning} airport={departureAirport} planningFallback={planningFallback}
           manual={<div className="mt-4 text-sm text-[color:var(--hotel-text-muted)]" data-manual-flight-summary>
             <p>{copy.localTimeLabel}</p>
@@ -171,7 +178,7 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
             {departed ? copy.pastFlightWarning : copy.officialCheckNotice}
           </p>}
         />
-        <section className="mt-4" aria-labelledby="guest-flight-trip-actions">
+        <section className="flight-trip-actions mt-4" aria-labelledby="guest-flight-trip-actions">
           <h3 id="guest-flight-trip-actions" className="text-base font-semibold text-[color:var(--hotel-primary)]">{copy.tripActionsTitle}</h3>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {officialUrl ? <a
@@ -221,7 +228,7 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
         </section>
         <div className="mt-2 grid grid-cols-2 gap-2">
           <button type="button" onClick={() => { setDraft(draftFromFlight(flight)); setOfficialMessage(null); setCalendarMessage(null); setEditingOverride(true); }} className="inline-flex min-h-11 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-3 py-2 text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"><Pencil className="mr-2 h-4 w-4" aria-hidden="true" />{copy.editFlight}</button>
-          <button type="button" onClick={remove} className="inline-flex min-h-11 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-3 py-2 text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"><Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />{copy.removeFlight}</button>
+          <button type="button" onClick={remove} className="flight-remove-button inline-flex min-h-11 items-center justify-center rounded-[14px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] px-3 py-2 text-sm font-semibold text-[color:var(--hotel-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)] focus-visible:ring-offset-2"><Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />{copy.removeFlight}</button>
         </div>
       </article>
     );
@@ -237,7 +244,7 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
   ];
 
   return (
-    <><article className="hotel-public-content-card relative overflow-hidden rounded-[26px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 shadow-[var(--hotel-card-shadow)] sm:p-6 md:p-8" data-guest-flight-form>
+    <><article className="hotel-public-content-card relative overflow-hidden rounded-[26px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 shadow-[var(--hotel-card-shadow)] sm:p-6 md:p-8" data-guest-flight-form data-flight-card={premium?"premium":undefined}>
       <div className="flex h-14 w-14 items-center justify-center rounded-[19px] bg-[var(--hotel-accent-soft)] text-[color:var(--hotel-accent)]"><Plane className="h-7 w-7" aria-hidden="true" /></div>
       <h2 className="mt-5 text-2xl font-semibold text-[color:var(--hotel-primary)]">{copy.myFlightTitle}</h2>
       <p className="mt-2 max-w-xl text-sm leading-6 text-[color:var(--hotel-text-muted)]">{copy.myFlightDescription}</p>
@@ -261,11 +268,12 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
                   aria-describedby={error ? errorId : undefined}
                   className={`${INPUT_CLASS} ${error ? 'border-red-500' : ''}`}
                 />
-                {error ? <p id={errorId} className="mt-1.5 text-xs leading-5 text-red-700">{copy.validation[field]}</p> : null}
+                {error ? <p id={errorId} className="mt-1.5 text-xs leading-5 text-red-700">{error==='airline_conflict'?premiumCopy.conflict:copy.validation[field]}</p> : null}
               </div>
             );
           })}
         </div>
+        {draft.flightNumber ? <p className="flight-identification-note mt-3 text-sm leading-5" role="status" aria-live="polite">{draftIdentity.airline&&draftIdentity.kind==='resolved'?<>{premiumCopy.identified}: <strong>{draftIdentity.airline.name}</strong>. {premiumCopy.identityNotice}</>:draftIdentity.kind==='ambiguous'?premiumCopy.ambiguous:draftIdentity.kind==='context_required'?premiumCopy.context:draftIdentity.kind==='conflict'?premiumCopy.conflict:premiumCopy.unresolved}</p>:null}
         <p className="mt-4 flex gap-2 text-xs leading-5 text-[color:var(--hotel-text-muted)]"><Info className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--hotel-accent)]" aria-hidden="true" />{copy.preparationNotice}</p>
         {storageError ? <p className="mt-3 text-sm text-red-700" role="alert">{copy.storageUnavailable}</p> : null}
         <div className="mt-5 flex flex-col gap-2 min-[360px]:flex-row">

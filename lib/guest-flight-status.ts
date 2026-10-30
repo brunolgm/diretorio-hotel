@@ -25,8 +25,8 @@ export function airportDepartureInstant(local: string, zone: string | null | und
   } catch { return null; }
 }
 
-export function guestStatusQuery(flight: SavedGuestFlight, hotelSlug: string, zone: string | null | undefined): FlightStatusRequest | null {
-  const flight_iata=flightIataReference(flight.airlineCode,flight.flightNumber);
+export function guestStatusQuery(flight: SavedGuestFlight, hotelSlug: string, zone: string | null | undefined, departureCountryCode?:string|null): FlightStatusRequest | null {
+  const flight_iata=flightIataReference(flight.airlineCode || flight.airlineName,flight.flightNumber,{...flight,departureCountryCode});
   if(!flight_iata)return null;
   const scheduledDepartureAt = airportDepartureInstant(`${flight.departureDate}T${flight.scheduledDepartureTime}:00`, zone);
   if (!scheduledDepartureAt) return null;
@@ -38,6 +38,7 @@ export function guestStatusQuery(flight: SavedGuestFlight, hotelSlug: string, zo
 export type FlightDisplay = {
   scheduledUtc?: string | null; planningBlocked?: boolean;
   status: 'inFlight' | 'landed' | 'cancelled' | 'scheduled' | 'active' | 'unknown';
+  estimated?: string | null; actual?: string | null; consultedAt?: string; sourceUpdatedAt?: string | null;
   scheduled: string; updated: string | null; updatedKind: 'actual' | 'estimated' | null;
   terminal: string | null; gate: string | null; live: boolean; updatedAt: string;
 };
@@ -61,7 +62,7 @@ export function parseFlightDisplay(payload: unknown, query: FlightQuery): Flight
   const status: FlightDisplay['status'] = conflict ? 'unknown' : live && d.liveStatus === 'en-route' ? 'inFlight'
     : ['landed','cancelled','scheduled','active'].includes(String(d.scheduleStatus)) ? d.scheduleStatus as FlightDisplay['status'] : 'unknown';
   const rawUtc = object(d.scheduledDeparture)?.utc;
-  return { status, scheduled, scheduledUtc: instant(rawUtc), planningBlocked: conflict || (rawUtc != null && !instant(rawUtc)), updated: actual ?? estimated, updatedKind: actual ? 'actual' : estimated ? 'estimated' : null,
+  return { status, scheduled, estimated, actual, consultedAt: fetched, sourceUpdatedAt: live ? liveTime : instant(updated?.schedule), scheduledUtc: instant(rawUtc), planningBlocked: conflict || (rawUtc != null && !instant(rawUtc)), updated: actual ?? estimated, updatedKind: actual ? 'actual' : estimated ? 'estimated' : null,
     terminal: location(d.departureTerminal), gate: location(d.departureGate), live, updatedAt: live ? liveTime! : instant(updated?.schedule) ?? fetched };
 }
 

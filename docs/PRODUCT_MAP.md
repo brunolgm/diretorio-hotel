@@ -1,5 +1,25 @@
 # PRODUCT MAP
 
+## Central de Voos V4 premium — 29/10/2026
+
+Base `a9118fb`. Apresentação compartilhada opt-in V4: identidade compacta,
+número em destaque, programação/live distintos, horários separados, terminal,
+portão e timestamps de consulta/fonte. Navegação desktop própria e dock mobile;
+frame de teclado ignora foco que já mudou. Homes e opções desabilitadas preservadas.
+
+Catálogo exato com 14 referências, sem fuzzy/codeshare guessing. TAM só deriva
+candidato comercial LA com origem BR confirmada no catálogo, data/rota completas
+e contexto contemporâneo suportado. JJ não é reescrito. LAT e SKY genérico
+permanecem ambíguos; JetSMART segue a unificação comercial JA datada e documentada.
+Dados manuais v1 ficam intactos; só a consulta é normalizada. País/timezone vêm da
+leitura server-side dos aeroportos já autorizados, sem inferência geográfica.
+
+Provider, API de status, orçamento/renovação, leases, cache, rate limits e RLS
+permanecem nos contratos da 51.1. Sem migration ou nova consulta externa para
+homologação: replays reais AD4277 e LA3565, separados de fixtures sintéticas.
+Mockup em docs/references é referência visual, nunca foto oficial publicada.
+Detalhes, fontes e comandos em `docs/CENTRAL_DE_VOOS_E_PMS.md`.
+
 ## Hotfix público V4 e formulário de Voos (29/10/2026)
 
 Base técnica: main `a98c75b`. Bugan já estava `active` por ativação canônica

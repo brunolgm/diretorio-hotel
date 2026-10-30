@@ -4,6 +4,7 @@
 @import "../components/public/bugan.css";
 @import "../components/public/public-experience-v4.css";
 @import "../components/public/public-internal-v4.css";
+@import "../components/public/flight-center-premium.css";
 
 /* Hotel admin brand theme. Strictly scoped so /platform and public experiences stay neutral. */
 .admin-theme {
