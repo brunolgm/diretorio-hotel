@@ -2844,3 +2844,29 @@ de desativação. A publicação técnica não comprova sua retirada. Não há f
 textual para escondê-los, DELETE, service role para mutação editorial, nova
 publicação de fixtures ou autorização para habilitar guias. GO técnico deve ser
 separado de aceite integral de conteúdo e homologação visual humana.
+
+#### Pós-execução autenticada — testes retirados (30/10/2026)
+
+A pendência de prioridade zero acima foi encerrada por execução local do
+administrador e releitura independente somente leitura. Os cinco registros do
+manifesto permanecem no banco com is_active=false; demais campos preservados,
+exceto updated_at. Uma auditoria por registro confirma a desativação pelo
+administrador Bugan entre 17:51:51 e 17:51:59 UTC, sem exclusões. A projeção
+anônima canônica retorna zero banners/comunicados ativos e zero guias publicados.
+
+Browser público pós-retirada: 30/30, PT/EN/ES, nove viewports e página de
+comunicados; nenhum TESTE, faixa, seção opcional ou espaço reservado ausente;
+hero/editoriais/Turismo preservados, sem overflow e zero chamadas de voo.
+Capturas e relatório em out/v4-premium-hotfix/post-retirement. Os 20 conjuntos
+protegidos, apresentação e guias mantiveram hashes iguais ao checkpoint anterior.
+Bugan active, dois administradores ativos, 13 Serviços originais habilitados;
+quatro guias desabilitados sem versão publicada, 222 registros sem publicação
+(221 em revisão e um aplicativo). Nenhum bootstrap, reupload ou nova escrita
+operacional nesta verificação.
+
+Implementação de aplicação já publicada em db53863, deployment
+dpl_G335k4CRw9GBxuooTkBaRMPGSYxF READY, com smoke público 74/74 e gates do
+candidato preservados. Esta atualização é somente documental. GO técnico e
+retirada de testes confirmados; homologação visual humana final e revisão
+operacional de guias/equipamentos/grade permanecem necessárias. Gastronomia
+premium completa permanece Sprint 53 F&B. Não há autorização de publicar guias.
