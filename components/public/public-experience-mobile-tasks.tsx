@@ -11,6 +11,8 @@ import type {SupportedPublicLanguage} from '@/lib/public-language';
 export function PublicExperienceMobileTasks({pageData,language,domainContext,preferSubdomainRoot,style}:{pageData:PublicHotelPageData;language:SupportedPublicLanguage;domainContext:DomainContext;preferSubdomainRoot:boolean;style?:CSSProperties}){
  const copy=getPublicCopy(language),model=getUniversalMobileHome(pageData,language,domainContext,preferSubdomainRoot);
  const actions={services:{label:copy.navigationServices,icon:ConciergeBell},dining:{label:copy.universalDining,icon:Utensils},flights:{label:copy.universalFlights,icon:Plane},contact:{label:copy.universalContact,icon:MessageCircle}};
+ const flightHref=buildPublicHotelFlightCenterHref({slug:pageData.hotel.slug,language,domainContext,preferSubdomainRoot});
+ const savedFlightHref=flightHref+(flightHref.includes('?')?'&':'?')+'tab=meu-voo';
  const hasEssentials=model.wifi||model.breakfast||model.checkin||model.checkout;
  if(!hasEssentials&&!model.actions.length)return null;
  return <div className="public-v4-mobile-home" style={style} data-public-v4-mobile>
@@ -21,7 +23,7 @@ export function PublicExperienceMobileTasks({pageData,language,domainContext,pre
     {model.checkin||model.checkout?<div className="public-v4-stay-hours"><h3><Clock3 aria-hidden/>{copy.universalStayHours}</h3><dl>{model.checkin?<div><dt>{copy.checkIn}</dt><dd>{model.checkin}</dd></div>:null}{model.checkout?<div><dt>{copy.checkOut}</dt><dd>{model.checkout}</dd></div>:null}</dl></div>:null}
    </div>
   </section>:null}
-  {pageData.flightHomeCard&&domainContext.navigationScope!=='authenticated-preview'?<HomeSavedFlight hotelId={pageData.hotel.id} href={buildPublicHotelFlightCenterHref({slug:pageData.hotel.slug,language,domainContext,preferSubdomainRoot})} language={language}/>:null}
+  {pageData.flightHomeCard&&domainContext.navigationScope!=='authenticated-preview'?<HomeSavedFlight hotelId={pageData.hotel.id} href={savedFlightHref} language={language}/>:null}
   {model.actions.length?<section aria-label={copy.universalTasksTitle} className="public-v4-tasks"><h2>{copy.universalTasksTitle}</h2><nav aria-label={copy.universalTasksTitle}>{model.actions.map(action=>{const item=actions[action.key],Icon=item.icon;return <a key={action.key} href={action.href} data-v4-action={action.key}><Icon aria-hidden/><span>{item.label}</span><ChevronRight aria-hidden className="public-v4-action-arrow"/></a>;})}</nav></section>:null}
  </div>;
 }
