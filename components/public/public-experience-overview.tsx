@@ -1,3 +1,4 @@
+import {FlightHomeAccess} from './home-saved-flight';
 import {RoomGuideLinks} from './room-guide-links';
 import {PublicCommunications} from './public-communications';
 import {publicCommunications} from '@/lib/public-communications';
@@ -98,18 +99,18 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
         <h1>{presentation?.heroTitleMode === 'hotel_name' ? hotel.name : hero?.title || hotel.name}</h1>
         <p className="v3-subtitle">{hero?.description || copy.heroDescription}</p>
       </div>
-      <nav className="v3-accesses" aria-label={copy.navigationLabel} data-v3-accesses data-legacy-home-access>{accesses.map(item => <a key={item.key} href={item.href} data-access={item.key}><item.icon aria-hidden /><span>{item.label}</span><ChevronRight className="v3-access-arrow" aria-hidden /></a>)}</nav>
+      <nav className="v3-accesses" aria-label={copy.navigationLabel} data-v3-accesses data-legacy-home-access>{accesses.map(item => item.key==='flights'&&version==='v4'?<FlightHomeAccess key={item.key} hotelId={hotel.id} href={item.href} language={language} enabled={domainContext.navigationScope!=='authenticated-preview'} label={item.label} icon={<item.icon aria-hidden/>} arrow={<ChevronRight className="v3-access-arrow" aria-hidden/>} access={item.key}/>:<a key={item.key} href={item.href} data-access={item.key}><item.icon aria-hidden /><span>{item.label}</span><ChevronRight className="v3-access-arrow" aria-hidden /></a>)}</nav>
     </section>
     {version==='v4'?<PublicExperienceMobileTasks pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
     <div className="v3-body">
       {pageData.hasFallbackContent ? <p role="status" className="v3-fallback">{copy.fallbackNotice}</p> : null}
-      {version==='v4'?<PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="offers"/>:null}
       {editorial.length ? <section className="v3-editorials" aria-label={t.hotel}>{editorial.map(row => <article key={row.slot} id={row.slot} className={`v3-editorial v3-editorial-${row.slot}`} data-editorial={row.slot}>
         <MediaPicture media={row} />
         <div className="v3-editorial-copy"><p className="v3-eyebrow">{row.slot === 'restaurant' ? t.dining : row.slot === 'about' ? t.hotel : ''}</p><h2>{row.title}</h2>{row.description ? <p>{row.description}</p> : null}{editorialHref(row.cta_url) && row.cta_label ? <a href={editorialHref(row.cta_url)!} target={editorialHref(row.cta_url)?.startsWith('https://')?'_blank':undefined} rel="noopener noreferrer">{row.cta_label}<ArrowUpRight aria-hidden className="h-4 w-4" /></a> : null}</div>
       </article>)}</section> : null}
       {version!=='v4' && enabled('banners') && banners.length ? <PromotionalBannerCarousel banners={banners} language={language} /> : null}
       {presentation?.benefits.length ? <section className="v3-amenities" aria-label={copy.editorialServicesTitle}>{presentation.benefits.map((b,i)=>{const Icon=benefitIcons[b.icon];return <div key={i}><Icon aria-hidden/><span>{editorialText(b.label,language)}</span></div>;})}</section> : enabled('services') && sections.length ? <nav className="v3-amenities" aria-label={copy.editorialServicesTitle}>{sections.slice(0, 4).map(row => <a key={row.id} href={buildPublicHotelServiceHref({ ...route, serviceId: row.id })}><ServiceIcon iconName={row.icon} className="h-7 w-7" /><span>{row.title}</span></a>)}</nav> : null}
+      {version==='v4'?<PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="offers"/>:null}
       {version!=='v4' && enabled('announcements') && announcements.length ? <section className="v3-announcements"><h2>{copy.editorialAnnouncementsTitle}</h2>{announcements.map(row => <article key={row.id}><h3>{row.title}</h3><p>{row.body}</p></article>)}</section> : null}
       {version==='v4'?<PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="updates"/>:null}
       <RoomGuideLinks data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>

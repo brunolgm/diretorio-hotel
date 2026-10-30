@@ -89,17 +89,23 @@ if(args.get('communications')==='1'){
  data.banners=[{...base,id:'banner-1',title:'Offer '+language,subtitle:'Published offer',cta_label:'Open',cta_url:'https://example.test/offer',display_order:1,image_url:'https://example.test/banner.png'}];
 }
 const fixtureGuides=new Map<string,RoomGuide>();
-if(args.get('guides')==='1'){
+if(args.get('guides')==='1'||args.get('guides')==='draft'){
  for(const [i,spec]of guideManifest.guides.entries()){
   const id='52130000-0000-4000-8000-00000000000'+(i+1),guide=structuredClone(spec.configuration) as RoomGuide;
   // Synthetic publication fixture only, never a claim of operational validation.
-  guide.applicability.scope='categories';guide.applicability.categories=['Synthetic suite'];guide.applicability.label={pt:'Suíte sintética de teste',en:'Synthetic test suite',es:'Suite sintética de prueba'};
-  guide.channels.forEach(c=>{if(c.kind==='review')c.kind='linear';});const globo=guide.channels.find(c=>c.number==='18');if(globo)globo.quality='SD';
+  if(args.get('guides')!=='draft'){guide.applicability.scope='categories';guide.applicability.categories=['Synthetic suite'];guide.applicability.label={pt:'Suíte sintética de teste',en:'Synthetic test suite',es:'Suite sintética de prueba'};}
+  if(args.get('guides')!=='draft')guide.channels.forEach(c=>{if(c.kind==='review')c.kind='linear';});const globo=guide.channels.find(c=>c.number==='18');if(globo&&args.get('guides')!=='draft')globo.quality='SD';
   for(const [key,asset]of Object.entries(spec.images)){const step=guide.steps.find(s=>s.key===key);if(step)step.image_path=hotel.id+'/room-guides/'+id+'/'+(asset==='smart-remote'?'52140000-0000-4000-8000-000000000001':'52140000-0000-4000-8000-000000000002')+'.webp';}
-  data.sections.push({id,hotel_id:hotel.id,title:spec.title[language],content:spec.content[language],enabled:true,service_action_type:'standard',url:null,sort_order:50+i,category:'Room guides'} as PublicHotelPageData['sections'][number]);
+  data.sections.push({id,hotel_id:hotel.id,title:spec.title[language],content:spec.content[language],enabled:args.get('guides')!=='draft',service_action_type:'standard',url:null,sort_order:50+i,category:language==='pt'?'Guias do Quarto':language==='en'?'Room guides':'Guías de la habitación'} as PublicHotelPageData['sections'][number]);
   fixtureGuides.set(id,guide);
  }
- data.serviceGuides=[...fixtureGuides].map(([serviceId,guide])=>({serviceId,category:guide.category}));
+ data.serviceGuides=args.get('guides')==='draft'?[]:[...fixtureGuides].map(([serviceId,guide])=>({serviceId,category:guide.category}));
+}
+if(args.get('scenario')){
+ const selected=args.get('scenario');if(selected==='none'||selected==='flight'||selected==='draft'){data.banners=[];data.announcements=[];}
+ if(selected==='attention'||selected==='maintenance'){data.banners=[];data.announcements=data.announcements.filter(a=>a.id===(selected==='attention'?'alert':'maintenance'));}
+ if(selected==='offers')data.announcements=[];
+ if(selected==='updates'){data.banners=[];data.announcements=data.announcements.filter(a=>a.id==='info');}
 }
 if(new URLSearchParams(location.search).get('seedFlight')==='1'){
  const tomorrow=new Date(Date.now()+86400000).toISOString().slice(0,10),saved=createSavedGuestFlight(hotel.id,{airline:'LA',flightNumber:'3565',departureAirport:'REC',arrivalAirport:'BSB',departureDate:tomorrow,scheduledDepartureTime:'20:50'});if(saved.ok)saveGuestFlight(hotel.id,saved.flight);
@@ -110,9 +116,9 @@ let content=<HotelPublicPageContent {...data} language={language} domainContext=
 const destinationPath=location.pathname.replace(/^\/hotel\/[^/]+/,'/preview');
 if((domain.navigationScope||location.pathname.startsWith('/hotel/'))&&destinationPath!=='/preview'){
  const path=destinationPath.replace(/^\/preview\//,'').split('/');
- if(path[0]==='servicos'){
+ if(path[0]==='servicos'||path[0]==='guias'&&args.get('scope')==='preview'){
   const section=data.sections.find(s=>s.id===path[1]);
-  content=section?<HotelServiceDetailContent hotel={data.hotel} section={section} roomGuide={fixtureGuides.get(section.id)} language={language} domainContext={domain} hasFallbackContent={false} experienceVersion={data.presentation?.experienceVersion} roomRestaurantState={section.service_action_type==='room_restaurant_menu'?'missing-context':null}/>:<h1>404 fixture</h1>;
+  content=section?<HotelServiceDetailContent hotel={data.hotel} section={section} guideDraftPreview={path[0]==='guias'} roomGuide={fixtureGuides.get(section.id)} language={language} domainContext={domain} hasFallbackContent={false} experienceVersion={data.presentation?.experienceVersion} roomRestaurantState={section.service_action_type==='room_restaurant_menu'?'missing-context':null}/>:<h1>404 fixture</h1>;
  }else if(path[1]==='voos'){
   const flights={hotel:data.hotel,experienceVersion:data.presentation?.experienceVersion,airports:[{iataCode:'REC',name:'Synthetic REC airport',city:'Recife',timezone:'America/Recife',officialDeparturesUrl:null,officialArrivalsUrl:null,estimatedTransferMinutes:null,domesticLeadMinutes:null,internationalLeadMinutes:null,safetyMarginMinutes:null}],navigationAvailability:{services:true,menu:false,information:true,contact:true},settings:{departurePlanningEnabled:false,transferEnabled:false,wakeUpEnabled:false,breakfastBoxEnabled:false,receptionEnabled:false,officialLinksEnabled:false,departureNotice:null}} as PublicFlightCenterData;
   content=<HotelPublicFlightCenter data={flights} language={language} domainContext={domain} preferSubdomainRoot={false} tab={normalizePublicFlightCenterTab(args.get('tab')??'partidas')}/>;
@@ -122,6 +128,7 @@ if((domain.navigationScope||location.pathname.startsWith('/hotel/'))&&destinatio
  }else if(isPublicHotelAreaKey(path[1]))content=<HotelPublicAreaContent pageData={data} area={path[1]} language={language} domainContext={domain} preferSubdomainRoot={false}/>;
  else content=<h1>404 fixture</h1>;
 }
-createRoot(document.getElementById('root')!).render(args.has('guideEditor')?<ServiceGuideEditor initial={structuredClone(guideManifest.guides[0].configuration) as RoomGuide} revision={1} serviceId="52130000-0000-4000-8000-000000000001" action={async form=>{document.body.dataset.guideSaved=String(form.get('configuration'));}}/>:args.has('editor') ? <PresentationEditor initial={config as PublicPresentation} revision={0} action={async form=>{
+if(location.pathname.startsWith('/preview/guias/')&&args.get('scope')!=='preview')content=<h1>404 fixture</h1>;
+createRoot(document.getElementById('root')!).render(args.has('guideEditor')?<main className="mx-auto max-w-6xl p-4 font-sans"><p className="mb-4 rounded-xl border p-3 text-sm" role="note">Simulação isolada do editor — dados de teste, sem gravação no hotel.</p><ServiceGuideEditor initial={structuredClone(guideManifest.guides[0].configuration) as RoomGuide} revision={1} serviceId="52130000-0000-4000-8000-000000000001" action={async form=>{document.body.dataset.guideSaved=String(form.get('configuration'));}}/></main>:args.has('editor') ? <PresentationEditor initial={config as PublicPresentation} revision={0} action={async form=>{
  document.body.dataset.editorialSaved=JSON.stringify({configuration:JSON.parse(String(form.get('configuration'))),files:[...form.entries()].filter(([,v])=>v instanceof File&&v.name).map(([key,v])=>({key,name:(v as File).name}))});
 }}/> : content);

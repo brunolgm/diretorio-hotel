@@ -29,11 +29,11 @@ test("categories remain distinct, alerts never share a promotion carousel", () =
   const model = publicCommunications("hotel-a", rows, [], now);
   assert.deepEqual(
     model.alerts.map((x) => x.category),
-    ["alerta"],
+    ["alerta", "manutencao"],
   );
   assert.deepEqual(
     model.updates.map((x) => x.category),
-    ["manutencao", "informativo"],
+    ["informativo"],
   );
   assert.equal(model.promotions.length, 1);
 });
@@ -75,7 +75,7 @@ test("empty does not manufacture content; similar texts are not deduplicated wit
     2,
   );
 });
-test("banner cap is preserved and links reject scripts, credentials and arbitrary browser input", () => {
+test("banner cap is preserved and media rejects scripts, credentials and insecure URLs", () => {
   assert.equal(
     publicCommunications(
       "hotel-a",
@@ -103,4 +103,14 @@ test("banner cap is preserved and links reject scripts, credentials and arbitrar
     publicCommunicationUrl("https://example.test/offers"),
     "https://example.test/offers",
   );
+});
+
+test("CTA preserves canonical Admin HTTP/HTTPS contract while media remains HTTPS",()=>{assert.equal(publicCommunicationUrl("http://example.test/offer","link"),"http://example.test/offer");assert.equal(publicCommunicationUrl("http://example.test/image.png"),null);assert.equal(publicCommunicationUrl("http://user:secret@example.test/","link"),null);});
+
+test("critical alerts precede maintenance without hiding other eligible notices", () => {
+ const maintenance = { ...row, id: "maintenance", category: "manutencao" };
+ const alert = { ...row, id: "critical", category: "alerta" };
+ const second = { ...alert, id: "second-critical" };
+ const model = publicCommunications("hotel-a", [maintenance, alert, second], [], now);
+ assert.deepEqual(model.alerts.map(r => r.id), ["critical", "second-critical", "maintenance"]);
 });

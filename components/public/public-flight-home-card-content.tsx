@@ -1,8 +1,7 @@
 'use client';
 
-import { useCallback, useSyncExternalStore } from 'react';
+import {useHomeSavedFlight} from './home-saved-flight';
 import { ArrowRight, PlaneTakeoff } from 'lucide-react';
-import { getSavedGuestFlightSnapshot, parseSavedGuestFlight, subscribeToGuestFlight } from '@/lib/guest-flight-storage';
 import { getPublicFlightCenterCopy } from '@/lib/public-flight-center-copy';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
@@ -15,6 +14,7 @@ export function PublicFlightHomeCardContent({
   titleClassName,
   descriptionClassName,
   ctaClassName,
+  enabled=true,
 }: {
   hotelId: string;
   language: SupportedPublicLanguage;
@@ -24,12 +24,10 @@ export function PublicFlightHomeCardContent({
   titleClassName: string;
   descriptionClassName: string;
   ctaClassName: string;
+  enabled?:boolean;
 }) {
   const copy = getPublicFlightCenterCopy(language);
-  const subscribe = useCallback((onStoreChange: () => void) => subscribeToGuestFlight(hotelId, onStoreChange), [hotelId]);
-  const getSnapshot = useCallback(() => getSavedGuestFlightSnapshot(hotelId), [hotelId]);
-  const snapshot = useSyncExternalStore(subscribe, getSnapshot, () => null);
-  const savedFlight = snapshot ? parseSavedGuestFlight(snapshot, hotelId) : null;
+  const savedFlight=useHomeSavedFlight(hotelId,enabled);
   const airline = savedFlight?.airlineCode || savedFlight?.airlineName;
   const title = savedFlight
     ? `${[airline, savedFlight.flightNumber].filter(Boolean).join(' ')} · ${savedFlight.departureAirport} → ${savedFlight.arrivalAirport}`

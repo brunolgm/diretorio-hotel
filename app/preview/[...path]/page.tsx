@@ -1,3 +1,4 @@
+import {getAuthenticatedRoomGuideDraft} from '@/lib/room-guides/draft-preview.server';
 import {loadPublishedServiceGuide} from '@/lib/room-guides/read.server';
 import {notFound} from 'next/navigation';
 import {getAuthenticatedHotelPreviewData} from '@/lib/authenticated-hotel-preview';
@@ -22,6 +23,10 @@ export default async function PreviewDestination({params,searchParams}:{params:P
  // Authorization precedes destination lookup. No hotel ID/slug is accepted from the request.
  const data=await getAuthenticatedHotelPreviewData(language);
  const domainContext={...await getRequestDomainContext(),navigationScope:'authenticated-preview' as const};
+ if(path[0]==='guias'&&path.length===2){
+  const draft=await getAuthenticatedRoomGuideDraft(path[1],language);if(draft.hotelId!==data.hotel.id)notFound();
+  return <HotelServiceDetailContent hotel={data.hotel} section={draft.section} roomGuide={draft.guide} guideDraftPreview language={language} domainContext={domainContext} experienceVersion={data.presentation?.experienceVersion} hasFallbackContent={false}/>;
+ }
  if(path[0]==='servicos'&&path.length===2){
   const section=data.sections.find(s=>s.hotel_id===data.hotel.id&&s.id===path[1]&&s.enabled);
   if(!section||!canRenderServiceDetailPage(section))notFound();

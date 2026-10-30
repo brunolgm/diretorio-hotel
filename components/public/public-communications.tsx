@@ -29,27 +29,51 @@ export function PublicCommunications({
   const detail = (id: string) => announcementsHref + "#announcement-" + id;
   if (mode === "attention")
     return model.alerts.length ? (
-      <aside className="v4-attention" aria-label={copy.alert} data-v4-alerts>
-        {model.alerts.map((row) => (
-          <article key={row.id}>
-            <AlertTriangle aria-hidden />
-            <div>
-              <p className="v4-communication-category">{copy.alert}</p>
-              <h2>{row.title}</h2>
-              {row.body ? (
-                <p className="v4-communication-summary">{row.body}</p>
-              ) : null}
-              <a href={detail(row.id)}>
-                {copy.read}
-                <ArrowUpRight aria-hidden />
-              </a>
-            </div>
-          </article>
-        ))}
+      <aside
+        className="v4-attention"
+        aria-label={copy.important}
+        data-v4-alerts
+      >
+        {model.alerts.map((row) => {
+          const maintenance = row.category === "manutencao",
+            Icon = maintenance ? Wrench : AlertTriangle;
+          return (
+            <details key={row.id} data-important-notice data-notice-category={row.category}>
+              <summary>
+                <Icon aria-hidden />
+                <span className="v4-important-category">
+                  {maintenance ? copy.maintenance : copy.alert}
+                </span>
+                <strong>{row.title}</strong>
+                <span className="v4-important-read">{copy.read}</span>
+              </summary>
+              <div className="v4-important-detail">
+                {row.body ? <p>{row.body}</p> : null}
+                {row.starts_at || row.ends_at ? (
+                  <p className="v4-communication-period">
+                    {[row.starts_at, row.ends_at]
+                      .filter(Boolean)
+                      .map((value) =>
+                        new Intl.DateTimeFormat(language, {
+                          dateStyle: "medium",
+                          timeZone: "UTC",
+                        }).format(new Date(value!)),
+                      )
+                      .join(" — ")}
+                  </p>
+                ) : null}
+                <a href={detail(row.id)}>
+                  {copy.all}
+                  <ArrowUpRight aria-hidden />
+                </a>
+              </div>
+            </details>
+          );
+        })}
       </aside>
     ) : null;
   if (mode === "offers")
-    return model.banners.length || model.promotions.length ? (
+    return model.banners.length ? (
       <section
         className="v4-communications"
         aria-label={copy.offers}
@@ -59,7 +83,7 @@ export function PublicCommunications({
         <div className="v4-offer-cards">
           {model.banners.map((row) => {
             const image = publicCommunicationUrl(row.image_url),
-              cta = publicCommunicationUrl(row.cta_url);
+              cta = publicCommunicationUrl(row.cta_url, "link");
             return (
               <article key={row.id}>
                 {image ? (
@@ -108,24 +132,6 @@ export function PublicCommunications({
               </article>
             );
           })}
-          {model.promotions.map((row) => (
-            <article key={row.id}>
-              <div>
-                <p className="v4-communication-category">
-                  <Tag aria-hidden />
-                  {copy.promotion}
-                </p>
-                <h3>{row.title}</h3>
-                {row.body ? (
-                  <p className="v4-communication-summary">{row.body}</p>
-                ) : null}
-                <a href={detail(row.id)}>
-                  {copy.read}
-                  <ArrowUpRight aria-hidden />
-                </a>
-              </div>
-            </article>
-          ))}
         </div>
       </section>
     ) : null;

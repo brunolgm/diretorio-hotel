@@ -3,21 +3,22 @@ import '../../scripts/bootstrap-runtime.mjs';
 import {registerHooks} from 'node:module';
 import {readFileSync,existsSync} from 'node:fs';
 import ts from 'typescript';
-/** @type {{user:boolean,role:string,active:boolean,status:string,modules:string[],tables:Record<string,unknown[]>,queries:unknown[]}} */
-export const state={user:true,role:'administrador',active:true,status:'suspended',modules:[],tables:{},queries:[]};
+/** @type {{user:boolean,role:string,active:boolean,status:string,modules:string[],tables:Record<string,unknown[]>,queries:unknown[],failTable:string|null}} */
+export const state={user:true,role:'administrador',active:true,status:'suspended',modules:[],tables:{},queries:[],failTable:null};
 const moduleUrl=source=>'data:text/javascript,'+encodeURIComponent(source);
 const self=new URL('./preview-runtime.mjs',import.meta.url).href;
 export const client={auth:{getUser:async()=>({data:{user:state.user?{id:'admin'}:null}})},rpc:async(name,args)=>{
  if(name==='get_current_hotel_modules')return {data:state.modules.map(module_key=>({module_key,is_enabled:true})),error:null};
  if(name==='is_hotel_module_enabled')return {data:state.modules.includes(args.p_module_key),error:null};
  if(name==='get_current_hotel_experience_layout')return {data:[],error:null};
+ if(name==='get_current_hotel_service_guide'){state.queries.push({rpc:name,serviceId:args.p_service_id});const g=state.tables.hotel_service_guides?.find(g=>g.service_id===args.p_service_id&&g.hotel_id==='own');return {data:g?[g]:null,error:g?null:{code:'42501'}};}
  if(name==='get_current_hotel_published_service_guides')return {data:[],error:null};
  throw Error('Unexpected RPC '+name);
 },from(table){let filters=[],single=false,limit=Infinity;const q={
  select(){return q;},eq(k,v){filters.push(r=>r[k]===v);state.queries.push({table,k,v});return q;},
  in(k,values){filters.push(r=>values.includes(r[k]));return q;},order(){return q;},limit(n){limit=n;return q;},
  maybeSingle(){single=true;return q;},single(){single=true;return q;},
- then(resolve){let rows=table==='profiles'?[{id:'admin',hotel_id:'own',role:state.role,is_active:state.active}]:table==='hotels'?[{id:'own',slug:'own',subdomain:'own',name:'Synthetic',platform_status:state.status}]:state.tables[table]??[];
+ then(resolve){if(state.failTable===table)return Promise.resolve({data:null,error:{code:'XX000'}}).then(resolve);let rows=table==='profiles'?[{id:'admin',hotel_id:'own',role:state.role,is_active:state.active}]:table==='hotels'?[{id:'own',slug:'own',subdomain:'own',name:'Synthetic',platform_status:state.status}]:state.tables[table]??[];
  rows=rows.filter(r=>filters.every(f=>f(r))).slice(0,limit);return Promise.resolve({data:single?rows[0]??null:rows,error:null}).then(resolve);}
 };return q;}};
 registerHooks({resolve(spec,ctx,next){

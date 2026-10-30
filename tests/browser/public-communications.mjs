@@ -39,6 +39,7 @@ export async function runCommunicationsAndFlight({ page, origin, output }) {
         [390, 844],
         [430, 932],
         [768, 1024],
+        [1024,768],
         [1440, 900],
         [1536, 864],
       ]) {
@@ -80,12 +81,12 @@ export async function runCommunicationsAndFlight({ page, origin, output }) {
             );
             throw error;
           });
-        assert.equal(await page.locator("[data-v4-alerts] article").count(), 1);
+        assert.equal(await page.locator("[data-v4-alerts] [data-important-notice]").count(), 2);
         assert.equal(
           await page.locator("[data-v4-updates] article").count(),
-          2,
+          1,
         );
-        assert.equal(await page.locator("[data-v4-offers] article").count(), 2);
+        assert.equal(await page.locator("[data-v4-offers] article").count(), 1);
         assert.ok(
           !/DRAFT MUST|EXPIRED MUST|FOREIGN MUST/.test(
             await page.locator("body").innerText(),
@@ -114,7 +115,7 @@ export async function runCommunicationsAndFlight({ page, origin, output }) {
           JSON.stringify(overflow),
         );
         assert.equal(
-          await page.locator("[data-home-saved-flight]").count(),
+          await page.locator("[data-home-saved-flight]:visible").count(),
           0,
           "private preview must not read browser personal flight",
         );
@@ -149,13 +150,13 @@ export async function runCommunicationsAndFlight({ page, origin, output }) {
     window.fixtureFlight.remove(window.fixtureFlight.hotelId),
   );
   await card.waitFor({ state: "hidden" });
-  assert.equal(await page.locator("[data-home-saved-flight]").count(), 0);
+  assert.equal(await page.locator("[data-home-saved-flight]:visible").count(), 0);
   await page.goto(
     origin +
       "/hotel/bugan-recife?scope=public&experience=v4&theme=bugan&lang=en&seedFlight=1",
   );
   await card.waitFor();
-  const href = await card.locator("a").getAttribute("href");
+  const href = await card.getAttribute("href");
   assert.ok(href.includes("voos") && href.includes("lang=en"));
   assert.equal(statuses, 0);
   rows.push({
@@ -180,8 +181,8 @@ export async function runCommunicationsAndFlight({ page, origin, output }) {
   });
   await card.waitFor({ state: "hidden" });
   rows.push({ tenantIsolation: true, passed: true });
-  for(const theme of ['bugan','grand-mercure','deep-ocean','novotel','mercure','default'])for(const lang of ['pt','en','es'])for(const [width,height]of [[390,844],[1440,900]]){
-    await page.setViewportSize({width,height});await page.goto(origin+'/hotel/bugan-recife?'+new URLSearchParams({scope:'public',experience:'v4',theme,lang,seedFlight:'1'}));const saved=page.locator('[data-home-saved-flight]');await saved.waitFor();assert.equal(new URL(await saved.locator('a').getAttribute('href'),origin).searchParams.get('tab'),'meu-voo');assert.ok((await saved.innerText()).includes('LA 3565'));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(statuses,0);rows.push({theme,lang,width,savedFlightVisible:true,passed:true});
+  for(const theme of ['bugan','grand-mercure','deep-ocean','novotel','mercure','default'])for(const lang of ['pt','en','es'])for(const [width,height]of [[360,640],[375,667],[390,645],[390,844],[430,932],[768,1024],[1024,768],[1440,900],[1536,864]]){
+    await page.setViewportSize({width,height});await page.goto(origin+'/hotel/bugan-recife?'+new URLSearchParams({scope:'public',experience:'v4',theme,lang,seedFlight:'1'}));const saved=page.locator('[data-home-saved-flight]:visible');await saved.waitFor();assert.equal(new URL(await saved.getAttribute('href'),origin).searchParams.get('tab'),'meu-voo');assert.ok((await saved.innerText()).includes('LA 3565'));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(statuses,0);rows.push({theme,lang,width,savedFlightVisible:true,passed:true});
   }
   // Edit, BFCache-style return and canonical 12h expiry with the browser clock.
   await page.clock.install({ time: new Date() });
