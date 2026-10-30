@@ -2907,9 +2907,14 @@ ser conferidos na sessão normal do hotel após READY. Capturas antes/depois e
 logs ficam em out/tv-premium e out/tourism-v4/tv-*, fora do commit.
 
 Releitura manteve os hashes dos 20 conjuntos protegidos, apresentação e guias.
-Bugan active, dois administradores ativos, 13 Serviços originais habilitados;
-quatro guias desabilitados e sem publicação; 222 registros, sendo 221 review e
-Netflix application. Busca real de leitura confirmou SporTV 37/38/39/537/538/539.
+O estado real de início desta execução divergia do checkpoint informado: Bugan
+active, dois administradores ativos, 14 Serviços habilitados, incluindo TV e Canais
+(enabled=true, updated_at 30/10/2026 22:07:10 UTC, 19h07 local). Os outros três
+guias estavam desabilitados. As quatro configurações de guia continuam sem versão
+publicada; 222 registros, sendo 221 review e Netflix application. Os hashes de
+hotel_sections coincidem entre início/fim desta execução, confirmando preservação
+desse estado; em relação à verificação anterior, somente esse conjunto divergiu.
+Nenhum status editorial foi alterado pelo hotfix. Busca real de leitura confirmou SporTV 37/38/39/537/538/539.
 Admin de passos, ordem, imagens, traduções, números, categorias, formatos e
 publicação permanece no fluxo existente. Home, comunicações, voos, F&B, QR e
 roomToken não foram alterados; nenhuma chamada Google/AirLabs ou escrita remota.
@@ -2918,3 +2923,12 @@ Publicação técnica não autoriza habilitar guias ou publicar a grade.
 Regressões adicionais do candidato: composição 61/61 e matriz V4 premium 168/168,
 sem chamadas de API no harness. A seleção V3/V4 e as seis identidades foram
 preservadas. Smoke público real deve ser relido após o deployment READY.
+
+Publicação técnica: c5ebf9d integrado em main por 2fa2bea, deployment
+dpl_E61i3cvG8KyKrKZNDYyk8npUYvHB READY. O smoke público interrompeu na asserção
+14 != 13 Serviços habilitados. Não houve redução ou adaptação do teste para
+esconder a divergência. Desativar somente TV e Canais pelo Admin normal foi
+solicitado ao usuário para restabelecer o checkpoint exigido; nenhuma escrita
+editorial foi executada por caminho alternativo. A autoria dessa habilitação
+não foi determinada. GO operacional e gate público integral permanecem pendentes
+da decisão/ação humana e releitura; guias e grade não foram publicados.
