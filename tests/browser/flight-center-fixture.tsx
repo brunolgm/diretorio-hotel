@@ -23,6 +23,12 @@ const date = scenario==='form'?new Date().toISOString().slice(0,10):scenario==='
 const result = createSavedGuestFlight(hotelId, { airline: 'LA', flightNumber: scenario==='premium'?'3565':'3530', departureAirport: scenario==='premium'?'REC':'GIG', arrivalAirport: scenario==='premium'?'BSB':'VIX', departureDate: date, scheduledDepartureTime: scenario==='premium'?'20:50':'23:15' });
 if (!result.ok) throw new Error(`Invalid synthetic flight: ${JSON.stringify(result.errors)}`);
 if(scenario==='premium'&&params.get('status')==='live'&&result.ok){Object.assign(result.flight,{airlineCode:'AD',flightNumber:'4277',arrivalAirport:'CGH',scheduledDepartureTime:'16:40',scheduledDepartureAt:'2026-10-29T16:40:00',expiresAt:'2026-10-30T04:40:00'});}
+// Logo scenarios change only synthetic manual identity; no fabricated provider matches.
+const logoCase=params.get('logoCase');
+if(scenario==='premium'&&logoCase){
+ const identities:Record<string,string>={azul:'AZU',gol:'GLO',tam:'TAM',known:'TP',unknown:'XX',ambiguous:'LAT',conflict:'GOL'};
+ if(identities[logoCase])Object.assign(result.flight,{airlineCode:identities[logoCase],airlineName:null,flightNumber:logoCase==='conflict'?'AD4277':result.flight.flightNumber});
+}
 if(scenario==='form'||(scenario==='premium'&&params.get('status')==='form'))localStorage.removeItem(`libguest:flight:${hotelId}:v1`);
 else localStorage.setItem(`libguest:flight:${hotelId}:v1`, JSON.stringify(result.flight));
 

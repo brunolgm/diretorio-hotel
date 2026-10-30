@@ -372,3 +372,49 @@ O país/timezone é projetado somente para códigos já autorizados pelo RPC pú
 do hotel, pela leitura server-side existente. Não há inferência de país pelo IATA
 ou timezone, nova concessão de tabela, campo no v1 ou parâmetro extra ao provider.
 País ausente/estrangeiro impede a conversão TAM; LA explícito continua disponível.
+
+### Hotfix visual — logomarcas locais (29/10/2026)
+
+O card Meu voo apresenta LATAM, Azul e GOL no espaço reservado de 56×56 px,
+com object-contain e fundo claro. O nome textual, referência, rota e dados de
+programação/live continuam independentes da imagem. O catálogo airline-identity.ts
+recebe apenas metadados visuais; getAirlineLogo seleciona um path estático após a
+resolução canônica existente. Não há inferência por imagem nem novo catálogo de
+operadoras. LAT, conflitos, contexto TAM insuficiente, desconhecidas e conhecidas
+sem asset conservam o avião. onError restaura o mesmo fallback sem mudar a geometria.
+Partidas/Chegadas representam aeroportos e não recebem logos decorativos.
+
+| Companhia | Asset local | Formato / dimensão nativa | Bytes | Origem oficial | SHA-256 |
+| --- | --- | --- | ---: | --- | --- |
+| LATAM | public/brand/airlines/latam.png | PNG 180×180 | 1244 | [arquivo oficial](https://s.latamairlines.com/images/seo/apple-touch-icon.png) | 3e7080729499cf060d27394fa6deb34b7778e17f5b9c18308d5d1b2f0a0a68af |
+| Azul | public/brand/airlines/azul.svg | SVG 101×28 | 3236 | [arquivo oficial](https://www.voeazul.com.br/_next/static/chunks/pages/_app-5f18d72371d16e51.js) | e9abd4aa8d185201b017e9b2b29809aa597cb1b27b1fc52faa99cc6eb42b1b02 |
+| GOL | public/brand/airlines/gol.svg | SVG 50×20 | 2427 | [arquivo oficial](https://www.voegol.com.br/documents/d/guest/logo-voegol-new) | 888ea563ea7b80a2a5dcc47aeb5532bea648d75436ae9ecb80f83f7318405df0 |
+
+Procedência: LATAM é o ícone digital ligado pelo [site oficial LATAM](https://www.latamairlines.com/br/pt); arquivo PNG original, sem recorte/recoloração. Azul é a versão brand_azul_dark do [site oficial Azul](https://www.voeazul.com.br/br/pt/home): somente atributos e 32 paths/rects estáticos foram serializados para SVG, sem executar JavaScript externo, alterar coordenadas, cores ou proporção. GOL é o SVG digital ligado pelo cabeçalho da [página oficial de marcas GOL](https://www.voegol.com.br/pt/marcas-gol), preservado integralmente. Total dos três arquivos: 6.907 bytes; sem CDN em runtime. SVGs passivos, sem scripts, eventos, referências externas ou fontes.
+
+Condições: marcas pertencem às respectivas companhias; uso estritamente
+identificativo ao lado do nome, sem sugerir parceria, autorização comercial ou
+verificação da ocorrência. Arquivo publicamente disponibilizado não implica
+licença aberta. Preservam-se original, cores, proporção e contexto de fundo; não
+se extraiu marca do mockup nem se criou símbolo. Não há pacote de marcas
+indiscriminado. TAP, American, Delta, United, Air France, KLM, Iberia, Copa, SKY,
+JetSMART e Aerolíneas continuam com fallback; ampliar assets exige nova verificação
+de procedência e condições. Nenhuma das três marcas prioritárias ficou pendente.
+
+Validação: airline-logo.test.ts + airline-identity.test.ts verificam associação,
+contexto, ambiguidades, paths fechados, SVG passivo e preservação da referência.
+flight-center-compact.mjs --logos cobre seis temas (Bugan, Grand Mercure, Novotel
+Leme, Novotel Salvador, Mercure e Default), PT/EN/ES e oito viewports; inclui
+programação LA, live AD, GOL sem ocorrência verificada, ausência de asset, alias
+ambíguo, conflito e falha de imagem com geometria, storage e payload inalterados.
+flight-premium-production-smoke.mjs --logos valida a interface publicada com
+replays interceptados, sem provider real. Evidências ficam em out/ e não no bundle.
+Nenhum backend, payload AirLabs, armazenamento v1, quota, rate limit, cache,
+normalização, idioma, dock, lifecycle, entitlement, mídia do hotel ou migration
+foi alterado. Publicação segue branch técnica, preview READY e smoke antes da
+integração em main e confirmação de produção.
+
+Gates do candidato: 13/13 direcionados, 482/482 segurança, 168/168 browser de
+logos, 148/148 regressão Premium; TypeScript e build aprovados, lint com zero
+erros e quatro warnings históricos, git diff --check limpo. Verificação de
+produção usa --logos (replays interceptados), sem consumo AirLabs.

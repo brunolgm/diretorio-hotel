@@ -26,6 +26,7 @@ import {
 import {resolveFlightAirline} from '@/lib/airline-identity';
 import { getPremiumFlightCopy, getPublicFlightCenterCopy } from '@/lib/public-flight-center-copy';
 import { GuestFlightStatus } from '@/components/public/guest-flight-status';
+import {AirlineLogo} from '@/components/public/airline-logo';
 import { sendPublicAnalyticsEvent } from '@/lib/public-analytics-client';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
@@ -156,7 +157,7 @@ export function GuestFlightManager({ hotelId, hotelSlug, language, airportOption
     return (
       <article className="hotel-public-content-card relative overflow-hidden rounded-[26px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 shadow-[var(--hotel-card-shadow)] sm:p-6 md:p-8" data-saved-guest-flight data-flight-card={premium?"premium":undefined}>
         <div className="flight-identity flex items-start gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[19px] bg-[var(--hotel-accent-soft)] text-[color:var(--hotel-accent)]"><Plane className="h-7 w-7" aria-hidden="true" /></div>
+          <AirlineLogo airline={canonicalReference?officialAirline:null}/>
           <div className="min-w-0 flex-1">
             <p className="flight-number break-words text-xl font-semibold text-[color:var(--hotel-primary)] sm:text-2xl">{identifier}</p>
             {officialAirline ? <p className="mt-1 text-sm text-[color:var(--hotel-text-muted)]">{officialAirline.name}</p> : null}
