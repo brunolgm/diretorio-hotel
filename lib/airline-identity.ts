@@ -1,11 +1,12 @@
 /** Explicit catalogue snapshot. No fuzzy match, network lookup or codeshare search. */
 export type AirlineContext = {departureCountryCode?:string|null;departureDate:string;departureAirport:string;arrivalAirport:string};
-export type AirlineIdentity = {code:string;icaoCode:string;name:string;shortName:string;aliases:readonly string[];officialUrl:string;supportsFlightNumberInUrl:false};
-const airline=(code:string,icaoCode:string,name:string,shortName:string,aliases:string[],officialUrl:string):AirlineIdentity=>({code,icaoCode,name,shortName,aliases,officialUrl,supportsFlightNumberInUrl:false});
+export type AirlineLogoAsset = {src:string;width:number;height:number};
+export type AirlineIdentity = {code:string;icaoCode:string;name:string;shortName:string;aliases:readonly string[];officialUrl:string;supportsFlightNumberInUrl:false;logo?:AirlineLogoAsset};
+const airline=(code:string,icaoCode:string,name:string,shortName:string,aliases:string[],officialUrl:string,logo?:AirlineLogoAsset):AirlineIdentity=>({code,icaoCode,name,shortName,aliases,officialUrl,supportsFlightNumberInUrl:false,...(logo?{logo}:{})});
 export const AIRLINE_IDENTITIES:readonly AirlineIdentity[]=Object.freeze([
- airline('AD','AZU','Azul Linhas Aéreas','Azul',['AZUL','AZUL LINHAS AEREAS'],'https://apps.voeazul.com.br/FlightStatus/aspx/Main.aspx'),
- airline('LA','TAM','LATAM Airlines Brasil','LATAM',['LATAM','LATAM AIRLINES','LATAM AIRLINES BRASIL'],'https://www.latamairlines.com/br/pt/flight-status'),
- airline('G3','GLO','GOL Linhas Aéreas','GOL',['GOL','GOL LINHAS AEREAS'],'https://b2c.voegol.com.br/status-de-voo/'),
+ airline('AD','AZU','Azul Linhas Aéreas','Azul',['AZUL','AZUL LINHAS AEREAS'],'https://apps.voeazul.com.br/FlightStatus/aspx/Main.aspx',{src:'/brand/airlines/azul.svg',width:101,height:28}),
+ airline('LA','TAM','LATAM Airlines Brasil','LATAM',['LATAM','LATAM AIRLINES','LATAM AIRLINES BRASIL'],'https://www.latamairlines.com/br/pt/flight-status',{src:'/brand/airlines/latam.png',width:180,height:180}),
+ airline('G3','GLO','GOL Linhas Aéreas','GOL',['GOL','GOL LINHAS AEREAS'],'https://b2c.voegol.com.br/status-de-voo/',{src:'/brand/airlines/gol.svg',width:50,height:20}),
  airline('TP','TAP','TAP Air Portugal','TAP',['TAP AIR PORTUGAL','TAP PORTUGAL'],'https://www.flytap.com/'),
  airline('AA','AAL','American Airlines','American Airlines',['AMERICAN AIRLINES'],'https://www.aa.com/'),
  airline('DL','DAL','Delta Air Lines','Delta',['DELTA','DELTA AIR LINES'],'https://www.delta.com/'),
@@ -18,6 +19,10 @@ export const AIRLINE_IDENTITIES:readonly AirlineIdentity[]=Object.freeze([
  airline('JA','JAT','JetSMART','JetSMART',['JETSMART CHILE','JETSMART AIRLINES SPA'],'https://www.jetsmart.com/'),
  airline('AR','ARG','Aerolíneas Argentinas','Aerolíneas Argentinas',['AEROLINEAS ARGENTINAS'],'https://www.aerolineas.com.ar/'),
 ]);
+/** Presentation only: select a local asset after resolution; never build a path from input. */
+export function getAirlineLogo(identity:AirlineIdentity|null|undefined):AirlineLogoAsset|null{
+ return AIRLINE_IDENTITIES.find(entry=>entry.code===identity?.code)?.logo??null;
+}
 export function normalizeAirlineText(value:string|null|undefined){return (value??'').normalize('NFD').replace(/\p{M}/gu,'').trim().replace(/\s+/g,' ').toUpperCase();}
 const ambiguous=new Set(['LAT','SKY','SKY AIRLINE']);
 function identify(value:string,context?:AirlineContext):{airline:AirlineIdentity|null;code:string|null;issue?:'ambiguous'|'context_required'|'unknown'}{

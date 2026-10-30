@@ -53,7 +53,7 @@ try {
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
-  if(process.argv.includes('--premium'))await page.clock.install({time:new Date('2026-10-29T23:40:45Z')});
+  if(process.argv.includes('--premium')||process.argv.includes('--logos'))await page.clock.install({time:new Date('2026-10-29T23:40:45Z')});
   else if(process.argv.includes('--form'))await page.clock.install({time:new Date('2026-09-09T18:00:00Z')});else await page.clock.setFixedTime(new Date('2026-09-09T18:00:00Z'));
   async function visit(version, query) {
     await page.goto(`http://127.0.0.1:4174/${version}?${query}`);
@@ -61,7 +61,8 @@ try {
     await page.waitForFunction(() => document.querySelector('[data-guest-flight-status]')?.getAttribute('aria-busy') === 'false');
     if (!query.includes('generic')) await page.locator('[data-flight-recommendation]').waitFor();
   }
-  if(process.argv.includes('--premium')){const {runFlightPremium}=await import('./flight-premium-v4.mjs');rows.push(...await runFlightPremium({page,output}));}
+  if(process.argv.includes('--logos')){const {runAirlineLogos}=await import('./airline-logos.mjs');rows.push(...await runAirlineLogos({page,output}));}
+  else if(process.argv.includes('--premium')){const {runFlightPremium}=await import('./flight-premium-v4.mjs');rows.push(...await runFlightPremium({page,output}));}
   else if(process.argv.includes('--form')){
     const {runFlightForm}=await import('./flight-form-v4.mjs');rows.push(...await runFlightForm({page,output}));
   }else{
@@ -138,6 +139,6 @@ try {
   }
   assert.deepEqual(errors, []);
   writeFileSync(join(output, 'measurements.json'), JSON.stringify(rows, null, 2));
-  writeFileSync(join(output,process.argv.includes('--premium')?'premium-measurements.json':process.argv.includes('--form')?'form-measurements.json':'legacy-measurements.json'),JSON.stringify(rows,null,2));
+  writeFileSync(join(output,process.argv.includes('--logos')?'logo-measurements.json':process.argv.includes('--premium')?'premium-measurements.json':process.argv.includes('--form')?'form-measurements.json':'legacy-measurements.json'),JSON.stringify(rows,null,2));
   console.log(JSON.stringify({ passed: true, comparisons: rows.length, rows: rows.filter(r => r.theme === 'grand-mercure' && r.lang === 'pt'), browserErrors: errors }, null, 2));
 } finally { await browser.close(); server.close(); }

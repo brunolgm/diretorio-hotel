@@ -2475,3 +2475,13 @@ Em toda atualização futura deste arquivo, incluir quando aplicável:
 - resultado de validação
 - pendências conhecidas
 - próximo passo recomendado
+
+### Central de Voos — logos oficiais locais (29/10/2026)
+
+Meu voo usa os assets locais LATAM, Azul e GOL associados pelo catálogo canônico
+airline-identity.ts após a resolução existente. Arquivos originais oficiais,
+cores/proporções preservadas, fallback de avião em ausência/ambiguidade/erro e
+slot fixo de 56×56 px. Nenhuma alteração em identidade aeronáutica, AirLabs, v1,
+cache/quota, lifecycle, entitlements ou dados do hotel. Partidas/Chegadas não
+recebem logos decorativos. Procedência, hashes, dimensões, limites e comandos de
+regressão estão na seção de logomarcas de CENTRAL_DE_VOOS_E_PMS.md.
