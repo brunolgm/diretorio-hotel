@@ -129,6 +129,10 @@ if(refinementCase){
  const noticeCopy=language==='en'?{title:'Contact guidance',body:'Use the official contact channels for assistance during your stay.'}:language==='es'?{title:'Orientación de atención',body:'Utilice los canales oficiales de contacto para recibir orientación durante su estadía.'}:{title:'Orientação de atendimento',body:'Consulte os canais oficiais de contato para orientações durante sua estadia.'};
  const first=data.announcements.find(r=>r.id==='alert');
  data.announcements=first?[{...first,...noticeCopy,created_at:'2026-10-01T00:00:00Z',updated_at:args.get('noticeRevision')==='2'?'2026-10-31T01:00:00Z':'2026-10-31T00:00:00Z'}]:[];
+ if(args.get('noticeLength')==='short')data.announcements=data.announcements.map(r=>({...r,title:language==='en'?'Guidance':language==='es'?'Orientación':'Orientação',body:language==='en'?'Contact reception.':language==='es'?'Consulte recepción.':'Consulte a recepção.'}));
+ if(args.get('noticeLength')==='long')data.announcements=data.announcements.map(r=>({...r,body:(r.body+' ').repeat(20)}));
+ if(args.get('essentialCase')==='changed'){data.hotel.wifi_name='Rede cadastrada alternativa';data.hotel.breakfast_hours='Segunda a sexta 07:15–09:45; Sábados, domingos e feriados 07:30–11:15';data.hotel.checkin_time='15:15';data.hotel.checkout_time='11:45';}
+ if(args.get('essentialCase')==='extra')data.hotel.breakfast_hours='07:15–09:45. Consulte a recepção para informações adicionais.';
  if(refinementCase==='none')data.announcements=[];
  if(refinementCase==='expired')data.announcements=data.announcements.map(r=>({...r,ends_at:'2020-01-01T00:00:00Z'}));
  if(refinementCase==='empty')data.announcements=data.announcements.map(r=>({...r,title:' ',body:' '}));

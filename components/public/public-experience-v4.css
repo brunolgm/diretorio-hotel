@@ -72,3 +72,25 @@
  .public-experience-v3[data-public-experience="v4"] .v3-tourism-cards>a {height:200px}
  .public-experience-v3[data-public-experience="v4"] .v3-tourism-cards h3 {font-size:13px}
 }
+
+.public-v4-compact-grid {display:none}
+@media(min-width:768px){
+ [data-compact-home] .public-v4-essentials {padding:10px 16px;border-radius:12px}
+ [data-compact-home] .public-v4-essentials>h2 {font-size:13px;line-height:1.4;margin:0 0 8px}
+ [data-compact-home] .public-v4-essential-grid {display:none}
+ [data-compact-home] .public-v4-compact-grid {display:grid;grid-template-columns:1fr 1.4fr .9fr;gap:16px;align-items:start}
+ [data-compact-home] .public-v4-compact-group {display:flex;gap:8px;min-width:0}
+ [data-compact-home] .public-v4-compact-group+div {border-inline-start:1px solid var(--hotel-border);padding-inline-start:16px}
+ [data-compact-home] .public-v4-compact-group>svg {width:18px;height:18px;margin-top:1px}
+ [data-compact-home] .public-v4-compact-group>div {min-width:0;flex:1}
+ [data-compact-home] .public-v4-compact-group h3 {font-size:13px;line-height:1.4;font-weight:600;margin:0 0 3px}
+ [data-compact-home] .public-v4-compact-group :is(p,dl) {font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+ [data-compact-home] .public-v4-compact-group dl>div {display:flex;flex-wrap:wrap;gap:2px 8px}
+ [data-compact-home] .public-v4-compact-group dd {font-weight:600}
+ [data-compact-home] .public-v4-compact-hours {display:flex;flex-wrap:wrap;gap:6px 16px}
+ [data-compact-home] .public-v4-compact-hours>div {flex-direction:column}
+ [data-compact-home] .public-v4-compact-wifi summary {display:inline-flex;gap:4px;min-height:24px;font-size:12px;line-height:1.5;margin-top:2px}
+ [data-compact-home] .public-v4-compact-wifi summary svg {width:13px;height:13px}
+ [data-compact-home] .public-v4-compact-wifi[open] summary svg {transform:rotate(180deg)}
+ [data-compact-home] .public-v4-instructions {padding-top:6px}
+}
