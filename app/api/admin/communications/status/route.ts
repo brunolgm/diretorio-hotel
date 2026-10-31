@@ -22,6 +22,8 @@ export async function POST(request: Request) {
     return Response.json(result,{headers});
   } catch(error) {
     const e = error instanceof CommunicationStatusError ? error : new CommunicationStatusError('request_unconfirmed',409);
+    // Status is already persisted when only its audit confirmation failed.
+    if(e.code==='status_changed_audit_unconfirmed')revalidatePath('/','layout');
     return Response.json({status:'interrupted',error:e.code},{status:e.status,headers});
   }
 }

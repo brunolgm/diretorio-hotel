@@ -284,6 +284,12 @@ test('five existing editorial syncs retain their transport, persistence and feed
       const h = harness(mode === 'partial' ? { google: { es: 'fail' } } : {});
       let writes = 0;
       const client = { from: (actual: string) => {
+        const parent = name === 'syncAnnouncementTranslations' ? 'hotel_announcements' : name === 'syncPromotionalBannerTranslations' ? 'hotel_promotional_banners' : null;
+        if(parent && actual === parent){
+          const filters:Record<string,unknown>={};
+          const query={select:()=>query,eq:(key:string,value:unknown)=>{filters[key]=value;return query;},maybeSingle:async()=>{assert.deepEqual(filters,{id,hotel_id:'fixture-hotel',updated_at:'2026-10-31T00:00:00Z'});return {data:{id},error:null};}};
+          return query;
+        }
         assert.equal(actual, table);
         return { upsert: async (rows: Array<Record<string, unknown>>, options: { onConflict: string }) => {
           writes++; assert.equal(options.onConflict, onConflict);
@@ -293,7 +299,7 @@ test('five existing editorial syncs retain their transport, persistence and feed
         } };
       } };
       const sync = h.admin[name] as unknown as (input: object) => Promise<import('../../lib/services/translation-admin.ts').TranslationSyncResult>;
-      const result = await sync({ supabase: client, [idKey]: id, fields });
+      const result = await sync({ supabase: client, [idKey]: id, fields, hotelId:'fixture-hotel', expectedParentVersion:'2026-10-31T00:00:00Z' });
       assert.equal(result.status, mode === 'persist-error' ? 'failed' : mode);
       assert.equal(writes, 1); assert.equal(h.requests.length, 2);
       assert.ok(h.requests.every((request) => !request.signal)); // Tourism-only timeout doesn't change existing domains.

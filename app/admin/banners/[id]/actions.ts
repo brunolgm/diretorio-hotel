@@ -1,11 +1,11 @@
 'use server';
+import {updateCommunicationEditorial,readCommunicationVersion,communicationFailureMessage} from '@/lib/communications/editorial';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
 import { requireHotelModule } from '@/lib/admin-entitlements';
 import {
-  readCheckboxBoolean,
   readNullableString,
   readNumber,
   readOptionalUrl,
@@ -14,7 +14,6 @@ import {
 import { getAdminHotel } from '@/lib/queries';
 import {
   buildFeedbackRedirect,
-  buildOperationalErrorMessage,
   formatTranslationWarning,
   logOperationalError,
   syncPromotionalBannerTranslations,
@@ -56,7 +55,7 @@ function validateBannerWindow({
 }
 
 export async function updatePromotionalBannerAction(id: string, formData: FormData) {
-  const { user } = await requireAdminAccess('operador'); await requireHotelModule('content.banners');
+  await requireAdminAccess('operador'); await requireHotelModule('content.banners');
 
   if (!isUuid(id)) {
     redirect('/admin/banners?error=Banner%20inv%C3%A1lido');
@@ -99,38 +98,23 @@ export async function updatePromotionalBannerAction(id: string, formData: FormDa
     cta_url: ctaUrl,
     starts_at: startsAt.isoValue,
     ends_at: endsAt.isoValue,
-    is_active: readCheckboxBoolean(formData, 'is_active'),
     display_order: Math.max(0, readNumber(formData, 'display_order', 0)),
-    updated_at: new Date().toISOString(),
   };
 
-  const { data: updatedBanner, error } = await supabase
-    .from('hotel_promotional_banners')
-    .update(payload)
-    .eq('id', id)
-    .eq('hotel_id', hotel.id)
-    .select('id')
-    .maybeSingle();
-
-  if (error || !updatedBanner) {
-    logOperationalError({
-      module: 'banners',
-      action: 'updatePromotionalBannerAction',
-      operation: 'update promotional banner',
-      hotelId: hotel.id,
-      targetId: id,
-      error,
-    });
-    redirect(
-      buildFeedbackRedirect('/admin/banners', {
-        error: 'Banner n\u00e3o encontrado ou indispon\u00edvel para este hotel.',
-      })
-    );
+  let updatedBanner;
+  try {
+    updatedBanner=await updateCommunicationEditorial(supabase,{kind:'banner',id,hotelId:hotel.id,expectedUpdatedAt:readTrimmedString(formData,'expected_updated_at'),changes:payload},recordAdminAuditEvent);
+  } catch(error) {
+    logOperationalError({module:'banners',action:'update',operation:'conditional editorial update',hotelId:hotel.id,targetId:id,error});
+    revalidatePath('/admin/banners');revalidatePath('/');revalidatePath(`/hotel/${hotel.slug}`);
+    redirect(buildFeedbackRedirect(`/admin/banners/${id}`,{error:communicationFailureMessage(error)}));
   }
 
   const translationResult = await syncPromotionalBannerTranslations({
     supabase,
     bannerId: updatedBanner.id,
+    expectedParentVersion: updatedBanner.updated_at,
+    hotelId: hotel.id,
     fields: {
       title: payload.title || '',
       subtitle: payload.subtitle ?? null,
@@ -138,14 +122,6 @@ export async function updatePromotionalBannerAction(id: string, formData: FormDa
     },
   });
 
-  await recordAdminAuditEvent({
-    actorUserId: user.id,
-    hotelId: hotel.id,
-    action: 'banner.updated',
-    entityType: 'hotel_promotional_banner',
-    entityId: id,
-    metadata: { changed_fields: ['content', 'schedule', 'status', 'display_order'] },
-  });
 
   revalidatePath('/admin/banners');
   revalidatePath(`/admin/banners/${id}`);
@@ -160,8 +136,8 @@ export async function updatePromotionalBannerAction(id: string, formData: FormDa
   );
 }
 
-export async function removePromotionalBannerImageAction(id: string) {
-  const { user } = await requireAdminAccess('operador'); await requireHotelModule('content.banners');
+export async function removePromotionalBannerImageAction(id: string, formData: FormData) {
+  await requireAdminAccess('operador'); await requireHotelModule('content.banners');
 
   if (!isUuid(id)) {
     redirect('/admin/banners?error=Banner%20inv%C3%A1lido');
@@ -171,28 +147,9 @@ export async function removePromotionalBannerImageAction(id: string) {
   const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
 
-  const { data: banner, error: bannerError } = await supabase
-    .from('hotel_promotional_banners')
-    .select('id, image_url')
-    .eq('id', id)
-    .eq('hotel_id', hotel.id)
-    .single();
-
-  if (bannerError || !banner) {
-    logOperationalError({
-      module: 'banners',
-      action: 'removePromotionalBannerImageAction',
-      operation: 'load promotional banner image for removal',
-      hotelId: hotel.id,
-      targetId: id,
-      error: 'Banner image lookup failed or returned no row',
-    });
-    redirect(
-      buildFeedbackRedirect(`/admin/banners/${id}`, {
-        error: 'Não foi possível localizar o banner para remover a imagem.',
-      })
-    );
-  }
+  let banner;
+  try {banner=await readCommunicationVersion(supabase,{kind:'banner',id,hotelId:hotel.id,expectedUpdatedAt:readTrimmedString(formData,'expected_updated_at')});}
+  catch(error){redirect(buildFeedbackRedirect(`/admin/banners/${id}`,{error:communicationFailureMessage(error)}));}
 
   const storagePath = extractOwnedHotelAssetPath({
     publicUrl: banner.image_url,
@@ -202,36 +159,8 @@ export async function removePromotionalBannerImageAction(id: string) {
 
   let warning: string | undefined;
 
-  const { data: updatedBanner, error: updateError } = await supabase
-    .from('hotel_promotional_banners')
-    .update({
-      image_url: null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', id)
-    .eq('hotel_id', hotel.id)
-    .select('id')
-    .maybeSingle();
-
-  if (updateError || !updatedBanner) {
-    logOperationalError({
-      module: 'banners',
-      action: 'removePromotionalBannerImageAction',
-      operation: 'clear promotional banner image URL',
-      hotelId: hotel.id,
-      targetId: id,
-      error: 'Banner image URL update failed',
-    });
-    redirect(
-      buildFeedbackRedirect(`/admin/banners/${id}`, {
-        error: buildOperationalErrorMessage(
-          'a imagem do banner',
-          'remover',
-          'Revise a tela e tente novamente.'
-        ),
-      })
-    );
-  }
+  try {await updateCommunicationEditorial(supabase,{kind:'banner',id,hotelId:hotel.id,expectedUpdatedAt:readTrimmedString(formData,'expected_updated_at'),changes:{image_url:null},operation:'image',auditAction:'banner.image_removed'},recordAdminAuditEvent);}
+  catch(error){revalidatePath('/admin/banners');revalidatePath('/');revalidatePath(`/hotel/${hotel.slug}`);redirect(buildFeedbackRedirect(`/admin/banners/${id}`,{error:communicationFailureMessage(error)}));}
 
   if (storagePath) {
     const { error: removeError } = await adminSupabase.storage
@@ -252,14 +181,6 @@ export async function removePromotionalBannerImageAction(id: string) {
     warning = 'A imagem foi desvinculada, mas o arquivo antigo não pôde ser identificado com segurança.';
   }
 
-  await recordAdminAuditEvent({
-    actorUserId: user.id,
-    hotelId: hotel.id,
-    action: 'banner.image_removed',
-    entityType: 'hotel_promotional_banner',
-    entityId: id,
-    metadata: { media_category: 'promotional-banners' },
-  });
 
   revalidatePath('/admin/banners');
   revalidatePath(`/admin/banners/${id}`);

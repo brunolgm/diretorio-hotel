@@ -5,7 +5,6 @@ import { AdminConfirmAction } from '@/components/admin/confirm-action';
 import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
   AdminBreadcrumbs,
-  AdminCheckboxRow,
   AdminField,
   AdminFormGrid,
   AdminGuideCard,
@@ -127,7 +126,9 @@ export default async function EditBannerPage({ params, searchParams }: PageProps
             />
           </AdminGuideCard>
 
-          <form action={action}>
+          <a href={`/admin/banners/${id}`} className="mb-4 inline-flex text-sm underline">Recarregar versão atual</a>
+        <form action={action}>
+          <input type="hidden" name="expected_updated_at" value={banner.updated_at ?? ''} />
             <AdminFormGrid className="md:grid-cols-1">
               <AdminField
                 label="Título"
@@ -182,11 +183,8 @@ export default async function EditBannerPage({ params, searchParams }: PageProps
                 </AdminField>
 
                 <AdminField label="Status">
-                  <AdminCheckboxRow>
-                    <input type="checkbox" name="is_active" defaultChecked={banner.is_active} />
-                    Ativo para exibição pública
-                  </AdminCheckboxRow>
-                </AdminField>
+                <p className="text-sm text-slate-600">{banner.is_active?'Ativo':'Inativo'}. A edição de conteúdo preserva este estado. Use Ativar/Desativar na listagem.</p>
+              </AdminField>
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
@@ -265,6 +263,7 @@ export default async function EditBannerPage({ params, searchParams }: PageProps
 
           <form action={uploadPromotionalBannerImageAction} className="mt-8 space-y-4">
             <input type="hidden" name="banner_id" value={banner.id} />
+            <input type="hidden" name="expected_updated_at" value={banner.updated_at ?? ''} />
 
             <AdminField label="Arquivo da imagem" htmlFor="banner-image-upload">
               <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-4">
@@ -287,7 +286,7 @@ export default async function EditBannerPage({ params, searchParams }: PageProps
 
           {banner.image_url ? (
             <div className="mt-3">
-              <AdminConfirmAction action={removeImageAction} title="Remover imagem do banner?" description="O banner continuará salvo, mas passará a usar o fallback visual até receber outra imagem." triggerLabel="Remover imagem" confirmLabel="Remover imagem" pendingLabel="Removendo..." />
+              <AdminConfirmAction hiddenFields={[{name:'expected_updated_at',value:banner.updated_at??''}]} action={removeImageAction} title="Remover imagem do banner?" description="O banner continuará salvo, mas passará a usar o fallback visual até receber outra imagem." triggerLabel="Remover imagem" confirmLabel="Remover imagem" pendingLabel="Removendo..." />
             </div>
           ) : null}
         </AdminSurface>
