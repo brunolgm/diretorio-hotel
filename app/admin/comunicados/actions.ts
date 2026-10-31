@@ -1,4 +1,5 @@
 'use server';
+import {updateCommunicationEditorial,deleteCommunication,confirmCommunicationAudit,communicationFailureMessage} from '@/lib/communications/editorial';
 import {recordAdminAuditEvent} from '@/lib/audit';
 import {setCommunicationStatus} from '@/lib/communications/status';
 
@@ -49,7 +50,7 @@ function validateAnnouncementWindow({
 }
 
 export async function createAnnouncementAction(formData: FormData) {
-  await requireAdminAccess('operador'); await requireHotelModule('content.announcements');
+  const {user}=await requireAdminAccess('operador'); await requireHotelModule('content.announcements');
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const title = readTrimmedString(formData, 'title');
@@ -89,10 +90,10 @@ export async function createAnnouncementAction(formData: FormData) {
   const { data: announcement, error } = await supabase
     .from('hotel_announcements')
     .insert(payload)
-    .select('id')
+    .select('id, updated_at')
     .single();
 
-  if (error) {
+  if (error || !announcement) {
     logOperationalError({
       module: 'announcements',
       action: 'createAnnouncementAction',
@@ -111,9 +112,13 @@ export async function createAnnouncementAction(formData: FormData) {
     );
   }
 
+  try {await confirmCommunicationAudit(recordAdminAuditEvent,{actorUserId:user.id,hotelId:hotel.id,action:'announcement.created',entityType:'hotel_announcement',entityId:announcement.id,metadata:{is_active:payload.is_active}});}
+  catch(error){revalidatePath('/admin/comunicados');revalidatePath('/');revalidatePath(`/hotel/${hotel.slug}`);redirect(buildFeedbackRedirect('/admin/comunicados',{error:communicationFailureMessage(error)}));}
   const translationResult = await syncAnnouncementTranslations({
     supabase,
     announcementId: announcement.id,
+    expectedParentVersion:announcement.updated_at,
+    hotelId:hotel.id,
     fields: {
       title: payload.title,
       body: payload.body,
@@ -146,33 +151,9 @@ export async function deleteAnnouncementAction(formData: FormData) {
     );
   }
 
-  const { data: deletedAnnouncement, error } = await supabase
-    .from('hotel_announcements')
-    .delete()
-    .eq('id', id)
-    .eq('hotel_id', hotel.id)
-    .select('id')
-    .maybeSingle();
 
-  if (error || !deletedAnnouncement) {
-    logOperationalError({
-      module: 'announcements',
-      action: 'deleteAnnouncementAction',
-      operation: 'delete announcement',
-      hotelId: hotel.id,
-      targetId: id,
-      error,
-    });
-    redirect(
-      buildFeedbackRedirect('/admin/comunicados', {
-        error: buildOperationalErrorMessage(
-          'o comunicado',
-          'excluir',
-          'Tente novamente em instantes.'
-        ),
-      })
-    );
-  }
+  try {await deleteCommunication(supabase,{kind:'announcement',id,hotelId:hotel.id,expectedUpdatedAt:readTrimmedString(formData,'expected_updated_at')},recordAdminAuditEvent);}
+  catch(error){revalidatePath('/admin/comunicados');revalidatePath('/');revalidatePath(`/hotel/${hotel.slug}`);redirect(buildFeedbackRedirect('/admin/comunicados',{error:communicationFailureMessage(error)}));}
 
   revalidatePath('/admin/comunicados');
   revalidatePath('/');
@@ -190,7 +171,9 @@ export async function toggleAnnouncementAction(formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
-  const isActive = String(formData.get('is_active') || '') === 'true';
+  const statusValue=readTrimmedString(formData,'is_active');
+  const isActive=statusValue==='true';
+  if(!['true','false'].includes(statusValue))redirect(buildFeedbackRedirect('/admin/comunicados',{error:'Status inválido. Recarregue a página.'}));
 
   if (!isUuid(id)) {
     redirect(
@@ -203,10 +186,13 @@ export async function toggleAnnouncementAction(formData: FormData) {
   let error: unknown = null;
   let updatedAnnouncement = null;
   try {
-    const result = await setCommunicationStatus(supabase,{kind:"announcement",id,isActive},recordAdminAuditEvent);
+    const result = await setCommunicationStatus(supabase,{kind:"announcement",id,isActive,expectedUpdatedAt:readTrimmedString(formData,'expected_updated_at')},recordAdminAuditEvent);
     updatedAnnouncement = {id:result.id};
   } catch (failure) { error = failure; }
 
+  revalidatePath('/admin/comunicados');
+  revalidatePath('/');
+  revalidatePath(`/hotel/${hotel.slug}`);
   if (error || !updatedAnnouncement) {
     logOperationalError({
       module: 'announcements',
@@ -218,11 +204,7 @@ export async function toggleAnnouncementAction(formData: FormData) {
     });
     redirect(
       buildFeedbackRedirect('/admin/comunicados', {
-        error: buildOperationalErrorMessage(
-          'o status do comunicado',
-          'atualizar',
-          'Tente novamente em instantes.'
-        ),
+        error: communicationFailureMessage(error),
       })
     );
   }
@@ -254,32 +236,15 @@ export async function retranslateAnnouncementAction(formData: FormData) {
     );
   }
 
-  const { data: announcement, error } = await supabase
-    .from('hotel_announcements')
-    .select('id, title, body')
-    .eq('id', id)
-    .eq('hotel_id', hotel.id)
-    .single();
-
-  if (error || !announcement) {
-    logOperationalError({
-      module: 'announcements',
-      action: 'retranslateAnnouncementAction',
-      operation: 'load announcement for retranslation',
-      hotelId: hotel.id,
-      targetId: id,
-      error: error || 'Announcement not found for retranslation',
-    });
-    redirect(
-      buildFeedbackRedirect('/admin/comunicados', {
-        error: 'Não foi possível preparar o comunicado para retradução agora.',
-      })
-    );
-  }
+  let announcement;
+  try {announcement=await updateCommunicationEditorial(supabase,{kind:'announcement',id,hotelId:hotel.id,expectedUpdatedAt:readTrimmedString(formData,'expected_updated_at'),changes:{},operation:'translations'},recordAdminAuditEvent);}
+  catch(error){revalidatePath('/admin/comunicados');redirect(buildFeedbackRedirect('/admin/comunicados',{error:communicationFailureMessage(error)}));}
 
   const translationResult = await syncAnnouncementTranslations({
     supabase,
     announcementId: announcement.id,
+    expectedParentVersion:announcement.updated_at,
+    hotelId:hotel.id,
     fields: {
       title: announcement.title,
       body: announcement.body,

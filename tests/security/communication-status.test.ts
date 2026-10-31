@@ -14,7 +14,7 @@ function lab(options: {role?:string; active?:boolean; hotelId?:string; missingMo
  const client={auth:{getUser:async()=>({data:{user:{id:'admin'}},error:null})},rpc:async()=>({data:options.missingModule?[]:['content.banners','content.announcements'].map(module_key=>({module_key,is_enabled:true})),error:null}),
  from(table:string){const filters:((r:Record<string,unknown>)=>boolean)[]=[];let patch:Record<string,unknown>|undefined,one=false,limit=Infinity;const q={
  select(){return q;},eq(k:string,v:unknown){filters.push(r=>r[k]===v);return q;},gte(k:string,v:unknown){filters.push(r=>Date.parse(String(r[k]))>=Date.parse(String(v)));return q;},limit(n:number){limit=n;return q;},single(){one=true;return q;},maybeSingle(){one=true;return q;},update(v:Record<string,unknown>){assert.ok(['hotel_promotional_banners','hotel_announcements'].includes(table));assert.deepEqual(Object.keys(v).sort(),['is_active','updated_at']);patch=v;return q;},
- then(resolve:(v:unknown)=>void){const rows=(tables[table]??[]).filter(r=>filters.every(f=>f(r))).slice(0,limit);if(patch){events.push('update');for(const r of rows)Object.assign(r,patch);}return Promise.resolve({data:one?rows[0]??null:rows,error:null}).then(resolve);}
+ then(resolve:(v:unknown)=>void){const rows=(tables[table]??[]).filter(r=>filters.every(f=>f(r))).slice(0,limit);if(patch){if(rows.length)events.push('update');for(const r of rows)Object.assign(r,patch);}return Promise.resolve({data:one?rows[0]??null:rows,error:null}).then(resolve);}
  };return q;}};
  const audit=async(e:{hotelId:string;entityId:string;action:string})=>{events.push('audit');if(options.auditFails)return false;auditRows.push({id:'audit-'+auditRows.length,hotel_id:e.hotelId,entity_id:e.entityId,action:e.action,created_at:new Date(Date.now()+1000).toISOString()});return true;};
  const disable=(input:{kind:'banner'|'announcement';id:string;expected_updated_at:string})=>setCommunicationStatus(client as never,{kind:input.kind,id:input.id,isActive:false,expectedUpdatedAt:input.expected_updated_at,administratorOnly:true},audit);
@@ -66,9 +66,15 @@ test('authenticated disable API rejects anonymous/cross-origin/extra tenant or a
  for(const field of ['hotel_id','is_active','administratorOnly'])assert.equal((await invoke({...valid,[field]:'forbidden'})).status,400);
  assert.equal(constructed,0);assert.deepEqual(l.events,[]);
  const response=await invoke(valid);assert.equal(response.status,200);assert.equal((await response.json()).is_active,false);assert.equal(revalidated,1);assert.deepEqual(l.events,['update','audit']);
+ (dependencies['@/lib/audit'] as {recordAdminAuditEvent:()=>Promise<boolean>}).recordAdminAuditEvent=async()=>false;
+ const persistedVersion=String(l.tables.hotel_promotional_banners[0].updated_at);
+ const unconfirmed=await invoke({...valid,expected_updated_at:persistedVersion});
+ assert.equal(unconfirmed.status,503);assert.equal(revalidated,2);
+ assert.equal(l.tables.hotel_promotional_banners[0].is_active,false);assert.notEqual(l.tables.hotel_promotional_banners[0].updated_at,persistedVersion);
+
 });
 
-test("normal Admin operator toggle stays allowed, while automation requires administrator",async()=>{const item=manifest.records[0].record,l=lab({role:"operador"});await assert.rejects(()=>l.disable({kind:"banner",id:item.id,expected_updated_at:item.updated_at}));assert.deepEqual(l.events,[]);const result=await setCommunicationStatus(l.client as never,{kind:"banner",id:item.id,isActive:false},l.audit);assert.equal(result.is_active,false);assert.deepEqual(l.events,["update","audit"]);});
+test("normal Admin operator toggle stays allowed, while automation requires administrator",async()=>{const item=manifest.records[0].record,l=lab({role:"operador"});await assert.rejects(()=>l.disable({kind:"banner",id:item.id,expected_updated_at:item.updated_at}));assert.deepEqual(l.events,[]);const result=await setCommunicationStatus(l.client as never,{kind:"banner",id:item.id,isActive:false,expectedUpdatedAt:item.updated_at},l.audit);assert.equal(result.is_active,false);assert.deepEqual(l.events,["update","audit"]);});
 
 
 test('refinement cleanup handles four reactivated/new records and an already audited inactive control',async()=>{

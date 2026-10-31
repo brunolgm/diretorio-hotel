@@ -1,4 +1,5 @@
 'use server';
+import {updateCommunicationEditorial,deleteCommunication,confirmCommunicationAudit,communicationFailureMessage} from '@/lib/communications/editorial';
 import {setCommunicationStatus} from '@/lib/communications/status';
 
 
@@ -104,10 +105,10 @@ export async function createPromotionalBannerAction(formData: FormData) {
   const { data: banner, error } = await supabase
     .from('hotel_promotional_banners')
     .insert(payload)
-    .select('id')
+    .select('id, updated_at')
     .single();
 
-  if (error) {
+  if (error || !banner) {
     logOperationalError({
       module: 'banners',
       action: 'createPromotionalBannerAction',
@@ -126,9 +127,13 @@ export async function createPromotionalBannerAction(formData: FormData) {
     );
   }
 
+  try {await confirmCommunicationAudit(recordAdminAuditEvent,{actorUserId:user.id,hotelId:hotel.id,action:'banner.created',entityType:'hotel_promotional_banner',entityId:banner.id,metadata:{is_active:payload.is_active}});}
+  catch(error){revalidatePath('/admin/banners');revalidatePath('/');revalidatePath(`/hotel/${hotel.slug}`);redirect(buildFeedbackRedirect('/admin/banners',{error:communicationFailureMessage(error)}));}
   const translationResult = await syncPromotionalBannerTranslations({
     supabase,
     bannerId: banner.id,
+    expectedParentVersion:banner.updated_at,
+    hotelId:hotel.id,
     fields: {
       title: payload.title,
       subtitle: payload.subtitle,
@@ -136,14 +141,6 @@ export async function createPromotionalBannerAction(formData: FormData) {
     },
   });
 
-  await recordAdminAuditEvent({
-    actorUserId: user.id,
-    hotelId: hotel.id,
-    action: 'banner.created',
-    entityType: 'hotel_promotional_banner',
-    entityId: banner.id,
-    metadata: { is_active: payload.is_active },
-  });
 
   revalidatePath('/admin/banners');
   revalidatePath('/');
@@ -158,7 +155,7 @@ export async function createPromotionalBannerAction(formData: FormData) {
 }
 
 export async function deletePromotionalBannerAction(formData: FormData) {
-  const { user } = await requireAdminAccess('operador'); await requireHotelModule('content.banners');
+  await requireAdminAccess('operador'); await requireHotelModule('content.banners');
   const supabase = await createClient();
   const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
@@ -172,33 +169,9 @@ export async function deletePromotionalBannerAction(formData: FormData) {
     );
   }
 
-  const { data: deletedBanner, error } = await supabase
-    .from('hotel_promotional_banners')
-    .delete()
-    .eq('id', id)
-    .eq('hotel_id', hotel.id)
-    .select('id, image_url')
-    .maybeSingle();
-
-  if (error || !deletedBanner) {
-    logOperationalError({
-      module: 'banners',
-      action: 'deletePromotionalBannerAction',
-      operation: 'delete promotional banner',
-      hotelId: hotel.id,
-      targetId: id,
-      error,
-    });
-    redirect(
-      buildFeedbackRedirect('/admin/banners', {
-        error: buildOperationalErrorMessage(
-          'o banner promocional',
-          'excluir',
-          'Tente novamente em instantes.'
-        ),
-      })
-    );
-  }
+  let deletedBanner;
+  try {deletedBanner=await deleteCommunication(supabase,{kind:'banner',id,hotelId:hotel.id,expectedUpdatedAt:readTrimmedString(formData,'expected_updated_at')},recordAdminAuditEvent);}
+  catch(error){revalidatePath('/admin/banners');revalidatePath('/');revalidatePath(`/hotel/${hotel.slug}`);redirect(buildFeedbackRedirect('/admin/banners',{error:communicationFailureMessage(error)}));}
 
   const storagePath = extractOwnedHotelAssetPath({
     publicUrl: deletedBanner.image_url,
@@ -221,14 +194,6 @@ export async function deletePromotionalBannerAction(formData: FormData) {
     }
   }
 
-  await recordAdminAuditEvent({
-    actorUserId: user.id,
-    hotelId: hotel.id,
-    action: 'banner.deleted',
-    entityType: 'hotel_promotional_banner',
-    entityId: id,
-    metadata: { had_owned_image: Boolean(storagePath) },
-  });
 
   revalidatePath('/admin/banners');
   revalidatePath('/');
@@ -246,7 +211,9 @@ export async function togglePromotionalBannerAction(formData: FormData) {
   const supabase = await createClient();
   const hotel = await getAdminHotel();
   const id = readTrimmedString(formData, 'id');
-  const isActive = String(formData.get('is_active') || '') === 'true';
+  const statusValue=readTrimmedString(formData,'is_active');
+  const isActive=statusValue==='true';
+  if(!['true','false'].includes(statusValue))redirect(buildFeedbackRedirect('/admin/banners',{error:'Status inválido. Recarregue a página.'}));
 
   if (!isUuid(id)) {
     redirect(
@@ -259,10 +226,13 @@ export async function togglePromotionalBannerAction(formData: FormData) {
   let error: unknown = null;
   let updatedBanner = null;
   try {
-    const result = await setCommunicationStatus(supabase,{kind:"banner",id,isActive},recordAdminAuditEvent);
+    const result = await setCommunicationStatus(supabase,{kind:"banner",id,isActive,expectedUpdatedAt:readTrimmedString(formData,'expected_updated_at')},recordAdminAuditEvent);
     updatedBanner = {id:result.id};
   } catch (failure) { error = failure; }
 
+  revalidatePath('/admin/banners');
+  revalidatePath('/');
+  revalidatePath(`/hotel/${hotel.slug}`);
   if (error || !updatedBanner) {
     logOperationalError({
       module: 'banners',
@@ -274,11 +244,7 @@ export async function togglePromotionalBannerAction(formData: FormData) {
     });
     redirect(
       buildFeedbackRedirect('/admin/banners', {
-        error: buildOperationalErrorMessage(
-          'o status do banner promocional',
-          'atualizar',
-          'Tente novamente em instantes.'
-        ),
+        error: communicationFailureMessage(error),
       })
     );
   }
@@ -310,32 +276,15 @@ export async function retranslatePromotionalBannerAction(formData: FormData) {
     );
   }
 
-  const { data: banner, error } = await supabase
-    .from('hotel_promotional_banners')
-    .select('id, title, subtitle, cta_label')
-    .eq('id', id)
-    .eq('hotel_id', hotel.id)
-    .single();
-
-  if (error || !banner) {
-    logOperationalError({
-      module: 'banners',
-      action: 'retranslatePromotionalBannerAction',
-      operation: 'load promotional banner for retranslation',
-      hotelId: hotel.id,
-      targetId: id,
-      error: error || 'Promotional banner not found for retranslation',
-    });
-    redirect(
-      buildFeedbackRedirect('/admin/banners', {
-        error: 'Não foi possível preparar o banner para retradução agora.',
-      })
-    );
-  }
+  let banner;
+  try {banner=await updateCommunicationEditorial(supabase,{kind:'banner',id,hotelId:hotel.id,expectedUpdatedAt:readTrimmedString(formData,'expected_updated_at'),changes:{},operation:'translations'},recordAdminAuditEvent);}
+  catch(error){revalidatePath('/admin/banners');redirect(buildFeedbackRedirect('/admin/banners',{error:communicationFailureMessage(error)}));}
 
   const translationResult = await syncPromotionalBannerTranslations({
     supabase,
     bannerId: banner.id,
+    expectedParentVersion:banner.updated_at,
+    hotelId:hotel.id,
     fields: {
       title: banner.title,
       subtitle: banner.subtitle,

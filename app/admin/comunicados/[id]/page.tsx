@@ -4,7 +4,6 @@ import { FeedbackToast } from '@/components/feedback-toast';
 import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
   AdminBreadcrumbs,
-  AdminCheckboxRow,
   AdminField,
   AdminFormGrid,
   AdminGuideCard,
@@ -85,7 +84,7 @@ export default async function EditAnnouncementPage({ params, searchParams }: Pag
       <AdminPageHero
         eyebrow="editar anúncio"
         title="Editar aviso público do hotel"
-        description="Atualize título, mensagem, período e status de exibição do anúncio."
+        description="Atualize título, mensagem, período de exibição do anúncio. O status é alterado separadamente na listagem."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
@@ -121,7 +120,9 @@ export default async function EditAnnouncementPage({ params, searchParams }: Pag
           />
         </AdminGuideCard>
 
+        <a href={`/admin/comunicados/${id}`} className="mb-4 inline-flex text-sm underline">Recarregar versão atual</a>
         <form action={action}>
+          <input type="hidden" name="expected_updated_at" value={announcement.updated_at ?? ''} />
           <AdminFormGrid className="md:grid-cols-1">
             <AdminField label="Título">
               <div className="relative">
@@ -156,14 +157,7 @@ export default async function EditAnnouncementPage({ params, searchParams }: Pag
               </AdminField>
 
               <AdminField label="Status">
-                <AdminCheckboxRow>
-                  <input
-                    type="checkbox"
-                    name="is_active"
-                    defaultChecked={announcement.is_active ?? false}
-                  />
-                  Ativo para exibição pública
-                </AdminCheckboxRow>
+                <p className="text-sm text-slate-600">{announcement.is_active?'Ativo':'Inativo'}. A edição de conteúdo preserva este estado. Use Ativar/Desativar na listagem.</p>
               </AdminField>
             </div>
 

@@ -469,15 +469,20 @@ export async function syncAnnouncementTranslations({
   supabase,
   announcementId,
   fields,
+  expectedParentVersion,
+  hotelId,
 }: {
   supabase: AppSupabaseClient;
   announcementId: string;
+  expectedParentVersion: string | null;
+  hotelId: string;
   fields: {
     title: string;
     body: string | null;
   };
 }): Promise<TranslationSyncResult> {
   try {
+    if(!expectedParentVersion||!hotelId)return buildSyncResult([],TARGET_LANGUAGES);
     const timestamp = new Date().toISOString();
     const [englishTranslation, spanishTranslation] = await Promise.all([
       translateAnnouncementFields(fields, 'en'),
@@ -516,6 +521,11 @@ export async function syncAnnouncementTranslations({
       return buildSyncResult(successfulLanguages, failedLanguages);
     }
 
+    // Best-effort stale-result guard. Parent+translations still need a transaction in Phase 2.
+    {
+      const parent=await supabase.from('hotel_announcements').select('id').eq('id',announcementId).eq('hotel_id',hotelId).eq('updated_at',expectedParentVersion).maybeSingle();
+      if(parent.error||!parent.data)return buildSyncResult([],TARGET_LANGUAGES);
+    }
     const { error } = await supabase
       .from('hotel_announcement_translations')
       .upsert(translations, { onConflict: 'announcement_id,language' });
@@ -548,9 +558,13 @@ export async function syncPromotionalBannerTranslations({
   supabase,
   bannerId,
   fields,
+  expectedParentVersion,
+  hotelId,
 }: {
   supabase: AppSupabaseClient;
   bannerId: string;
+  expectedParentVersion: string | null;
+  hotelId: string;
   fields: {
     title: string;
     subtitle: string | null;
@@ -558,6 +572,7 @@ export async function syncPromotionalBannerTranslations({
   };
 }): Promise<TranslationSyncResult> {
   try {
+    if(!expectedParentVersion||!hotelId)return buildSyncResult([],TARGET_LANGUAGES);
     const timestamp = new Date().toISOString();
     const [englishTranslation, spanishTranslation] = await Promise.all([
       translatePromotionalBannerFields(fields, 'en'),
@@ -596,6 +611,11 @@ export async function syncPromotionalBannerTranslations({
       return buildSyncResult(successfulLanguages, failedLanguages);
     }
 
+    // Best-effort stale-result guard. Parent+translations still need a transaction in Phase 2.
+    {
+      const parent=await supabase.from('hotel_promotional_banners').select('id').eq('id',bannerId).eq('hotel_id',hotelId).eq('updated_at',expectedParentVersion).maybeSingle();
+      if(parent.error||!parent.data)return buildSyncResult([],TARGET_LANGUAGES);
+    }
     const { error } = await supabase
       .from('hotel_promotional_banner_translations')
       .upsert(translations, { onConflict: 'banner_id,language' });

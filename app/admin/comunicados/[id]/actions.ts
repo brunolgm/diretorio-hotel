@@ -1,10 +1,12 @@
 'use server';
+import {updateCommunicationEditorial,communicationFailureMessage} from '@/lib/communications/editorial';
+import {recordAdminAuditEvent} from '@/lib/audit';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
 import { requireHotelModule } from '@/lib/admin-entitlements';
-import { readCheckboxBoolean, readNullableString, readTrimmedString } from '@/lib/form-utils';
+import { readNullableString, readTrimmedString } from '@/lib/form-utils';
 import { getAdminHotel } from '@/lib/queries';
 import {
   buildFeedbackRedirect,
@@ -82,37 +84,22 @@ export async function updateAnnouncementAction(id: string, formData: FormData) {
     category: readTrimmedString(formData, 'category') || 'informativo',
     starts_at: startsAt.isoValue,
     ends_at: endsAt.isoValue,
-    is_active: readCheckboxBoolean(formData, 'is_active'),
-    updated_at: new Date().toISOString(),
   };
 
-  const { data: updatedAnnouncement, error } = await supabase
-    .from('hotel_announcements')
-    .update(payload)
-    .eq('id', id)
-    .eq('hotel_id', hotel.id)
-    .select('id')
-    .maybeSingle();
-
-  if (error || !updatedAnnouncement) {
-    logOperationalError({
-      module: 'announcements',
-      action: 'updateAnnouncementAction',
-      operation: 'update announcement',
-      hotelId: hotel.id,
-      targetId: id,
-      error,
-    });
-    redirect(
-      buildFeedbackRedirect('/admin/comunicados', {
-        error: 'Comunicado n\u00e3o encontrado ou indispon\u00edvel para este hotel.',
-      })
-    );
+  let updatedAnnouncement;
+  try {
+    updatedAnnouncement=await updateCommunicationEditorial(supabase,{kind:'announcement',id,hotelId:hotel.id,expectedUpdatedAt:readTrimmedString(formData,'expected_updated_at'),changes:payload},recordAdminAuditEvent);
+  } catch(error) {
+    logOperationalError({module:'announcements',action:'update',operation:'conditional editorial update',hotelId:hotel.id,targetId:id,error});
+    revalidatePath('/admin/comunicados');revalidatePath('/');revalidatePath(`/hotel/${hotel.slug}`);
+    redirect(buildFeedbackRedirect(`/admin/comunicados/${id}`,{error:communicationFailureMessage(error)}));
   }
 
   const translationResult = await syncAnnouncementTranslations({
     supabase,
     announcementId: updatedAnnouncement.id,
+    expectedParentVersion: updatedAnnouncement.updated_at,
+    hotelId: hotel.id,
     fields: {
       title: payload.title || '',
       body: payload.body ?? null,

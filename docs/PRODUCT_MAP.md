@@ -2997,3 +2997,8 @@ Detalhes, IDs, datas, fontes visuais e limites em
 Auditoria somente leitura em docs/PREMIUM_V4_REFINEMENT_20261031.md: sete TESTE, seis ativos; novas ativações/criação após retiradas e lacunas de auditoria identificadas. Origem humana/automação não confirmada. Plano sensível aguarda aprovação; nenhuma escrita editorial executada.
 
 Região Bugan Promoções e novidades/Atualizações do hotel: carrossel horizontal com foto/CTA e lista compacta, estados vazios sem reserva, teclado/toque e PT/EN/ES. Outros hotéis preservam modos legados. Fonte visual: painéis 3/4 de Showcase UX_UI do Bugan Recife.png, sem redesenho do restante da Home. Aprovação técnica não equivale a homologação editorial de conteúdo.
+
+
+### P0 Fase 1 — proteção local de comunicados/banners — 31/10/2026
+
+Branch fix/p0-communications-phase1, base e3b53e6: allowlists editoriais sem status, formulários com versão persistida e CAS atômico por ID/hotel/updated_at em conteúdo/status/mídia/exclusão/claim de tradução. Criação e permissões legítimas preservadas. Auditoria confirmada e mensagens de conflito/recarga; persistência e auditoria/traduções/Storage ainda não são uma transação. Gate separado por sete IDs conhecidos consome snapshots offline, sem bloquear desenvolvimento quando editorial está vermelho. Código local não publicado; seis demonstrações ativas na última leitura conhecida não foram regularizadas. Desenho da Fase 2, compatibilidade, reversão, inventário e limites na seção P0 Fase 1 de docs/PREMIUM_V4_REFINEMENT_20261031.md. Nenhuma migration, escrita real, push, merge ou deploy autorizado nesta fase.

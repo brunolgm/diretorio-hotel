@@ -1,4 +1,6 @@
 'use server';
+import {updateCommunicationEditorial,readCommunicationVersion,communicationFailureMessage} from '@/lib/communications/editorial';
+import {CommunicationStatusError} from '@/lib/communications/access';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -22,7 +24,7 @@ import { isUuid } from '@/lib/security/identifiers';
 import { recordAdminAuditEvent } from '@/lib/audit';
 
 export async function uploadPromotionalBannerImageAction(formData: FormData) {
-  const { user } = await requireAdminAccess('operador'); await requireHotelModule('content.banners');
+  await requireAdminAccess('operador'); await requireHotelModule('content.banners');
   const supabase = await createClient();
   const adminSupabase = createAdminClient();
   const hotel = await getAdminHotel();
@@ -37,16 +39,9 @@ export async function uploadPromotionalBannerImageAction(formData: FormData) {
     redirect(`/admin/banners/${bannerId}?error=Selecione%20uma%20imagem%20antes%20de%20enviar`);
   }
 
-  const { data: banner, error: bannerError } = await supabase
-    .from('hotel_promotional_banners')
-    .select('id, image_url')
-    .eq('id', bannerId)
-    .eq('hotel_id', hotel.id)
-    .single();
-
-  if (bannerError || !banner) {
-    redirect(`/admin/banners/${bannerId}?error=Banner%20n%C3%A3o%20encontrado`);
-  }
+  let banner;
+  try {banner=await readCommunicationVersion(supabase,{kind:'banner',id:bannerId,hotelId:hotel.id,expectedUpdatedAt:readTrimmedString(formData,'expected_updated_at')});}
+  catch(error){redirect(`/admin/banners/${bannerId}?error=${encodeURIComponent(communicationFailureMessage(error))}`);}
 
   const validation = await validateImageUpload(fileEntry, IMAGE_UPLOAD_POLICIES.banner);
   if (!validation.ok) {
@@ -97,42 +92,17 @@ export async function uploadPromotionalBannerImageAction(formData: FormData) {
 
   const { data } = supabase.storage.from('hotel-assets').getPublicUrl(path);
 
-  const { data: updatedBanner, error: updateError } = await supabase
-    .from('hotel_promotional_banners')
-    .update({
-      image_url: data.publicUrl,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', banner.id)
-    .eq('hotel_id', hotel.id)
-    .select('id')
-    .maybeSingle();
-
-  if (updateError || !updatedBanner) {
-    const { error: cleanupError } = await adminSupabase.storage.from('hotel-assets').remove([path]);
-    logOperationalError({
-      module: 'banners',
-      action: 'uploadPromotionalBannerImageAction',
-      operation: 'save uploaded banner image URL',
-      hotelId: hotel.id,
-      targetId: banner.id,
-      error: 'Banner image URL update failed',
-    });
-    if (cleanupError) {
-      logOperationalError({
-        module: 'banners',
-        action: 'uploadPromotionalBannerImageAction',
-        operation: 'rollback uploaded banner image',
-        hotelId: hotel.id,
-        targetId: banner.id,
-        error: 'Banner image rollback cleanup failed',
-      });
+  try {
+    await updateCommunicationEditorial(supabase,{kind:'banner',id:banner.id,hotelId:hotel.id,expectedUpdatedAt:readTrimmedString(formData,'expected_updated_at'),changes:{image_url:data.publicUrl},operation:'image',auditAction:'banner.image_uploaded'},recordAdminAuditEvent);
+  } catch(error) {
+    // Audit failure means the URL is already persisted: never delete the linked asset.
+    // Ambiguous network/database responses may also have committed; retain the asset for reconciliation.
+    if(error instanceof CommunicationStatusError&&['PT409','record_unavailable','authorization_required','module_required','version_required'].includes(error.code)){
+      const cleanup=await adminSupabase.storage.from('hotel-assets').remove([path]);
+      if(cleanup.error)logOperationalError({module:'banners',action:'uploadPromotionalBannerImageAction',operation:'clean unlinked upload after confirmed rejection',hotelId:hotel.id,targetId:banner.id,error:'Upload cleanup unconfirmed'});
     }
-    redirect(
-      `/admin/banners/${bannerId}?error=${encodeURIComponent(
-        'A imagem foi enviada, mas não foi possível concluir a atualização do banner. Revise a tela e tente novamente.'
-      )}`
-    );
+    revalidatePath('/admin/banners');revalidatePath('/');revalidatePath(`/hotel/${hotel.slug}`);
+    redirect(`/admin/banners/${bannerId}?error=${encodeURIComponent(communicationFailureMessage(error))}`);
   }
 
   if (previousPath && previousPath !== path) {
@@ -151,14 +121,6 @@ export async function uploadPromotionalBannerImageAction(formData: FormData) {
     }
   }
 
-  await recordAdminAuditEvent({
-    actorUserId: user.id,
-    hotelId: hotel.id,
-    action: 'banner.image_uploaded',
-    entityType: 'hotel_promotional_banner',
-    entityId: banner.id,
-    metadata: { media_category: 'promotional-banners', format: validation.value.extension },
-  });
 
   revalidatePath('/admin/banners');
   revalidatePath(`/admin/banners/${banner.id}`);

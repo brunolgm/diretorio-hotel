@@ -443,11 +443,13 @@ export default async function AdminAnnouncementsPage({
 
                           <form action={retranslateAnnouncementAction}>
                             <input type="hidden" name="id" value={item.id} />
+                            <input type="hidden" name="expected_updated_at" value={item.updated_at ?? ''} />
                             <AdminSubmitButton label="Retraduzir" pendingLabel="Traduzindo..." variant="secondary" />
                           </form>
 
                           <form action={toggleAnnouncementAction}>
                             <input type="hidden" name="id" value={item.id} />
+                            <input type="hidden" name="expected_updated_at" value={item.updated_at ?? ''} />
                             <input
                               type="hidden"
                               name="is_active"
@@ -463,7 +465,7 @@ export default async function AdminAnnouncementsPage({
                             triggerLabel="Excluir"
                             confirmLabel="Excluir anúncio"
                             pendingLabel="Excluindo..."
-                            hiddenFields={[{ name: 'id', value: item.id }]}
+                            hiddenFields={[{ name: 'id', value: item.id },{name:'expected_updated_at',value:item.updated_at??''}]}
                           />
                         </AdminActionGroup>
                       ) : null

@@ -446,11 +446,13 @@ export default async function AdminBannersPage({ searchParams }: AdminBannersPag
 
                           <form action={retranslatePromotionalBannerAction}>
                             <input type="hidden" name="id" value={item.id} />
+                            <input type="hidden" name="expected_updated_at" value={item.updated_at ?? ''} />
                             <AdminSubmitButton label="Retraduzir" pendingLabel="Traduzindo..." variant="secondary" />
                           </form>
 
                           <form action={togglePromotionalBannerAction}>
                             <input type="hidden" name="id" value={item.id} />
+                            <input type="hidden" name="expected_updated_at" value={item.updated_at ?? ''} />
                             <input
                               type="hidden"
                               name="is_active"
@@ -466,7 +468,7 @@ export default async function AdminBannersPage({ searchParams }: AdminBannersPag
                             triggerLabel="Excluir"
                             confirmLabel="Excluir banner"
                             pendingLabel="Excluindo..."
-                            hiddenFields={[{ name: 'id', value: item.id }]}
+                            hiddenFields={[{ name: 'id', value: item.id },{name:'expected_updated_at',value:item.updated_at??''}]}
                           />
                         </AdminActionGroup>
                       ) : null
