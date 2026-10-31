@@ -37,7 +37,8 @@ try{
  const origin='http://127.0.0.1:4183';
  const properties=[['bugan','bugan'],['grand-mercure','grand-mercure'],['novotel-leme','deep-ocean'],['novotel-salvador','novotel'],['mercure','mercure'],['default','default']];
  async function ready(){await page.locator('h1').first().waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.ok(!(await page.locator('h1').first().innerText()).includes('404'));}
- if(process.argv.includes('--compact-home')){const {runCompactHome}=await import('./compact-home.mjs');rows.push(...await runCompactHome({page,origin,output}));}
+ if(process.argv.includes('--region-baseline')||process.argv.includes('--communications-region')){const {runCommunicationsRegion}=await import('./communications-region.mjs');rows.push(...await runCommunicationsRegion({page,origin,before:process.argv.includes('--region-baseline')}));}
+ else if(process.argv.includes('--compact-home')){const {runCompactHome}=await import('./compact-home.mjs');rows.push(...await runCompactHome({page,origin,output}));}
  else if(process.argv.includes('--refinement-package')){const {runPremiumRefinement}=await import('./premium-refinement.mjs');rows.push(...await runPremiumRefinement({page,origin,output}));}
  else if(process.argv.includes('--tv-final')){const {runTvFinal}=await import('./tv-editorial-final.mjs');rows.push(...await runTvFinal({page,origin,output}));}
  else if(process.argv.includes('--tv-premium')){const {runTvChannelsPremium}=await import('./tv-channels-premium.mjs');rows.push(...await runTvChannelsPremium({page,origin,output}));}

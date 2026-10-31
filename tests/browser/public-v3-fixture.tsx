@@ -140,6 +140,27 @@ if(refinementCase){
  const banner=data.banners[0],count=Number(args.get('bannerCount')??'0');data.banners=banner?Array.from({length:count},(_,i)=>({...banner,id:'package-banner-'+i,image_url:null})):[];
  if(refinementCase==='modulesOff')data.layout=data.layout.map(b=>({...b,isEnabled:false}));
 }
+const regionCase=args.get('regionCase');
+if(regionCase){
+ const info=data.announcements.find(r=>r.id==='info'),banner=data.banners[0],alert=data.announcements.find(r=>r.id==='alert'),maintenance=data.announcements.find(r=>r.id==='maintenance'),promotion=data.announcements.find(r=>r.id==='promotion');
+ const words=language==='en'?{title:'Local editorial fixture',body:'Isolated visual validation. No hotel publication.',info:'Hotel guidance'}:language==='es'?{title:'Fixture editorial local',body:'Validación visual aislada. Sin publicación del hotel.',info:'Orientaciones del hotel'}:{title:'Fixture editorial local',body:'Validação visual isolada. Nenhuma publicação do hotel.',info:'Orientações do hotel'};
+ const count=Number(args.get('regionCount')??(regionCase==='single'?'1':'3'));
+ data.banners=banner?Array.from({length:count},(_,i)=>({...banner,id:'region-banner-'+i,title:words.title+' '+(i+1),subtitle:words.body,display_order:i,image_url:'https://example.test/banner.png',cta_url:'https://example.test/offer/'+i,cta_label:null})):[];
+ data.announcements=info?Array.from({length:4},(_,i)=>({...info,id:'region-info-'+i,title:words.info+' '+(i+1),body:words.body})):[];
+ if(regionCase==='none'){data.announcements=[];data.banners=[];}
+ if(['banners','single','noimage','nocta','broken'].includes(regionCase))data.announcements=[];
+ if(['updates','nosummary'].includes(regionCase))data.banners=[];
+ if(regionCase==='both'||regionCase==='long')data.announcements=[...(alert?[alert]:[]),...(maintenance?[maintenance]:[]),...(promotion?[promotion]:[]),...data.announcements];
+ if(regionCase==='noimage')data.banners=data.banners.map(r=>({...r,image_url:null}));
+ if(regionCase==='broken')data.banners=data.banners.map(r=>({...r,image_url:'https://example.test/broken.png'}));
+ if(regionCase==='nocta')data.banners=data.banners.map(r=>({...r,cta_url:'javascript:alert(1)'}));
+ if(regionCase==='nosummary')data.announcements=data.announcements.map(r=>({...r,body:null}));
+ if(regionCase==='long'){data.banners=data.banners.map(r=>({...r,title:(words.title+' ').repeat(7),subtitle:words.body.repeat(10)}));data.announcements=data.announcements.map(r=>({...r,title:r.title+' '+words.info.repeat(5)}));}
+ if(regionCase==='expired'){data.banners=data.banners.map(r=>({...r,ends_at:'2020-01-01T00:00:00Z'}));data.announcements=data.announcements.map(r=>({...r,ends_at:'2020-01-01T00:00:00Z'}));}
+ if(regionCase==='disabled'){data.banners=data.banners.map(r=>({...r,is_active:false}));data.announcements=data.announcements.map(r=>({...r,is_active:false}));}
+ if(regionCase==='foreign'){data.banners=data.banners.map(r=>({...r,hotel_id:'foreign'}));data.announcements=data.announcements.map(r=>({...r,hotel_id:'foreign'}));}
+ if(regionCase==='modulesOff')data.layout=data.layout.map(b=>['banners','announcements'].includes(b.blockKey)?{...b,isEnabled:false}:b);
+}
 let content=<HotelPublicPageContent {...data} language={language} domainContext={domain}/>;
 const destinationPath=location.pathname.replace(/^\/hotel\/[^/]+/,'/preview');
 if((domain.navigationScope||location.pathname.startsWith('/hotel/'))&&destinationPath!=='/preview'){

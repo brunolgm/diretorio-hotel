@@ -2990,3 +2990,10 @@ e GET público PT/EN/ES. Não há blacklist de títulos no produto. Guias/TV,
 13 Serviços, administradores, lifecycle e demais hotéis permanecem preservados.
 Detalhes, IDs, datas, fontes visuais e limites em
 `docs/PREMIUM_V4_REFINEMENT_20261031.md`.
+
+
+### Pacote consolidado V4 — P0 e região opcional — 31/10/2026
+
+Auditoria somente leitura em docs/PREMIUM_V4_REFINEMENT_20261031.md: sete TESTE, seis ativos; novas ativações/criação após retiradas e lacunas de auditoria identificadas. Origem humana/automação não confirmada. Plano sensível aguarda aprovação; nenhuma escrita editorial executada.
+
+Região Bugan Promoções e novidades/Atualizações do hotel: carrossel horizontal com foto/CTA e lista compacta, estados vazios sem reserva, teclado/toque e PT/EN/ES. Outros hotéis preservam modos legados. Fonte visual: painéis 3/4 de Showcase UX_UI do Bugan Recife.png, sem redesenho do restante da Home. Aprovação técnica não equivale a homologação editorial de conteúdo.
