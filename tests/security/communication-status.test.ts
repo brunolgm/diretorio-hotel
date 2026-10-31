@@ -4,12 +4,12 @@ import {readFileSync} from 'node:fs';
 import {setCommunicationStatus} from '../../lib/communications/status.ts';
 import {retireTestCommunications} from '../../scripts/retire-bugan-test-communications.mjs';
 const manifest=JSON.parse(readFileSync('docs/bootstrap/bugan-test-communications-20261030.json','utf8'));
-function lab(options: {role?:string; active?:boolean; hotelId?:string; missingModule?:boolean; auditFails?:boolean} = {}) {
- const h=manifest.hotelId,events:string[]=[],auditRows:Record<string,unknown>[]=[],tables:Record<string,Record<string,unknown>[]>={
+function lab(options: {role?:string; active?:boolean; hotelId?:string; missingModule?:boolean; auditFails?:boolean} = {},sourceManifest=manifest) {
+ const h=sourceManifest.hotelId,events:string[]=[],auditRows:Record<string,unknown>[]=[],tables:Record<string,Record<string,unknown>[]>={
  profiles:[{id:'admin',hotel_id:options.hotelId??h,role:options.role??'administrador',is_active:options.active!==false}],
  hotels:[{id:h,platform_status:'active',slug:'bugan-recife',subdomain:'buganrecife'}],
- hotel_promotional_banners:manifest.records.filter((e:{kind:string})=>e.kind==='banner').map((e:{record:unknown})=>structuredClone(e.record)),
- hotel_announcements:manifest.records.filter((e:{kind:string})=>e.kind==='announcement').map((e:{record:unknown})=>structuredClone(e.record)),
+ hotel_promotional_banners:sourceManifest.records.filter((e:{kind:string})=>e.kind==='banner').map((e:{record:unknown})=>structuredClone(e.record)),
+ hotel_announcements:sourceManifest.records.filter((e:{kind:string})=>e.kind==='announcement').map((e:{record:unknown})=>structuredClone(e.record)),
  admin_audit_log:auditRows};
  const client={auth:{getUser:async()=>({data:{user:{id:'admin'}},error:null})},rpc:async()=>({data:options.missingModule?[]:['content.banners','content.announcements'].map(module_key=>({module_key,is_enabled:true})),error:null}),
  from(table:string){const filters:((r:Record<string,unknown>)=>boolean)[]=[];let patch:Record<string,unknown>|undefined,one=false,limit=Infinity;const q={
@@ -69,3 +69,11 @@ test('authenticated disable API rejects anonymous/cross-origin/extra tenant or a
 });
 
 test("normal Admin operator toggle stays allowed, while automation requires administrator",async()=>{const item=manifest.records[0].record,l=lab({role:"operador"});await assert.rejects(()=>l.disable({kind:"banner",id:item.id,expected_updated_at:item.updated_at}));assert.deepEqual(l.events,[]);const result=await setCommunicationStatus(l.client as never,{kind:"banner",id:item.id,isActive:false},l.audit);assert.equal(result.is_active,false);assert.deepEqual(l.events,["update","audit"]);});
+
+
+test('refinement cleanup handles four reactivated/new records and an already audited inactive control',async()=>{
+ const m=JSON.parse(readFileSync('docs/bootstrap/bugan-test-communications-20261031.json','utf8')),l=lab({},m),control=m.records.find((e:{record:{id:string}})=>e.record.id==='5babf6c1-dbc1-4821-aa98-8c87a26add8d');
+ const inactive=l.tables.hotel_announcements.find(r=>r.id===control.record.id)!;inactive.is_active=false;
+ l.tables.admin_audit_log.push({id:'prior',hotel_id:m.hotelId,entity_id:inactive.id,action:'announcement.deactivated',created_at:new Date().toISOString()});
+ const result=await retireTestCommunications(l.client,m,l.disable);assert.equal(result.disabledThisRun,4);assert.equal(result.deleted,0);assert.equal(l.events.filter(e=>e==='update').length,4);assert.equal((await retireTestCommunications(l.client,m,l.disable)).disabledThisRun,0);
+});

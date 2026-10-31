@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "hotelId": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+  "projectRef": "micuekfznunwwofxnovw",
+  "origin": "https://libguest.digital",
+  "records": [
+    {
+      "kind": "announcement",
+      "record": {
+        "id": "0b08ba8d-0e4e-4bb6-ab12-7fdd064a73f3",
+        "body": "TESTE 4",
+        "title": "TESTE 4",
+        "ends_at": null,
+        "category": "promocao",
+        "hotel_id": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+        "is_active": true,
+        "starts_at": null,
+        "created_at": "2026-10-30T15:27:30.99797+00:00",
+        "updated_at": "2026-10-31T04:06:12.916+00:00"
+      }
+    },
+    {
+      "kind": "announcement",
+      "record": {
+        "id": "69e72156-1e45-43dc-87e1-33c690291b54",
+        "body": "TESTE MANUTENÇÃO",
+        "title": "TESTE MANUTENÇÃO",
+        "ends_at": null,
+        "category": "alerta",
+        "hotel_id": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+        "is_active": true,
+        "starts_at": null,
+        "created_at": "2026-10-30T02:53:47.696729+00:00",
+        "updated_at": "2026-10-31T04:07:43.811+00:00"
+      }
+    },
+    {
+      "kind": "banner",
+      "record": {
+        "id": "0b012d35-0b6b-49d8-a357-fa53b657be4f",
+        "title": "TESTE 2",
+        "cta_url": null,
+        "ends_at": null,
+        "hotel_id": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+        "subtitle": "TESTE BANNER",
+        "cta_label": null,
+        "image_url": null,
+        "is_active": true,
+        "starts_at": null,
+        "created_at": "2026-10-31T04:06:44.480395+00:00",
+        "updated_at": "2026-10-31T04:06:44.480395+00:00",
+        "display_order": 0
+      }
+    },
+    {
+      "kind": "banner",
+      "record": {
+        "id": "e1f4222d-bb17-4990-9cbf-12c1b9c5a04b",
+        "title": "TESTE",
+        "cta_url": null,
+        "ends_at": null,
+        "hotel_id": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+        "subtitle": "TESTE",
+        "cta_label": "TESTE",
+        "image_url": null,
+        "is_active": true,
+        "starts_at": null,
+        "created_at": "2026-10-30T02:52:12.44346+00:00",
+        "updated_at": "2026-10-31T04:06:27.24+00:00",
+        "display_order": 0
+      }
+    },
+    {
+      "kind": "announcement",
+      "record": {
+        "id": "5babf6c1-dbc1-4821-aa98-8c87a26add8d",
+        "body": "TESTE 2",
+        "title": "TESTE 2",
+        "ends_at": null,
+        "category": "informativo",
+        "hotel_id": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+        "is_active": true,
+        "starts_at": null,
+        "created_at": "2026-10-30T15:25:53.24516+00:00",
+        "updated_at": "2026-10-30T15:25:53.24516+00:00"
+      }
+    }
+  ]
+}

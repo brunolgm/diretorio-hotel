@@ -28,7 +28,7 @@ export function publicCommunications(
   now = Date.now(),
 ) {
   const rows = announcements.filter((row) =>
-    communicationEligible(row, hotelId, now),
+    communicationEligible(row, hotelId, now) && Boolean(row.title?.trim() || row.body?.trim()),
   );
   return {
     // Critical alerts precede maintenance; keep the canonical order within each category.
@@ -46,7 +46,7 @@ export function publicCommunications(
 export function communicationCopy(lang: "pt" | "en" | "es") {
   return lang === "en"
     ? {
-        important: "Important notices",
+        important: "Important notices", importantLabel:"Important notice", details:"View details", dismiss:"Dismiss notice",
         otherNotices: (n:number) => n+" more notice"+(n===1?"":"s"), until:"Until", scrollOffers:"Swipe to see more promotions",
         offers: "Promotions and news",
         updates: "Hotel updates",
@@ -60,7 +60,7 @@ export function communicationCopy(lang: "pt" | "en" | "es") {
       }
     : lang === "es"
       ? {
-          important: "Avisos importantes",
+          important: "Avisos importantes", importantLabel:"Aviso importante", details:"Ver detalles", dismiss:"Cerrar aviso",
           otherNotices: (n:number) => n+" aviso"+(n===1?"":"s")+" más", until:"Hasta", scrollOffers:"Deslice para ver más novedades",
           offers: "Promociones y novedades",
           updates: "Novedades del hotel",
@@ -73,7 +73,7 @@ export function communicationCopy(lang: "pt" | "en" | "es") {
           more: "Más información",
         }
       : {
-          important: "Avisos importantes",
+          important: "Avisos importantes", importantLabel:"Aviso importante", details:"Ver detalhes", dismiss:"Dispensar aviso",
           otherNotices: (n:number) => "Mais "+n+" aviso"+(n===1?"":"s"), until:"Até", scrollOffers:"Deslize para ver mais novidades",
           offers: "Promoções e novidades",
           updates: "Atualizações do hotel",

@@ -7,12 +7,12 @@ import type {PublicHotelPageData} from '@/lib/public-hotel-data';
 import type {DomainContext} from '@/lib/domain-context';
 import type {SupportedPublicLanguage} from '@/lib/public-language';
 
-export function PublicExperienceMobileTasks({pageData,language,domainContext,preferSubdomainRoot,style}:{pageData:PublicHotelPageData;language:SupportedPublicLanguage;domainContext:DomainContext;preferSubdomainRoot:boolean;style?:CSSProperties}){
+export function PublicExperienceMobileTasks({pageData,language,domainContext,preferSubdomainRoot,style,desktopEssentials=false}:{pageData:PublicHotelPageData;language:SupportedPublicLanguage;domainContext:DomainContext;preferSubdomainRoot:boolean;style?:CSSProperties;desktopEssentials?:boolean}){
  const copy=getPublicCopy(language),model=getUniversalMobileHome(pageData,language,domainContext,preferSubdomainRoot);
  const actions={services:{label:copy.navigationServices,icon:ConciergeBell},dining:{label:copy.universalDining,icon:Utensils},flights:{label:copy.universalFlights,icon:Plane},contact:{label:copy.universalContact,icon:MessageCircle}};
  const hasEssentials=model.wifi||model.breakfast||model.checkin||model.checkout;
  if(!hasEssentials&&!model.actions.length)return null;
- return <div className="public-v4-mobile-home" style={style} data-public-v4-mobile>
+ return <div className="public-v4-mobile-home" style={style} data-public-v4-mobile data-desktop-essentials={desktopEssentials?true:undefined}>
   {hasEssentials?<section aria-label={copy.universalEssentialsTitle} className="public-v4-essentials">
    <h2>{copy.universalEssentialsTitle}</h2><div className="public-v4-essential-grid">
     {model.wifi?<details className="public-v4-wifi"><summary><Wifi aria-hidden/><span><strong>{copy.wifi}</strong><span>{model.wifi.name}</span></span><ChevronDown aria-hidden className="public-v4-disclosure"/></summary><div className="public-v4-instructions"><h3>{copy.universalWifiInstructions}</h3>{model.wifi.instructions?<p>{model.wifi.instructions}</p>:null}{model.wifi.password?<p>{copy.passwordLabel(model.wifi.password)}</p>:!model.wifi.instructions?<p>{copy.askFrontDesk}</p>:null}</div></details>:null}

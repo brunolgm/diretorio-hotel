@@ -2974,3 +2974,19 @@ TypeScript e lint aprovados (zero erros; quatro avisos preexistentes de imagens)
 Publicação técnica condicionada também a build e diff aprovados. Nenhuma
 escrita editorial; revisão 7, quatro guias desabilitados e 222 registros
 sem publicação preservados.
+
+
+### Pacote de refinamento Premium V4 — 31/10/2026
+
+Home e Informações recebem refinamentos incrementais, com alerta comparado ao
+mockup aprovado, essenciais desktop, cards institucionais mobile empilhados,
+carrosséis acessíveis e estadia/políticas antes do conteúdo institucional.
+Wi-Fi mantém as instruções completas em expansão e não coleta dados do hóspede.
+
+P0: auditoria demonstrou três reativações autenticadas e um novo banner TESTE
+em 31/10, sem evidência de ressurreição por cache. O administrador executou o
+executor canônico: quatro desativações, zero exclusões, confirmadas por leitura
+e GET público PT/EN/ES. Não há blacklist de títulos no produto. Guias/TV,
+13 Serviços, administradores, lifecycle e demais hotéis permanecem preservados.
+Detalhes, IDs, datas, fontes visuais e limites em
+`docs/PREMIUM_V4_REFINEMENT_20261031.md`.
