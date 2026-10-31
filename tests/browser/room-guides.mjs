@@ -43,7 +43,7 @@ export async function runRoomGuides({ page, origin, output }) {
           ),
           true,
         );
-        const image = guide.locator("img");
+        const image = guide.locator(".room-guide-step img");
         await image.waitFor();
         await image.evaluate(async (img) => {
           await img.decode();

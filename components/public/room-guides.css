@@ -80,3 +80,14 @@
  .room-guide-pagination button {font-size:11px;padding:8px}
  .room-guide-pagination svg {width:15px;height:15px}
 }
+
+/* Original remote photographs stay uncropped; optional native-dialog enlargement. */
+.room-guide-step figure img {max-height:360px}
+.room-guide .room-guide-image-button {display:flex;flex-direction:column;width:100%;border:0;padding:0;background:transparent}
+.room-guide-image-button>span {font-size:11px;line-height:1.5;text-decoration:underline;text-underline-offset:3px}
+.room-guide-image-dialog {position:fixed;inset:0;margin:auto;max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));width:440px;padding:20px;border:1px solid var(--hotel-border);border-radius:18px;background:var(--hotel-surface);color:var(--hotel-text);overflow:auto}
+.room-guide-image-dialog::backdrop {background:rgb(0 0 0 / .65)}
+.room-guide-image-dialog>div {display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px}
+.room-guide-image-dialog h2 {flex:1;min-width:120px;font-size:14px;line-height:1.5;margin:0}
+.room-guide-image-dialog img {display:block;width:auto;height:auto;max-height:calc(100dvh - 170px - env(safe-area-inset-top) - env(safe-area-inset-bottom));max-width:100%;object-fit:contain;margin:0 auto}
+@media(max-width:767px){.room-guide-step figure img {max-height:300px}.room-guide-image-dialog {padding:16px}}

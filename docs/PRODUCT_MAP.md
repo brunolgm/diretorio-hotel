@@ -2945,3 +2945,15 @@ relação ao início desta execução por essa ação explicitamente confirmada;
 demais conjuntos e configurações de guia devem permanecer iguais. Nenhuma
 escrita editorial foi executada pelo agente. Publicação operacional de guias e
 grade continua sem autorização e depende de homologação humana.
+
+### TV e Canais — acabamento editorial final (30/10/2026)
+
+Retomada do checkpoint 923d476 em fix/tv-editorial-final. Fotos reais com
+ampliação acessível; remoção de texto redundante baseada no conteúdo adicional,
+sem regra por marca; último passo dos guias sem canais abre ajuda. Nenhuma
+alteração global do dock foi necessária. Gates: 531 segurança, 127 acabamento,
+44 TV e 148 Guias/Admin; TypeScript, lint sem erros, build e diff aprovados.
+Textos finais PT/EN/ES preparados em executor autenticado pela RPC canônica,
+sem service role e sem publicação. Leitura real ainda confirma revisão 6;
+persistência da redação final depende de autenticação humana e releitura.
+Ver `docs/TV_EDITORIAL_FINAL_20261030.md` para escopo, evidências e limitações.
