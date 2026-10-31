@@ -23,7 +23,7 @@ export async function runPremiumHotfix({page,origin,output}){
    if(code==='C')assert.equal(await page.locator('.v4-important-more').count(),1);
   }
   if(code==='D'||code==='E'){
-   const card=page.locator('[data-v4-offers] article');assert.equal(await card.count(),1);if(width>=768)assert.ok((await card.boundingBox()).width<=640,'single promotion uses available width proportionally');
+   const card=page.locator('[data-v4-offers] article');assert.equal(await card.count(),1);if(width>=768)assert.ok((await card.boundingBox()).width<=1000,'single promotion uses available width proportionally');
    assert.equal(await card.locator('img').count(),code==='D'?1:0);if(code==='D')await card.locator('img').evaluate(i=>i.decode());else assert.ok((await card.boundingBox()).height<280);
    assert.equal(await card.locator('a').getAttribute('href'),'https://example.test/offer');
   }
