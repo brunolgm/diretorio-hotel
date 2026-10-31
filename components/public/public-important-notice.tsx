@@ -16,7 +16,7 @@ export function PublicImportantNotice({rows,language,announcementsHref}:{rows:Pu
  return <aside className="v4-attention" aria-label={copy.important} data-v4-alerts data-important-count={visible.length}>
   <div className="v4-important-row" data-important-notice data-notice-category={row.category}>
    <AlertTriangle aria-hidden/><div className="v4-important-copy"><strong className="v4-important-category">{copy.importantLabel}</strong><p>{row.title}{excerpt?<>{row.title?' — ':''}{excerpt}</>:null}</p></div>
-   <a className="v4-important-read" href={announcementsHref+'#announcement-'+row.id} aria-label={copy.details+': '+row.title}>{copy.details}<ArrowRight aria-hidden/></a>
+   <a className="v4-important-read" href={announcementsHref+'#announcement-'+row.id} aria-label={copy.details+': '+row.title}><span className="v4-important-details-label">{copy.details}</span><ArrowRight aria-hidden/></a>
    {visible.length>1?<a className="v4-important-more" href={announcementsHref}>{copy.otherNotices(visible.length-1)}</a>:null}
    <button type="button" className="v4-important-close" aria-label={copy.dismiss} onClick={dismiss}><X aria-hidden/></button>
   </div>
