@@ -27,7 +27,7 @@ export async function retireTestCommunications(client,manifest,disable,progress=
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  let client,state={stage:'plan',operation:'manifest.read',writesAttempted:false};
  try{
-  const manifest=JSON.parse(readFileSync('docs/bootstrap/bugan-test-communications-20261030.json','utf8'));
+  const manifest=JSON.parse(readFileSync(process.argv.includes('--refinement-package')?'docs/bootstrap/bugan-test-communications-20261031.json':'docs/bootstrap/bugan-test-communications-20261030.json','utf8'));
   if(process.argv.includes('--plan'))console.log(JSON.stringify({mode:'plan',writes:false,records:manifest.records.map(e=>({kind:e.kind,id:e.record.id,title:e.record.title}))}));
   else{
    process.loadEnvFile('.env.local');check(process.env.NEXT_PUBLIC_SUPABASE_URL==='https://'+manifest.projectRef+'.supabase.co','PROJECT_MISMATCH');
@@ -37,7 +37,7 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
    client=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
    const auth=await client.auth.signInWithPassword(credentials);credentials=null;check(!auth.error&&auth.data.session,'AUTH_FAILED');
    const disable=async payload=>{const response=await fetch(manifest.origin+'/api/admin/communications/status',{method:'POST',redirect:'error',headers:{Authorization:'Bearer '+auth.data.session.access_token,'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await response.json();if(!response.ok)throw {code:['authentication_required','authorization_required','hotel_unavailable','module_required','record_unavailable','PT409','status_update_unconfirmed','status_changed_audit_unconfirmed','request_unconfirmed'].includes(data?.error)?data.error:'WRITE_UNCONFIRMED',httpStatus:response.status};return data;};
-   const result=await retireTestCommunications(client,manifest,disable,p=>{state=p;});mkdirSync('out',{recursive:true});writeFileSync('out/bugan-test-communications-retired.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+   const result=await retireTestCommunications(client,manifest,disable,p=>{state=p;});mkdirSync('out',{recursive:true});writeFileSync(process.argv.includes('--refinement-package')?'out/bugan-test-communications-retired-20261031.json':'out/bugan-test-communications-retired.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
   }
  }catch(error){const allowed=['PT409','AUTH_REQUIRED','AUTHORIZATION_REQUIRED','MODULES_REQUIRED','LIFECYCLE_CONFLICT','AUTH_FAILED','PROJECT_MISMATCH','ACCOUNT_MISMATCH','INVALID_MANIFEST','READ_UNCONFIRMED','WRITE_UNCONFIRMED','AUDIT_UNCONFIRMED','authentication_required','authorization_required','hotel_unavailable','module_required','record_unavailable','status_update_unconfirmed','status_changed_audit_unconfirmed','request_unconfirmed'];console.error(JSON.stringify({status:'interrupted',...state,httpStatus:Number.isInteger(error?.httpStatus)&&error.httpStatus>=400&&error.httpStatus<600?error.httpStatus:undefined,code:allowed.includes(error?.code)?error.code:'UNCONFIRMED',message:'Confira por leitura antes de repetir; nao envie senha ou token ao chat.'}));process.exitCode=1;}
  finally{if(client)await client.auth.signOut({scope:'local'}).catch(()=>{});}

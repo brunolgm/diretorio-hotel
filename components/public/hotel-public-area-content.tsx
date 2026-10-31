@@ -1,4 +1,5 @@
-import {InternalHotelOverview,InternalAccommodation} from './public-internal-editorial';
+import {PublicStayInformation} from './public-stay-information';
+import {InternalAccommodation} from './public-internal-editorial';
 import {PublicAnnouncementDirectory} from './public-announcement-directory';
 import {communicationEligible} from '@/lib/public-communications';
 import {RoomGuideLinks} from './room-guide-links';
@@ -227,7 +228,7 @@ export function HotelPublicAreaContent({
   });
 
   return (
-    <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isBugan ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-10'}`} style={theme.cssVars} data-public-internal-v4={pageData.presentation?.experienceVersion==='v4'?'':undefined} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
+    <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isBugan ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-10'}`} style={theme.cssVars} data-public-internal-v4={pageData.presentation?.experienceVersion==='v4'?'':undefined} data-public-area={area} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
       <PublicAnalytics hotelSlug={hotel.slug} language={language} />
       {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
       <div data-public-internal-body className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
@@ -286,9 +287,9 @@ export function HotelPublicAreaContent({
         )}
 
         <section className={`mt-6 ${isGrandMercure ? 'grand-mercure-last-content mb-8 md:mb-4' : isNovotel || isMercure ? 'mb-8 md:mb-4' : ''}`}>
-          {area === 'informacoes' ? (
+          {area === 'informacoes' ? isV4 ? <PublicStayInformation data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/> : (
             <div className="space-y-5">
-              {isV4?<InternalHotelOverview data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
+
               <div id="hotel-stay" className="public-information-essentials grid grid-cols-2 gap-3 md:grid-cols-4">
                 {[
                   { icon: Coffee, title: copy.breakfast, value: essentials.breakfast || copy.notInformed, periods:essentials.breakfastPeriods },

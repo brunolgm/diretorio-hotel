@@ -19,11 +19,11 @@ export async function runPremiumHotfix({page,origin,output}){
   if(code==='A'){assert.equal(await page.locator('[data-v4-alerts],[data-v4-offers],[data-v4-updates],[data-home-saved-flight]:visible').count(),0);assert.equal(await page.locator('[data-editorial]').count(),3);assert.equal(await page.locator('.v3-tourism-cards>a').count(),4);}
   if(code==='B'||code==='C'){
    const strip=page.locator('[data-v4-alerts]');assert.equal(await strip.getAttribute('data-important-count'),code==='B'?'1':'3');assert.equal(await strip.locator('[data-important-notice]').count(),1);assert.equal(await strip.locator('details,.v4-important-detail').count(),0);
-   assert.ok((await strip.boundingBox()).height<=72,'compact priority strip');assert.ok(!(await strip.innerText()).includes('Complete operational fixture'));
+   assert.ok((await strip.boundingBox()).height<=(width<768?270:130),'responsive compact notice with summary');assert.ok((await strip.locator('.v4-important-copy p').innerText()).length<=220);assert.equal(await strip.getByRole('button').count(),1);
    if(code==='C')assert.equal(await page.locator('.v4-important-more').count(),1);
   }
   if(code==='D'||code==='E'){
-   const card=page.locator('[data-v4-offers] article');assert.equal(await card.count(),1);if(width>=768)assert.ok((await card.boundingBox()).width<=420,'single promotion stays proportional');
+   const card=page.locator('[data-v4-offers] article');assert.equal(await card.count(),1);if(width>=768)assert.ok((await card.boundingBox()).width<=640,'single promotion uses available width proportionally');
    assert.equal(await card.locator('img').count(),code==='D'?1:0);if(code==='D')await card.locator('img').evaluate(i=>i.decode());else assert.ok((await card.boundingBox()).height<280);
    assert.equal(await card.locator('a').getAttribute('href'),'https://example.test/offer');
   }

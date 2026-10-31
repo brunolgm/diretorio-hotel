@@ -124,6 +124,18 @@ if(premiumCase){
  data.announcements=premiumCase==='B'&&alert?[{...alert,title:'Important notice '+language,body:('Complete operational fixture '+language+' ').repeat(70)}]:premiumCase==='C'&&alert&&maintenance?[maintenance,{...alert,id:'alert-2',title:'Second critical fixture'},alert]:premiumCase==='F'&&info?[info]:[];
  if(premiumCase==='D'||premiumCase==='E'){data.banners=data.banners.map(r=>({...r,title:'Fixture promotion '+language,subtitle:'Isolated composition, not a published hotel offer',image_url:premiumCase==='E'?null:r.image_url}));}else data.banners=[];
 }
+const refinementCase=args.get('refinementCase');
+if(refinementCase){
+ const noticeCopy=language==='en'?{title:'Contact guidance',body:'Use the official contact channels for assistance during your stay.'}:language==='es'?{title:'Orientación de atención',body:'Utilice los canales oficiales de contacto para recibir orientación durante su estadía.'}:{title:'Orientação de atendimento',body:'Consulte os canais oficiais de contato para orientações durante sua estadia.'};
+ const first=data.announcements.find(r=>r.id==='alert');
+ data.announcements=first?[{...first,...noticeCopy,created_at:'2026-10-01T00:00:00Z',updated_at:args.get('noticeRevision')==='2'?'2026-10-31T01:00:00Z':'2026-10-31T00:00:00Z'}]:[];
+ if(refinementCase==='none')data.announcements=[];
+ if(refinementCase==='expired')data.announcements=data.announcements.map(r=>({...r,ends_at:'2020-01-01T00:00:00Z'}));
+ if(refinementCase==='empty')data.announcements=data.announcements.map(r=>({...r,title:' ',body:' '}));
+ if(refinementCase==='foreign')data.announcements=data.announcements.map(r=>({...r,hotel_id:'foreign'}));
+ const banner=data.banners[0],count=Number(args.get('bannerCount')??'0');data.banners=banner?Array.from({length:count},(_,i)=>({...banner,id:'package-banner-'+i,image_url:null})):[];
+ if(refinementCase==='modulesOff')data.layout=data.layout.map(b=>({...b,isEnabled:false}));
+}
 let content=<HotelPublicPageContent {...data} language={language} domainContext={domain}/>;
 const destinationPath=location.pathname.replace(/^\/hotel\/[^/]+/,'/preview');
 if((domain.navigationScope||location.pathname.startsWith('/hotel/'))&&destinationPath!=='/preview'){

@@ -1,5 +1,6 @@
+import {PublicImportantNotice} from './public-important-notice';
 import Image from "next/image";
-import { AlertTriangle, Info, Wrench, Tag, ArrowUpRight } from "lucide-react";
+import { Info, Tag, ArrowUpRight } from "lucide-react";
 import { communicationCopy, publicCommunications, publicCommunicationUrl, communicationExcerpt } from "@/lib/public-communications";
 import type { PublicHotelPageData } from "@/lib/public-hotel-data";
 import type { SupportedPublicLanguage } from "@/lib/public-language";
@@ -7,17 +8,9 @@ export function PublicCommunications({data,language,announcementsHref,mode}:{dat
  const enabled=(key:string)=>data.layout.some(b=>b.blockKey===key&&b.isEnabled);
  const model=publicCommunications(data.hotel.id,enabled("announcements")?data.announcements:[],enabled("banners")?data.banners:[]),copy=communicationCopy(language);
  const detail=(id:string)=>announcementsHref+"#announcement-"+id;
- if(mode==="attention"){
-  const row=model.alerts[0];if(!row)return null;const maintenance=row.category==="manutencao",Icon=maintenance?Wrench:AlertTriangle;
-  return <aside className="v4-attention" aria-label={copy.important} data-v4-alerts data-important-count={model.alerts.length}>
-   <div className="v4-important-row" data-important-notice data-notice-category={row.category}>
-    <Icon aria-hidden/><a className="v4-important-copy v4-important-read" href={detail(row.id)} aria-label={copy.read+": "+row.title}><span className="v4-important-category">{maintenance?copy.maintenance:copy.alert}</span><strong>{row.title}</strong><ArrowUpRight aria-hidden/></a>
-    {model.alerts.length>1?<a className="v4-important-more" href={announcementsHref}>{copy.otherNotices(model.alerts.length-1)}</a>:null}
-   </div>
-  </aside>;
- }
- if(mode==="offers")return model.banners.length?<section className="v4-communications" aria-label={copy.offers} data-v4-offers>
-  <h2>{copy.offers}</h2><div className="v4-offer-cards">{model.banners.map(row=>{
+ if(mode==="attention")return <PublicImportantNotice rows={model.alerts} language={language} announcementsHref={announcementsHref}/>;
+ if(mode==="offers")return model.banners.length?<section className="v4-communications" aria-label={copy.offers} data-v4-offers data-offer-count={model.banners.length}>
+  <h2>{copy.offers}</h2><div className="v4-offer-cards" tabIndex={0} role="region" aria-label={copy.scrollOffers}>{model.banners.map(row=>{
    const image=publicCommunicationUrl(row.image_url),cta=publicCommunicationUrl(row.cta_url,"link"),summary=communicationExcerpt(row.title,row.subtitle);
    return <article key={row.id} data-with-image={image?"true":"false"}>
     {image?<Image src={image} alt={row.title} width={640} height={240} unoptimized className="v4-offer-image"/>:null}

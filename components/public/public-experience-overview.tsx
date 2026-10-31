@@ -101,7 +101,7 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
       </div>
       <nav className="v3-accesses" aria-label={copy.navigationLabel} data-v3-accesses data-legacy-home-access>{accesses.map(item => item.key==='flights'&&version==='v4'?<FlightHomeAccess key={item.key} hotelId={hotel.id} href={item.href} language={language} enabled={domainContext.navigationScope!=='authenticated-preview'} label={item.label} icon={<item.icon aria-hidden/>} arrow={<ChevronRight className="v3-access-arrow" aria-hidden/>} access={item.key}/>:<a key={item.key} href={item.href} data-access={item.key}><item.icon aria-hidden /><span>{item.label}</span><ChevronRight className="v3-access-arrow" aria-hidden /></a>)}</nav>
     </section>
-    {version==='v4'?<PublicExperienceMobileTasks pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
+    {version==='v4'?<PublicExperienceMobileTasks pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} desktopEssentials/>:null}
     <div className="v3-body">
       {pageData.hasFallbackContent ? <p role="status" className="v3-fallback">{copy.fallbackNotice}</p> : null}
       {editorial.length ? <section className="v3-editorials" aria-label={t.hotel}>{editorial.map(row => <article key={row.slot} id={row.slot} className={`v3-editorial v3-editorial-${row.slot}`} data-editorial={row.slot}>
@@ -116,10 +116,11 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
       <RoomGuideLinks data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>
       {curated.length || tourism.length ? <section className="v3-tourism" data-v3-tourism>
         <div className="v3-tourism-intro"><p className="v3-eyebrow">{t.explore} {hotel.city}</p><h2>{curated.length && presentation ? editorialText(presentation.tourism.title,language) : tourismPublicCopy(language).title}</h2><p>{curated.length && presentation ? editorialText(presentation.tourism.description,language) : tourismPublicCopy(language).intro}</p></div>
-        <div className="v3-tourism-cards">{curated.length ? curated.map(({card,href},i)=><a key={i} href={href!}>
+        <div className="v3-tourism-cards" tabIndex={version==='v4'?0:undefined} role={version==='v4'?'region':undefined} aria-label={language==='en'?'Explore destinations':language==='es'?'Explorar destinos':'Explorar destinos'}>{curated.length ? curated.map(({card,href},i)=><a key={i} href={href!}>
           {card.image_path ? <Image src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/hotel-assets/${card.image_path}`} alt={editorialText(card.title,language) + (language==='en'?' — illustrative image':language==='es'?' — imagen ilustrativa':' — imagem ilustrativa')} fill sizes="(max-width:767px) 200px, 180px" unoptimized/> : null}
           <h3>{editorialText(card.title,language)}<ChevronRight aria-hidden/></h3></a>) : tourism.map(row=><a key={row.id} href={buildPublicHotelTourismItemHref({...route,itemSlug:row.slug})}>
           <TourismImage src={tourismImageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL,row.main_image_path,hotel.id,row.id)} alt={row.name}/><h3>{row.name}<ChevronRight aria-hidden/></h3></a>)}</div>
+        {version==='v4'&&(curated.length||tourism.length)>1?<p className="v4-scroll-hint">{language==='en'?'Swipe to explore destinations':language==='es'?'Deslice para explorar destinos':'Deslize para explorar os destinos'}</p>:null}
       </section> : null}
       <footer className="v3-footer">Powered by LibGuest</footer>
     </div>
