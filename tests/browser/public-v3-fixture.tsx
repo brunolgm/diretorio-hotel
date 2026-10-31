@@ -1,3 +1,4 @@
+import finalTvCopy from '../../docs/bootstrap/bugan-tv-editorial-final-20261030.json';
 import ad2891Replay from '../fixtures/flights/ad2891-retained-cache-20261030.json';
 import {parseFlightDisplay} from '../../lib/guest-flight-status';
 import {FlightVerifiedSummary} from '../../components/public/flight-verified-summary';
@@ -96,6 +97,7 @@ const fixtureGuides=new Map<string,RoomGuide>();
 if(args.get('guides')==='1'||args.get('guides')==='draft'){
  for(const [i,spec]of guideManifest.guides.entries()){
   const id='52130000-0000-4000-8000-00000000000'+(i+1),guide=structuredClone(spec.configuration) as RoomGuide;
+  if(i===0&&args.has('finalTvCopy'))for(const text of finalTvCopy.steps){const step=guide.steps.find(s=>s.key===text.key);if(step){step.title=text.title;step.body=text.body;}}
   // Synthetic publication fixture only, never a claim of operational validation.
   if(args.get('guides')!=='draft'){guide.applicability.scope='categories';guide.applicability.categories=['Synthetic suite'];guide.applicability.label={pt:'Suíte sintética de teste',en:'Synthetic test suite',es:'Suite sintética de prueba'};}
   if(args.get('guides')!=='draft')guide.channels.forEach(c=>{if(c.kind==='review')c.kind='linear';});const globo=guide.channels.find(c=>c.number==='18');if(globo&&args.get('guides')!=='draft')globo.quality='SD';
@@ -128,7 +130,8 @@ if((domain.navigationScope||location.pathname.startsWith('/hotel/'))&&destinatio
  const path=destinationPath.replace(/^\/preview\//,'').split('/');
  if(path[0]==='servicos'||path[0]==='guias'&&args.get('scope')==='preview'){
   const section=data.sections.find(s=>s.id===path[1]);
-  content=section?<HotelServiceDetailContent hotel={data.hotel} section={section} guideDraftPreview={path[0]==='guias'} roomGuide={fixtureGuides.get(section.id)} editorialMedia={data.experienceMedia} language={language} domainContext={domain} hasFallbackContent={false} experienceVersion={data.presentation?.experienceVersion} roomRestaurantState={section.service_action_type==='room_restaurant_menu'?'missing-context':null}/>:<h1>404 fixture</h1>;
+  if(section&&args.get('guideSupplement')==='useful')section.content=language==='en'?'Additional useful hotel information.':language==='es'?'Información adicional útil del hotel.':'Informação adicional útil do hotel.';
+  content=section?<HotelServiceDetailContent hotel={data.hotel} section={section} guideDraftPreview={path[0]==='guias'} roomGuide={args.get('guideSupplement')==='no-guide'?undefined:fixtureGuides.get(section.id)} editorialMedia={data.experienceMedia} language={language} domainContext={domain} hasFallbackContent={false} experienceVersion={data.presentation?.experienceVersion} roomRestaurantState={section.service_action_type==='room_restaurant_menu'?'missing-context':null}/>:<h1>404 fixture</h1>;
  }else if(path[1]==='voos'){
   const flights={hotel:data.hotel,experienceVersion:data.presentation?.experienceVersion,airports:[{iataCode:'REC',name:'Synthetic REC airport',city:'Recife',timezone:'America/Recife',officialDeparturesUrl:null,officialArrivalsUrl:null,estimatedTransferMinutes:null,domesticLeadMinutes:null,internationalLeadMinutes:null,safetyMarginMinutes:null}],navigationAvailability:{services:true,menu:false,information:true,contact:true},settings:{departurePlanningEnabled:false,transferEnabled:false,wakeUpEnabled:false,breakfastBoxEnabled:false,receptionEnabled:false,officialLinksEnabled:false,departureNotice:null}} as PublicFlightCenterData;
   content=<HotelPublicFlightCenter data={flights} language={language} domainContext={domain} preferSubdomainRoot={false} tab={normalizePublicFlightCenterTab(args.get('tab')??'partidas')}/>;

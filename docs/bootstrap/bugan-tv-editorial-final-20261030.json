@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "hotelId": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+  "serviceId": "31dd1fd0-91a1-4b91-a157-9b2a47f2d153",
+  "projectRef": "micuekfznunwwofxnovw",
+  "expectedLifecycle": "active",
+  "expectedRevision": 6,
+  "expectedDraftSha256": "001444bd18b10331b812c213895aa72394bda35654b9e68a4efb92a76193014e",
+  "desiredDraftSha256": "ae5486382408b7c85ae0acdbc39d6e30c02eb7659d8b206ac1c5804dfda3d6e8",
+  "expectedServiceSha256": "1729117a7bf7614253d45877087fe4103bfcebfcef5e0b787f67b20b09bd171b",
+  "expectedKeys": [
+    "power",
+    "input",
+    "receiver",
+    "mosaic",
+    "channel"
+  ],
+  "guideIds": [
+    "31dd1fd0-91a1-4b91-a157-9b2a47f2d153",
+    "36e659eb-dd5d-4077-bb5d-8949ee0554db",
+    "4076dac0-3934-4eb8-a03b-e6e95731e687",
+    "7b46a257-f8b7-4de7-b3c2-f3e8bf54ac77"
+  ],
+  "administratorIds": [
+    "6ca3973a-1f2d-4549-b329-5d2a1a5e00c3",
+    "b1a91675-0dee-4743-9260-9f6daab02751"
+  ],
+  "steps": [
+    {
+      "key": "power",
+      "title": {
+        "pt": "Ligue a Smart TV",
+        "en": "Turn on the Smart TV",
+        "es": "Encienda la Smart TV"
+      },
+      "body": {
+        "pt": "Pressione o botão de ligar no controle remoto da televisão LG.",
+        "en": "Press the power button on the LG television remote.",
+        "es": "Pulse el botón de encendido en el control remoto del televisor LG."
+      }
+    },
+    {
+      "key": "input",
+      "title": {
+        "pt": "Selecione a entrada HDMI",
+        "en": "Select the HDMI input",
+        "es": "Seleccione la entrada HDMI"
+      },
+      "body": {
+        "pt": "Na televisão, utilize o controle LG para selecionar a entrada HDMI conectada ao receptor de canais.\n\nA entrada utilizada pode variar conforme o apartamento.",
+        "en": "On the television, use the LG remote to select the HDMI input connected to the channel receiver.\n\nThe input used may vary by room.",
+        "es": "En el televisor, utilice el control LG para seleccionar la entrada HDMI conectada al receptor de canales.\n\nLa entrada utilizada puede variar según la habitación."
+      }
+    },
+    {
+      "key": "receiver",
+      "title": {
+        "pt": "Verifique o receptor",
+        "en": "Check the receiver",
+        "es": "Compruebe el receptor"
+      },
+      "body": {
+        "pt": "Confira se o receptor de canais NET está ligado. Se necessário, ligue-o utilizando o controle remoto do próprio receptor.",
+        "en": "Check that the NET channel receiver is on. If necessary, turn it on using the receiver’s own remote.",
+        "es": "Compruebe que el receptor de canales NET esté encendido. Si es necesario, enciéndalo utilizando el control remoto del propio receptor."
+      }
+    },
+    {
+      "key": "mosaic",
+      "title": {
+        "pt": "Abra o Mosaico",
+        "en": "Open Mosaico",
+        "es": "Abra Mosaico"
+      },
+      "body": {
+        "pt": "No controle do receptor, utilize a função Mosaico para visualizar os canais disponíveis.",
+        "en": "On the receiver remote, use the Mosaico function to view the available channels.",
+        "es": "En el control del receptor, utilice la función Mosaico para ver los canales disponibles."
+      }
+    },
+    {
+      "key": "channel",
+      "title": {
+        "pt": "Escolha seu canal",
+        "en": "Choose your channel",
+        "es": "Elija su canal"
+      },
+      "body": {
+        "pt": "Selecione o canal desejado. Para encontrar a numeração, consulte a Lista de canais do LibGuest.",
+        "en": "Select the channel you want. To find its number, see the LibGuest TV channel list.",
+        "es": "Seleccione el canal deseado. Para encontrar su número, consulte la lista de canales de LibGuest."
+      }
+    }
+  ],
+  "publication": false
+}

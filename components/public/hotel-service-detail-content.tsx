@@ -1,3 +1,4 @@
+import {hasGuideSupplement} from '@/lib/room-guide-supplement';
 import {InternalEditorialMedia} from './public-internal-editorial';
 import {serviceEditorialMedia} from '@/lib/public-editorial-link';
 import type {ExperienceMedia} from '@/lib/public-experience-media';
@@ -63,6 +64,7 @@ export function HotelServiceDetailContent({
   editorialMedia?:ExperienceMedia[];
 }) {
   const copy = getPublicCopy(language);
+  const showSupplement=hasGuideSupplement(section.content,roomGuide,language);
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const isV4=experienceVersion==='v4';
   const editorial=isV4&&!guideDraftPreview?serviceEditorialMedia({media:editorialMedia,hotel,section,productRootDomain:domainContext.productRootDomain}):null;
@@ -232,7 +234,7 @@ export function HotelServiceDetailContent({
 
         {editorial?<InternalEditorialMedia media={editorial} hotelId={hotel.id}/>:null}
         {roomGuide?<RoomGuideContent guide={roomGuide} draftPreview={guideDraftPreview} language={language} helpHref={buildPublicHotelAreaHref({slug:hotel.slug,area:'contato',language,domainContext,preferSubdomainRoot:useSubdomainRoot})}/>:null}
-        <section className="public-service-full-content hotel-theme-surface mt-8 rounded-[var(--hotel-banner-radius)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] ring-1 ring-[color:var(--hotel-border)] md:p-8">
+        {showSupplement?<section className="public-service-full-content hotel-theme-surface mt-8 rounded-[var(--hotel-banner-radius)] p-6 shadow-[0_22px_60px_-38px_rgba(15,23,42,0.28)] ring-1 ring-[color:var(--hotel-border)] md:p-8">
           <div className="max-w-3xl">
             <p className="hotel-theme-muted text-xs font-medium uppercase tracking-[0.18em]">
               {copy.serviceDetails}
@@ -254,7 +256,7 @@ export function HotelServiceDetailContent({
               {copy.back}
             </a>
           </div>
-        </section>
+        </section>:null}
 
       </div>
       {theme.preset === 'bugan' ? <PublicBottomDock items={grandMercureNavigationItems.filter((item) => item.key === 'home' || item.key === 'services')} activeItem="services" ariaLabel={copy.navigationLabel} /> : null}
