@@ -2957,3 +2957,20 @@ Textos finais PT/EN/ES preparados em executor autenticado pela RPC canônica,
 sem service role e sem publicação. Leitura real ainda confirma revisão 6;
 persistência da redação final depende de autenticação humana e releitura.
 Ver `docs/TV_EDITORIAL_FINAL_20261030.md` para escopo, evidências e limitações.
+
+
+### Lista de Canais — pluralização dos contadores
+
+Correção restrita ao resumo de resultados em PT/EN/ES: singular para um canal
+ou aplicativo, plural para zero ou múltiplos canais/aplicativos. Aplicativos
+sem resultados continuam omitidos do resumo. Caso espanhol corrigido:
+`221 canales encontrados · 1 aplicación`. Sem alterações de markup, CSS,
+busca, paginação, catálogo, imagens, administração ou Home V4.
+
+Validação: 28 novos casos de pluralização (0/1/2 em combinações independentes
+nos três idiomas e o caso 221/1), 34 testes direcionados incluindo busca e
+paginação, 559 testes de segurança, 44 cenários de TV e 148 Guias/Admin.
+TypeScript e lint aprovados (zero erros; quatro avisos preexistentes de imagens).
+Publicação técnica condicionada também a build e diff aprovados. Nenhuma
+escrita editorial; revisão 7, quatro guias desabilitados e 222 registros
+sem publicação preservados.
