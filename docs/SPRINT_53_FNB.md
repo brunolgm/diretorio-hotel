@@ -12,13 +12,15 @@ as Sprints 54–62 e sem reabrir a implementação aprovada da Etapa A.
 | Etapa | Estado | Escopo |
 |---|---|---|
 | A — Catálogo F&B nativo | [IMPLEMENTADO, AUDITADO E HOMOLOGADO LOCALMENTE] | Outlets, menus, categorias, itens, preços, traduções, mídia, Admin, publicação editorial, público, compatibilidade com Serviços, Goomer/room_restaurant_menu preservados e governança fb.menu. |
-| B — Pedidos e painéis | [APROVADO — NÃO IMPLEMENTADO] | Carrinho, adicionais/modificadores, combos, nome e sobrenome, observações, confirmação idempotente, pedidos, snapshots de itens/preços/opções, disponibilidade por horário, setores, painéis operacionais, status e cancelamento. |
+| B — Pedidos e painéis | [B1 IMPLEMENTADO LOCALMENTE — B2/B3/B4 PENDENTES] | Fundação transacional descrita ao final; carrinho/checkout público, UI dos painéis e consolidação operacional ainda não entregues. |
 | C — Impressão local | [APROVADO — NÃO IMPLEMENTADO] | Bridge local no hotel, fila, múltiplas impressoras, roteamento por setor, confirmação, retry seguro, falha ambígua e reimpressão controlada. |
 | D — Evoluções posteriores | [PLANEJADO] | Detalhamento futuro; nenhum comportamento adicional é declarado implementado. |
 
 A auditoria técnica anterior continua válida para a Etapa A da Sprint 53.
-Os contratos de código e resultados abaixo descrevem somente a Etapa A.
-Aprovação de B/C não autoriza implementá-las nesta harmonização documental.
+Os contratos históricos e resultados até Turbo 2 abaixo descrevem somente A;
+a seção B1 ao final descreve a implementação posterior separadamente.
+A harmonização documental anterior não implementou B/C. A autorização posterior
+de B1 implementa somente a fundação descrita ao final; C permanece não implementada.
 
 ### Histórico da decisão e seus impactos
 
@@ -31,8 +33,8 @@ Aprovação de B/C não autoriza implementá-las nesta harmonização documental
   distinguindo o catálogo homologado localmente do fluxo operacional futuro.
 - Impacto técnico: preservar o domínio A; B/C exigem projeto, implementação e
   testes próprios de idempotência, snapshots, disponibilidade, estados, roteamento,
-  fila e tratamento de falhas. Não há schema, endpoints, permissões ou bridge
-  dessas etapas implementados por este documento.
+  fila e tratamento de falhas. Esse era o estado da harmonização documental;
+  a implementação posterior de B1 está discriminada ao final, sem bridge.
 - Impacto UX: manter as experiências públicas atuais e acrescentar os fluxos
   futuros conforme a etapa e o modo autorizado de cada hotel. Não redesenhar a Home.
 - Pendências: detalhar e homologar B/C; avaliar D; executar a matriz permanente
@@ -46,11 +48,14 @@ pedido, painéis e impressão). TheX como destino externo não implica integraç
 API TheX, que permanece na Sprint 58. Não há migração automática de modo.
 
 Preservar QR existente, /r/[roomToken], hotel_room_links, restaurant_menu_url,
-external_url e room_restaurant_menu. Bugan permanece com Goomer até implantação,
-homologação e autorização expressa de mudança operacional. Essa é a decisão
-canônica; não foi feita leitura ou alteração do tenant real nesta rodada.
+external_url e room_restaurant_menu. Histórico: o primeiro plano mantinha o
+Room Service Bugan inicialmente externo/Goomer. A autorização B1 substituiu esse
+alvo futuro: Restaurante Filipe, Room Service e cardápio serão native, com pedidos
+no LibGuest. A substituição real exige B completa, homologação e autorização.
+Goomer real, URLs, Serviços e tenant permanecem intocados nesta rodada.
 A Etapa A já preserva destinos/associações explícitos; não se declara implementado
-um seletor operacional completo de modos nem os fluxos nativos de B/C.
+um seletor operacional público completo de modos. B1 acrescenta configuração/RPC
+privada por outlet; a UX pública de B e a impressão C continuam pendentes.
 
 ## Adendo visual e independência do domínio
 
@@ -103,9 +108,9 @@ migração desnecessária de pedidos, substituição dos QR Codes, perda de conf
 ou alteração dos vínculos entre cardápio, setores e impressoras. A apresentação
 muda; os dados e a operação continuam preservados.
 
-Esse contrato é obrigatório para o projeto e homologação de B/C, não uma capacidade
-já comprovada para pedidos, setores ou impressão: essas entidades/fluxos ainda não
-estão implementados. A conferência atual confirma a separação já existente em A.
+Esse contrato permanece obrigatório para B/C. A conferência original confirmou A;
+B1 posterior acrescenta pedidos/setores transacionais e testes, sem impressão.
+Não declara homologação operacional real ou preservação de impressoras inexistentes.
 
 ### Matriz visual permanente — obrigatória nas Etapas A/B/C
 
@@ -149,7 +154,8 @@ roomToken pode fornecer contexto de apartamento. Para pedido nativo, hóspede
 deverá informar nome e sobrenome e poderá informar observações. roomToken + nome
 não autenticam hóspede, não comprovam reserva e não autorizam débito. Esses dados
 não devem alimentar logs/analytics públicos com PII. Controles de coleta e proteção
-pertencem ao projeto de B; nenhuma coleta ou fluxo de pedido foi implementado aqui.
+pertencem a B. Na harmonização documental não houve implementação; B1 posterior
+acrescenta persistência protegida, sem formulário público de pedido.
 
 ## Domínio
 
@@ -175,7 +181,8 @@ impedem relações entre hotéis, inclusive Serviço/outlet.
 Anon recebe somente a projeção mínima `get_public_hotel_fb`: hotel ativo,
 core.directory e fb.menu, outlets e menus publicados/associados, categorias
 publicadas e itens publicados/disponíveis. Timestamps administrativos e traduções
-brutas não são expostos. Não há dados de hóspede ou roomToken no domínio F&B.
+brutas não são expostos. Não há dados de hóspede ou roomToken no catálogo A;
+a PII de B1 fica segregada em tabelas privadas próprias, sem token bruto.
 
 `fb.menu` está available no código após fechamento local. A migration de governança
 remove somente seu bloqueio de ativação explícita, preservando a função existente,
@@ -354,3 +361,231 @@ Preços respeitam unidade mínima da moeda; o editor recebe valor decimal.
 Guias do Quarto mantém sua UNIQUE original; a Sprint 53 não cria a duplicata.
 Nenhuma operação remota, habilitação real, conteúdo real ou publicação técnica
 é autorizada por este relatório local.
+
+## Etapa B1 — fundação transacional local (03/11/2026)
+
+[B1 IMPLEMENTADO LOCALMENTE] A Etapa B completa não está concluída.
+B2 (experiência de oferta/carrinho/checkout), B3 (UI de painéis/acompanhamento) e
+B4 (consolidação/ativação operacional) continuam pendentes. C não foi implementada.
+Não há nova rota HTTP de checkout, carrinho público ou alteração da Home.
+
+### Nova decisão Bugan — substitui o primeiro plano operacional
+
+O alvo aprovado passa a ser Restaurante Filipe, Room Service e cardápio native,
+com pedidos registrados pelo LibGuest quando houver ativação operacional.
+O primeiro plano de Room Service inicialmente Goomer fica registrado como histórico,
+não como alvo futuro vigente. A troca real exige B completa, homologação e autorização.
+Não foi removida URL, desativado Serviço, consultado tenant real ou executada migração
+operacional. External/Goomer permanece suportado genericamente e em regressão histórica.
+O cenário B nativo usa fixtures próprias; os arquivos históricos de A não foram editados.
+
+### Schema, configuração e fronteiras
+
+Migration aditiva: 20261103035109_sprint_53_b1_orders_foundation.sql, criada pela CLI.
+O schema fb_order_private segue a convenção privada já usada por fb_private e
+flight_private. São 27 tabelas separando configuração, fatos, credenciais e PII:
+
+- Configuração: hotel_settings, outlet_settings, service_entrypoints, sectors,
+  operator_grants, item_fulfilment, modifier_groups, modifier_options, combos,
+  combo_slots, combo_choices, combo_menus, availability_scopes,
+  availability_windows e availability_exceptions.
+- Operação/fatos: orders, order_groups, order_lines, order_line_options,
+  order_events e cancellation_requests.
+- Dados protegidos/temporários: order_private_data, order_line_notes,
+  guest_sessions, idempotency, order_access_tokens e admission_buckets.
+
+Separações mantidas por diferenças reais de retenção, ACL e imutabilidade; não
+foram criadas tabelas de impressora, bridge ou job físico. FKs compostas isolam
+hotel e pedido. Índices de referências reversas protegem exclusões existentes em A.
+IDs de origem nos snapshots não têm FKs destrutivas para catálogo vivo.
+
+Não há provisionamento por hotel ou auto-enable. Master switch ausente/desligado
+impede novos pedidos; modo é por outlet. Sem configuração B, A/legado seguem iguais.
+service_entrypoints resolve explicitamente o caso de vários outlets no mesmo Serviço,
+sem alterar service_action_type. Nenhum nome de hotel ou versão visual participa do
+schema. Os adaptadores visuais permanecem uma responsabilidade de B2/B3.
+
+RLS em todas as tabelas, sem policies genéricas e sem grants diretos de tabela/schema
+para anon, authenticated ou service_role. Helpers privados sem EXECUTE público.
+RPCs têm ACL específica, SECURITY DEFINER, search_path vazio e autorização interna.
+Service role só executa a fronteira pública server-side e manutenção; não assume
+capabilities administrativas. Mutações administrativas usam JWT real, perfil ativo,
+hotel derivado do perfil, role mínima, capability e CAS/PT409. Revisão nula é rejeitada.
+
+### Capabilities e configuração
+
+Não há nova role. As capabilities são orders.read, orders.transition, orders.cancel,
+orders.supervise, orders.pii.read e orders.configure. Operador+ pode receber escopo
+por setor; configuração exige editor+; somente administrador concede/revoga.
+Concessões são explícitas e auditadas, inclusive para o próprio administrador.
+Visualizador não recebe pedidos; Platform Admin não herda PII. Desativação de setor
+impede novas confirmações, preservando histórico e leitura autorizada para drenagem.
+
+save_current_hotel_fb_order_config é uma superfície com kind/fields permitidos,
+tipos estritos, pais imutáveis, limites e CAS; não é persistência de JSON arbitrário.
+get_current_hotel_fb_order_config devolve somente configuração do hotel autorizado.
+Configurações têm teto inicial de 10000 linhas por tabela/hotel.
+
+### Confirmação e segurança pública
+
+begin_fb_order_session emite contexto técnico via servidor; não faz login de hóspede.
+quote_fb_order recalcula oferta e confirm_fb_order faz a transação completa:
+validar sessão/hotel/módulo/modo, horário, ancestrais publicados, opções, moeda,
+quantidades, preço, contexto de apartamento, setores; inserir pedido, snapshots,
+PII segregada, grupos, evento inicial, credencial e resultado idempotente; commit.
+Não existe sucesso parcial. Resposta registered significa aguardando aceite operacional.
+
+Pedido pertence a um hotel/outlet/moeda. Limites iniciais: 20 linhas comerciais,
+60 folhas de produção, 100 unidades expandidas e 16 opções por item.
+Valores são unidades mínimas inteiras; total limitado a 10^12; sob consulta não vira zero.
+Cotação divergente retorna conflito. B2 ainda deve construir o contrato HTTP de
+cotação reconhecida pelo usuário, origem/CSRF, cookies e checkout, sem confiar em
+preço do browser. As funções B1 são server-only e não há INSERT anon.
+
+Sessão usa segredo aleatório de 32 bytes; o banco guarda digest. Acompanhamento
+usa outro segredo opaco de 256 bits por tentativa/pedido. HKDF padrão, com separação
+de contexto, permite recompor a mesma credencial após resposta perdida, sem guardar
+segredo bruto. Não é criptografia de campo. Factories de cookies HttpOnly/Secure/
+SameSite=Lax têm paths restritos; aplicação HTTP dos cookies fica em B2/B3.
+Não usar segredo em URL/query/log/analytics.
+
+Idempotência: hotel + sessão + UUID da tentativa; fingerprint da intenção normalizada
+sem body persistido. Mesma chave/mesma intenção recupera resultado, divergência PT409,
+concorrência cria uma vez, rollback não deixa sucesso. Validade de 24h; sessão expirada
+não pode abrir nova criação. Replay confirmado é recuperável mesmo com módulo OFF.
+Não renova indefinidamente chave, sessão ou token.
+
+Entrega exige roomToken revalidado contra hotel/token/ativo e rooms.qr. Número de
+quarto do browser não é aceito. roomToken não autentica hóspede nem autoriza débito.
+Sem contexto, somente retirada explicitamente habilitada. Nome/sobrenome são
+autodeclarados. Não se coletam CPF, contato ou pagamento.
+
+### Adicionais, combos, horários e setores
+
+Grupos por item: single/multi, min/max, ordem e disponibilidade. Opções têm acréscimo
+na mesma moeda do item; duplicação da mesma opção, inclusive variação de caixa do UUID,
+é rejeitada. Observação não substitui opção obrigatória.
+
+Combo é entidade própria com slots/escolhas/multiplicidade, menus e preço-base
+explícitos. Sem combo aninhado ou desconto inferido. Uma linha comercial cobra o
+combo; componentes de produção cobram zero separadamente e seus acréscimos apontam
+para a linha comercial. Setores podem ser distintos, sem duplicar pedido/cobrança.
+
+Horário usa timezone explícito validado no catálogo PostgreSQL, dias/janelas,
+meia-noite, intervalos [início,fim), exceções e fechamento manual com término opcional.
+Outlet exige calendário explícito ou always_open controlado. Menu/item sem regra
+adicional herdam restrições; nunca reabrem ancestral fechado. display_mode permite
+hide/show_unavailable para consumidores futuros. opening_hours textual de A não
+é interpretado. Exceção de fechamento prevalece em sobreposição.
+
+Setor vem do item naquele outlet ou do padrão do outlet. Ausência/setor inativo
+bloqueia confirmação. Não existe inferência por nome, categoria ou marca.
+
+### Leitura, estados, cancelamento e C
+
+RPCs get_current_hotel_fb_order/panel retornam fatos filtrados por setor;
+get_current_hotel_fb_order_pii é separada, exige read + pii.read no escopo e audita
+somente IDs. get_fb_order_status exige credencial opaca, sem PII. Paginação de painel
+é keyset, limitada a 50, com pedidos abertos e terminais recentes.
+
+Grupos: registered → accepted → preparing → ready → out_for_delivery → delivered;
+retirada usa ready → delivered. Sem regressões ou printed. Estado geral conserva
+o menor progresso dos grupos; não declara aceite/entrega integral antecipadamente.
+Cada write válido grava evento e auditoria administrativa na mesma transação.
+Criação pública grava evento guest, sem inventar ator administrativo.
+
+request_fb_order_cancellation cancela automaticamente somente antes de qualquer
+aceite, conforme janela/auto/livre do hotel; após aceite cria solicitação.
+decide_current_hotel_fb_order_cancellation exige capability em todos os setores;
+após saída exige também supervisão. Entregue não é cancelado por essa operação.
+Cancelar não exclui pedido nem afirma cancelamento de impressão física.
+
+get_current_hotel_fb_acceptance_events fornece event_id/contract_version/hotel/
+order/group/sector/revision/timestamp/line refs estáveis, sem PII. É fronteira C,
+não fila física ou impressão. Polling de 3–5s com backoff/pausa/reconexão está
+aprovado para B3; B1 prepara leitura, sem UI ou consumidores Realtime.
+
+### Retenção, redaction, admissão e operação futura
+
+PII em order_private_data/order_line_notes: 7 dias após terminal; pedido nunca
+encerrado tem teto de 7 dias e alerta, sem fingir cancelamento/entrega.
+Fatos/histórico: 180 dias desde criação. Token: min(criação+7d, terminal+24h).
+Idempotência: 24h. Leitura já oculta PII/credenciais vencidas antes do expurgo.
+Dados expirados não são ressuscitados por terminal tardio.
+
+purge_expired_fb_order_data faz expurgo físico restrito, em lotes, alerta pedidos
+abertos antigos e remove fatos ao final da retenção. Agendamento/monitoramento
+efetivos são gate obrigatório de B4 antes da ativação real; nenhum scheduler remoto
+foi configurado nesta rodada. Não se promete remoção imediata de backups.
+Criptografia de campo adicional segue em análise de key-management; não foi criada.
+
+admit_fb_order_attempt usa buckets próprios e incremento distribuído atômico;
+não compartilha quotas AirLabs. Tetos conservadores por minuto: sessão 5, quarto 10,
+rede/acesso 60 e hotel 120. Nova confirmação impõe sessão/hotel no banco. B2 deve
+orquestrar admissão também antes de parsing/trabalho caro e nos endpoints de
+sessão/consulta; digest de rede só de contexto confiável, nunca IP/roomToken bruto.
+Falha não libera confirmação ilimitada.
+
+Boundary server-only normaliza erros por código, sem repassar mensagens/details
+do provedor, nomes, quarto, body ou segredos. Não há emissão para analytics públicos.
+Snapshots e eventos têm proteção append-only; somente manutenção restrita expira fatos.
+
+### Evidência e pendências
+
+Runners novos: tests/integration/fb-b1.mjs, fb-b1-adversarial.mjs e
+fb-b1-lost-response.mjs; matriz supabase/tests/53_b1_foundation_matrix.sql e
+tests/security/fb-b1.test.ts. Usam o laboratório descartável existente, Auth real,
+19 usuários sintéticos e seis identidades distintas. Nenhum tenant real foi lido.
+O contador legado do launcher A imprime 52; a cadeia atual tem as 52 anteriores
+mais a migration B1 (53), sem editar o launcher histórico.
+
+Fechamento desta execução:
+
+| Gate | Resultado |
+|---|---|
+| B1 real Auth/PostgREST/DB | 617/617; seis tenants, 19 usuários sintéticos, 53 migrations |
+| Matriz SQL B1 | 214/214, rollback |
+| Matriz SQL A | 197/197, rollback |
+| Direcionados B1 | 9/9, incluídos na segurança completa |
+| Segurança completa | 724/724; antes 715 |
+| TypeScript | Exit 0 |
+| Lint | Zero erros, quatro avisos históricos |
+| Build | Exit 0, rede externa bloqueada e provedores desativados |
+| Diff check | Sem erros |
+
+Evidência da rodada integral: out/libguest-fb-auth-90a62495/b1-report.json e
+b1-sql-matrix.log. Logs de gates em out/fb-b1-*.log; não são aprovados para stage.
+Matriz: Grand Mercure Copacabana, Novotel Leme, Novotel Salvador Rio Vermelho,
+Mercure Rio Boutique, Bugan e Default usam UUIDs distintos; todos exercitam
+external/native/misto, OFF/ON, contexto válido/inválido/ausente, permissão/PII,
+idiomas e mudança apenas de apresentação preservando o mesmo pedido.
+Bugan termina no alvo nativo dos dois outlets; o teste externo é regressão separada.
+É homologação transacional sintética, sem UI visual B1 ou tenant real homologado.
+
+Concorrência real: criação idempotente e CAS de grupos com dois usuários;
+falha tardia imposta por trigger com rollback de pedido/chave; proxy HTTP
+desconecta o cliente durante lock real, upstream confirma e retry recupera um
+único pedido/evento. Snapshot persiste após edição/exclusão de catálogo.
+PII expirada fica invisível antes do purge; purge físico e alerta foram exercitados.
+Os Serviços e vínculos QR originais das seis fixtures terminaram idênticos.
+
+Reprodução B1 em laboratório novo (imagens já em cache, sem pull):
+
+~~~powershell
+node scripts/fb-local-lab.mjs up
+node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types tests/integration/fb-b1.mjs
+node --input-type=module -e "import{labSql}from'./scripts/fb-local-lab.mjs';import{readFileSync}from'node:fs';console.log(labSql(readFileSync('supabase/tests/53_b1_foundation_matrix.sql','utf8')))"
+node scripts/fb-local-lab.mjs down
+~~~
+
+Executar down também após falha; não reaproveitar outro projeto. A emissão de
+usuários é GoTrue real local; não há mocks substituindo Auth, RLS ou transação.
+Os 714 arquivos rastreados fora dos dois documentos canônicos foram comparados
+por SHA-256 com o checkpoint: preservados, incluindo código A, testes históricos,
+auditoria A e as 52 migrations anteriores. Nenhum stage/commit/push/deploy.
+
+B2: montagem/cotação/checkout HTTP, UX e modos visuais reais.
+B3: UI operacional/acompanhamento e polling.
+B4: carga, integração final, scheduler/monitoramento de retenção, runbooks de
+drenagem antes de arquivamento, homologação e ativação autorizada.
+Não se declaram esses itens ou tenants reais homologados a partir das fixtures.

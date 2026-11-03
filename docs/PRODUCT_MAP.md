@@ -3012,13 +3012,13 @@ início do Turbo 2 ampliam o fechamento consultivo, sem renumerar Sprints 54–6
 | Etapa | Estado | Escopo |
 |---|---|---|
 | A — Catálogo F&B nativo | [IMPLEMENTADO, AUDITADO E HOMOLOGADO LOCALMENTE] | Outlets, menus, categorias, itens, preços, traduções, mídia, Admin, publicação editorial, público, Serviços, Goomer/room_restaurant_menu preservados e fb.menu. |
-| B — Pedidos e painéis | [APROVADO — NÃO IMPLEMENTADO] | Carrinho, adicionais/modificadores, combos, nome/sobrenome, observações, confirmação idempotente, pedidos, snapshots de itens/preços/opções, disponibilidade por horário, setores, painéis, status e cancelamento. |
+| B — Pedidos e painéis | [B1 IMPLEMENTADO LOCALMENTE — B2/B3/B4 PENDENTES] | Fundação privada transacional; experiência pública de checkout e UI operacional ainda pendentes. |
 | C — Impressão local | [APROVADO — NÃO IMPLEMENTADO] | Bridge no hotel, fila, múltiplas impressoras, roteamento por setor, confirmação, retry seguro, falha ambígua e reimpressão controlada. |
 | D — Evoluções posteriores | [PLANEJADO] | Detalhamento futuro. |
 
 A auditoria técnica anterior continua válida para a Etapa A da Sprint 53.
-Somente A está implementada e homologada localmente; a descrição de código abaixo
-não declara B/C/D concluídas.
+A está auditada/homologada localmente; B1 posterior implementa a fundação descrita
+ao final. Não se declaram a Etapa B completa nem C/D concluídas.
 
 [IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Branch sprint-53-fnb, base
 e7b514620879f1feb91b2f62b5d27e9e529f843d. Domínio próprio hotel-scoped:
@@ -3071,8 +3071,10 @@ Goomer ou outro destino autorizado; isso não implementa integração API TheX.
 Nativo: catálogo e futuramente carrinho/pedido, painéis e impressão. Sem migração
 automática nem seletor operacional completo de modos declarado implementado.
 Preservar QR, /r/[roomToken], hotel_room_links, restaurant_menu_url, external_url
-e room_restaurant_menu. Bugan permanece com Goomer até implantação, homologação
-e autorização expressa de mudança operacional; nenhuma consulta real nesta rodada.
+e room_restaurant_menu. Histórico: o plano inicial mantinha Room Service Bugan
+externo/Goomer. A autorização B1 substituiu o alvo por Filipe + Room Service +
+cardápio native, com pedidos LibGuest. Troca real somente após B completa,
+homologação e autorização; Goomer real/URLs/Serviços continuam intocados.
 
 Domínio F&B único e independente da versão visual. Bugan usa V4 Premium;
 Gastronomia, cardápio, carrinho e acompanhamento futuros seguem essa linguagem.
@@ -3095,8 +3097,9 @@ fictícios; preservar a identidade real do Bugan e sua Home V4 aprovada.
 Futura migração apenas visual para V4, após as sprints planejadas, deve preservar
 produtos/IDs, pedidos/snapshots e configurações, sem recadastro, migração desnecessária
 de pedidos, troca de QR ou alteração de vínculos cardápio/setor/impressora.
-Pedidos, setores e impressão seguem não implementados; essa preservação é requisito
-de B/C, não resultado de homologação já realizada.
+Na data do adendo visual eram requisitos ainda não implementados. B1 posterior
+acrescenta a base de pedidos/setores; impressão e homologação operacional real
+continuam pendentes. Não se declara preservação de impressoras já homologada.
 Exigir testes das versões atuais e de transição visual em fixtures com o mesmo
 tenant/dados, desktop/mobile e PT/EN/ES, comparando dados, vínculos e destinos
 antes/depois. Não declarar tenant real homologado nem executar migração real.
@@ -3112,9 +3115,54 @@ histórico completos em SPRINT_53_FNB.md; código aprovado de A não foi alterad
 Etapa B futura: roomToken fornece contexto; pedido nativo exige nome e sobrenome,
 com observações opcionais. roomToken + nome não autenticam hóspede, não comprovam
 reserva, não autorizam débito e não devem alimentar logs/analytics públicos com PII.
-Não implementado nesta harmonização.
+Não implementado naquela harmonização documental. B1 posterior implementa
+validação/persistência segregada, sem formulário público ou login de hóspede.
 
 Continuam fora da Sprint 53 atual: integração API TheX (58), PMS/OPERA/OHIP (59),
 pagamento nativo, PIX/cartão, débito automático em apartamento, lançamento direto
 em PDV, estoque em tempo real salvo decisão futura e Billing. Goomer não foi
-validado externamente. Nenhuma implementação B/C, escrita real ou publicação agora.
+validado externamente. B1 local abaixo não autoriza escrita real ou publicação.
+
+### Sprint 53 B1 — fundação transacional local — 03/11/2026
+
+Migration aditiva 20261103035109_sprint_53_b1_orders_foundation.sql:
+27 tabelas em fb_order_private, sem versão visual, dados/enable automáticos ou
+alteração das 52 migrations anteriores. RLS/ACL fechadas, configuração por RPC
+autenticada, capability explícita, CAS/PT409, setor por item/outlet, modificadores,
+combos explícitos, disponibilidade/calendário e fronteira server-only de pedidos.
+
+Pedido por hotel/outlet/moeda; preço revalidado no servidor; snapshots imutáveis,
+grupos por setor, eventos e idempotência na mesma transação. Retry após commit
+recupera o pedido, sem segredo bruto persistido. Token opaco de 256 bits, digest
+no banco, contrato de cookie restrito; não há endpoint público de checkout B1.
+PII segregada, leitura com capability, redaction por código e expurgo em lote.
+
+Retenção aprovada: PII 7 dias após terminal, teto 7 dias para nunca encerrados;
+fatos 180 dias; acompanhamento até terminal+24h com teto criação+7d; idempotência
+24h. Sem criptografia de campo caseira ou promessa de apagamento instantâneo de
+backups. Scheduler/monitoramento de expurgo precisa ser ativado antes da operação
+real, como gate B4; não foi configurado remotamente.
+
+Máquina de grupos/estado geral conservador, cancelamento automático antes de
+aceite conforme política e solicitação/decisão operacional depois. Cancelar não
+exclui pedido. Eventos de aceite com referências estáveis preparam C; nenhuma
+bridge, impressora, job físico ou estado printed.
+
+Nova decisão canônica: Bugan é piloto do alvo native completo (Restaurante Filipe,
+Room Service e cardápio), substituindo o alvo futuro Goomer inicial. Não há fork:
+external/native/misto permanecem por outlet nos cinco hotéis. Nenhum Goomer real,
+URL, Serviço ou tenant foi alterado. Fixture B nativa própria preserva regressão
+externa histórica e as apresentações atuais dos outros hotéis.
+
+B1 prepara leitura de painel e domínio server-only. B2 deve entregar carrinho,
+checkout HTTP/cotação reconhecida e UX; B3 UI/polling/acompanhamento; B4 carga,
+retenção agendada, runbooks e homologação final. Não migrar hotéis para V4.
+Resultados, contratos e limites em SPRINT_53_FNB.md. Sem stage, commit, push,
+deploy, Supabase remoto, pedido real ou APIs externas de provedores.
+
+Gates B1 locais: 617 verificações Auth/DB, 214 SQL B1, 197 SQL A, 9 direcionados
+B1 e 724 segurança completa; TypeScript/lint/build/diff check aprovados, com quatro
+avisos históricos no lint. Os cinco hotéis + Default usam tenants distintos;
+incluem PT/EN/ES, Native/External/misto, OFF/ON, room context, snapshots, PII,
+concorrência, perda real de resposta HTTP e expurgo. Nenhuma UI B1 ou configuração
+real foi homologada por esses testes. Código/testes/migrations da Etapa A preservados.
