@@ -11,9 +11,9 @@ export interface TourismImageIO {
 }
 
 /** Storage is not transactional. Only owner-validated objects are removed, at most twice. */
-export async function cleanupTourismImage(io: Pick<TourismImageIO, 'remove' | 'log'>, hotelId: string, itemId: string, path: string | null, currentPath: string | null): Promise<boolean> {
+export async function cleanupTourismImage(io: Pick<TourismImageIO, 'remove' | 'log'>, hotelId: string, itemId: string, path: string | null, currentPath: string | null, ownsPath = isOwnedTourismImagePath): Promise<boolean> {
   if (!path || path === currentPath) return true;
-  if (!isOwnedTourismImagePath(path, hotelId, itemId)) { io.log('cleanup_refused_invalid_ownership', path); return false; }
+  if (!ownsPath(path, hotelId, itemId)) { io.log('cleanup_refused_invalid_ownership', path); return false; }
   for (let attempt = 0; attempt < 2; attempt++) {
     try { if (!(await io.remove(path)).error) return true; } catch { /* bounded retry */ }
   }
@@ -21,14 +21,15 @@ export async function cleanupTourismImage(io: Pick<TourismImageIO, 'remove' | 'l
   return false;
 }
 
-export async function associateTourismImage({ io, hotelId, itemId, oldPath, newPath, revision, errorMessage }: {
+export async function associateTourismImage({ io, hotelId, itemId, oldPath, newPath, revision, errorMessage, ownsPath = isOwnedTourismImagePath }: {
   io: TourismImageIO; hotelId: string; itemId: string; oldPath: string | null; newPath: string | null; revision: string;
   errorMessage: (error: ImageFailure) => string;
+  ownsPath?: typeof isOwnedTourismImagePath;
 }): Promise<ImageFeedback> {
-  if (newPath !== null && !isOwnedTourismImagePath(newPath, hotelId, itemId)) return { error: 'Caminho de imagem inválido.' };
+  if (newPath !== null && !ownsPath(newPath, hotelId, itemId)) return { error: 'Caminho de imagem inválido.' };
   let result: { data: ImageAssociation | null; error: ImageFailure | null };
   try { result = await io.associate(newPath, revision); } catch { result = { data: null, error: null }; }
-  const cleanup = (path: string | null, current: string | null) => cleanupTourismImage(io, hotelId, itemId, path, current);
+  const cleanup = (path: string | null, current: string | null) => cleanupTourismImage(io, hotelId, itemId, path, current, ownsPath);
   if (result.error?.code && /^[A-Z0-9]{5}$/.test(result.error.code) && !result.error.code.startsWith('08') && !['57014', '57P01', '57P02', '57P03'].includes(result.error.code)) {
     const cleaned = await cleanup(newPath, oldPath);
     return { error: errorMessage(result.error), ...(!cleaned ? { warning: 'A associação foi rejeitada; o upload novo precisa de limpeza posterior.' } : {}) };

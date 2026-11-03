@@ -3002,3 +3002,100 @@ Região Bugan Promoções e novidades/Atualizações do hotel: carrossel horizon
 ### P0 Fase 1 — proteção local de comunicados/banners — 31/10/2026
 
 Branch fix/p0-communications-phase1, base e3b53e6: allowlists editoriais sem status, formulários com versão persistida e CAS atômico por ID/hotel/updated_at em conteúdo/status/mídia/exclusão/claim de tradução. Criação e permissões legítimas preservadas. Auditoria confirmada e mensagens de conflito/recarga; persistência e auditoria/traduções/Storage ainda não são uma transação. Gate separado por sete IDs conhecidos consome snapshots offline, sem bloquear desenvolvimento quando editorial está vermelho. Código local não publicado; seis demonstrações ativas na última leitura conhecida não foram regularizadas. Desenho da Fase 2, compatibilidade, reversão, inventário e limites na seção P0 Fase 1 de docs/PREMIUM_V4_REFINEMENT_20261031.md. Nenhuma migration, escrita real, push, merge ou deploy autorizado nesta fase.
+
+
+## Sprint 53 — F&B por etapas: código e laboratório locais (02/11/2026)
+
+A Sprint 53 não está concluída. Adendos canônicos aprovados por Bruno após o
+início do Turbo 2 ampliam o fechamento consultivo, sem renumerar Sprints 54–62:
+
+| Etapa | Estado | Escopo |
+|---|---|---|
+| A — Catálogo F&B nativo | [IMPLEMENTADO, AUDITADO E HOMOLOGADO LOCALMENTE] | Outlets, menus, categorias, itens, preços, traduções, mídia, Admin, publicação editorial, público, Serviços, Goomer/room_restaurant_menu preservados e fb.menu. |
+| B — Pedidos e painéis | [APROVADO — NÃO IMPLEMENTADO] | Carrinho, adicionais/modificadores, combos, nome/sobrenome, observações, confirmação idempotente, pedidos, snapshots de itens/preços/opções, disponibilidade por horário, setores, painéis, status e cancelamento. |
+| C — Impressão local | [APROVADO — NÃO IMPLEMENTADO] | Bridge no hotel, fila, múltiplas impressoras, roteamento por setor, confirmação, retry seguro, falha ambígua e reimpressão controlada. |
+| D — Evoluções posteriores | [PLANEJADO] | Detalhamento futuro. |
+
+A auditoria técnica anterior continua válida para a Etapa A da Sprint 53.
+Somente A está implementada e homologada localmente; a descrição de código abaixo
+não declara B/C/D concluídas.
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Branch sprint-53-fnb, base
+e7b514620879f1feb91b2f62b5d27e9e529f843d. Domínio próprio hotel-scoped:
+outlets, menus compartilháveis no hotel, categorias, itens, traduções, imagem
+principal e associação UUID Serviço/outlet. Disponibilidade, horários,
+alergênicos/dietary e preços são editoriais; não existe pedido nativo.
+
+Admin /admin/cardapio: visualizador lê, operador+ gerencia por RPC autenticada,
+FKs compostas, RLS, CAS/PT409 e auditoria atômica. Leituras paginam internamente
+a Data API sem mudar a UI. PT salva primeiro; EN/ES usam serviço central em escrita,
+com fallback por campo e revisão da fonte. /admin/idiomas inclui F&B.
+Moeda controlada e unidade mínima correta; nenhum cálculo de pedido.
+
+Mídia usa validação existente, upload server-only, UUID e upsert:false. Associação
+exige objeto real, ownership e snapshot, com cleanup conservador; observar estado
+antigo após transporte ambíguo não comprova rollback. Fonte/caminhos de Turismo
+continuam com o mesmo comportamento. Galeria fica para 53.x.
+
+Público nas rotas existentes de Cardápio, slug/subdomínio e preview: detalhes,
+menus, categorias e itens elegíveis. Home/V4 reaproveita entradas existentes.
+Módulo OFF mantém legado. Standard/external_url/room_restaurant_menu, QR, tokens
+e URL por apartamento não são convertidos. Sem heurística de associação ou novo dock.
+
+fb.menu torna-se habilitável exclusivamente por Platform Admin ativo. Não entra
+no baseline de 12 módulos/onboarding; não há auto-enable, backfill ou conteúdo
+automático. A FK Serviço/outlet reutiliza a UNIQUE(id,hotel_id) de Guias do Quarto,
+sem adicionar índice/ALTER à tabela legada. As 50 migrations antigas são preservadas.
+
+[VALIDAÇÃO LOCAL SINTÉTICA, NÃO CONFIGURAÇÃO REAL] Laboratório exclusivo com Auth,
+DB, PostgREST e Storage reais; usuários Platform/Operator/Viewer sintéticos e seis
+identidades distintas: Grand Mercure Copacabana, Novotel Leme, Novotel Salvador Rio
+Vermelho, Mercure Rio Boutique Copacabana, Bugan Recife e Default técnico.
+Fixtures não comprovam configuração/publicação ou homologação editorial real.
+
+Resultados atuais, limites, reprodução, locks, matriz e classificação de paths:
+[SPRINT_53_FNB_AUDIT.md](SPRINT_53_FNB_AUDIT.md). Contrato:
+[SPRINT_53_FNB.md](SPRINT_53_FNB.md). Zero Supabase remoto, API externa real,
+conteúdo real, stage, commit, push, merge ou deploy nesta rodada.
+Histórico: o fechamento consultivo anterior excluía pedidos, carrinho, painéis
+e impressão do escopo então chamado Sprint 53. Nova decisão: ficam fora apenas
+da Etapa A, nas futuras B/C. Motivo: incorporar os adendos aprovados após o início
+do Turbo 2. Impacto técnico: idempotência, snapshots, estados, disponibilidade,
+fila e falhas exigem projeto/testes próprios; nada disso foi implementado agora.
+Impacto UX: fluxos novos seguem o modo autorizado e a apresentação de cada hotel,
+preservando a Home. Pendem detalhamento, implementação e homologação B/C, avaliação
+de D e autorização operacional dos tenants reais.
+
+Modo externo ou nativo será escolha individual de cada hotel. Externo: TheX,
+Goomer ou outro destino autorizado; isso não implementa integração API TheX.
+Nativo: catálogo e futuramente carrinho/pedido, painéis e impressão. Sem migração
+automática nem seletor operacional completo de modos declarado implementado.
+Preservar QR, /r/[roomToken], hotel_room_links, restaurant_menu_url, external_url
+e room_restaurant_menu. Bugan permanece com Goomer até implantação, homologação
+e autorização expressa de mudança operacional; nenhuma consulta real nesta rodada.
+
+Domínio F&B único e independente da versão visual. Bugan usa V4 Premium;
+Gastronomia, cardápio, carrinho e acompanhamento futuros seguem essa linguagem.
+Mockups são referência conceitual, sem conteúdo fictício e sem redesenhar a Home.
+Grand Mercure Copacabana, Novotel Leme, Novotel Salvador Rio Vermelho e Mercure Rio
+Boutique Copacabana mantêm suas experiências públicas atuais: não migrar para V4
+na Sprint 53. Default é fallback técnico. Essa é a matriz visual permanente A/B/C,
+com desktop/mobile, PT/EN/ES, ON/OFF, externo/nativo e conteúdo presente/ausente,
+conforme a etapa. Fixtures não homologam tenants reais.
+
+[CONFIRMADO — SEM ALTERAÇÃO DE CÓDIGO NECESSÁRIA] Conferência somente leitura:
+entidades/migration F&B não dependem de Bugan/V3/V4; loader por hotel/idioma/módulo;
+componente público compartilhado com tema e regras de negócio centralizadas.
+Mudar apenas a apresentação para V4 não exige recadastro F&B, troca de QR,
+alteração de vínculos de Serviço ou configurações operacionais. Evidências e
+histórico completos em SPRINT_53_FNB.md; código aprovado de A não foi alterado.
+
+Etapa B futura: roomToken fornece contexto; pedido nativo exige nome e sobrenome,
+com observações opcionais. roomToken + nome não autenticam hóspede, não comprovam
+reserva, não autorizam débito e não devem alimentar logs/analytics públicos com PII.
+Não implementado nesta harmonização.
+
+Continuam fora da Sprint 53 atual: integração API TheX (58), PMS/OPERA/OHIP (59),
+pagamento nativo, PIX/cartão, débito automático em apartamento, lançamento direto
+em PDV, estoque em tempo real salvo decisão futura e Billing. Goomer não foi
+validado externamente. Nenhuma implementação B/C, escrita real ou publicação agora.

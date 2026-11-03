@@ -19,7 +19,8 @@ export function getUniversalMobileHome(data: PublicHotelPageData, language: Supp
   const route = { slug: data.hotel.slug, language, domainContext, preferSubdomainRoot };
   const restaurant = enabled('services') ? (data.experienceMedia ?? []).find(m => m.hotel_id === data.hotel.id && m.slot === 'restaurant' && m.is_published) : null;
   let dining = publicEditorialHref({url:restaurant?.cta_url,hotel:data.hotel,sections,language,domainContext,preferSubdomainRoot});
-  if (!dining && enabled('services') && sections.some(s => s.service_action_type === 'room_restaurant_menu')) dining = buildPublicHotelAreaHref({...route,area:'cardapio'});
+  if (data.fb) dining = enabled('services') && data.fb.outlets.length ? buildPublicHotelAreaHref({...route,area:'cardapio'}) : null;
+  if (!data.fb && !dining && enabled('services') && sections.some(s => s.service_action_type === 'room_restaurant_menu')) dining = buildPublicHotelAreaHref({...route,area:'cardapio'});
   const actions: { key: 'services'|'dining'|'flights'|'contact'; href: string }[] = [
     ...(enabled('services') && sections.length ? [{key:'services' as const,href:buildPublicHotelAreaHref({...route,area:'servicos'})}] : []),
     ...(dining ? [{key:'dining' as const,href:dining}] : []),

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 
 export type SafeImageMimeType = 'image/jpeg' | 'image/png' | 'image/webp';
 export type SafeImageExtension = 'jpg' | 'png' | 'webp';
-export type HotelAssetCategory = 'logo' | 'hero' | 'promotional-banners' | 'tourism';
+export type HotelAssetCategory = 'logo' | 'hero' | 'promotional-banners' | 'tourism' | 'fb';
 
 export interface UploadFileLike {
   size: number;

@@ -131,6 +131,10 @@ export async function translateTourismFields(
   return tryTranslateTextFields(tourismTranslationFields(fields), targetLanguage, true);
 }
 
+export async function translateFbFields(fields: Record<string, string|null>, language: SupportedTranslationLanguage) {
+  return tryTranslateTextFields(fields, language, true);
+}
+
 export async function translateSectionFields(
   fields: {
     title: string;

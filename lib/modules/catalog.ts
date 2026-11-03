@@ -36,7 +36,7 @@ export const MODULE_CATALOG: readonly ModuleDefinition[] = [
   { key: 'experience.navigation', name: 'Composição', group: 'experience', availability: 'available', description: 'Ordem e visibilidade dos blocos da experiência pública.' },
   { key: 'experience.preview', name: 'Pré-visualização', group: 'experience', availability: 'available', description: 'Preview público real executado em sandbox.' },
   { key: 'experience.seo', name: 'SEO e compartilhamento', group: 'experience', availability: 'coming_soon', description: 'Metadados e compartilhamento futuros.' },
-  { key: 'fb.menu', name: 'Cardápio (F&B)', group: 'content', availability: 'coming_soon', description: 'Módulo futuro de alimentos e bebidas.' },
+  { key: 'fb.menu', name: 'Cardápio (F&B)', group: 'content', availability: 'available', description: 'Gastronomia e cardápios consultivos, com canais externos opcionais.' },
   { key: 'content.tourism', name: 'Turismo', group: 'content', availability: 'available', description: 'Catálogo de turismo local, habilitado por hotel.' },
   { key: 'analytics.basic', name: 'Analytics básico', group: 'analytics', availability: 'available', description: 'Indicadores operacionais atuais.' },
   { key: 'analytics.advanced', name: 'Analytics avançado', group: 'analytics', availability: 'coming_soon', description: 'Análises avançadas futuras.' },

@@ -1,3 +1,5 @@
+import type { FbOutlet, FbMenu, FbCategory, FbItem, FbTranslation, FbOutletMenu, FbServiceLink } from '../lib/fb/types';
+type FbTable<T> = { Row: { [P in keyof T]: T[P] }; Insert: never; Update: never; Relationships: [] };
 export type Json =
   | string
   | number
@@ -9,6 +11,16 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      hotel_fb_outlets: FbTable<FbOutlet>;
+      hotel_fb_menus: FbTable<FbMenu>;
+      hotel_fb_categories: FbTable<FbCategory>;
+      hotel_fb_items: FbTable<FbItem>;
+      hotel_fb_outlets_translations: FbTable<FbTranslation>;
+      hotel_fb_menus_translations: FbTable<FbTranslation>;
+      hotel_fb_categories_translations: FbTable<FbTranslation>;
+      hotel_fb_items_translations: FbTable<FbTranslation>;
+      hotel_fb_outlet_menus: FbTable<FbOutletMenu>;
+      hotel_fb_service_links: FbTable<FbServiceLink>;
       hotel_service_guides:{Row:{service_id:string;hotel_id:string;source_key:string|null;media_paths:string[];draft:Json;published:Json|null;revision:number;published_revision:number|null;published_at:string|null;updated_at:string};Insert:never;Update:never;Relationships:[]};
       hotel_public_presentation: {
         Row: {hotel_id:string;configuration:Json;revision:number};
@@ -1139,6 +1151,12 @@ export interface Database {
       };
     };
     Functions: {
+      get_public_hotel_fb: { Args: { p_hotel_id: string; p_language?: string }; Returns: Json };
+      save_current_hotel_fb: { Args: { p_kind: string; p_id: string|null; p_expected_revision: number; p_values: Json }; Returns: Json };
+      save_current_hotel_fb_translation: { Args: { p_kind: string; p_id: string; p_language: string; p_source_revision: number; p_fields: Json }; Returns: boolean };
+      set_current_hotel_fb_image: { Args: { p_kind: string; p_id: string; p_expected_revision: number; p_path: string|null }; Returns: Json };
+      delete_current_hotel_fb: { Args: { p_kind: string; p_id: string; p_expected_revision: number }; Returns: Json };
+      reorder_current_hotel_fb: { Args: { p_kind: string; p_parent_id: string|null; p_rows: Json }; Returns: undefined };
       get_current_hotel_service_guide:{Args:{p_service_id:string};Returns:{hotel_id:string;service_id:string;draft:Json|null;published:Json|null;revision:number}[]};
       save_current_hotel_service_guide:{Args:{p_service_id:string;p_expected_revision:number;p_configuration:Json;p_publish?:boolean;p_review_confirmed?:boolean};Returns:{revision:number;is_published:boolean}[]};
       create_current_hotel_room_guide:{Args:{p_source_key:string;p_title:Json;p_content:Json;p_configuration:Json};Returns:{service_id:string;revision:number}[]};

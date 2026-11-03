@@ -20,13 +20,14 @@ test('new governance migration changes only the Tourism availability exclusion i
 test('Tourism becomes opt-in available without changing any other module or onboarding default', () => {
   const before = execFileSync('git', ['show', '91634a4:lib/modules/catalog.ts'], { encoding: 'utf8' });
   const after = readFileSync('lib/modules/catalog.ts', 'utf8');
-  const restore = after.replace(/\{ key: 'content.tourism'[^\n]+/, before.match(/\{ key: 'content.tourism'[^\r\n]+/)![0]);
+  const restore = after.replace(/\{ key: 'content.tourism'[^\n]+/, before.match(/\{ key: 'content.tourism'[^\r\n]+/)![0]).replace(/\{ key: 'fb.menu'[^\n]+/, before.match(/\{ key: 'fb.menu'[^\r\n]+/)![0]);
   assert.equal(restore.replace(/\r/g, ''), before.replace(/\r/g, ''));
   assert.equal(MODULE_CATALOG.find((m) => m.key === 'content.tourism')?.availability, 'available');
   assert.equal(BASELINE_MODULE_KEYS.length, 12);
   assert.ok(!(BASELINE_MODULE_KEYS as readonly string[]).includes('content.tourism'));
   const blocked = rpc(sql)!.match(/if p_enabled and p_module_key in\(([^)]*)\)/)![1];
-  assert.deepEqual([...blocked.matchAll(/'([^']+)'/g)].map((m) => m[1]).sort(), MODULE_CATALOG.filter((m) => m.availability === 'coming_soon').map((m) => m.key).sort());
+  // Historical Sprint 52 still blocked F&B; Sprint 53 changes only that exclusion later.
+  assert.deepEqual([...blocked.matchAll(/'([^']+)'/g)].map((m) => m[1]).sort(), MODULE_CATALOG.filter((m) => m.availability === 'coming_soon' || m.key === 'fb.menu').map((m) => m.key).sort());
   assert.match(sql, /active_platform_admin_required/);
   assert.match(sql, /record_platform_audit_event/);
 });

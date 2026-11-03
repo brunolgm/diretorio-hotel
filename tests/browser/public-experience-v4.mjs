@@ -1,5 +1,5 @@
 // Isolated renderer regression. No session, remote API, provider or external request.
-// TOOL_NODE_MODULES supplies temporary esbuild tooling, as in flight-center-compact.mjs.
+// Uses the pinned esbuild and Playwright dependencies in this checkout.
 import assert from 'node:assert/strict';
 
 import {createRequire} from 'node:module';
@@ -8,13 +8,13 @@ import {resolve,join} from 'node:path';
 import {createServer} from 'node:http';
 import {execFileSync} from 'node:child_process';
 const require=createRequire(import.meta.url);
-const {build}=createRequire(join(process.env.TOOL_NODE_MODULES,'package.json'))('esbuild');
+const {build}=require('esbuild');
 const {chromium}=require('playwright');
 const sharp=require('sharp');
 const output=resolve('out/v4-universal');mkdirSync(output,{recursive:true});
 const buildOptions={entryPoints:['tests/browser/public-v3-fixture.tsx'],bundle:true,outfile:join(output,'fixture.js'),platform:'browser',jsx:'automatic',tsconfig:'tsconfig.json',loader:{'.png':'dataurl'},define:{'process.env':'{}','process.env.NEXT_PUBLIC_SUPABASE_URL':JSON.stringify('http://127.0.0.1:4183'),'process.env.NODE_ENV':JSON.stringify('development')},alias:{'node:crypto':resolve('tests/browser/public-v3-crypto-stub.ts'),'next/image':resolve('tests/browser/public-v3-next-stubs.tsx'),'next/link':resolve('tests/browser/public-v3-link-stub.tsx'),'next/navigation':resolve('tests/browser/public-v3-next-stubs.tsx')}};
 await build(buildOptions);
-const baseline=new Map(['components/public/hotel-public-page-content.tsx','components/public/public-experience-overview.tsx','components/public/grand-mercure/grand-mercure-public-home.tsx','components/public/novotel/novotel-public-home.tsx','components/public/mercure/mercure-public-home.tsx'].map(p=>[resolve(p),execFileSync('git',['show','0c0bda2:'+p],{encoding:'utf8'})]));
+const baseline=new Map(['components/public/hotel-public-page-content.tsx','components/public/public-experience-overview.tsx','components/public/grand-mercure/grand-mercure-public-home.tsx','components/public/novotel/novotel-public-home.tsx','components/public/mercure/mercure-public-home.tsx'].map(p=>[resolve(p),execFileSync('git',['show','e7b514620879f1feb91b2f62b5d27e9e529f843d:'+p],{encoding:'utf8'})]));
 await build({...buildOptions,outfile:join(output,'baseline.js'),plugins:[{name:'previous-renderer',setup(b){b.onLoad({filter:/\.tsx$/},args=>baseline.has(args.path)?{contents:baseline.get(args.path),loader:'tsx',resolveDir:resolve(args.path,'..')}:undefined);}}]});
 const css=await require('postcss')([require('@tailwindcss/postcss')()]).process(readFileSync('app/globals.css','utf8'),{from:resolve('app/globals.css')});
 writeFileSync(join(output,'style.css'),css.css);
@@ -67,7 +67,8 @@ try{
  for(const lang of ['pt','en','es'])for(const [width,height]of sizes){
   await page.setViewportSize({width,height});await visit('/preview',{theme:'bugan',experience:'v4',lang,closure:'1',tourism:'coherent'});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
-  const mobile=width<768;assert.equal(await page.locator('[data-public-v4-mobile]').isVisible(),mobile);
+  const mobile=width<768;assert.equal(await page.locator('[data-public-v4-mobile][data-desktop-essentials]').isVisible(),true);
+  assert.equal(await page.locator('[data-public-v4-mobile] .public-v4-tasks').isVisible(),mobile);
   if(mobile){
    assert.equal(await page.locator('[data-legacy-home-access]').isVisible(),false);assert.equal(await page.locator('[data-v4-action]').count(),4);
    for(const a of await page.locator('[data-v4-action]').all()){const b=await a.boundingBox();assert.ok(b.height>=44&&b.width>=44);assert.ok(await a.getAttribute('href'));}

@@ -13,7 +13,8 @@ test('language summary uses field completeness, handles missing rows and ignores
 test('five editorial domains retain their queries/counts/links without global translation triggers',()=>{
   const before=execFileSync('git',['show','91634a4:app/admin/idiomas/page.tsx'],{encoding:'utf8'}).replace(/\r/g,'');
   const after=readFileSync('app/admin/idiomas/page.tsx','utf8').replace(/\r/g,'').replace("import { TourismLanguageSummary } from '@/components/admin/tourism-language-summary';\n",'').replace('      <TourismLanguageSummary hotelId={profile.hotel_id} />\n','').replace('description="Fontes dos cinco módulos editoriais"','description="Conteúdos fonte cadastrados"');
-  assert.equal(after,before);
+  const withoutFb=after.replace("import { FbLanguageSummary } from '@/components/admin/fb-language-summary';\n",'').replace(/      <FbLanguageSummary hotelId=\{profile.hotel_id\}\s*\/>\n/,'');
+  assert.equal(withoutFb,before);
   const summary=readFileSync('components/admin/tourism-language-summary.tsx','utf8');
   assert.match(summary,/hasHotelModule\('content.tourism'\)/);assert.match(summary,/\.eq\('hotel_id', hotelId\)/);assert.match(summary,/summarizeTourismTranslations/);
   assert.doesNotMatch(summary,/translateTourismFields|syncTourismTranslations|form action|createAdminClient|fetch\(/);

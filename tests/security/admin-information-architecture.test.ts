@@ -64,17 +64,19 @@ test('keeps every existing admin route and adds only approved foundations', () =
 });
 
 test('marks future areas as coming soon without fake operations', () => {
-  for (const moduleKey of ['fb.menu', 'experience.seo', 'audit.access_logs']) {
+  for (const moduleKey of ['experience.seo', 'audit.access_logs']) {
     assert.equal(ADMIN_MODULE_CATALOG.find(({ key }) => key === moduleKey)?.availability, 'coming_soon');
   }
   assert.equal(ADMIN_MODULE_CATALOG.find(({ key }) => key === 'experience.preview')?.availability, 'available');
+  assert.equal(ADMIN_MODULE_CATALOG.find(({ key }) => key === 'fb.menu')?.availability, 'available');
   const structural = [
     read('components', 'admin', 'admin-coming-soon-page.tsx'),
-    read('app', 'admin', 'cardapio', 'page.tsx'),
     read('app', 'admin', 'logs', 'page.tsx'),
   ].join('\n');
   assert.match(structural, /Em breve/);
   assert.doesNotMatch(structural, /\.from\(|\.rpc\(|insert\(|update\(|delete\(|service_role/i);
+  assert.match(read('app','admin','cardapio','layout.tsx'), /requireHotelModule\('fb.menu'\)/);
+  assert.match(read('app','admin','cardapio','page.tsx'), /requireAdminAccess\('visualizador'\)/);
   // Tourism is available for explicit activation; hotel access remains entitlement-gated.
   assert.equal(ADMIN_MODULE_CATALOG.find(({ key }) => key === 'content.tourism')?.availability, 'available');
   assert.match(read('app', 'admin', 'turismo', 'layout.tsx'), /requireHotelModule\('content.tourism'\)/);

@@ -16,6 +16,7 @@ export async function getAuthenticatedHotelPreviewData(language: SupportedPublic
   if (result.error || !result.data) throw new Error('Prévia indisponível.');
   const modules = await getCurrentHotelEntitlements();
   const data = await getPublicHotelPageDataForHotel(client, result.data, language, true);
+  if (!modules.has('fb.menu')) data.fb = null;
   data.layout = getRenderableExperienceLayout(data.layout, modules);
   if (!modules.has('content.services')) data.sections = [];
   if (!modules.has('content.departments')) data.departments = [];

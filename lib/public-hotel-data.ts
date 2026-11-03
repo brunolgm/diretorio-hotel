@@ -1,4 +1,5 @@
 import {loadServiceGuideSummaries,loadPublishedServiceGuide,type ServiceGuideSummary} from './room-guides/read.server';
+import { loadPublicFb } from './fb/read.server';
 import {hasTranslationFallback,translatedText} from './translation-fallback';
 import { parsePublicPresentation, type PublicPresentation } from './public-presentation';
 import { loadPublicTourism, publicTourismHomeAvailable } from '@/lib/tourism/public';
@@ -36,6 +37,7 @@ type PublicHotelPromotionalBannerTranslation =
   Database['public']['Tables']['hotel_promotional_banner_translations']['Row'];
 
 export interface PublicHotelPageData {
+  fb?: import('./fb/types').FbGraph | null;
   serviceGuides?:ServiceGuideSummary[];
   serviceFallbackIds?: string[];
   presentation?: PublicPresentation | null;
@@ -421,7 +423,9 @@ export async function getPublicHotelPageDataForHotel(
     typedDepartments.some(i=>hasTranslationFallback(i,departmentTranslationsById.get(i.id),['name','description','action'])) ||
     typedPolicies.some(i=>hasTranslationFallback(i,policyTranslationsById.get(i.id),['title','description'])));
   const serviceFallbackIds=language==='pt'?[]:typedSections.filter(i=>hasTranslationFallback(i,sectionTranslationsById.get(i.id),['title','content','cta','category'])).map(i=>i.id);
-  const tourismHomeAvailable = await publicTourismHomeAvailable(supabase, hotel.id);
+  const [tourismHomeAvailable, fb] = await Promise.all([
+    publicTourismHomeAvailable(supabase, hotel.id), loadPublicFb(supabase, hotel.id, language),
+  ]);
   const [mediaResult, tourismResult, presentationResult] = await Promise.all([
     supabase.from('hotel_public_experience_media').select('*').eq('hotel_id', hotel.id).eq('is_published', true),
     tourismHomeAvailable ? loadPublicTourism(supabase, hotel, language).catch(() => null) : Promise.resolve(null),
@@ -440,6 +444,7 @@ export async function getPublicHotelPageDataForHotel(
     experienceMedia: (mediaResult.error ? [] : mediaResult.data ?? []).filter(row => row.hotel_id === hotel.id && row.is_published).map(row=>localizeExperienceMedia(row,translatedMedia.get(row.slot))),
     tourismPreview: tourismResult?.items ?? [],
     tourismHomeAvailable,
+    fb,
     flightHomeCard: flightHomeCardRow ? {
       title: flightHomeCardRow.home_card_title,
       description: flightHomeCardRow.home_card_description,
@@ -581,6 +586,7 @@ async function getPublicFlightCenterDataForHotel(
   if (navigationErrors.length) {
     console.error('Failed to load public navigation availability:', navigationErrors);
   }
+  const nativeMenuCount = menuModule.data === true ? (await loadPublicFb(supabase, hotel.id, 'pt'))?.outlets.length || 0 : menuSectionsResult.count || 0;
 
   return {
     hotel,
@@ -590,7 +596,7 @@ async function getPublicFlightCenterDataForHotel(
       servicesModuleEnabled: servicesModule.data === true,
       servicesContentCount: sectionsResult.count || 0,
       menuModuleEnabled: menuModule.data === true,
-      menuContentCount: menuSectionsResult.count || 0,
+      menuContentCount: nativeMenuCount,
     }),
     airports: rows.map((row) => ({
       timezone: airportContexts[row.airport_iata_code]?.timezone ?? null,

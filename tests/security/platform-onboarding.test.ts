@@ -57,7 +57,8 @@ test('keeps the canonical twelve-module baseline available-only', () => {
     assert.equal(MODULE_CATALOG.find((module) => module.key === key)?.availability, 'available');
   }
   assert.equal((BASELINE_MODULE_KEYS as readonly string[]).includes('travel.flights'), false);
-  assert.equal(MODULE_CATALOG.filter((module) => module.availability === 'coming_soon').length, 6);
+  assert.equal((BASELINE_MODULE_KEYS as readonly string[]).includes('fb.menu'), false);
+  assert.equal(MODULE_CATALOG.filter((module) => module.availability === 'coming_soon').length, 5);
 });
 
 test('compensates an Auth invite only when the database transaction fails', async () => {
