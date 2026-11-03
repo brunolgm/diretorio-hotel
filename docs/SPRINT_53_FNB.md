@@ -54,10 +54,19 @@ um seletor operacional completo de modos nem os fluxos nativos de B/C.
 
 ## Adendo visual e independência do domínio
 
+Complemento canônico aprovado em 03/11/2026: Gastronomia e Room Service nativos
+acompanham a identidade e a versão pública atualmente utilizada por cada hotel.
+Não bloquear o módulo nos quatro hotéis apenas por ainda não utilizarem V4.
+Entitlements e ativação individual continuam obrigatórios em qualquer apresentação.
+
 O domínio F&B é único e independente da versão visual. Bugan Recife usa V4 Premium;
 Gastronomia, cardápio, carrinho e acompanhamento futuros devem seguir essa linguagem.
 Mockups existentes são somente referência conceitual: não importar conteúdo fictício
 nem redesenhar a Home V4 aprovada.
+As referências são os mockups de Gastronomia V4 do chat Histórico e Planejamento;
+não copiar pratos, preços, estabelecimentos, horários, fotografias ou informações
+fictícias. Sua menção neste planejamento não equivale a uma nova comparação visual
+com esses arquivos nem a uma homologação de carrinho/acompanhamento ainda inexistentes.
 
 Grand Mercure Copacabana, Novotel Leme, Novotel Salvador Rio Vermelho e Mercure Rio
 Boutique Copacabana permanecem nas respectivas experiências públicas atuais.
@@ -80,6 +89,24 @@ outlets/menus/itens, troca de QR, alteração de associações de Serviço ou de
 configurações operacionais. B/C ainda precisarão preservar essa separação.
 Não foi encontrada divergência objetiva que demande correção de código.
 
+### Contrato de arquitetura e migração das Etapas B/C
+
+Administração, pedidos, setores, painéis e impressão futuros deverão compartilhar
+uma única estrutura de dados e regras operacionais, isoladas por tenant. Adaptar
+componentes e apresentação ao tema/versão, reaproveitando lógica de negócio;
+preservar entitlements, ativação individual, QR de apartamento e modos externo/nativo.
+Não criar operações ou bancos paralelos por hotel, marca ou versão visual.
+
+Quando os demais hotéis migrarem para V4 após as sprints planejadas, uma mudança
+de apresentação deverá preservar IDs/dados e operação, sem recadastro de produtos,
+migração desnecessária de pedidos, substituição dos QR Codes, perda de configurações
+ou alteração dos vínculos entre cardápio, setores e impressoras. A apresentação
+muda; os dados e a operação continuam preservados.
+
+Esse contrato é obrigatório para o projeto e homologação de B/C, não uma capacidade
+já comprovada para pedidos, setores ou impressão: essas entidades/fluxos ainda não
+estão implementados. A conferência atual confirma a separação já existente em A.
+
 ### Matriz visual permanente — obrigatória nas Etapas A/B/C
 
 | Identidade | Apresentação exigida |
@@ -95,6 +122,26 @@ Testar conforme a etapa: desktop/mobile, PT/EN/ES, entitlement ON/OFF,
 externo/nativo e conteúdo presente/ausente. Fixtures não homologam tenants reais.
 A matriz anterior com V4 sintético nos demais hotéis é evidência de compatibilidade,
 não autorização de migração nem prova de suas configurações visuais atuais.
+
+### Critérios de teste de compatibilidade e transição para V4
+
+Na etapa correspondente, testar os cinco hotéis em suas versões/temas atuais e
+Default como fallback, desktop/mobile, PT/EN/ES, entitlement ON/OFF e modos
+externo/nativo, com conteúdo presente/ausente. A apresentação atual dos quatro
+hotéis não deve ser inferida de uma fixture que os configure em V4.
+
+Para a futura transição visual, usar fixtures isoladas e manter o mesmo tenant,
+dados e IDs, alterando apenas a configuração de apresentação. Conferir catálogo,
+associações de Serviço, QR/roomToken, destinos externos e configurações antes/depois;
+em B/C, incluir pedidos/snapshots, setores, impressoras e seus vínculos. Validar que
+não há recadastro, migração desnecessária, perda operacional ou duplicação de lógica.
+Esse ensaio não autoriza migrar os hotéis reais nem antecipar V4 na Sprint 53.
+
+Estado da evidência: a auditoria anterior de A e seus testes V3/V4 permanecem
+válidos no escopo registrado. A matriz Auth/DB real local usou apresentações V4
+sintéticas; não comprova sozinha versões atuais dos quatro tenants nem transição
+com preservação de pedidos/impressoras. Esses critérios ficam como gates das etapas
+correspondentes, sem declarar novos testes executados nesta atualização documental.
 
 ## RoomToken e identidade — decisão futura da Etapa B
 

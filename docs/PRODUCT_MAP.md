@@ -3083,6 +3083,25 @@ na Sprint 53. Default é fallback técnico. Essa é a matriz visual permanente A
 com desktop/mobile, PT/EN/ES, ON/OFF, externo/nativo e conteúdo presente/ausente,
 conforme a etapa. Fixtures não homologam tenants reais.
 
+Complemento visual canônico de 03/11/2026: Gastronomia/Room Service acompanham
+identidade e versão pública atual de cada hotel; não bloquear F&B por ausência de
+V4. Administração e futuros pedidos, setores, painéis e impressão compartilham
+domínio/regras por tenant, com componentes visuais reaproveitáveis, entitlement,
+ativação individual e compatibilidade com QR e modos externo/nativo.
+Mockups de Gastronomia V4 do chat Histórico e Planejamento são referências
+conceituais: não copiar pratos, preços, estabelecimentos, horários, fotos ou dados
+fictícios; preservar a identidade real do Bugan e sua Home V4 aprovada.
+
+Futura migração apenas visual para V4, após as sprints planejadas, deve preservar
+produtos/IDs, pedidos/snapshots e configurações, sem recadastro, migração desnecessária
+de pedidos, troca de QR ou alteração de vínculos cardápio/setor/impressora.
+Pedidos, setores e impressão seguem não implementados; essa preservação é requisito
+de B/C, não resultado de homologação já realizada.
+Exigir testes das versões atuais e de transição visual em fixtures com o mesmo
+tenant/dados, desktop/mobile e PT/EN/ES, comparando dados, vínculos e destinos
+antes/depois. Não declarar tenant real homologado nem executar migração real.
+Critérios e limites da evidência em SPRINT_53_FNB.md; nenhuma implementação agora.
+
 [CONFIRMADO — SEM ALTERAÇÃO DE CÓDIGO NECESSÁRIA] Conferência somente leitura:
 entidades/migration F&B não dependem de Bugan/V3/V4; loader por hotel/idioma/módulo;
 componente público compartilhado com tema e regras de negócio centralizadas.
