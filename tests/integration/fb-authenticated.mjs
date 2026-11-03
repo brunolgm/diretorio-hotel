@@ -17,7 +17,7 @@ const env={...process.env};
 for(const path of ['.env','.env.local','.env.development','.env.development.local'])if(existsSync(path))
  for(const line of readFileSync(path,'utf8').split(/\r?\n/)){const match=line.match(/^\s*([A-Za-z_]\w*)=/);if(match)env[match[1]]='';}
 for(const key of Object.keys(env))if(/GOOGLE|AIRLABS|GOOMER|THEX|OPERA|OPENAI|RESEND|SENTRY|VERCEL|SUPABASE/i.test(key))env[key]='';
-Object.assign(env,{NEXT_PUBLIC_SUPABASE_URL:s.api,SUPABASE_URL:s.api,NEXT_PUBLIC_SUPABASE_ANON_KEY:s.anon,SUPABASE_SERVICE_ROLE_KEY:s.service,NEXT_TELEMETRY_DISABLED:'1',NPM_CONFIG_UPDATE_NOTIFIER:'false',NODE_ENV:'development',NODE_OPTIONS:'--import='+pathToFileURL(resolve('scripts/fb-local-network-guard.mjs')).href});
+Object.assign(env,{FB_LOCAL_LAB:'1',NEXT_PUBLIC_SUPABASE_URL:s.api,SUPABASE_URL:s.api,NEXT_PUBLIC_SUPABASE_ANON_KEY:s.anon,SUPABASE_SERVICE_ROLE_KEY:s.service,NEXT_TELEMETRY_DISABLED:'1',NPM_CONFIG_UPDATE_NOTIFIER:'false',NODE_ENV:'development',NODE_OPTIONS:'--import='+pathToFileURL(resolve('scripts/fb-local-network-guard.mjs')).href});
 const log=createWriteStream(join(directory,'application.log'));
 app=spawn(process.execPath,['node_modules/next/dist/bin/next','dev','--hostname','127.0.0.1','--port','4317'],{env,windowsHide:true,stdio:['ignore','pipe','pipe']});
 app.stdout.pipe(log);app.stderr.pipe(log);
@@ -60,8 +60,13 @@ async function platformToggle(page,t,enabled){
  if(enabled)await article.getByRole('button',{name:'Habilitar',exact:true}).click();
  else{
   const trigger=article.getByRole('button',{name:'Desabilitar',exact:true});
-  await trigger.evaluate(button=>new Promise((resolve,reject)=>{const ready=()=>Object.keys(button).some(k=>k.startsWith('__reactProps$')&&typeof button[k]?.onClick==='function');if(ready())return resolve();const timeout=setTimeout(()=>{clearInterval(timer);reject(Error('Dialog trigger did not hydrate'));},10000);const timer=setInterval(()=>{if(ready()){clearInterval(timer);clearTimeout(timeout);resolve();}},20);}));
-  await trigger.click();await page.getByRole('button',{name:'Confirmar desativação',exact:true}).click();
+  // Hydration can replace the SSR node. Observe the real dialog instead of polling
+  // React's private props on a detached element. Opening it does not mutate data.
+  const confirm=page.getByRole('button',{name:'Confirmar desativação',exact:true});
+  const deadline=Date.now()+30000;
+  while(!await confirm.isVisible()&&Date.now()<deadline){await trigger.click();await confirm.waitFor({state:'visible',timeout:1000}).catch(error=>{if(error.name!=='TimeoutError')throw error;});}
+  assert.ok(await confirm.isVisible(),'actual Platform confirmation dialog opened');
+  await confirm.click();
  }
  await page.waitForURL(u=>u.searchParams.has('success'),{timeout:120000});
  check(await rpc(platform,'is_hotel_module_enabled',{p_hotel_id:t.id,p_module_key:'fb.menu'})===enabled,'Platform UI fb.menu '+enabled+' '+t.name);

@@ -28,10 +28,11 @@ export default async function PublicHotelSlugAreaPage({
   }
   const pageData = await getPublicHotelPageDataBySlug(slug, language);
   if (!pageData) notFound();
+  const ordering = area === 'cardapio' && pageData.fb ? await (await import('@/lib/fb/orders/offer.server')).nativeOffer(slug, pageData.hotel.id, language) : undefined;
 
   return (
     <HotelPublicAreaContent
-      pageData={pageData}
+      pageData={{...pageData,ordering}}
       area={area}
       language={language}
       domainContext={domainContext}

@@ -1,0 +1,25 @@
+import '../../scripts/bootstrap-runtime.mjs';
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {spawn,execFileSync} from 'node:child_process';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {join} from 'node:path';
+import {seedB23,fullIntent} from './fb-b23-seed.mjs';
+import {rows,literal} from './fb-local-seed.mjs';
+import {labSql} from '../../scripts/fb-local-lab.mjs';
+const {fbOrderFoundation}=await import('../../lib/fb/orders/boundary.server.ts');
+const lab=await seedB23(),{s,tenants,project}=lab,checks=[];const check=(ok,label)=>{assert.ok(ok,label);checks.push(label);};
+try{
+ check(rows("select count(*)::text from pg_tables where schemaname='fb_order_private'")===27,'populated upgrade begins at B1, not an already migrated database');
+ const core=fbOrderFoundation(project);for(const t of tenants){const session=await core.beginSession(t.slug);check(session.ok,'real B1 session');const intent=fullIntent(t);const quote=await core.quote(t.slug,session.data.secret,t.outlet.id,intent);check(quote.ok,'real B1 quote');const receipt=await core.confirm({slug:t.slug,session:session.data.secret,outlet:t.outlet.id,key:randomUUID(),intent,roomToken:null,expectedTotalMinor:quote.data.total_minor,expectedCurrency:quote.data.currency});check(receipt.ok,'populated immutable order before B23/B4');}
+ labSql("insert into fb_order_private.admission_buckets(hotel_id,scope,digest,window_at,used) select "+literal(tenants[0].id)+"::uuid,'session',encode(sha256(convert_to(i::text,'UTF8')),'hex'),date_trunc('minute',clock_timestamp()),1 from generate_series(1,5000)i");
+ const tables=rows("select jsonb_agg(jsonb_build_object('schema',n.nspname,'table',c.relname) order by n.nspname,c.relname) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname in('public','fb_order_private') and c.relkind='r'");
+ const snapshot=()=>Object.fromEntries(tables.map(t=>{assert.match(t.schema,/^[a-z_]+$/);assert.match(t.table,/^[a-z0-9_]+$/);return [t.schema+'.'+t.table,rows("select jsonb_build_object('rows',count(*),'digest',encode(sha256(convert_to(coalesce(jsonb_agg(to_jsonb(v) order by to_jsonb(v)::text)::text,'[]'),'UTF8')),'hex')) from "+t.schema+'.'+t.table+' v')];}));
+ const before=snapshot();check(execFileSync('docker',['inspect','-f','{{index .Config.Labels "libguest.fb.lab"}}',s.containers.db],{encoding:'utf8'}).trim()===s.name,'lock holder ownership verified');
+ const child=spawn('docker',['exec','-i',s.containers.db,'psql','-X','-q','-v','ON_ERROR_STOP=1','-U','supabase_admin','-d',s.database],{windowsHide:true,stdio:['pipe','pipe','pipe']});let output='';const ended=new Promise((resolve,reject)=>{child.once('error',reject);child.once('exit',code=>code===0?resolve():reject(Error('fixture lock holder failed')));});const ready=new Promise(resolve=>child.stdout.on('data',chunk=>{output+=chunk;if(output.includes('b4_lock_ready'))resolve();}));child.stdin.end("begin;update fb_order_private.admission_buckets set used=used where hotel_id="+literal(tenants[0].id)+";select 'b4_lock_ready';select pg_sleep(1);commit;");await ready;
+ const b23=readFileSync('supabase/migrations/20261103050831_sprint_53_b23_public_journey_operations.sql','utf8');let timedOut=false;try{labSql("set lock_timeout='200ms';"+b23);}catch(error){timedOut=String(error.stderr).includes('lock timeout');}await ended;check(timedOut,'B23 production DDL lock contention reproduced with active writer');check(rows("select to_jsonb(to_regclass('fb_order_private.quotes') is null)")===true,'lock timeout rolls the whole additive migration back');assert.deepEqual(snapshot(),before);checks.push('failed DDL preserves every populated application table');
+ const started=performance.now();labSql("set lock_timeout='2s';"+b23);const b23_ms=Math.round(performance.now()-started);assert.deepEqual(snapshot(),before);checks.push('successful B23 preserves all preexisting populated rows');
+ const b4start=performance.now();labSql(readFileSync('supabase/migrations/20261103095658_sprint_53_b4_maintenance_hardening.sql','utf8'));const b4_ms=Math.round(performance.now()-b4start);assert.deepEqual(snapshot(),before);checks.push('successful B4 preserves all preexisting populated rows');
+ check(rows("select count(*)::text from pg_tables where schemaname='fb_order_private'")===29,'upgrade creates only quotes and maintenance metadata');check(rows("select count(*)::text from fb_order_private.maintenance_runs")===0,'DDL does not execute maintenance or activate a schedule');
+ const result={suite:'fb-b4-populated-migration',passed:checks.length,failed:0,orders:6,technicalBuckets:5000,tablesCompared:tables.length,b23_ms,b4_ms,activeWriterLockTimeout_ms:200,checks};writeFileSync(join(s.dir,'b4-migration-report.json'),JSON.stringify(result,null,2));console.log(JSON.stringify({...result,checks:undefined,directory:s.dir}));
+}catch(error){writeFileSync(join(s.dir,'b4-migration-failure.json'),JSON.stringify({passed:checks.length,error:error.message,checks},null,2));console.error(error.stack);process.exitCode=1;}

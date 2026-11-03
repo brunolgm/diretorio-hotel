@@ -37,6 +37,8 @@ type PublicHotelPromotionalBannerTranslation =
   Database['public']['Tables']['hotel_promotional_banner_translations']['Row'];
 
 export interface PublicHotelPageData {
+  ordering?: import('./fb/orders/journey').NativeOffer;
+  trackingOrderId?: string;
   fb?: import('./fb/types').FbGraph | null;
   serviceGuides?:ServiceGuideSummary[];
   serviceFallbackIds?: string[];

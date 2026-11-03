@@ -12,15 +12,17 @@ as Sprints 54–62 e sem reabrir a implementação aprovada da Etapa A.
 | Etapa | Estado | Escopo |
 |---|---|---|
 | A — Catálogo F&B nativo | [IMPLEMENTADO, AUDITADO E HOMOLOGADO LOCALMENTE] | Outlets, menus, categorias, itens, preços, traduções, mídia, Admin, publicação editorial, público, compatibilidade com Serviços, Goomer/room_restaurant_menu preservados e governança fb.menu. |
-| B — Pedidos e painéis | [B1 IMPLEMENTADO LOCALMENTE — B2/B3/B4 PENDENTES] | Fundação transacional descrita ao final; carrinho/checkout público, UI dos painéis e consolidação operacional ainda não entregues. |
+| B — Pedidos e painéis | [B1 PRESERVADO — B2+B3 IMPLEMENTADOS — B4 APROVADA LOCALMENTE] | Carrinho, cotação, checkout, acompanhamento e painel operacional sobre B1. GO técnico local para checkpoint Git; implantação, conteúdo e ativação operacional reais permanecem pendentes. |
 | C — Impressão local | [APROVADO — NÃO IMPLEMENTADO] | Bridge local no hotel, fila, múltiplas impressoras, roteamento por setor, confirmação, retry seguro, falha ambígua e reimpressão controlada. |
 | D — Evoluções posteriores | [PLANEJADO] | Detalhamento futuro; nenhum comportamento adicional é declarado implementado. |
 
 A auditoria técnica anterior continua válida para a Etapa A da Sprint 53.
 Os contratos históricos e resultados até Turbo 2 abaixo descrevem somente A;
-a seção B1 ao final descreve a implementação posterior separadamente.
+a seção B1 ao final descreve a fundação posterior separadamente, e a seção
+B2+B3 registra a jornada e operação adicionadas sobre ela em 03/11/2026.
 A harmonização documental anterior não implementou B/C. A autorização posterior
-de B1 implementa somente a fundação descrita ao final; C permanece não implementada.
+de B1 implementou a fundação; a rodada B2+B3 acrescenta as superfícies descritas
+ao final. O fechamento técnico local B4 está registrado abaixo; C permanece não implementada.
 
 ### Histórico da decisão e seus impactos
 
@@ -28,7 +30,8 @@ de B1 implementa somente a fundação descrita ao final; C permanece não implem
   e impressão do escopo então tratado como Sprint 53. Essa decisão fica preservada
   como histórico, não como limite vigente de toda a Sprint expandida.
 - Nova decisão: catálogo é a Etapa A; pedidos/painéis são B e impressão é C,
-  aprovadas e ainda não implementadas. D permanece planejada.
+  aprovadas e ainda não implementadas naquele checkpoint. A evolução posterior
+  B1/B2/B3 está discriminada ao final. D permanece planejada.
 - Motivo: incorporar os dois adendos aprovados por Bruno após o início do Turbo 2,
   distinguindo o catálogo homologado localmente do fluxo operacional futuro.
 - Impacto técnico: preservar o domínio A; B/C exigem projeto, implementação e
@@ -43,8 +46,8 @@ de B1 implementa somente a fundação descrita ao final; C permanece não implem
 ## Modos externo e nativo — decisão canônica por hotel
 
 Cada hotel poderá escolher individualmente o modo externo (TheX, Goomer ou outro
-destino autorizado) ou o modo nativo LibGuest (catálogo e, futuramente, carrinho,
-pedido, painéis e impressão). TheX como destino externo não implica integração
+destino autorizado) ou o modo nativo LibGuest (catálogo, carrinho, pedidos e painéis
+conforme a etapa homologada; impressão permanece futura). TheX como destino externo não implica integração
 API TheX, que permanece na Sprint 58. Não há migração automática de modo.
 
 Preservar QR existente, /r/[roomToken], hotel_room_links, restaurant_menu_url,
@@ -589,3 +592,652 @@ B3: UI operacional/acompanhamento e polling.
 B4: carga, integração final, scheduler/monitoramento de retenção, runbooks de
 drenagem antes de arquivamento, homologação e ativação autorizada.
 Não se declaram esses itens ou tenants reais homologados a partir das fixtures.
+
+## B2+B3 — jornada pública e operação local sobre B1 (03/11/2026)
+
+Estado desta seção: **B2+B3 implementados e validados localmente; B4 e C pendentes**.
+**GO técnico local B2+B3**, com a regressão autenticada A completa reconfirmada.
+Isso não é homologação editorial/operacional nem autorização de ativação real. Base
+conferida antes das escritas: `sprint-53-fnb`, HEAD
+`f8d8769e96c60df25bd356c1ceed4dd57db8bc0f`, igual à referência local de origem,
+árvore limpa. Não há autorização para stage, commit, push, merge, deploy,
+Supabase remoto, ativação real ou alterações no worktree content-bridge.
+
+### Fronteiras e apresentação
+
+Um único B1 continua sendo a autoridade de intenção, preço, snapshots, setores,
+idempotência, transições, cancelamento e retenção. B2 adiciona oferta/UX/HTTP;
+B3 adiciona a superfície operacional no Admin existente. Não há domínio de
+pedidos por hotel, lógica condicionada à marca no banco, pagamento, PMS/TheX,
+Realtime, bridge, fila de impressão ou estado printed.
+
+`/hotel/[slug]/explorar/cardapio` e `/explorar/cardapio` carregam a oferta B
+somente nessa área, por importação tardia. Home, Turismo e demais áreas não
+carregam o adaptador de oferta. Os componentes da Home não foram alterados.
+Outlets sem modo native mantêm o catálogo/destino A. Bugan usa os tokens e a
+apresentação V4; as outras quatro propriedades e Default mantêm as versões
+atuais. O adaptador acompanha uma futura V4 sem alterar catálogo, pedidos, QR,
+setores ou configurações. As duas referências locais de Gastronomia são apenas
+conceituais: nenhum prato, preço, horário ou foto fictícia foi copiado.
+
+Carrinho e checkout usam memória transitória por hotel/outlet/moeda. Seleções
+single/multi, min/max, ordem, atividade, acréscimos, escolhas de slots e
+multiplicidades vêm da oferta; B1 valida novamente. Combos têm uma cobrança
+raiz e componentes de produção sem cobrança duplicada. Itens sem preço
+ordenável não oferecem adição. Calendários usam B1/IANA e não interpretam
+opening_hours textual. hide retira a oferta; show_unavailable desabilita a
+adição. Um carrinho/resultado já existente mantém o caminho de recuperação.
+
+### HTTP, cotação reconhecida e recuperação
+
+`/api/fb/hotel/[slug]/[operation]`: oferta, quote, confirm e reinício explícito
+de sessão. JSON allowlisted/UTF-8 limitado a 32 KiB, origem e contexto de domínio
+conferidos, nenhuma autoridade de preço/moeda/hotel/setor/nome comercial aceita
+do browser. Corpo do reinício é vazio. Entrega exige QR ativo do próprio hotel
+já na cotação e novamente no B1 na confirmação; número/claims do cookie não
+substituem o vínculo real. Retirada depende da configuração do outlet.
+
+A migration aditiva `20261103050831_sprint_53_b23_public_journey_operations.sql`,
+criada pelo CLI instalado, acrescenta quotes privadas com RLS e sem grants
+diretos. Guarda somente digests ligados à sessão, preço/snapshots comerciais
+produzidos pelo B1 e o vínculo da confirmação; não guarda intenção bruta,
+nome/sobrenome ou observações na cotação. Referência aleatória de 256 bits,
+somente seu digest no banco, validade de cinco minutos, até 20 referências
+não consumidas e 200 registros retidos por sessão. A referência fica apenas na memória
+do checkout, nunca em URL ou Web Storage. A cotação não reserva estoque nem
+promete disponibilidade futura.
+
+Confirmação confere referência/sessão/basket, expiração e igualdade do preço
+comercial completo atual, não só total. Mudança exige nova revisão. Entrega a
+intenção bruta ao normalizador original do B1; não reintroduz a representação
+interna normalizada como novo input. B1 efetiva a transação; o vínculo da
+cotação é gravado na mesma transação. A cotação consumida não aceita outra
+chave nem outra intenção. Replay reconhecido usa a mesma idempotência B1 por
+24 horas, inclusive após expirar a cotação ou desligar admissões. Credencial
+de acesso continua sendo HKDF B1 determinístico por sessão/hotel/outlet/chave.
+Resposta perdida/503 mantém a tentativa congelada; não troca a chave. Prazo de
+recuperação encerrado pede verificar com o hotel, sem criar outro pedido.
+
+Cookies B1 são aplicados em HTTP: sessão e acesso HttpOnly, Secure, SameSite=Lax,
+host-only, paths por hotel e por pedido. A sessão fica disponível no browser
+até o fim da janela possível de replay; isso não estende sua admissão no banco.
+Nome/sobrenome autodeclarados e observações são removidos do estado após ACK.
+Não se persiste carrinho/PII/credencial de pedido em Web Storage. Recarregar ou
+fechar a aba descarta o rascunho/tentativa em memória; isso não cancela fatos
+já confirmados no servidor.
+
+Admissão HTTP separada/commitada usa sessão/credencial opaca e orçamento do
+hotel, sem IP bruto ou fingerprint de dispositivo. Por credencial/minuto:
+quote 15, confirm 20, cancel 10, restart 5, offer/status 60. Sem credencial,
+bootstrap usa somente o teto do hotel. Teto do hotel/minuto: offer/status 1800,
+restart 120, demais 240; a admissão de criação B1 sessão 5/hotel 120 continua
+valendo. Validação falha não devolve o orçamento HTTP. Limites são conservadores
+locais e demandam carga/observabilidade B4 antes de ativação.
+
+### Acompanhamento e Admin
+
+`/hotel/[slug]/pedidos/[id]` e `/pedidos/[id]` usam o cookie restrito de acesso
+no endpoint `/api/fb/orders/[id]/[slug]`; UUID, referência amigável, quarto e QR
+isolados não autorizam. DTO público contém apenas referência, itens/opções,
+total, estados/horários, progresso e política/solicitação de cancelamento.
+Não expõe PII, IDs de operador ou auditoria administrativa. Respostas privadas
+são no-store/Vary Cookie/Host e no-referrer; segredo não entra em URL, analytics
+ou logs. Não declara aceite, preparo, entrega ou impressão antes do evento real.
+
+`/admin/pedidos`, navegação administrativa existente, API autenticada
+`/api/admin/fb-orders` e Server Actions repetem a autorização no banco.
+Nenhuma capability é concedida por role ou por ativar o módulo. Leitura/linhas
+ficam no setor autorizado; PII exige read+pii.read, consulta explícita e auditoria
+apenas com IDs. Transição requer read+transition; decisão de cancelamento requer
+os escopos completos e supervisão quando saiu para entrega. CAS e histórico
+append-only continuam no B1. Revisão concorrente gera conflito controlado.
+
+Polling visível: quatro segundos após snapshot completo, sem sobreposição;
+erro faz backoff até 30 segundos; página oculta pausa, retorno/reconexão
+atualiza imediatamente. Paginação por cursor busca todas as páginas de 50 antes
+de substituir o snapshot; limite defensivo de 200 páginas falha explicitamente,
+sem apresentar uma lista parcial como completa. Mudança de tenant/capabilities
+descarta o escopo anterior. PII é descartada ao ocultar, perder conexão/permissão
+ou vencer, inclusive antes de GC; expirado tem mensagem própria.
+
+### Drenagem sem ampliar o Admin global
+
+Módulo/master desligado, external, suspended/draft/archived impedem novas
+admissões. Pedidos existentes permanecem operáveis por perfil ativo do próprio
+tenant com capabilities explícitas. A migration evolui somente os entrypoints
+operacionais B1 para um actor F&B de drenagem e mantém configure/catálogo sob
+os guardas anteriores. O helper global da governança continua negando archived;
+nenhuma policy RLS/global Auth foi afrouxada. A consulta operacional retorna só
+a identidade visual mínima do próprio hotel para essa superfície.
+
+O proxy sobrescreve o marcador de caminho, aceitando o shell especial apenas
+em `/admin/pedidos`; header recebido do cliente não abre outras rotas. Layout,
+página, API e ação exigem seus guardas. A prova local confirma helper global
+false e configuração negada 42501 em archived, enquanto a transição F&B
+autorizada confirma e audita atomicamente. O acompanhamento seguro também
+preserva os pedidos existentes com identidade mínima quando o público fecha.
+
+GC original continua com retenções B1. Quotes antigas são removidas em lote
+limitado; sessões com quotes esperam a coleta destes registros, evitando expandir
+o lote por cascata. Não há agendamento remoto instalado. O rollback técnico
+deve preservar as tabelas e fatos: desabilitar novas admissões, drenar e reverter
+somente a apresentação/entrypoints conforme plano B4; não apagar pedidos.
+
+### Validação e pendências desta execução
+
+Execução consolidada B2+B3, sem foco reduzido: **2.015 verificações, zero falhas**,
+seis tenants sintéticos, 31 usuários GoTrue reais, 54 migrations, 36 percursos
+desktop/mobile/PT/EN/ES, zero requisições externas e zero erros de browser.
+Relatório: `out/libguest-fb-auth-a56467f6/b23/report.json`; 139 screenshots em
+`out/libguest-fb-auth-a56467f6/b23/screenshots/`. Auth, cookies, HTTP, PostgreSQL,
+PostgREST/RLS, Storage e Server Actions são reais, sem mocks de autorização ou
+transação. A recuperação simula perda da resposta somente depois de confirmar
+o commit upstream real. Rollback usa falha SQL controlada apenas na fixture.
+
+| Gate | Resultado desta rodada | Evidência ignorada pelo Git |
+|---|---|---|
+| B2+B3 completo | 2.015/2.015 | `out/fb-b23-final-integration.log` |
+| B1 original integrado + adversos | 620/620 | `out/fb-b23-final-b1-regression.log`, `out/libguest-fb-auth-e34665a8/b1-report.json` |
+| SQL B1 atual | 229/229 | `out/libguest-fb-auth-a56467f6/b23/53_b1_foundation_matrix.sql.log` |
+| SQL B2+B3 | 63/63 | `out/libguest-fb-auth-a56467f6/b23/53_b23_journey_operations.sql.log` |
+| SQL A original | 197/197 | `out/fb-b23-a-sql.log` |
+| Segurança completa | 734/734; nenhum skip | `out/fb-b23-final-security.log` |
+| SSR A original | 391/391 | `out/fb-b23-a-ssr.log` |
+| Browser A original | 1.524/1.524; zero requisições externas | `out/fb-b23-a-browser.log`, `out/fb-browser/` |
+| Browser V3/V4 existente | 152/152; zero chamadas API | `out/fb-b23-v3-v4.log`, `out/v4-universal/browser-report.json` |
+| Auth A original completo | 1.434/1.434, mode full; zero requisições externas | `out/fb-b23-final-a-auth-retry.log`, `out/libguest-fb-auth-c5a1661b/report.json` |
+| TypeScript | Zero erros | `out/fb-b23-final-tsc.log` |
+| Lint completo | Zero erros; somente quatro avisos históricos de imagem | `out/fb-b23-final-lint.log` |
+| Build | Aprovado; Next/Turbopack, rede externa bloqueada | `out/fb-b23-final-build.log`, `out/fb-b23-build-status.log` |
+
+Os totais são de cada suíte, não uma soma de cenários independentes. Os testes
+B1 antigos só tiveram sua cardinalidade ampliada de 27 para 28 tabelas, incluindo
+a nova quote privada; nenhuma expectativa de autorização foi removida/reduzida.
+O banner do gerenciador local ainda imprime o contador histórico 52; o inventário
+e o relatório consolidado conferem os **54 arquivos SQL efetivamente aplicados**.
+
+Verificação de ponta a ponta: o hóspede monta o carrinho na área Cardápio →
+HTTP server-side valida sessão/QR/cotação → RPCs B1 persistem atomicamente →
+cookie protegido acompanha o pedido → Admin autenticado/CAS atualiza os fatos →
+polling do hóspede mostra o estado confirmado no banco.
+
+| Fronteira | Evidência consolidada |
+|---|---|
+| UI renderiza | 139 capturas, zero erros de browser e seis temas/tenants |
+| Client → API | Requests reais quote/confirm/status/cancel, allowlist e cookies verificados |
+| API → banco | Auth/PostgREST/SQL reais; adversos, RLS, rate limit e rollback sem fatos parciais |
+| Banco → resposta | Conferência dos registros persistidos, snapshots, preços e replay do mesmo pedido |
+| Resposta → UI | Confirmação só depois do ACK, acompanhamento e painel sincronizados com CAS |
+| Ambiente/terminal | API 127.0.0.1:54347; app local 4317; variáveis só do laboratório, rede externa bloqueada, build exit 0 |
+
+A cobertura inclui revogar read e PII separadamente, perfil inativo/role reduzida
+com cookie GoTrue ainda válido, replay de ação capturada, mais de 50 pedidos,
+conflito de revisão, recuperação idempotente com admissão OFF e coleta real de
+quotes limitada a uma por passagem antes de remover a sessão vazia. Os seis
+tenants preservaram seus registros originais de Serviços e QR byte por valor.
+A regressão A completa também reconfirmou edição/resumo além de 1.000 registros
+com 1.005 itens criados por RPC autenticada, sem publicação, e removidos apenas
+da fixture. Em OFF, ON vazio e ON com conteúdo, as regiões
+protegidas mantiveram o mesmo DOM/identidade. Nenhum tenant real foi consultado.
+
+Referências de screenshot, todas de fixtures sintéticas nessa pasta consolidada:
+
+- `fb-lab-bugan-native-menu-1440-pt.png` e `fb-lab-bugan-native-menu-390-pt.png`.
+- `fb-lab-bugan-checkout-1440-pt.png` e `fb-lab-bugan-checkout-390-es.png`.
+- `fb-lab-bugan-tracking-1440-en.png` e `fb-lab-bugan-tracking-390-es.png`.
+- `fb-lab-bugan-operations-1440-pt.png` e `fb-lab-bugan-operations-390-pt.png`.
+- As mesmas jornadas públicas em PT/EN/ES e os painéis desktop/mobile existem
+  para Grand Mercure, Novotel Leme, Novotel Salvador, Mercure e Default.
+
+### Arquivos e preservação
+
+12 arquivos existentes intencionalmente modificados: `app/admin/layout.tsx`,
+`proxy.ts`, os dois `app/**/explorar/[area]/page.tsx`,
+`components/public/hotel-public-area-content.tsx`,
+`components/public/public-fb-content.tsx`, `lib/public-hotel-data.ts`,
+`supabase/tests/53_b1_foundation_matrix.sql`, `tests/integration/fb-b1.mjs`,
+`tests/integration/fb-authenticated.mjs`
+e os dois documentos canônicos desta rodada.
+
+28 novos arquivos: sete entradas page/route/action sob `app/admin/pedidos/`,
+`app/api/admin/fb-orders/`, `app/api/fb/`, `app/hotel/[slug]/pedidos/` e
+`app/pedidos/`; os componentes `fb-orders-panel`, `native-ordering-outlet`,
+`order-tracking` e CSS nativo; oito adaptadores/DTOs em `lib/fb/orders/`
+(`http-request`, `http.server`, `journey`, `offer.server`, `operations.server`,
+`operations`, `rpc.server`, `tracking-page.server`); uma migration, uma matriz
+SQL, seis arquivos de integração `fb-b23*.mjs` e `tests/security/fb-b23.test.ts`.
+
+Inventário exato com SHA-256 contra os 725 arquivos do checkpoint inicial em
+`out/fb-b23-preservation.json`: 53 migrations anteriores intactas, Home e demais
+arquivos fora do escopo intactos. Nova migration é a 54ª. O domínio transacional
+B1 continua único; somente a migration aditiva evolui validadores/entrypoints
+operacionais e a coleta, sem editar o SQL B1 commitado ou abrir policies globais.
+
+Branch `sprint-53-fnb`; HEAD inicial/final
+`f8d8769e96c60df25bd356c1ceed4dd57db8bc0f`; referência local de origem igual.
+Working tree contém intencionalmente 12 modificados e 28 não rastreados, todos
+sem stage. Nenhum commit, push, merge ou deploy. Não houve fetch remoto nesta
+rodada; a igualdade é com a referência local registrada no checkpoint.
+
+A primeira execução Auth A parou após 145 verificações na espera do harness
+por uma propriedade interna React do botão de confirmação, antes de confirmar
+a desativação. O harness passa a clicar o trigger e aguardar o diálogo real
+visível, sem depender da identidade do nó SSR. O diálogo/componente Platform
+não foi modificado. Todas as verificações antigas de resultado no banco, URL,
+permissões e regiões Home continuam; há ainda assert explícito do diálogo aberto.
+Falha original preservada em `out/fb-b23-final-a-auth.log` e
+`out/libguest-fb-auth-a3026834/failure.json`. A repetição completa usa outro
+laboratório vazio e terminou em **1.434/1.434**, sem remoção de cenários para obter
+aprovação. Nenhum componente Platform foi alterado.
+
+Chrome headless fixa a visibilidade nativa como visible. Para testar pausa/retorno,
+somente o evento/estado ambiental de visibilidade é controlado na fixture; rede,
+Auth, API, timers e banco continuam reais. Offline/reconexão e revogação de
+capability são exercitados de verdade. Isso não é homologação de equipamentos
+ou de dispositivos físicos.
+
+No checkpoint B2+B3 então encerrado, B4 estava pendente: carga, consolidação, scheduler/monitoramento de retenção,
+runbooks/observabilidade/reversão, revisão e homologação editorial/operacional,
+dispositivos reais e virada autorizada do Bugan. C continua não implementada.
+Uma implantação futura precisa aplicar a migration aditiva e validar seus RPCs
+e credenciais server-only antes de servir as novas rotas; ativação real é outro
+gate e não decorre de publicar código. Nenhum desses passos foi executado aqui.
+Não houve stage/commit/push/merge/deploy, tenant real, Supabase remoto, chamada
+Goomer/TheX/OPERA/OHIP/Google/AirLabs, impressão ou alteração de conteúdo real.
+
+Fechamento: `out/fb-b23-final-evidence.json` consolida os gates e o inventário
+exato de 40 arquivos (12 modificados + 28 novos). Diff check aprovado; zero stage.
+Os 713 demais arquivos do checkpoint e as 53 migrations anteriores preservam
+os hashes originais. Laboratórios próprios encerrados, credenciais temporárias
+removidas, sem servidor na porta 4317; relatórios e screenshots permanecem em
+`out/` ignorado. A suíte A completa gerou outras 170 capturas sintéticas.
+
+### B4 — inventário exato do diff para revisão
+
+Nenhum stage executado. Classificação por path do diff acumulado B2+B3+B4;
+`out/**`, `.env*`, `.next/**`, dumps, logs e credenciais ficam fora do checkpoint.
+
+| Path | Classificação |
+|---|---|
+| `app/admin/layout.tsx` | PRODUÇÃO |
+| `app/admin/pedidos/actions.ts` | PRODUÇÃO |
+| `app/admin/pedidos/page.tsx` | PRODUÇÃO |
+| `app/api/admin/fb-orders/route.ts` | PRODUÇÃO |
+| `app/api/fb/hotel/[slug]/[operation]/route.ts` | PRODUÇÃO |
+| `app/api/fb/orders/[id]/[slug]/route.ts` | PRODUÇÃO |
+| `app/explorar/[area]/page.tsx` | PRODUÇÃO |
+| `app/hotel/[slug]/explorar/[area]/page.tsx` | PRODUÇÃO |
+| `app/hotel/[slug]/pedidos/[id]/page.tsx` | PRODUÇÃO |
+| `app/pedidos/[id]/page.tsx` | PRODUÇÃO |
+| `app/r/[roomToken]/route.ts` | PRODUÇÃO |
+| `components/admin/fb-orders-panel.tsx` | PRODUÇÃO |
+| `components/public/hotel-public-area-content.tsx` | PRODUÇÃO |
+| `components/public/native-ordering-outlet.tsx` | PRODUÇÃO |
+| `components/public/native-ordering.css` | PRODUÇÃO |
+| `components/public/order-tracking.tsx` | PRODUÇÃO |
+| `components/public/public-fb-content.tsx` | PRODUÇÃO |
+| `docs/PRODUCT_MAP.md` | PRODUÇÃO |
+| `docs/SPRINT_53_FNB.md` | PRODUÇÃO |
+| `lib/fb/orders/diagnostics.server.ts` | PRODUÇÃO |
+| `lib/fb/orders/http-request.ts` | PRODUÇÃO |
+| `lib/fb/orders/http.server.ts` | PRODUÇÃO |
+| `lib/fb/orders/journey.ts` | PRODUÇÃO |
+| `lib/fb/orders/offer.server.ts` | PRODUÇÃO |
+| `lib/fb/orders/operations.server.ts` | PRODUÇÃO |
+| `lib/fb/orders/operations.ts` | PRODUÇÃO |
+| `lib/fb/orders/rpc.server.ts` | PRODUÇÃO |
+| `lib/fb/orders/tracking-page.server.tsx` | PRODUÇÃO |
+| `lib/public-hotel-data.ts` | PRODUÇÃO |
+| `lib/room-links.ts` | PRODUÇÃO |
+| `next.config.ts` | PRODUÇÃO |
+| `proxy.ts` | PRODUÇÃO |
+| `scripts/fb-local-lab.mjs` | FERRAMENTA PERMANENTE |
+| `scripts/fb-order-maintenance.mjs` | FERRAMENTA PERMANENTE |
+| `supabase/migrations/20261103050831_sprint_53_b23_public_journey_operations.sql` | PRODUÇÃO |
+| `supabase/migrations/20261103095658_sprint_53_b4_maintenance_hardening.sql` | PRODUÇÃO |
+| `supabase/tests/53_b1_foundation_matrix.sql` | TESTE REGRESSIONAL |
+| `supabase/tests/53_b23_journey_operations.sql` | TESTE REGRESSIONAL |
+| `supabase/tests/53_b4_maintenance_matrix.sql` | TESTE REGRESSIONAL |
+| `supabase/tests/53_b4_temporal_matrix.sql` | TESTE REGRESSIONAL |
+| `tests/integration/fb-authenticated.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b1.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b23-adversarial.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b23-compatibility.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b23-operations.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b23-public.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b23-seed.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b23.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b4-backend.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b4-browser.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b4-contracts.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b4-migration.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b4-temporal-maintenance.mjs` | TESTE REGRESSIONAL |
+| `tests/integration/fb-b4.mjs` | TESTE REGRESSIONAL |
+| `tests/security/fb-b23.test.ts` | TESTE REGRESSIONAL |
+| `tests/security/fb-b4.test.ts` | TESTE REGRESSIONAL |
+
+Inventário SHA-256 completo: `out/fb-b4-inventory.json` (ignorado).
+<!-- END B4 INVENTORY -->
+
+## B4 — auditoria adversarial e fechamento técnico local (03/11/2026)
+
+**APROVADA — GO técnico local para checkpoint Git; NO-GO operacional real.** Checkpoint inicial confirmado antes
+das escritas: sprint-53-fnb, HEAD/origem local f8d8769, exatamente 12 modificados
++ 28 novos B2+B3, zero stage. Baseline SHA-256 em `out/fb-b4-before.json`.
+Nenhuma autorização de commit/push/merge/deploy, Supabase remoto, dados reais,
+chamadas Goomer/TheX/OPERA ou impressão decorre desta auditoria.
+
+### Escopo revisto e correções B4
+
+Auditoria do diff completo, 28 untracked B2+B3, migration, routes, ações,
+cookies, DTOs, carrinho, cotação, checkout, tracking, painel/polling, capabilities,
+cancelamento, runners e documentação. Classificação exata no inventário acima.
+
+- Polling de hóspede e Admin passa a descartar respostas de gerações anteriores
+  antes de aplicar dados/erros/permissões ou programar outro timer. Abort sozinho
+  não é uma garantia para uma resposta já recebida/na fila. Pausa/offline/unmount
+  invalidam a geração e o Admin continua apagando PII.
+- Painel SSR começa com ações desabilitadas até o primeiro snapshot autenticado
+  do cliente; HTML renderizado no servidor não pode anunciar prontidão de handlers
+  ainda não hidratados. Regressão bloqueia JavaScript e confere os botões. O runner
+  ganha timeout de captura/API e progresso técnico, sem retirar asserts anteriores.
+  Cada nova operação limpa a mensagem da anterior. O harness exige resposta HTTP,
+  nova confirmação da UI, snapshot sincronizado e os mesmos fatos de banco; não
+  confunde a espera por EOF do stream RSC no Playwright com confirmação comercial.
+- Diagnóstico F&B fechado: código, diagnostic_id UUID e order_id validado quando
+  aplicável. Sem body, URL, query, guest name, quarto, observação, cookies,
+  secret, roomToken ou mensagem de provider. Erros HTTP devolvem somente código
+  estável e X-FB-Diagnostic-ID. Falhas de polling emitem código fixo na primeira
+  falha, com backoff; nada é enviado a analytics/plataforma externa.
+  `cancellation_confirmed` confirma processamento bem-sucedido do RPC; não substitui
+  o estado comercial. Uma solicitação pending ou decisão de negar não significa
+  pedido cancelled. O diagnóstico sempre deve ser confrontado com fatos/eventos.
+- QR legado mantém tokens, destinos, cookie e comportamento. O redirect recebe
+  no-referrer/no-store; a rota /r é excluída do access log de desenvolvimento e
+  o erro do resolver deixa de imprimir mensagem bruta do provider. O token no
+  caminho inicial do QR continua sendo o contrato de bootstrap existente; não
+  é propagado às URLs/queries/referrers de F&B nem serve como identidade.
+- Perfis locais de teste desabilitam caches HMR/persistentes; o runner verifica
+  a porta por bind TCP, sem confundir um servidor ocupado/lento com porta livre.
+  A execução final usa build local de produção, sem recompilação durante a carga.
+  Essas configurações de cache só valem com FB_LOCAL_LAB=1.
+
+### Migration, concorrência e rollback de schema
+
+As 54 migrations anteriores, inclusive B2+B3 ainda não commitada, permanecem
+byte-idênticas. Nova migration **20261103095658_sprint_53_b4_maintenance_hardening.sql**:
+tabela privada maintenance_runs com RLS sem policies/grants diretos, índice
+temporal, dois RPCs service-only com search_path vazio e ACL explícita.
+O coletor anterior ganha somente contabilidade por categoria; guards, retenções,
+batch, skip locked e proteção de sessão/quotes B23 permanecem.
+
+A evolução B23 é aditiva de domínio: tabela/índices novos, helpers operacionais
+estreitos e expansão do CHECK dos correlatores. A troca de CHECK toma lock
+ACCESS EXCLUSIVE e revalida linhas populadas; não é um ALTER sem lock. B4 não
+remove o lock conservador por hotel dos pedidos. Não há rewrite de pedidos,
+auto-enable, grant automático de capability, mudança global de Auth/RLS ou URL.
+
+Prova populada: seis pedidos B1 reais sintéticos e 5.000 correlatores, 67 tabelas
+comparadas por contagem/digest; 27 verificações aprovadas. Transação escritora
+real bloqueou a DDL: lock_timeout=200ms abortou a migration inteira, sem quotes
+residuais nem dados alterados. Repetição limpa: B23 171ms e B4 193ms, incluindo
+transporte Docker. Esses tempos locais não predizem a janela real. Em produção,
+medir cardinalidades/backlog/longas transações, definir janela, usar lock_timeout
+curto/statement_timeout no executor canônico e abortar/reagendar em vez de esperar
+indefinidamente. B4 já define lock_timeout local de 5s. Não reaplicar migration
+registrada nem executar os testes de fault injection em base real.
+
+Rollback de schema é forward-only por migration futura revisada, preservando
+pedidos, fatos imutáveis, credenciais vigentes e entrypoints de drenagem/tracking.
+Não executar DROP/TRUNCATE, apagar fatos ou restaurar cegamente os guards B1 que
+impediriam drenar archived. A reversão funcional preferencial bloqueia admissões.
+
+### Expurgo restrito, observabilidade e agendamento
+
+Não foi encontrado cron/job canônico no repositório. Não se criou cron remoto,
+Vercel config, pg_cron ou plataforma Logs & Health da Sprint 54.
+
+- `run_fb_order_maintenance(batch)` exige service_role, batch 1–1000 e usa advisory
+  transaction lock para não multiplicar workers. Concorrente recebe skipped.
+- Registra última execução/sucesso/falha, início/fim, run_id, SQLSTATE fechado e
+  quantidades explícitas: pii, notes, alerts, facts, tokens, idempotency, sessions,
+  correlators, quotes. Nunca guarda SQLERRM, payload ou PII nessa evidência.
+- A falha do coletor é capturada em subtransação: nada é parcialmente expurgado;
+  o registro de falha é persistido. Cancelamento externo/queda pode impedir esse
+  registro; exit code do job e atraso de last_success_at cobrem essa condição.
+- Histórico técnico de manutenção: 30 dias, coleta limitada ao batch. Valores
+  representam deleções explícitas por categoria, não contagem de todas as linhas
+  filhas removidas por cascata de fatos ao fim dos 180 dias.
+- `get_fb_order_maintenance_status()` é service-only, sem herança de Platform ou
+  capabilities administrativas. Dados reais continuam inacessíveis por anon/Auth.
+- `scripts/fb-order-maintenance.mjs` não lê .env e, por padrão, apenas consulta
+  status. Só executa com --execute; aceita --batch=1..1000 e --passes=1..10,
+  não segue redirects, usa timeout e devolve saída allowlisted sem URL/chave.
+
+Agendamento real é **gate remoto posterior** permitido pelo escopo B4. Preparar
+executor server-side autorizado com FB_MAINTENANCE_SUPABASE_URL e
+FB_MAINTENANCE_SERVICE_KEY em secret store; nunca NEXT_PUBLIC, argumentos ou logs.
+Validar destino/HTTPS e RPCs antes de conceder o segredo ao job. Cadência inicial
+proposta: a cada cinco minutos, batch 100, até dez passagens, com alerta em falha,
+skipped persistente ou last_success_at ausente/mais antigo que 15 minutos.
+Ajustar após carga/backlog, sem prometer SLA com esses números de laboratório.
+Sem execução/monitoramento agendados comprovados, ativação real permanece NO-GO.
+
+### Contratos adversariais e limites
+
+Idempotência B1: JSON keys, modifiers e escolhas de combo são normalizados;
+ordem das linhas comerciais continua significativa para seus snapshots/posição.
+Não se reordena o carrinho para inventar uma nova semântica. B1 não tem chave UUID
+reservada antes de commit: antes de criar, valem sessão e cotação reconhecida;
+um UUID isolado não contém prazo de emissão. Depois de confirmado, replay tem
+24h. Encerrado esse prazo, orientar verificação com hotel, não criar outro pedido
+automaticamente. Fechar a aba perde a tentativa transitória; não cancela fatos.
+
+As ondas de 10/25/50/100 confirmações mantêm locks e limites intactos. Métricas
+separam chaves distintas, mesma chave, outlets/setores distintos, rejeições e
+esperas observadas em pg_stat_activity. O monitor Docker também custa tempo:
+não extrapolar throughput comercial. Limites HTTP/B1 continuam conservadores;
+limiter indisponível falha fechado. Não há IP bruto, roomToken ou correlator de
+NAT único bloqueando todos os hóspedes. Fixtures zeram seus próprios buckets
+somente entre cenários funcionais independentes, nunca durante uma onda medida.
+
+Pedido cancelado já terminal tem replay idempotente B1: duas solicitações podem
+responder cancelled, mas só há um evento. Aceite/cancelamento e transições
+concorrentes usam CAS; não se fabrica conflito onde o contrato prevê replay.
+Drenagem archived é intencional e restrita ao F&B com perfil ativo/capabilities;
+não reabre catálogo, configuração ou outras áreas do Admin.
+
+### Runbook de ativação — não executado remotamente
+
+1. Revisar inventário, migrations e gates; autorizar separadamente implantação e
+   piloto. Bugan é o piloto futuro; não alterar Goomer/Serviços/QR nessa preparação.
+2. Fazer preflight de backup/restore canônicos, longas transações, locks e dados
+   populados. Aplicar migrations 54/55 pelo executor canônico antes das novas rotas.
+   Validar ACL/RLS/search_path e ausência de auto-enable; abortar em timeout/drift.
+3. Preparar secrets server-only e domínio/HTTPS/cookies; redigir/excluir caminhos
+   /r/[token] também dos access logs de proxy/hosting/observabilidade externos.
+   O ajuste local Next não controla os logs da hospedagem. Nunca enviar PII a analytics.
+4. Ativar e comprovar agendamento/monitor de retenção. Testar expiração antes do
+   expurgo e alertas de falha/backlog; observar só IDs/códigos/contagens.
+5. Homologar editorialmente catálogo/preços/fotos/traduções, setores, horários/IANA,
+   retirada/entrega, cancelamento e operadores. Atribuir as seis capabilities por
+   tenant/setor explicitamente; nenhum role/module fornece concessão automática.
+6. Manter master OFF durante preflight. Validar entitlement fb.menu, modo native,
+   accepting e disponibilidade por outlet em ambiente autorizado; abrir admissões
+   somente após GO operacional explícito. Nenhum passo presume dados de mockup.
+7. Smoke HTTPS por slug/subdomínio/QR, PT/EN/ES, mobile/desktop, cookies protegidos,
+   cotação/confirm/tracking, painel e drenagem. Homologar dispositivos reais antes
+   da operação. Não chamar integrações externas nem imprimir para validar B.
+
+### Runbook de reversão funcional e incidentes
+
+- Reversão: desligar novas admissões pelo master/accepting autorizado; preservar
+  fatos, QR, tokens e rotas de acompanhamento/Admin para concluir/cancelar pedidos
+  existentes. Só retornar outlet ao external após decisão autorizada e verificação
+  do destino previamente aprovado. Não remover dados/Serviços nem inventar URL.
+- Duplicidade suspeita: interromper novas tentativas; reunir referências, IDs,
+  horários e códigos. Conferir resultado idempotente e fatos/eventos por acesso
+  autorizado, sem exportar PII. Não trocar chave nem excluir/cancelar automaticamente.
+- Checkout indisponível: consultar validation_rejected/idempotency_conflict/
+  rate_limited/unavailable e verificar configuração, catálogo, clock e admissão.
+  Não liberar limiter, aumentar limite às cegas ou desativar validação de preço.
+- Painel sem atualização: sinalizar snapshot stale, checar conexão/capabilities e
+  refresh completo. Confirmar DB antes de repetir ação; nunca forçar status/CAS.
+- PII/permissão: interromper consulta, validar perfil/tenant/setores/capabilities,
+  revogar acesso indevido por fluxo autorizado e inspecionar diagnósticos sem PII.
+  Não reconstruir campos expirados nem imprimir/exportar payload para diagnóstico.
+- Expurgo falhando: alertar por exit code/last_success_at/SQLSTATE; bloquear ativação
+  ou novas admissões conforme incidente, preservar evidência técnica e corrigir
+  dependência/lock. Repetir job restrito; não apagar dados manualmente.
+- Pedido preso: conferir grupos, relógio, permissões e eventos; operador autorizado
+  conclui/cancela conforme política. Alerta de retenção não finge entrega/cancelamento.
+- Lifecycle archived: a drenagem estreita usa sessão Auth válida e capabilities
+  explícitos nas rotas de pedidos; o login administrativo geral conserva a regra
+  vigente que recusa hotel arquivado. Planejar drenagem antes de arquivar e manter
+  operadores/sessões válidos; não ampliar Auth ou o restante do Admin por esse motivo.
+- Cancelamento divergente: reler revisão/estado e solicitação antes de decidir.
+  Depois do aceite não declarar cancelled sem evento/decisão; entregue não cancela.
+
+### Fronteira C e deployment readiness
+
+Aceite e evento versionado persistem na mesma transação. event_id, contract_version,
+hotel/order/group/sector, revisão, timestamp e line_refs estáveis permitem buscar
+snapshots imutáveis autorizados. Replay não duplica evento; falha de sua inserção
+deve impedir aceite. Consumidor C futuro precisará deduplicar por event_id e ter
+contrato próprio de confirmação física — nada disso foi implementado em B4.
+
+Checklist de implantação posterior: migrations/locks/timeouts, secrets, HTTPS e
+scoping de cookies, redaction dos logs externos, cron/monitor, ACL/RLS/capabilities,
+entitlement/master/modo, setores/IANA, smoke, rollback/drain e piloto autorizado.
+Preparação local não autoriza deploy, mudança de conteúdo ou ativação real.
+Bridge, spooler, printer_id obrigatório, printed, pagamento/PMS/PDV e OPERA/TheX
+continuam fora desta entrega. Worktree content-bridge permanece intocado.
+
+### B4 — gates finais reconfirmados
+
+Execução completa **2.503/2.503**, sem foco reduzido, Next otimizado local,
+55 migrations, seis tenants sintéticos, 31 usuários GoTrue reais, PT/EN/ES,
+390/1440, **141 screenshots**, zero requisições externas e zero erros de browser.
+Relatório: `out/libguest-fb-auth-d7b68d94/b23/report.json`.
+
+| Gate | Resultado | Evidência local ignorada |
+|---|---|---|
+| B2+B3+B4 completo | 2.503/2.503 | `out/fb-b4-consolidated-final.log` |
+| B1 integrado original + adversariais | 623/623 | `out/libguest-fb-auth-80b7a015/b1-report.json` |
+| Auth A completo, sem focus-core | 1.434/1.434 | `out/libguest-fb-auth-10604449/report.json` |
+| SQL B1 / B2+B3 | 232 / 63 | `out/libguest-fb-auth-d7b68d94/b23/53_b1_foundation_matrix.sql.log`, `53_b23_journey_operations.sql.log` |
+| SQL manutenção / temporal B4 | 20 / 15 | Mesmo diretório, `53_b4_maintenance_matrix.sql.log`, `53_b4_temporal_matrix.sql.log` |
+| SQL A | 197/197 | `out/fb-b4-sql-a-final.log` |
+| Migration populada + lock/rollback | 27/27 | `out/libguest-fb-auth-9087b3f4/b4-migration-report.json` |
+| Segurança | 740/740; zero skips | `out/fb-b4-security-final.log` |
+| SSR A / browser A / V3-V4 | 391 / 1.524 / 152 | `out/fb-b4-ssr-final.log`, `fb-b4-browser-a-final.log`, `fb-b4-v3v4-final.log` |
+| TypeScript / build | exit 0 / exit 0 | `out/fb-b4-tsc-final.log`, `fb-b4-final-build.log`, `fb-b4-build-final-status.log` |
+| Lint completo / direcionado final | zero erros, quatro avisos históricos / zero avisos | `out/fb-b4-lint-final.log`, `fb-b4-directed-lint-final.log`, `fb-b4-late-tests-lint.log` |
+| Diff / integridade / Git | sem erro; 54 migrations anteriores intactas; zero stage | `out/fb-b4-inventory.json`, `out/fb-b4-final-evidence.json` |
+
+B1/SQL B1 aumentam de 620/229 para 623/232 pela cobertura de ACL da nova tabela
+privada de manutenção para os três roles testados. Nenhuma expectativa anterior
+foi removida. Os 53 arquivos de migration commitados e a migration B2+B3 conservam
+os bytes anteriores. O diagnóstico backendOnly de 263 casos era preliminar;
+o gate aprovado é a execução integral acima, incluindo navegador/HTTP/DB.
+
+### Carga medida — exclusivamente laboratório
+
+Confirmações RPC reais via PostgREST, mesmo hotel/outlet por onda, dois setores,
+chaves distintas. Os locks conservadores e os limites B1/HTTP não foram removidos.
+
+| Concorrência | Sucessos | Rejeições | p50 ms | p95 ms | Máx. ms | Janela ms | Esperas Lock máximas observadas |
+|---|---|---|---|---|---|---|---|
+| 10 | 10 | 0 | 43 | 87 | 87 | 463 | 0 |
+| 25 | 25 | 0 | 76 | 264 | 265 | 711 | 0 |
+| 50 | 50 | 0 | 297 | 314 | 324 | 733 | 6 |
+| 100 | 100 | 0 | 347 | 605 | 617 | 1067 | 9 |
+
+Dez confirmações entre dois outlets nativos/setores: 10 sucessos, 52ms de janela.
+Cinquenta confirmações simultâneas da mesma chave: exatamente um pedido. Zero
+duplicidade, fato parcial ou erro de servidor nas ondas medidas. O pool PostgREST
+limita a concorrência efetiva no PostgreSQL; o monitor Docker síncrono acrescenta
+custo e as amostras não capturam toda espera. Não extrapolar capacidade de produção.
+Dados: `out/libguest-fb-auth-d7b68d94/b23/b4-load.json`.
+
+### Fechamento adversarial, retenção e matriz visual
+
+- JSON/modifiers/escolhas de combo reordenados recuperam o mesmo pedido; payload
+  divergente, cotações/sessões/chaves vencidas e quote consumida não criam substituto.
+  Respostas perdidas de checkout e aceite são exercitadas após commit real.
+- Injeções de falha em dez fronteiras transacionais deixam zero fato parcial;
+  ausência de evento de aceite impede o aceite. Replay não duplica evento C.
+- TOCTOU de preço/modifier/combo/setor/fechamento/admissão é revalidado; três setores
+  mantêm agregado conservador. Combos Cozinha/Bar em preparing/ready só cancelam
+  após decisão explícita, inclusive módulo OFF; capability revogada é recusada.
+- Bursts reais B1 de sessão/quarto/acesso respeitam os tetos 5/10/60; digests
+  distintos têm orçamento independente. HTTP conserva limitação após erro de
+  validação; indisponibilidade do limiter retorna 503 sem criar pedido.
+- PII/observações/tokens/idempotência/correlatores vencidos são expurgados de verdade;
+  expiração bloqueia leitura antes da coleta. Pedido aberto antigo recebe alerta
+  único; fatos só saem no limite de retenção. Worker concorrente recebe skipped,
+  falha não expurga parcialmente e histórico técnico maior que 30 dias é removido.
+- Resposta 403 antiga não apaga snapshot novo; registered antigo não sobrescreve
+  accepted. Hidden/offline/reconexão, erro 500, backoff e retorno ao timer de 4s
+  passam. Quatro operadores simultâneos, mais de 100 pedidos e centenas de eventos
+  conferem exatamente com a projeção autorizada de banco, sem truncar páginas.
+
+Todos os nomes, preços, fotografia reutilizada e publicações abaixo pertencem
+às fixtures locais. Não constituem cadastro ou homologação editorial real.
+
+| Hotel em fixture | Apresentação | Modos e cobertura | Regressão | Pendente real |
+|---|---|---|---|---|
+| Grand Mercure Copacabana | Versão atual / tema Grand Mercure | external/native/misto; menu, escolhas, carrinho, checkout, tracking, QR, ON/OFF; PT/EN/ES; 390/1440 | A/Auth/SSR/browser e futura V4 sem alterar fatos/vínculos | Editorial, operação, equipamentos e ativação autorizada |
+| Novotel Leme | Versão atual / tema Novotel | Mesma matriz completa | Mesmas regressões e futura V4 | Mesmos gates reais |
+| Novotel Salvador Rio Vermelho | Versão atual / tema Novotel | Mesma matriz completa | Mesmas regressões e futura V4 | Mesmos gates reais |
+| Mercure Rio Boutique Copacabana | Versão atual / tema Mercure | Mesma matriz completa; painel grande e polling simultâneo | Mesmas regressões e futura V4 | Mesmos gates reais |
+| Bugan Recife | V4 Premium | Filipe e Room Service native, QR de apartamento, adicionais/setores; external genérico preservado; matriz completa | Home V4 e vínculos preservados; zero chamada Goomer | Futuro piloto somente após autorização e homologações |
+| Default técnico | Fallback atual | Mesma matriz, domínio/subdomínio, estado ON/OFF | Fallback e migração visual isolada | Compatibilidade real quando aplicável |
+
+Capturas finais em `out/libguest-fb-auth-d7b68d94/b23/screenshots/` (141, ignoradas).
+Inspeção visual adicional: Grand Mercure 390 ES e Bugan 1440/390 PT; painel
+`fb-lab-grand-mercure-b4-panel-recovered-1440-pt.png`. Painel de carga:
+`fb-lab-mercure-b4-large-history-panel-1440-pt.png`. Automação verifica responsividade
+e matrizes restantes; isso não é homologação física ou aprovação estética/editorial.
+
+**B2+B3 implementados e revalidados; B1 preservado; C continua pendente.** Runbooks
+de ativação, reversão e incidentes e checklist de deployment estão acima. Cron,
+secrets, redaction de logs de hosting, migrations remotas, catálogo real, permissões,
+piloto e dispositivos exigem etapa/autorização posteriores. Nenhum tenant real
+foi ativado, consultado ou alterado; nenhum provedor foi chamado e nada foi publicado.
+
+Branch `sprint-53-fnb`, HEAD/origin local `f8d8769e96c60df25bd356c1ceed4dd57db8bc0f`.
+Diff acumulado: 16 modificados + 40 novos, lista/classificação exatas acima,
+zero suspeitos, zero staged/commit/push/merge/deploy. `out/**`, env, estado,
+credenciais, imagens de teste, caches e dumps não entram no checkpoint. Os containers
+próprios e suas credenciais temporárias são removidos; relatórios/capturas ficam
+preservados. O verificador final exige ausência do estado/credenciais do lab.
+
+**Sprint 53 — Etapa B está tecnicamente pronta para checkpoint Git, mas não para ativação operacional real.**
+
+### Incidentes de validação preservados
+
+As execuções interrompidas não contam como gates verdes. Em desenvolvimento,
+cache gerado de tipos/rotas ficou truncado e uma execução encontrou recompilação
+HMR enquanto o código era editado. Somente esse cache gerado foi isolado em
+`out/fb-b4-corrupt-dev-cache`; nenhum código B2/B3 foi restaurado ou descartado.
+Os testes finais usam build otimizado local, sem HMR e sem alterações de produto
+durante sua execução. O perfil de Auth A desabilita cache de laboratório também.
+
+Nas execuções `out/fb-b4-production-final.log` e
+`out/fb-b4-bounded-diagnostic.log`, a espera por `response.finished()` de uma
+Server Action permaneceu pendente após o processamento. A segunda tem timeout
+explícito e captura em `out/libguest-fb-auth-c9375a47/b23-failure-11-0.png`:
+operação confirmada, lista atualizada e pedido cancelado já visíveis. A consulta
+do laboratório anterior também confirmou as solicitações negada/aprovada e o
+pedido cancelado. O harness passa a validar ACK novo + snapshot + DB, preservando
+os asserts anteriores e acrescentando sucesso HTTP; não presume sucesso por timeout.
+Essas evidências não provam uma falha de commit, nem substituem a execução final.
+
+O primeiro gate completo posterior chegou a 2.473 verificações antes de falhar
+no comparador da falha HTTP 500. O número salvo no início do cenário precedia um
+novo pedido real, portanto não era o snapshot imediatamente anterior à falha.
+O teste passa a capturar essa referência no momento correto, exige que ela seja
+não vazia e mantém igualdade exata após o erro. O código de retenção do snapshot
+não foi alterado para atender ao teste. O artefato interrompido permanece em
+`out/libguest-fb-auth-659d180c/b23-failure.json`; não conta como execução aprovada.

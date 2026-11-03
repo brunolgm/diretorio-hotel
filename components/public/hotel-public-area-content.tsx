@@ -42,6 +42,7 @@ import { PublicAnalytics } from '@/components/public/public-analytics';
 import { ServiceIcon } from '@/components/service-icon';
 import type { DomainContext } from '@/lib/domain-context';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
+import { OrderTracking } from './order-tracking';
 import { getRoomMenuSection, getTourismSections } from '@/lib/public-hotel-areas';
 import { getPublicCopy } from '@/lib/public-copy';
 import type { PublicHotelPageData, PublicHotelSection } from '@/lib/public-hotel-data';
@@ -330,7 +331,7 @@ export function HotelPublicAreaContent({
               </div>
             ) : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} />
           ) : null}
-          {area === 'cardapio' ? pageData.fb ? <PublicFbContent pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/> : roomMenuSection ? <ServiceList sections={[roomMenuSection]} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.noMenu} /> : null}
+          {area === 'cardapio' ? pageData.trackingOrderId ? <OrderTracking slug={hotel.slug} id={pageData.trackingOrderId} language={language}/> : pageData.fb ? <PublicFbContent pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/> : roomMenuSection ? <ServiceList sections={[roomMenuSection]} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.noMenu} /> : null}
           {area === 'turismo' ? tourismSections.length ? <ServiceList sections={tourismSections} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
           {area === 'informacoes'&&isV4?<><InternalAccommodation data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>{sections.length?<nav id="hotel-service-access" className="public-internal-service-access"><a href={buildAreaHref('servicos')}>{copy.navigationServices}<ChevronRight aria-hidden/></a></nav>:null}</>:null}
           {area === 'informacoes'?<RoomGuideLinks data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}

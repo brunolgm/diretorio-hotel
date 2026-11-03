@@ -7,6 +7,9 @@ import { getAdminThemeStyle, resolveAdminTheme } from '@/lib/admin-theme';
 import { getAdminNavigationForRole } from '@/lib/admin-navigation';
 import { getCurrentHotelEntitlements } from '@/lib/admin-entitlements';
 import { createClient } from '@/lib/supabase/server';
+import {headers} from 'next/headers';
+import {redirect} from 'next/navigation';
+import {currentOrderAccess,requireOrderShell} from '@/lib/fb/orders/operations.server';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -20,11 +23,20 @@ async function signOut() {
 }
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
-  const { profile } = await requireAdminAccess('visualizador');
-  const enabledModules = await getCurrentHotelEntitlements();
-  const navGroups = getAdminNavigationForRole(profile.normalizedRole, enabledModules);
+  const orderShell=(await headers()).get('x-libguest-orders-shell')==='1';
+  const { profile } = await (orderShell?requireOrderShell():requireAdminAccess('visualizador'));
+  const orderAccess=profile.normalizedRole==='visualizador'?null:await currentOrderAccess();
+  if(orderShell&&!orderAccess)redirect('/acesso-indisponivel');
+  const archivedDrain=orderShell&&orderAccess?.hotel_status==='archived';
+  const enabledModules = archivedDrain?new Set<never>():await getCurrentHotelEntitlements();
+  const navGroups = archivedDrain?[]:getAdminNavigationForRole(profile.normalizedRole, enabledModules);
+  if(orderAccess){
+    const operationItem={href:'/admin/pedidos',label:'Pedidos',icon:'menu' as const,requiredRole:'operador' as const,availability:'available' as const};
+    const management=navGroups.find(g=>g.key==='management');
+    if(management)management.items.push(operationItem);else navGroups.push({key:'management',label:'Operação',items:[operationItem]});
+  }
   const supabase = await createClient();
-  const { data: hotel } = await supabase
+  const { data: hotel } = archivedDrain ? {data:orderAccess.hotel} : await supabase
     .from('hotels')
     .select('name, city, logo_url, brand_code, theme_preset')
     .eq('id', profile.hotel_id)

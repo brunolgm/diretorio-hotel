@@ -4,12 +4,15 @@ import type { DomainContext } from '@/lib/domain-context';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 import { eligibleFbGraph, fbOutletDestination, fbPrice } from '@/lib/fb/public';
 import { fbImageUrl } from '@/lib/fb/media';
+import { NativeOrderingOutlet } from './native-ordering-outlet';
 
 export function PublicFbContent({pageData,language,domainContext,preferSubdomainRoot}:{pageData:PublicHotelPageData;language:SupportedPublicLanguage;domainContext:DomainContext;preferSubdomainRoot:boolean}) {
   const graph = eligibleFbGraph(pageData.fb,pageData.hotel.id);
   const t = language === 'en' ? {empty:'No dining options published yet.',menus:'Menus',open:'Open configured channel',allergens:'Allergens',dietary:'Dietary information',featured:'Featured',types:{restaurant:'Restaurant',bar:'Bar',room_service:'Room Service',breakfast:'Breakfast',cafe:'Café',other:'Other'}} : language === 'es' ? {empty:'Aún no hay opciones gastronómicas publicadas.',menus:'Menús',open:'Abrir canal configurado',allergens:'Alérgenos',dietary:'Información alimentaria',featured:'Destacado',types:{restaurant:'Restaurante',bar:'Bar',room_service:'Room Service',breakfast:'Desayuno',cafe:'Café',other:'Otro'}} : {empty:'Nenhuma opção gastronômica publicada ainda.',menus:'Cardápios',open:'Abrir canal configurado',allergens:'Alergênicos',dietary:'Informações alimentares',featured:'Destaque',types:{restaurant:'Restaurante',bar:'Bar',room_service:'Room Service',breakfast:'Café da manhã',cafe:'Café',other:'Outro'}};
   if (!graph?.outlets.length) return <p className="p-6 text-[var(--hotel-text-muted)]">{t.empty}</p>;
   return <div data-fb-native className="grid min-w-0 items-start gap-5 md:grid-cols-2">{graph.outlets.map(outlet => {
+    const native = pageData.ordering?.outlets.find(o=>o.id===outlet.id);
+    if(native) return <NativeOrderingOutlet key={outlet.id} initial={native} slug={pageData.hotel.slug} language={language} hasRoomContext={pageData.ordering?.has_room_context===true} premium={pageData.presentation?.experienceVersion==='v4'}/>;
     const image = fbImageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL,outlet.main_image_path,pageData.hotel.id,'outlet',outlet.id);
     const destination = fbOutletDestination(outlet,graph,pageData.hotel,pageData.sections,language,domainContext,preferSubdomainRoot);
     const menuIds = new Set(graph.outlet_menus.filter(l=>l.outlet_id===outlet.id).map(l=>l.menu_id));

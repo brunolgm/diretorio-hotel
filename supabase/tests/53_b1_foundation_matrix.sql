@@ -6,7 +6,7 @@ create function pg_temp.b1_check(ok boolean,label text) returns void language pl
  if ok is distinct from true then raise exception 'B1 matrix failed: %',label; end if;
  insert into b1_check_results values(label);
 end $$;
-select pg_temp.b1_check((select count(*)=27 from pg_tables where schemaname='fb_order_private'),'27 private operational tables');
+select pg_temp.b1_check((select count(*)=29 from pg_tables where schemaname='fb_order_private'),'27 B1 tables plus B2 quotes and B4 maintenance');
 select pg_temp.b1_check(not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='fb_order_private' and c.relkind='r' and not c.relrowsecurity),'RLS on every operational table');
 select pg_temp.b1_check(not exists(select 1 from pg_policies where schemaname='fb_order_private'),'no generic table policy');
 select pg_temp.b1_check(not has_schema_privilege(r,'fb_order_private','USAGE'),'private schema denied to '||r) from unnest(array['anon','authenticated','service_role']) r;

@@ -13,13 +13,20 @@ interface RouteProps {
   }>;
 }
 
+function privateRoomRedirect(destination: URL | string) {
+  const response = NextResponse.redirect(destination);
+  response.headers.set('Referrer-Policy', 'no-referrer');
+  response.headers.set('Cache-Control', 'private, no-store');
+  return response;
+}
+
 export async function GET(_request: Request, { params }: RouteProps) {
   const { roomToken } = await params;
   const normalizedToken = roomToken.trim();
   const requestUrl = new URL(_request.url);
 
   if (!isRoomToken(normalizedToken)) {
-    const response = NextResponse.redirect(new URL('/experiencia-indisponivel', requestUrl));
+    const response = privateRoomRedirect(new URL('/experiencia-indisponivel', requestUrl));
     clearRoomContextCookie(response);
     return response;
   }
@@ -27,7 +34,7 @@ export async function GET(_request: Request, { params }: RouteProps) {
   const roomLink = await findActiveRoomLinkByToken(normalizedToken);
 
   if (!roomLink) {
-    const response = NextResponse.redirect(new URL('/experiencia-indisponivel', requestUrl));
+    const response = privateRoomRedirect(new URL('/experiencia-indisponivel', requestUrl));
     clearRoomContextCookie(response);
     return response;
   }
@@ -35,13 +42,13 @@ export async function GET(_request: Request, { params }: RouteProps) {
   const hotel = await findHotelById(roomLink.hotel_id);
 
   if (!hotel) {
-    const response = NextResponse.redirect(new URL('/experiencia-indisponivel', requestUrl));
+    const response = privateRoomRedirect(new URL('/experiencia-indisponivel', requestUrl));
     clearRoomContextCookie(response);
     return response;
   }
 
   const destination = buildHotelPublicEntryUrl(hotel, requestUrl);
-  const response = NextResponse.redirect(destination);
+  const response = privateRoomRedirect(destination);
   applyRoomContextCookie(response, {
     roomToken: roomLink.room_token,
     roomNumber: roomLink.room_number,

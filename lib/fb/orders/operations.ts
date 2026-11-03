@@ -1,0 +1,7 @@
+export interface OrderAccess {hotel_id:string;hotel:{name:string;city:string|null;logo_url:string|null;brand_code:string|null;theme_preset:string|null};hotel_status:string;accepting:boolean;capabilities:{capability:string;sector_id:string|null}[]}
+export interface OrderGroup {id:string;sector_id:string;sector_name:string;status:string;revision:number}
+export interface PanelOrder {order_id:string;status:string;revision:number;created_at:string;currency:string;fulfilment:'pickup'|'room_delivery';total_minor:number|null;groups:OrderGroup[];lines:{id:string;group_id:string|null;parent_id:string|null;name:string;quantity:number;kind:string;total_minor:number}[];options:{line_id:string;name:string;group_name:string}[];history:{action:string;at:string;status:string|null}[];permissions:{pii:boolean;cancel:boolean;transition_groups:string[]};cancellation_requests:{id:string|null;revision:number|null;status:string}[]}
+export interface PrivateOrderView {first_name?:string;last_name?:string;room_label?:string|null;note?:string|null;line_notes:{line_id:string;note:string}[];expired:boolean;expires_at:string|null}
+export interface PanelPage {access:OrderAccess;orders:PanelOrder[];next:{created_at:string;id:string}|null}
+export type OperationResult={ok:true}|{ok:false;error:string};
+export function nextGroupStatus(status:string,fulfilment:string){return ({registered:'accepted',accepted:'preparing',preparing:'ready',ready:fulfilment==='pickup'?'delivered':'out_for_delivery',out_for_delivery:'delivered'} as Record<string,string>)[status]||null;}

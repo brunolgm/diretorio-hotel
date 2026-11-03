@@ -3012,13 +3012,14 @@ início do Turbo 2 ampliam o fechamento consultivo, sem renumerar Sprints 54–6
 | Etapa | Estado | Escopo |
 |---|---|---|
 | A — Catálogo F&B nativo | [IMPLEMENTADO, AUDITADO E HOMOLOGADO LOCALMENTE] | Outlets, menus, categorias, itens, preços, traduções, mídia, Admin, publicação editorial, público, Serviços, Goomer/room_restaurant_menu preservados e fb.menu. |
-| B — Pedidos e painéis | [B1 IMPLEMENTADO LOCALMENTE — B2/B3/B4 PENDENTES] | Fundação privada transacional; experiência pública de checkout e UI operacional ainda pendentes. |
+| B — Pedidos e painéis | [B1 PRESERVADO — B2+B3 IMPLEMENTADOS E VALIDADOS LOCALMENTE — B4 PENDENTE] | Jornada pública e painel operacional sobre a fundação privada B1; consolidação e virada real ainda pendentes. |
 | C — Impressão local | [APROVADO — NÃO IMPLEMENTADO] | Bridge no hotel, fila, múltiplas impressoras, roteamento por setor, confirmação, retry seguro, falha ambígua e reimpressão controlada. |
 | D — Evoluções posteriores | [PLANEJADO] | Detalhamento futuro. |
 
 A auditoria técnica anterior continua válida para a Etapa A da Sprint 53.
-A está auditada/homologada localmente; B1 posterior implementa a fundação descrita
-ao final. Não se declaram a Etapa B completa nem C/D concluídas.
+A está auditada/homologada localmente; B1 implementa a fundação e B2+B3 posteriores
+acrescentam jornada pública e operação, descritas ao final. Não se declaram a Etapa B
+completa antes de B4 nem C/D concluídas. Os checkpoints B1 abaixo são históricos.
 
 [IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Branch sprint-53-fnb, base
 e7b514620879f1feb91b2f62b5d27e9e529f843d. Domínio próprio hotel-scoped:
@@ -3166,3 +3167,108 @@ avisos históricos no lint. Os cinco hotéis + Default usam tenants distintos;
 incluem PT/EN/ES, Native/External/misto, OFF/ON, room context, snapshots, PII,
 concorrência, perda real de resposta HTTP e expurgo. Nenhuma UI B1 ou configuração
 real foi homologada por esses testes. Código/testes/migrations da Etapa A preservados.
+
+### Sprint 53 B2+B3 — jornada e operação locais sobre B1 — 03/11/2026
+
+[B2 IMPLEMENTADO E VALIDADO LOCALMENTE] Oferta operacional server-only, carrinhos
+transitórios por hotel/outlet/moeda, single/multi/min/max, combos/slots e adicionais;
+cotação reconhecida de cinco minutos com digest privado e limite de referências.
+Checkout exige nome/sobrenome autodeclarados e QR revalidado para entrega; sem QR,
+somente retirada autorizada. HTTP valida origem, domínio, JSON/allowlist e 32 KiB;
+admissão independente por credencial/hotel, sem IP bruto/fingerprint.
+
+Confirmação compara o preço comercial completo atual com a cotação e usa a
+transação/idempotência/snapshots originais B1. Mudança exige revisão, sem troca
+silenciosa de preço. Tentativa congelada recupera a mesma credencial HKDF e o mesmo
+pedido após resposta perdida/commit, inclusive com novas admissões OFF. Fechar a
+aba descarta o rascunho em memória; não apaga pedido confirmado no banco.
+
+Acompanhamento em `/hotel/[slug]/pedidos/[id]` e `/pedidos/[id]`, com credencial
+opaca somente no cookie HttpOnly/Secure/Lax de path restrito. UUID/quarto/QR isolados
+não autorizam. Projeção sem PII/operador/auditoria, cache privado/no-store/no-referrer,
+estados reais e progresso parcial. Cancelamento automático só antes do aceite se
+a política permitir; depois é solicitação até decisão autorizada. Sem `printed`.
+
+[B3 IMPLEMENTADO E VALIDADO LOCALMENTE] `/admin/pedidos` no Admin existente, API
+autenticada e Server Actions repetindo os seis capabilities B1 e CAS no banco.
+Pedidos únicos com grupos por setor; leitura scoped inclusive para supervisor.
+PII só mediante read+pii.read explícitos, auditoria com IDs e expiração, sem SSR
+de dados privados. Sem grants automáticos por role ou ativação do módulo.
+
+Polling de quatro segundos, backoff até 30 segundos, pausa oculta e atualização
+imediata na volta/reconexão. Snapshot completo por keyset de 50; falha explícita
+no teto defensivo, sem lista truncada apresentada como atual. Revogação de leitura
+limpa o snapshot; perda de PII limpa a consulta privada, mantendo leitura permitida.
+
+Novas admissões bloqueadas por módulo/master OFF, external ou lifecycle não ativo.
+Drenagem preserva operações existentes com perfil ativo/capabilities explícitos,
+inclusive archived, por guardas F&B estreitos. Helper global de governança e
+policies RLS existentes não foram afrouxados. Proxy impede forjar o shell de
+drenagem para outras áreas do Admin; configure continua sob as regras anteriores.
+
+[B1 PRESERVADO] As 53 migrations commitadas mantêm os mesmos bytes. Somente a nova
+`20261103050831_sprint_53_b23_public_journey_operations.sql` acrescenta quotes
+privadas com RLS/ACL fechadas e evolui os entrypoints operacionais/validação/coleta.
+Não existe segundo domínio, cópia de pedido por painel ou lógica por marca.
+Manutenção de quotes é limitada por lote e não expande por cascata de sessão.
+Nenhuma migration foi aplicada remotamente.
+
+Bugan V4 Premium usa os tokens reais da marca; outros quatro hotéis mantêm as
+versões atuais. Default é fallback adicional. O mesmo módulo acompanha futura
+V4 sem recadastro/migração de catálogo, pedidos, QR ou vínculos de setor. Home,
+Turismo, Serviços, URLs Goomer e dados reais não foram alterados. Native/external/
+misto continuam compartilhados; nenhum provedor externo foi chamado.
+
+Validação consolidada sem foco reduzido: 2.015/2.015 B2+B3, seis tenants, 31 usuários
+GoTrue reais, 36 percursos PT/EN/ES em 390/1440, 54 migrations e 139 screenshots,
+zero requisições externas/erros de browser. Regressões: B1 620, SQL B1 229,
+SQL B2+B3 63, SQL A 197, segurança 734, SSR A 391, browser A 1.524 e V3/V4 152,
+todas verdes. TypeScript/build/diff check aprovados; lint zero erros e quatro
+avisos históricos. Auth A completo **1.434/1.434**, sem foco reduzido, após ajustar
+somente a sincronização do harness ao diálogo real; expectativas de DB/URL/PII/
+ACL/Home preservadas. Inclui edição/resumo além de 1.000 registros da Data API.
+Evidências/contratos/arquivos detalhados em `SPRINT_53_FNB.md`; relatório principal
+em `out/libguest-fb-auth-a56467f6/b23/report.json` (ignorado).
+
+[B4 APROVADA LOCALMENTE — 03/11/2026] Fechamento B2+B3+B4 completo: **2.503/2.503**,
+seis tenants sintéticos, 31 usuários GoTrue reais, build otimizado, 55 migrations,
+141 screenshots PT/EN/ES em 390/1440, zero erros de browser e zero APIs externas.
+Regressões: B1 623, Auth A 1.434, SQL B1/B23/B4/temporal/A 232/63/20/15/197,
+segurança 740 sem skips, SSR 391, browser A 1.524, V3/V4 152, migration populada 27.
+TypeScript/build/diff aprovados; lint zero erros e quatro avisos históricos.
+
+Polling descarta respostas antigas e não multiplica timers; ações SSR só liberam
+após snapshot autenticado. Confirmação anterior é limpa ao iniciar outra operação.
+Diagnósticos fechados usam UUID/códigos, sem PII/body/credenciais; QR mantém contrato
+e ganha no-referrer/no-store e redaction local. As ondas 10/25/50/100 tiveram todos
+os pedidos confirmados sem duplicidade/fatos parciais; p95 87/264/314/605ms no lab,
+sem promessa de capacidade real. Cinquenta retries concorrentes convergiram em um
+pedido; TOCTOU/CAS/rollback, três setores, combos, cancelamento, abuso e fronteira
+atômica de eventos C foram revalidados. Painéis com >100 pedidos/centenas de eventos
+e quatro operadores simultâneos passaram sem truncar a projeção autorizada.
+
+Nova migration `20261103095658_sprint_53_b4_maintenance_hardening.sql`: tabela privada
+maintenance_runs, RPCs service-only, coleta/contagens por categoria, lock entre
+workers e monitor sem texto de exceção. Job `scripts/fb-order-maintenance.mjs`
+consulta por padrão; execução só explícita e limitada. Nenhum cron foi ativado.
+As 54 migrations anteriores, inclusive B23, continuam byte-idênticas. Upgrade
+populado preservou 67 tabelas e reproduziu rollback integral após lock timeout.
+
+Runbooks/checklist/limites, matriz por hotel, lista exata dos **56 paths** futuros
+e evidências estão em `SPRINT_53_FNB.md`. Relatório integral:
+`out/libguest-fb-auth-d7b68d94/b23/report.json`; consolidação:
+`out/fb-b4-final-evidence.json` (ambos ignorados). Os incidentes de harness e seus
+artefatos foram mantidos; execuções interrompidas não contam como aprovação.
+
+[B AINDA NÃO IMPLANTADA / NO-GO OPERACIONAL REAL] Scheduler/monitor reais, secrets,
+redaction no hosting, migrations e smoke remotos, catálogo editorial, capabilities,
+piloto Bugan e homologação de equipamentos permanecem gates posteriores. A Home
+e as versões dos demais hotéis não foram migradas. Nenhum conteúdo foi publicado.
+[C PENDENTE] Nenhuma bridge, impressora, spooler, ESC/POS ou fila física. Também
+não há pagamento/PDV/PMS/TheX/OPERA/OHIP ou débito em apartamento.
+
+Branch/HEAD preservados: `sprint-53-fnb`, `f8d8769`. Trabalho deixado sem stage,
+commit, push, merge ou deploy; zero Supabase remoto/tenant real. GO desta rodada
+é técnico e local, com todos os gates acima verdes; não é autorização
+editorial ou operacional nem homologação de equipamentos. Worktree content-bridge
+intocado.

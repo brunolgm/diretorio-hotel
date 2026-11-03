@@ -56,10 +56,8 @@ export async function findActiveRoomLinkByToken(roomToken: string) {
     .maybeSingle();
 
   if (error) {
-    console.error('[room-links] findActiveRoomLinkByToken failed', {
-      operation: 'load active room link by token',
-      message: error.message,
-    });
+    // The provider message can contain a credential-bearing query URL.
+    console.error('[room-links] active_room_context_unavailable');
     return null;
   }
 

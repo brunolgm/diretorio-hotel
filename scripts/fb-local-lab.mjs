@@ -64,7 +64,11 @@ async function up(){
   labSql(readFileSync(join(root,'supabase/tests/53_fb_auth_baseline.sql'),'utf8'));
   let governanceBefore;
   const governanceState=()=>JSON.parse(labSql("select jsonb_build_object('oid',oid,'owner',pg_get_userbyid(proowner),'acl',proacl,'definer',prosecdef,'config',proconfig,'definition',pg_get_functiondef(oid)) from pg_proc where oid='public.update_platform_hotel_module(uuid,text,boolean)'::regprocedure",true));
-  for(const file of readdirSync(join(root,'supabase/migrations')).filter(p=>p.endsWith('.sql')).sort()){
+  const migrations=readdirSync(join(root,'supabase/migrations')).filter(p=>p.endsWith('.sql')).sort();
+  const through=process.env.FB_LAB_THROUGH_MIGRATION;
+  if(through&&!migrations.includes(through))throw Error('Unknown local migration checkpoint');
+  const selected=migrations.filter(file=>!through||file<=through);
+  for(const file of selected){
    if(file==='202608110002_45b_close_direct_analytics_insert.sql')labSql(readFileSync(join(root,'supabase/tests/53_fb_auth_legacy_transition.sql'),'utf8'));
    if(file.endsWith('_sprint_53_fb_governance_available.sql'))governanceBefore=governanceState();
    try{labSql(readFileSync(join(root,'supabase/migrations',file),'utf8'));}catch(e){writeFileSync(join(dir,'schema-error.log'),String(e.stderr||e));throw Error('Local migration failed: '+file);}
@@ -77,7 +81,7 @@ async function up(){
   writeFileSync(join(dir,'schema-audit.json'),JSON.stringify({...schemaAudit,governanceOidAclOwnerPreserved:true,onlyFbAvailabilityChanged:true},null,2));
   labSql("notify pgrst, 'reload schema';");
   state.ready=true;persist();
-  console.log(JSON.stringify({status:'ready',name,api:state.api,app:state.app,migrations:52,networkInternal:docker(['network','inspect',name,'-f','{{.Internal}}'])==='true'}));
+  console.log(JSON.stringify({status:'ready',name,api:state.api,app:state.app,migrations:selected.length,networkInternal:docker(['network','inspect',name,'-f','{{.Internal}}'])==='true'}));
  }catch(e){console.error(e.message);console.error('Owned lab preserved for inspection; use down after diagnosis.');process.exitCode=1;}
 }
 function down(){

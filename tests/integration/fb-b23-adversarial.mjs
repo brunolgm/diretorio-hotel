@@ -1,0 +1,64 @@
+import {randomUUID} from 'node:crypto';
+import {readFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+const {fbOrderFoundation}=await import('../../lib/fb/orders/boundary.server.ts');
+const {deriveOrderAccessSecret,orderSecretDigest}=await import('../../lib/fb/orders/credentials.server.ts');
+export async function adversarialJourneyMatrix(x){
+ const {tenants,base,check,api,context,menu,add,shot,config,saved,rpc,basket,fullIntent,rows,literal,labSql,count,resetAdmission,project,orderCopy}=x;
+ const snapshotFacts=t=>rows("select jsonb_build_object('orders',(select count(*) from fb_order_private.orders where hotel_id="+literal(t.id)+"),'groups',(select count(*) from fb_order_private.order_groups where hotel_id="+literal(t.id)+"),'lines',(select count(*) from fb_order_private.order_lines where hotel_id="+literal(t.id)+"),'pii',(select count(*) from fb_order_private.order_private_data where hotel_id="+literal(t.id)+"),'events',(select count(*) from fb_order_private.order_events where hotel_id="+literal(t.id)+"),'keys',(select count(*) from fb_order_private.idempotency where hotel_id="+literal(t.id)+'))');
+ const quote=(t,intent=basket(t),outlet=t.outlet.id)=>api(t.buyer.page,'/api/fb/hotel/'+t.slug+'/quote','POST',{outlet_id:outlet,intent});
+ const payload=(t,q,intent=fullIntent(t))=>({outlet_id:t.outlet.id,quote_id:q.quote_id,quote_reference:q.quote_reference,key:randomUUID(),intent});
+ const confirm=(t,p)=>api(t.buyer.page,'/api/fb/hotel/'+t.slug+'/confirm','POST',p);
+ for(const [index,t]of tenants.entries()){
+  const other=tenants[(index+1)%tenants.length];resetAdmission(t);const before=count(t);
+  const unknown=await context();const anonymous=await unknown.newPage();await anonymous.goto(base+'/hotel/'+t.slug+'/pedidos/'+t.buyer.receipt.order_id);await anonymous.locator('[data-fb-order-tracking]').waitFor();const denied=await api(anonymous,'/api/fb/orders/'+t.buyer.receipt.order_id+'/'+t.slug);check(denied.status===403,'UUID alone never authorizes order tracking '+t.name);await unknown.close();
+  check((await api(t.buyer.page,'/api/fb/orders/'+other.buyer.receipt.order_id+'/'+other.slug)).status===403,'foreign guest order inaccessible '+t.name);
+  const endpoint='/api/fb/hotel/'+t.slug+'/quote';for(const field of ['price','total','hotel_id','sector','currency','name']){const r=await api(t.buyer.page,endpoint,'POST',{outlet_id:t.outlet.id,intent:basket(t),[field]:'Evil private input'});check(r.status===400&&!JSON.stringify(r.data).includes('Evil'),'HTTP root authority denied '+field+' '+t.name);}
+  for(const field of ['price','total','hotel_id','sector','currency','name','room_number','email','phone','cpf']){const r=await quote(t,{...basket(t),[field]:'Evil private input'});check(r.status===400,'intent authority/PII field denied '+field+' '+t.name);}
+  const single={kind:'item',id:t.item.id,menu_id:t.menu.id,quantity:1,options:[]};
+  const invalidLines=[... [0,-1,1.5,21].map(quantity=>({...single,quantity})),...['price','total','currency','name','sector_id'].map(field=>({...single,[field]:1})),
+   {...single,id:other.item.id},{...single,menu_id:other.menu.id},{...single,id:t.custom.id,options:[],note:'Free observation cannot replace a required choice'},
+   {...single,id:t.custom.id,options:[t.requiredOption.id,t.requiredOption.id.toUpperCase()]},
+   {...single,id:t.custom.id,options:[t.requiredOption.id,t.inactiveOption.id]},
+   {...single,id:t.custom.id,options:[t.requiredOption.id,...t.multiOptions.map(o=>o.id)]},
+   {...single,options:[t.requiredOption.id]},
+   {kind:'combo',id:t.combo.id,menu_id:t.menu.id,quantity:1,choices:[{id:t.drinkChoice.id,options:[]}]},
+   {kind:'combo',id:t.combo.id,menu_id:t.menu.id,quantity:1,choices:[{id:t.foodChoice.id,options:[]},{id:t.drinkChoice.id,options:[]}]},
+   {kind:'combo',id:t.combo.id,menu_id:t.menu.id,quantity:1,choices:[{id:t.combo.id,kind:'combo'},{id:t.drinkChoice.id,options:[]}]},
+   {...single,note:'<script>private</script>'}];
+  for(const [n,line]of invalidLines.entries()){resetAdmission(t);const r=await quote(t,basket(t,{lines:[line]}));check(r.status===400,'malicious line/options/combo rejected '+t.name+' case '+n);}
+  resetAdmission(t);check((await quote(t,basket(t,{lines:[single,{...single,id:t.otherCurrency.id}]}))).status===400,'mixed currency cart rejected server-side '+t.name);
+  check(count(t)===before,'malicious quote matrix creates no orders '+t.name);
+  resetAdmission(t);const q=await quote(t);check(q.status===200,'recognized quote for adversarial confirmation '+t.name);const p=payload(t,q.data);
+  for(const field of ['price','total','hotel_id','sector','currency','name','room_number']){const r=await confirm(t,{...p,[field]:1});check(r.status===400,'confirmation authority field rejected '+field+' '+t.name);}
+  for(const intent of [{...p.intent,first_name:''},{...p.intent,last_name:''},{...p.intent,first_name:'Bad\nName'},{...p.intent,note:'<script>private</script>'}]){resetAdmission(t);check((await confirm(t,{...p,intent})).status===400,'invalid identity/observation cannot commit '+t.name);}
+  resetAdmission(t);check((await confirm(t,{...p,quote_reference:'A'.repeat(43)})).status===403,'invented quote reference rejected '+t.name);
+  const changed=await quote(t);const cp=payload(t,changed.data);t.item=await saved(t,'item',{price_amount_minor:2600},t.item.id,t.item.revision);check((await confirm(t,cp)).status===409,'changed server price requires explicit new review '+t.name);t.item=await saved(t,'item',{price_amount_minor:2500},t.item.id,t.item.revision);
+  for(const [lang,name]of [['en','Fixture dish'],['es','Plato de fixture']])await rpc(t.operator,'save_current_hotel_fb_translation',{p_kind:'item',p_id:t.item.id,p_language:lang,p_source_revision:t.item.source_revision,p_fields:{name}});
+  const expired=await quote(t);labSql('update fb_order_private.quotes set expires_at=clock_timestamp()-interval \'1 second\' where id='+literal(expired.data.quote_id));check((await confirm(t,payload(t,expired.data))).status===410,'expired uncommitted quote rejected '+t.name);
+  resetAdmission(t);const available=await quote(t);let scope=await config(t.admin,'availability',{item_id:t.item.id,always_open:true,manual_closed:true,display_mode:'hide'});
+  await t.buyer.page.goto(base+'/hotel/'+t.slug+'/explorar/cardapio');let root=t.buyer.page.locator('[data-fb-order-outlet="'+t.outlet.id+'"]');await root.waitFor();check(await root.locator('[data-fb-order-product="'+t.item.id+'"]').count()===0,'hide calendar removes native product '+t.name);check((await confirm(t,payload(t,available.data))).status===409,'availability change after quote requires review '+t.name);
+  scope=await config(t.admin,'availability',{display_mode:'show_unavailable'},scope.id,scope.revision);await t.buyer.page.reload();root=t.buyer.page.locator('[data-fb-order-outlet="'+t.outlet.id+'"]');check(await root.locator('[data-fb-order-product="'+t.item.id+'"] button').isDisabled(),'show_unavailable has no actionable add CTA '+t.name);scope=await config(t.admin,'availability',{manual_closed:false,always_open:true},scope.id,scope.revision);
+  resetAdmission(t);const same=await quote(t);const samePayload=payload(t,same.data);const pre=count(t);const pair=await Promise.all([confirm(t,samePayload),confirm(t,samePayload)]);check(pair.every(r=>r.status===200)&&pair[0].data.order_id===pair[1].data.order_id&&pair.filter(r=>r.data.replayed).length===1,'simultaneous HTTP confirmations return one committed order '+t.name);check(count(t)===pre+1,'simultaneous HTTP confirmation inserts once '+t.name);
+  check((await confirm(t,{...samePayload,intent:{...samePayload.intent,last_name:'Different'}})).status===409,'same-key divergent identity conflicts '+t.name);check((await confirm(t,{...samePayload,key:randomUUID()})).status===409,'consumed quote cannot produce a second order under a new key '+t.name);
+  labSql('update fb_order_private.idempotency set expires_at=clock_timestamp()-interval \'1 second\' where key_id='+literal(samePayload.key));check((await confirm(t,samePayload)).status===410&&count(t)===pre+1,'expired key never inserts a replacement order '+t.name);
+  resetAdmission(t);const rollbackQuote=await quote(t);const rollbackPayload=payload(t,rollbackQuote.data);const facts=snapshotFacts(t);
+  labSql("create function fb_order_private.b23_fixture_fault() returns trigger language plpgsql set search_path='' as $$begin if new.hotel_id="+literal(t.id)+"::uuid then raise exception 'local fixture rollback';end if;return new;end$$;revoke all on function fb_order_private.b23_fixture_fault() from public,anon,authenticated,service_role;create trigger b23_fixture_fault before insert on fb_order_private.order_groups for each row execute function fb_order_private.b23_fixture_fault();");
+  try{const fault=await confirm(t,rollbackPayload);check(fault.status===503,'mid-transaction failure returns no success '+t.name);assert.deepEqual(snapshotFacts(t),facts);checksLabel('rollback leaves no order/group/PII/line/event/idempotency '+t.name);}finally{labSql('drop trigger b23_fixture_fault on fb_order_private.order_groups;drop function fb_order_private.b23_fixture_fault()');}
+  check((await confirm(t,rollbackPayload)).status===200,'same attempt safely confirms after rollback '+t.name);
+  // Independent committed HTTP budget: denied requests do not roll counters back.
+  resetAdmission(t);let deniedByRate=false;for(let n=0;n<31;n++){const r=await quote(t,basket(t,{lines:[{...single,quantity:0}]}));if(r.status===429)deniedByRate=true;}check(deniedByRate,'independent HTTP admission persists on failed validation '+t.name);resetAdmission(t);
+  // Actual committed response is discarded; the browser retries its frozen attempt while master OFF.
+  root=await menu(t.buyer.page,t);await add(t.buyer.page,root,t);const copy=orderCopy('pt');await root.getByRole('button',{name:copy.review,exact:true}).click();await root.getByLabel(copy.first,{exact:true}).fill('Pessoa');await root.getByLabel(copy.last,{exact:true}).fill('Homologação B23');
+  let dropped;const url=base+'/api/fb/hotel/'+t.slug+'/confirm';const drop=async route=>{const actual=await route.fetch();check(actual.ok(),'actual upstream committed before lost browser response '+t.name);dropped=await actual.json();await t.buyer.context.clearCookies({name:'lg_fb_access',path:'/api/fb/orders/'+dropped.order_id});await route.abort('failed');};await t.buyer.page.route(url,drop);const lostBefore=count(t);await root.getByRole('button',{name:copy.confirm,exact:true}).click();await root.getByRole('button',{name:copy.retry,exact:true}).waitFor();await t.buyer.page.unroute(url,drop);check(count(t)===lostBefore+1,'lost browser response actually committed exactly once '+t.name);t.settings=await config(t.admin,'hotel',{enabled:false},null,t.settings.revision);
+  const recovered=t.buyer.page.waitForResponse(r=>r.url()===url&&r.request().method()==='POST');await root.getByRole('button',{name:copy.retry,exact:true}).click();const recovery=await (await recovered).json();check(recovery.order_id===dropped.order_id&&recovery.replayed&&count(t)===lostBefore+1,'same browser attempt recovers committed order with master OFF '+t.name);t.settings=await config(t.admin,'hotel',{enabled:true},null,t.settings.revision);
+  const cookies=await t.buyer.context.cookies();const session=cookies.find(c=>c.name==='lg_fb_session'&&c.path.endsWith(t.slug));const access=cookies.find(c=>c.name==='lg_fb_access'&&c.path.endsWith(recovery.order_id));const key=rows('select to_jsonb(q.confirm_key) from fb_order_private.quotes q where committed_order_id='+literal(recovery.order_id));check(access.value===deriveOrderAccessSecret(session.value,t.slug,t.outlet.id,key),'recovered opaque credential is deterministic, not rotated '+t.name);check(rows('select to_jsonb(secret_digest) from fb_order_private.order_access_tokens where order_id='+literal(recovery.order_id))===orderSecretDigest(access.value),'database keeps only the recovered credential digest '+t.name);
+  await shot(t.buyer.page,t.slug+'-lost-response-recovered-1440-pt');console.log('B23 malicious HTTP/quotes/availability/rollback/lost-response: '+t.name);
+ }
+ function checksLabel(label){check(true,label);}
+ // Additional cross-version, room-context, polling and pagination verification is kept separate.
+ const {compatibilityAndPolling}=await import('./fb-b23-compatibility.mjs');await compatibilityAndPolling(x);
+ // Metadata and all immutable committed migration bytes are rechecked by the final gates.
+ for(const file of ['53_b1_foundation_matrix.sql','53_b23_journey_operations.sql']){const raw=labSql(readFileSync('supabase/tests/'+file,'utf8'));const result=JSON.parse(raw.split('\n').find(l=>l.includes('"suite"')));check(result.failed===0,'post-fault cleanup SQL invariants '+result.suite+' '+result.passed);}
+ x.foundation=fbOrderFoundation(project);
+}

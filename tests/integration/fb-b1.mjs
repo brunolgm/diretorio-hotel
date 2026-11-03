@@ -78,7 +78,7 @@ try{
   assert.deepEqual(snapshot('hotel_room_links',t.id),t.legacyRooms);checks.push('final original room/QR rows preserved '+t.name);
  }
  const rls=query("select jsonb_agg(jsonb_build_object('name',c.relname,'rls',c.relrowsecurity)) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='fb_order_private' and c.relkind='r'");
- check(rls.length===27&&rls.every(t=>t.rls),'all 27 operational tables have RLS');
+ check(rls.length===29&&rls.every(t=>t.rls),'all 27 B1 tables plus B2 quotes and B4 maintenance have RLS');
  writeFileSync(join(state.dir,'b1-report.json'),JSON.stringify({suite:'fb-b1',passed:checks.length,failed:0,identities:6,authUsers:19,migrations:readdirSync('supabase/migrations').filter(f=>f.endsWith('.sql')).length,externalRequests:0,checks,rls},null,2));
  console.log(JSON.stringify({suite:'fb-b1',passed:checks.length,failed:0,directory:state.dir}));
 }catch(error){if(state)writeFileSync(join(state.dir,'b1-failure.json'),JSON.stringify({passed:checks.length,error:error.message,checks},null,2));console.error(error.stack);process.exitCode=1;}

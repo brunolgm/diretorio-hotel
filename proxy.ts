@@ -7,6 +7,8 @@ import { hasActivePlatformAccess } from '@/lib/platform-roles';
 import type { Database } from '@/types/database';
 
 export async function proxy(request: NextRequest) {
+  // Overwrite incoming values. Only this exact page may use the narrow orders drain shell.
+  request.headers.set('x-libguest-orders-shell',request.nextUrl.pathname==='/admin/pedidos'?'1':'0');
   let response = NextResponse.next({
     request,
   });
