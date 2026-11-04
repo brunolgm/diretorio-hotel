@@ -13,7 +13,7 @@ as Sprints 54–62 e sem reabrir a implementação aprovada da Etapa A.
 |---|---|---|
 | A — Catálogo F&B nativo | [IMPLEMENTADO, AUDITADO E HOMOLOGADO LOCALMENTE] | Outlets, menus, categorias, itens, preços, traduções, mídia, Admin, publicação editorial, público, compatibilidade com Serviços, Goomer/room_restaurant_menu preservados e governança fb.menu. |
 | B — Pedidos e painéis | [B1 PRESERVADO — B2+B3 IMPLEMENTADOS — B4 APROVADA LOCALMENTE] | Carrinho, cotação, checkout, acompanhamento e painel operacional sobre B1. GO técnico local para checkpoint Git; implantação, conteúdo e ativação operacional reais permanecem pendentes. |
-| C — Impressão local | [APROVADO — NÃO IMPLEMENTADO] | Bridge local no hotel, fila, múltiplas impressoras, roteamento por setor, confirmação, retry seguro, falha ambígua e reimpressão controlada. |
+| C — Impressão local | [C1 IMPLEMENTADO E VALIDADO LOCALMENTE — C2–C5 NÃO IMPLEMENTADAS] | Cloud privado, materialização, fila e protocolo de dispositivo validados localmente. Bridge Windows, Admin visual, adapters e homologação física permanecem posteriores. |
 | D — Evoluções posteriores | [PLANEJADO] | Detalhamento futuro; nenhum comportamento adicional é declarado implementado. |
 
 A auditoria técnica anterior continua válida para a Etapa A da Sprint 53.
@@ -22,7 +22,7 @@ a seção B1 ao final descreve a fundação posterior separadamente, e a seção
 B2+B3 registra a jornada e operação adicionadas sobre ela em 03/11/2026.
 A harmonização documental anterior não implementou B/C. A autorização posterior
 de B1 implementou a fundação; a rodada B2+B3 acrescenta as superfícies descritas
-ao final. O fechamento técnico local B4 está registrado abaixo; C permanece não implementada.
+ao final. O fechamento técnico local B4 está registrado abaixo; Cloud C1 está implementado e validado localmente na seção final. C2–C5 permanecem não implementadas.
 
 ### Histórico da decisão e seus impactos
 
@@ -1241,3 +1241,279 @@ O teste passa a capturar essa referência no momento correto, exige que ela seja
 não vazia e mantém igualdade exata após o erro. O código de retenção do snapshot
 não foi alterado para atender ao teste. O artefato interrompido permanece em
 `out/libguest-fb-auth-659d180c/b23-failure.json`; não conta como execução aprovada.
+
+## C1 — Cloud de impressão (03/11/2026)
+
+Estado: **[C1 IMPLEMENTADO — GO TÉCNICO LOCAL]**. Implementação limitada ao
+backend Cloud. A Sprint 53 e a Etapa C completa não estão concluídas. Nenhuma
+impressora, bridge Windows ou operação real está homologada por este relatório.
+
+### Checkpoint e preservação
+
+Branch `sprint-53-fnb`, HEAD inicial `259cf39a6a2fb5c6f99af16f000905b410140b4a`,
+mensagem `feat: complete F&B native ordering operations`; árvore e stage vazios
+antes da primeira escrita. A referência local `origin/sprint-53-fnb` era igual.
+Não houve fetch ou consulta remota. O snapshot `out/fb-c1-before.json` registra
+764 arquivos rastreados e as 55 migrations anteriores. O fechamento compara
+seus hashes, sem alterar migrations B1/B23/B4, Auth, RLS existentes, Admin visual,
+Home V4, temas ou o worktree `libguest-content-bridge`.
+
+### Migration e domínio C
+
+Única migration nova: `20261103162805_sprint_53_c1_print_cloud.sql`, aplicada
+somente em bancos Docker descartáveis. Schema `fb_print_private`, 15 tabelas:
+`settings`, `grants`, `devices`, `credentials`, `pairings`, `destinations`,
+`printers`, `routes`, `processing`, `jobs`, `attempts`, `events`, `commands`,
+`http_buckets`, `maintenance_runs`. Todas possuem RLS, sem políticas abertas ou
+acesso direto de `anon`, `authenticated` ou `service_role`. Wrappers privilegiados
+têm `search_path` vazio e ACL explícita: humano autenticado ou serviço, nunca ambos
+por conveniência. Helpers privados não são executáveis por esses três papéis.
+
+A migration não insere settings, permissões, dispositivos, credenciais ou hotéis
+habilitados. O único acréscimo estrutural em B é um índice parcial para a leitura
+dos eventos `orders.accepted`; regras, funções, estados e migrations B permanecem
+preservados. C não modifica automaticamente `order.status` ou `group.status`.
+
+### Materialização e ativação
+
+Fonte: evento imutável B `orders.accepted` de **grupo**, com hotel, pedido, grupo,
+setor e referências já materializados por B. Não se espera o pedido agregado
+ficar `accepted`. A reconciliação usa essa fonte e as linhas/opções históricas B,
+sem reconstruir pelo cardápio atual e sem acrescentar escrita ao comando B.
+
+O snapshot mínimo contém IDs do pedido/grupo/setor, referência operacional,
+modalidade, timezone, timestamps, componentes daquele grupo, opções e contexto
+necessário do combo pai. Quantidades são copiadas de B, sem nova multiplicação
+e sem recalcular preços. Cada setor recebe somente suas próprias linhas.
+
+Unicidades do original: `(hotel, source_event, destination, copy_number)` e
+`(hotel, group, destination, copy_number)`. Reconciliação padrão 50, máximo 100;
+fontes bloqueadas por rota/configuração são registradas e revisitadas. A ordenação
+pela última tentativa evita repetir indefinidamente o mesmo início bloqueado.
+Não há cursor baseado exclusivamente no relógio nem descarte silencioso sem rota.
+
+Default OFF. Ativação/reabertura exige `printing.configure`, revisão CAS e o
+**mesmo lock da linha do hotel utilizado por B na aceitação**. Sob esse lock,
+eventos anteriores entram em baseline explícito, inclusive bloqueados anteriores
+numa reativação. Os dois ordenamentos de aceitação concorrente foram exercitados:
+commit B anterior pertence ao baseline; commit posterior permanece elegível.
+Jobs já materializados não têm seus snapshots reescritos pela ativação.
+
+### Roteamento, payload e estados
+
+Destino lógico vincula bridge principal e backup, impressoras/configuração e
+prioridade. Rotas são por tenant/setor/destino/cópia. Backup é representado, sem
+active-active ou failover físico automático. Fan-out default OFF; habilitação
+explícita gera jobs separados e numerados, inclusive duas cópias no mesmo destino.
+Não existe condição por marca, domínio público, hotel Bugan ou versão V3/V4.
+
+O job congela rota, destino, dispositivo e revisão da impressora, além das
+políticas privadas. Alterações posteriores não reescrevem esses campos. Destino,
+dispositivo ou impressora incompatível/desativado bloqueia o job pré-I/O com
+código técnico; não o encaminha silenciosamente para outro equipamento.
+
+Tipos: `order`, `test`, `reprint`. Estados: `queued`, `leased`, `dispatching`,
+`submitted`, `confirmed`, `retry_wait`, `blocked`, `ambiguous`, `expired`,
+`cancelled`. Guards impedem mutações do snapshot/hash e transições inválidas;
+attempts/events são imutáveis, salvo expurgo autorizado. O journal distingue
+atores humanos reais, dispositivos e sistema; dispositivo não recebe perfil
+humano fictício.
+
+Protocolo, payload e renderer suportados: versão **1**. O envelope fornece
+`snapshot_canonical`: texto JSONB canônico serializado pelo Cloud, cujos bytes
+UTF-8 são a entrada exata do SHA-256. A futura bridge valida esses bytes, depois
+interpreta o JSON; não recalcula o hash usando a serialização própria do .NET.
+Os testes recalculam o hash em Node e pelo transporte HTTP. Limite comercial do
+snapshot: 1 MiB. O hash garante integridade e não substitui autenticação.
+
+### Identidade, pairing e protocolo HTTP
+
+Dispositivo tem identidade própria, sem sessão humana. Credencial é seletor UUID
+mais segredo aleatório de 256 bits, formato `UUID.secret`; só o SHA-256 do segredo
+é persistido. O seletor é normalizado. Validade 90 dias, rotação revoga anteriores
+e revogação/inativação é revalidada em cada operação. UUID, hash do job ou `hotel_id`
+informado não são autoridade. O tenant vem da credencial verificada.
+
+Pairing exige humano com `printing.configure`: código forte de uso único por
+5 minutos, ligado ao dispositivo/hotel, consumo e emissão atômicos. Cinquenta
+consumidores concorrentes produziram uma única credencial. Código usado, expirado,
+inválido ou cruzado é negado. O segredo é devolvido uma vez; perda da resposta de
+exchange exige novo pareamento administrativo, sem recuperação do segredo antigo.
+
+Máquina: `POST /api/fb/printing/device/{exchange,heartbeat,claim,receipt,dispatch,result}`.
+Bearer próprio de dispositivo, TLS obrigatório; exceção somente no laboratório
+explícito e loopback. Sem JWT humano, service key na bridge ou exigência de Origin
+de browser como identidade de máquina. Heartbeat informa compatibilidade e estado
+declarado do software; `printer_ready` permanece `null`, sem alegar prova física.
+
+Humano: `POST /api/admin/fb-printing`, sessão normal e Origin da aplicação;
+operações `grant`, `config`, `activate`, `pairing`, `rotate`, `revoke`, `reconcile`,
+`test`, `reprint`, `read`, `read_config`. Allowlist por operação, JSON até 8 KiB,
+timeout de leitura/RPC 10 segundos e cancelamento da leitura pendente. Leitura
+técnica paginada até 50 por cursor `(created_at,id)`. Não foi criada UI C3.
+
+Respostas private/no-store e no-referrer. Erros têm códigos fechados e ID de
+diagnóstico; não devolvem corpo/mensagem de provider, segredo, observação ou PII.
+Rate limits atômicos: emissão de pairing 5/dispositivo/minuto, exchange 20/código/
+minuto, dispositivo 300/credencial/minuto e bootstrap global 1.200/minuto. Contadores
+guardam correlação irreversível, sem tokens ou IP bruto. O gateway HTTP foi
+testado com limites reais, JSON inválido, excesso de corpo e Content-Type indevido.
+
+### Claim, receipt, dispatch e resultados
+
+Claim transacional atribui owner, attempt, lease de 60 segundos, fence crescente
+e revisão. Cinquenta claims por tenant e uma disputa principal/backup demonstram
+um único owner válido. Antes da autorização de I/O, lease vencido permite novo
+fence. Fence anterior não dá receipt, dispatch ou resultado da nova tentativa.
+
+`receipt` registra a declaração de persistência do cliente simulado, sem autorizar
+hardware. A persistência SQLite e a recuperação de crash real pertencem a C2.
+`dispatch` separado revalida credencial, ownership, fence, receipt, revisão,
+hash, versões, lease, TTL, destino, impressora, fonte e política privada. Repetição
+não renova lease nem cria nova tentativa. `dispatch_authorized` só é verdadeiro
+durante `dispatching` com lease/TTL válidos; `dispatch_recorded` distingue evidência
+histórica de autorização vigente.
+
+Depois do dispatch, timeout/offline/lease vencido preserva incerteza como
+`ambiguous`, sem requeue ou transferência automática do original. Retry exige
+resultado explícito `pre_send_failed`, código fechado e `no_io:true`; timeout
+isolado não vale como prova. C1 valida o contrato do dispositivo simulado; a
+comprovação local da etapa de I/O será responsabilidade de C2/C4.
+
+ACKs repetidos têm um efeito. `submitted` significa aceitação técnica declarada
+do envio/spooler/transporte, **não papel impresso**. `confirmed` consta do domínio,
+mas resultado físico `confirmed` é recusado em C1. ACK tardio válido reconcilia
+somente a tentativa original, sem sobrescrever uma reimpressão criada depois.
+
+Reimpressão é novo job `reprint`, com vínculo ao original, autor humano, motivo
+allowlisted, idempotency key, marca **REIMPRESSÃO** e `duplicate_risk` quando cabível.
+Exige `printing.reprint` e `orders.read` no setor. Não é retry cego do original.
+Teste exige `printing.test`, rota/setor autorizado, job `test` e identificação
+**TESTE DE IMPRESSÃO**, sem pedido comercial falso ou I/O físico.
+
+### PII, retenção e capabilities
+
+PII pertence a B. C não armazena nome, apartamento, observações, QR/session secret
+ou tokens brutos no snapshot, dedup ou journal. Só o dispatch projeta dados B ainda
+válidos, restritos ao tenant/grupo/finalidade, política atual e política congelada.
+Nome default OFF; ON exige configuração humana explícita e auditada. Auditoria
+registra revisão e estado dessa política, sem dados do hóspede. Voltar OFF redige
+inclusive uma resposta repetida de dispatch. Observação do combo pai só acompanha
+os componentes pertinentes ao grupo. PII expirada/expurgada não é reconstruída.
+
+Validade privada: mínimo entre fonte B, TTL do job e 24 horas. Default do ticket
+automático: **15 minutos por hotel**, configurável de 1 a 120 minutos. Expiração
+pré-I/O não cancela pedido B; pós-dispatch preserva a incerteza/evidência.
+
+Retenção C: jobs comerciais herdam `B.orders.retain_until`; reprint herda o
+limite original, sem renová-lo. TTL de dispatch também é limitado pelo prazo
+comercial. Claim/replay/receipt/dispatch/result recusam fatos comerciais vencidos
+antes mesmo da execução do coletor. Testes/metadados necessários até 180 dias;
+attempts/events acompanham o expurgo do job. Dedup retém apenas prova técnica,
+sem snapshot, string canônica, routing ou projeção privada, por 180 dias. Credenciais
+obsoletas são purgadas após 180 dias da emissão; pairing expirado após um dia,
+correlatores após duas horas, histórico de manutenção após 30 dias.
+
+`run_fb_print_maintenance` é service-only, bounded (1–1.000), idempotente e com
+advisory lock próprio. Falha faz rollback da coleta parcial e registra só SQLSTATE;
+segundo worker é `skipped`. Nenhum scheduler foi implantado ou executado remotamente.
+Não há FK de C que retenha orders/groups/lines/events B. Expurgo B autorizado foi
+testado com jobs C existentes, sem recuperar a PII apagada.
+
+Capabilities privadas: `printing.configure`, `printing.test`, `printing.reprint`.
+Nenhum grant automático. Administrador concede explicitamente; configure exige
+papel mínimo editor/admin, enquanto teste/reprint respeitam setor e leitura B.
+`orders.supervise` não concede impressão implicitamente. `orders.read` pode ler
+somente metadados operacionais do próprio escopo; configuração física permanece
+restrita a configure. Não houve criação de papel global ou ampliação de RLS/Auth.
+
+### Matriz multi-hotel e limites da homologação
+
+| Identidade | Arquitetura / fixture | C1 local | Ativação real | Pendências |
+|---|---|---|---|---|
+| Grand Mercure Copacabana | Compartilhada, tenant sintético distinto | SQL/RPC/HTTP/Auth/PII/concorrência | Não executada; remoto não consultado | C2–C5 |
+| Novotel Leme | Compartilhada, tenant sintético distinto | SQL/RPC/HTTP/Auth/PII/concorrência | Não executada; remoto não consultado | C2–C5 |
+| Novotel Salvador Rio Vermelho | Compartilhada, tenant sintético distinto | SQL/RPC/HTTP/Auth/PII/concorrência | Não executada; remoto não consultado | C2–C5 |
+| Mercure Rio Boutique Copacabana | Compartilhada, tenant sintético distinto | SQL/RPC/HTTP/Auth/PII/concorrência | Não executada; remoto não consultado | C2–C5 |
+| Bugan Recife | Mesmo domínio, fixture distinta; V4 não condiciona rotas | SQL/RPC/HTTP/Auth/PII/concorrência | Não executada; remoto não consultado | C2–C5 |
+| Default técnico | Mesmo domínio, tema fallback | SQL/RPC/HTTP/Auth/PII/concorrência | Não executada; remoto não consultado | C2–C5 |
+
+C1 não altera apresentação de nenhum hotel. C2 será Windows Service .NET, com
+SQLite e DPAPI; C3 será Admin visual; C4 terá adapters (spooler primeiro, raw/ESC-POS
+depois); C5 será instalação e homologação física. Nenhum desses entregáveis foi
+antecipado. Não há GO de impressão operacional, equipamento ou papel impresso.
+
+### Gates e evidências
+
+C1 final em aplicação otimizada: **767 verificações**, seis tenants, zero chamadas
+externas e zero impressão física; SQL C1 **221**, segurança geral **745** (cinco
+testes C1 novos), SQL histórico A **197**, SSR **391**, browser A **1.524** e
+V3/V4 **152**. Build otimizado passou; lint mantém somente quatro warnings históricos.
+Regressões completas: B1 **623**, B2+B3+B4 **2.503**, Auth/DB/RLS/Storage **1.434**.
+SQL B1 **232**, B23 **63**, manutenção B4 **20**, temporal B4 **15** também verdes.
+TypeScript (`tsc --noEmit`), lint, build otimizado e `git diff --check` passaram;
+os 17 fontes novos não têm whitespace indevido. Esses números pertencem às
+respectivas suítes e não devem ser somados como se fossem casos independentes.
+
+Evidência C1 final: `out/libguest-fb-auth-88e55f6f/c1/report.json`, matriz SQL e log
+da aplicação no mesmo diretório; build em `out/fb-c1-gate-build.log`. Sumário de
+gates em `out/fb-c1-gates.json`; inventário em `out/fb-c1-inventory.json`.
+Regressões: B1 `out/libguest-fb-auth-b4f4e54f/`, B23+B4
+`out/libguest-fb-auth-ea36c8ad/b23/`, Auth `out/libguest-fb-auth-ba3f7237/`.
+Os 17 fontes ficaram congelados durante o gate final, com hashes reconfirmados.
+Os 764 arquivos rastreados iniciais tiveram 762 hashes preservados; os dois
+documentos canônicos são as únicas alterações intencionais nesses arquivos.
+As 55 migrations anteriores ficaram byte a byte idênticas. Execuções de
+diagnóstico anteriores, interrompidas ou vermelhas, não contam como gate aprovado.
+As ambiguidades SQL encontradas foram corrigidas exclusivamente na migration
+nova. O parser de booleano/NULL e as expectativas de CHECK foram ajustados somente
+nas fixtures C1 novas, sem diminuir ou alterar qualquer teste histórico.
+
+A primeira regressão Auth chegou a 1.300 asserts e parou no timeout padrão de
+30 segundos do `waitForURL` após remoção de imagem. O banco confirmou ponteiro
+nulo/revisão 8; um objeto ainda permanecia no Storage. Isso não comprovava a
+limpeza, portanto não contou como gate. Evidência: `out/libguest-fb-auth-acbf4f01/`
+e `out/fb-c1-auth-removal-probe.log`. A repetição completa usa o adapter temporário
+`out/fb-c1-auth-regression.mjs`: Chrome real, timeout bounded de 120 segundos
+para ações/navegação, igual ao já usado no upload, sem mocks, filtros ou alteração
+de asserts. Nenhum runner histórico ou código de imagem foi modificado.
+A repetição passou os **1.434 asserts**, inclusive limpeza efetiva no Storage;
+o primeiro timeout permanece documentado como execução vermelha, sem ser usado
+como evidência de aprovação.
+
+### Inventário C1 e exclusões do futuro commit
+
+Modificados: `docs/SPRINT_53_FNB.md`, `docs/PRODUCT_MAP.md`.
+
+Novos (17):
+
+```text
+app/api/admin/fb-printing/route.ts
+app/api/fb/printing/device/[operation]/route.ts
+lib/fb/printing/contracts.ts
+lib/fb/printing/credentials.server.ts
+lib/fb/printing/diagnostics.server.ts
+lib/fb/printing/http.server.ts
+lib/fb/printing/rpc.server.ts
+lib/fb/printing/validation.ts
+supabase/migrations/20261103162805_sprint_53_c1_print_cloud.sql
+supabase/tests/53_c1_print_cloud_matrix.sql
+tests/integration/fb-c1-adversarial.mjs
+tests/integration/fb-c1-concurrency.mjs
+tests/integration/fb-c1-fixture.mjs
+tests/integration/fb-c1-http.mjs
+tests/integration/fb-c1-temporal.mjs
+tests/integration/fb-c1.mjs
+tests/security/fb-c1.test.ts
+```
+
+Temporários/evidências excluídos do futuro commit: `out/fb-c1-*`, diretórios
+`out/libguest-fb-auth-*` desta rodada, artefatos/screenshots de regressão em
+`out/fb-browser`, `out/fb-ssr`, `out/v4-universal`, `out/supabase-c1-cli`, helpers diagnósticos de
+build/SQL sob `out/`, `.next/`, caches e dependências. Não incluir credenciais,
+configs de laboratório ou logs no futuro commit. Os containers/redes e arquivos
+de credenciais pertencentes aos laboratórios são removidos ao encerrá-los;
+relatórios e evidências permanecem ignorados. Nenhum arquivo rastreado foi excluído.
+
+Sem stage, commit, push, merge, deploy, Supabase remoto, tenant real, API externa,
+conteúdo publicado, instalação .NET, SQLite/DPAPI implementados ou impressão física.

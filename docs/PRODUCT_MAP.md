@@ -3013,7 +3013,7 @@ início do Turbo 2 ampliam o fechamento consultivo, sem renumerar Sprints 54–6
 |---|---|---|
 | A — Catálogo F&B nativo | [IMPLEMENTADO, AUDITADO E HOMOLOGADO LOCALMENTE] | Outlets, menus, categorias, itens, preços, traduções, mídia, Admin, publicação editorial, público, Serviços, Goomer/room_restaurant_menu preservados e fb.menu. |
 | B — Pedidos e painéis | [B1 PRESERVADO — B2+B3 IMPLEMENTADOS E VALIDADOS LOCALMENTE — B4 PENDENTE] | Jornada pública e painel operacional sobre a fundação privada B1; consolidação e virada real ainda pendentes. |
-| C — Impressão local | [APROVADO — NÃO IMPLEMENTADO] | Bridge no hotel, fila, múltiplas impressoras, roteamento por setor, confirmação, retry seguro, falha ambígua e reimpressão controlada. |
+| C — Impressão local | [C1 IMPLEMENTADO E VALIDADO LOCALMENTE — C2–C5 NÃO IMPLEMENTADAS] | Cloud privado, materialização, fila e protocolo de dispositivo validados localmente. Bridge Windows, Admin visual, adapters e homologação física permanecem posteriores. |
 | D — Evoluções posteriores | [PLANEJADO] | Detalhamento futuro. |
 
 A auditoria técnica anterior continua válida para a Etapa A da Sprint 53.
@@ -3272,3 +3272,35 @@ commit, push, merge ou deploy; zero Supabase remoto/tenant real. GO desta rodada
 é técnico e local, com todos os gates acima verdes; não é autorização
 editorial ou operacional nem homologação de equipamentos. Worktree content-bridge
 intocado.
+
+## Sprint 53 — C1 Cloud de impressão (03/11/2026)
+
+[C1 IMPLEMENTADO — GO TÉCNICO LOCAL] Base `259cf39`, branch `sprint-53-fnb`.
+Domínio privado `fb_print_private`, migration nova e backend compartilhado pelos
+cinco hotéis e pelo Default técnico. Default OFF, sem ativação/grants reais.
+Materialização idempotente dos eventos B `orders.accepted` por grupo, baseline
+de ativação serializado com B, roteamento congelado por setor/destino/cópia,
+claim/lease/fence, receipt e dispatch separados, resultado técnico, ambiguidade,
+reimpressão controlada e job de teste sem pedido falso. Credencial própria de
+dispositivo, pairing forte de uso único, rotação/revogação, protocolo v1 e hash
+de bytes canônicos; nenhum JWT humano ou service key é entregue à bridge.
+
+C não modifica estados comerciais B ou UI. PII continua em B e só tem projeção
+transitória permitida no dispatch; nome default OFF, políticas auditadas, retenção
+limitada à origem e manutenção C restrita, sem bloquear expurgo B. Novas capabilities
+privadas exigem grants explícitos. `submitted` não comprova papel impresso;
+`confirmed` físico é recusado nesta fase.
+
+C1 passou **767** verificações de integração na aplicação otimizada e **221** SQL.
+Regressões: B1 **623**, B2+B3+B4 **2.503**, Auth/DB/RLS **1.434**, segurança **745**,
+SQL A **197**, SSR **391**, browser A **1.524** e V3/V4 **152**. TypeScript, lint
+(somente quatro warnings históricos), build e diff check verdes. Os 17 fontes
+novos ficaram congelados no teste final; as 55 migrations anteriores permaneceram
+idênticas. Detalhes, matriz dos seis
+tenants, gates e inventário em `docs/SPRINT_53_FNB.md`, seção C1.
+
+C2 (.NET Windows Service/SQLite/DPAPI), C3 (Admin visual), C4 (adapters/spooler/
+raw/ESC-POS) e C5 (homologação física) permanecem não implementadas. Home V4,
+temas atuais dos demais hotéis, Auth/RLS existentes e content-bridge preservados.
+Zero stage, commit, push, merge, deploy, banco/tenant remoto, APIs externas ou
+impressão física nesta rodada.
