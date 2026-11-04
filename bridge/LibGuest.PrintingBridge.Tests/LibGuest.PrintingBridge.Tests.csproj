@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><AssemblyName>LibGuest.PrintingBridge.Tests</AssemblyName></PropertyGroup>
+  <ItemGroup><ProjectReference Include="../LibGuest.PrintingBridge/LibGuest.PrintingBridge.csproj" /></ItemGroup>
+</Project>

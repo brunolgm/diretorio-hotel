@@ -3299,8 +3299,48 @@ novos ficaram congelados no teste final; as 55 migrations anteriores permanecera
 idênticas. Detalhes, matriz dos seis
 tenants, gates e inventário em `docs/SPRINT_53_FNB.md`, seção C1.
 
-C2 (.NET Windows Service/SQLite/DPAPI), C3 (Admin visual), C4 (adapters/spooler/
+Na conclusão de C1, C2 (.NET Windows Service/SQLite/DPAPI), C3 (Admin visual), C4 (adapters/spooler/
 raw/ESC-POS) e C5 (homologação física) permanecem não implementadas. Home V4,
 temas atuais dos demais hotéis, Auth/RLS existentes e content-bridge preservados.
 Zero stage, commit, push, merge, deploy, banco/tenant remoto, APIs externas ou
 impressão física nesta rodada.
+
+## Sprint 53 — C2 Bridge Windows (04/11/2026)
+
+**[C2 IMPLEMENTADO — GO TÉCNICO LOCAL]** sobre `3a00e49`, branch
+`sprint-53-fnb`. Windows x64, SDK local 10.0.403, .NET self-contained 10.0.14;
+nenhum SDK/serviço instalado. Bridge separada do Next em `bridge/`, lifetime
+SCM e console, sem listener ou adapter físico. Zero dependência NuGet direta;
+SQLite nativo Windows, DPAPI CurrentUser e ACL da identidade. Build/test/publish
+reproduzíveis em `scripts/fb-c2-build.ps1`; instruções em `bridge/README.md`.
+
+Protocolo C1 real preservado, HTTPS outbound, pairing seguro, rotação/importação
+e reprovisionamento, heartbeat, claim durável, receipt após commit, dispatch
+separado, intent antes do simulador, resultado/outbox antes do ACK. Snapshot
+canônico/hash e versões v1 são validados sem recalcular combos. Revogação,
+expiração, fence antigo, replay e incompatibilidade bloqueiam com diagnóstico.
+ACK perdido repete rede com chave estável; intent sem resultado vira ambiguous,
+sem segunda execução. Polling com jitter/backoff/cancelamento e cadência ativa;
+relógio Cloud monotônico protege lease e GC de metadados no startup.
+
+SQLite WAL/FULL, migrations locais 0→1→2, single-instance, conteúdo DPAPI separado
+de tombstones. Conteúdo limitado pela fonte e 24h, metadados até 180 dias;
+startup remove conteúdo em cache, terminal também, e GC opera durante execução.
+Serviço parado não executa expurgo; ciphertext permanece protegido até startup.
+Logs sanitizados e limitados a três arquivos de 1 MiB. Simulador explícito LAB
+não emite confirmed e não envia a spooler, USB, RAW TCP ou ESC/POS.
+
+Gates desta rodada: .NET **99**, C1↔C2 real **204**, C1 completo **767**, SQL C1
+**221**, segurança **745**, SSR **391**, browser V3/V4 **152**, TypeScript, lint
+(quatro warnings históricos), Next build e diff check. Seis tenants sintéticos
+usam o mesmo binário: cinco hotéis e Default; 12 crashes de processo, offline,
+ACK perdido, rotação, reprovisionamento, fence antigo e relógio incorreto cobertos.
+Relatório completo com todos os itens C2, matriz e inventário na seção C2 de
+`docs/SPRINT_53_FNB.md`. **779 fontes históricos** e **56 migrations** preservados.
+
+C3 Admin, C4 adapters/layout físico e C5 instalação/equipamentos permanecem
+pendentes. Nenhum serviço registrado, usuário Windows criado, hardware testado,
+Home/tema alterado, conteúdo publicado ou tenant real acessado. Zero stage,
+commit, push, merge ou deploy; HEAD continua `3a00e49`, trabalho disponível para
+revisão. Content-bridge intocado. Restore externo restrito a runtime packs
+oficiais Microsoft para build; zero APIs externas de negócio/produção.

@@ -1,0 +1,11 @@
+{
+  "cloud_base_url": "https://cloud.example.invalid/",
+  "device_id": "00000000-0000-0000-0000-000000000000",
+  "environment": "production",
+  "simulator_enabled": false,
+  "active_poll_seconds": 5,
+  "idle_poll_seconds": 20,
+  "heartbeat_seconds": 15,
+  "http_timeout_seconds": 15,
+  "maximum_backoff_seconds": 300
+}

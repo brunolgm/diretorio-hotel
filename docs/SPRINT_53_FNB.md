@@ -13,7 +13,7 @@ as Sprints 54–62 e sem reabrir a implementação aprovada da Etapa A.
 |---|---|---|
 | A — Catálogo F&B nativo | [IMPLEMENTADO, AUDITADO E HOMOLOGADO LOCALMENTE] | Outlets, menus, categorias, itens, preços, traduções, mídia, Admin, publicação editorial, público, compatibilidade com Serviços, Goomer/room_restaurant_menu preservados e governança fb.menu. |
 | B — Pedidos e painéis | [B1 PRESERVADO — B2+B3 IMPLEMENTADOS — B4 APROVADA LOCALMENTE] | Carrinho, cotação, checkout, acompanhamento e painel operacional sobre B1. GO técnico local para checkpoint Git; implantação, conteúdo e ativação operacional reais permanecem pendentes. |
-| C — Impressão local | [C1 IMPLEMENTADO E VALIDADO LOCALMENTE — C2–C5 NÃO IMPLEMENTADAS] | Cloud privado, materialização, fila e protocolo de dispositivo validados localmente. Bridge Windows, Admin visual, adapters e homologação física permanecem posteriores. |
+| C — Impressão local | [C1+C2 IMPLEMENTADOS — GO TÉCNICO LOCAL — C3–C5 PENDENTES] | Cloud e bridge Windows/SQLite/DPAPI validados com simulador LAB e seis tenants sintéticos. Admin visual, adapters e homologação física permanecem posteriores. |
 | D — Evoluções posteriores | [PLANEJADO] | Detalhamento futuro; nenhum comportamento adicional é declarado implementado. |
 
 A auditoria técnica anterior continua válida para a Etapa A da Sprint 53.
@@ -22,7 +22,7 @@ a seção B1 ao final descreve a fundação posterior separadamente, e a seção
 B2+B3 registra a jornada e operação adicionadas sobre ela em 03/11/2026.
 A harmonização documental anterior não implementou B/C. A autorização posterior
 de B1 implementou a fundação; a rodada B2+B3 acrescenta as superfícies descritas
-ao final. O fechamento técnico local B4 está registrado abaixo; Cloud C1 está implementado e validado localmente na seção final. C2–C5 permanecem não implementadas.
+ao final. O fechamento técnico local B4 está registrado abaixo; Cloud C1 e bridge C2 estão implementados e validados localmente nas seções finais. C3–C5 permanecem não implementadas.
 
 ### Histórico da decisão e seus impactos
 
@@ -1517,3 +1517,332 @@ relatórios e evidências permanecem ignorados. Nenhum arquivo rastreado foi exc
 
 Sem stage, commit, push, merge, deploy, Supabase remoto, tenant real, API externa,
 conteúdo publicado, instalação .NET, SQLite/DPAPI implementados ou impressão física.
+
+## C2 — Bridge Windows (04/11/2026)
+
+### [C2 IMPLEMENTADO]
+
+**GO técnico local C2**, após os gates abaixo. Escopo: software Windows
+self-contained, protocolo C1 real, SQLite/DPAPI, recuperação e simulador LAB.
+Sprint 53 continua aberta. C3, C4 e C5 permanecem posteriores; nenhuma operação
+real de hotel, impressão, instalação de serviço ou homologação física foi feita.
+O histórico C1 acima descreve a rodada de 03/11; esta seção atualiza o estado C2.
+
+### [CHECKPOINT]
+
+Antes das escritas: `sprint-53-fnb`, HEAD e referência local
+`origin/sprint-53-fnb` em `3a00e49850e9726f3e10b9afad96178d34e3b793`,
+`feat: add F&B printing cloud foundation`, árvore limpa e zero staged.
+Os mesmos branch/HEAD/ref foram preservados. Não houve fetch ou consulta remota.
+C1, A e B continuam byte a byte preservados; **779 arquivos históricos** fora dos
+três arquivos autorizados de documentação/ignore e **56 migrations** inalterados.
+Worktree `libguest-content-bridge` não foi acessado/modificado.
+
+### [TOOLCHAIN .NET]
+
+Inspeção encontrou somente SDK **10.0.403**, runtime **10.0.14**, Windows x64.
+.NET 10 adotado e fixado em `bridge/global.json`, roll-forward desativado;
+RID `win-x64` e RuntimeFrameworkVersion 10.0.14 fixados. Build sem warnings/erros;
+publish self-contained validado. Runtime packs oficiais Microsoft restaurados
+somente para build no cache `out/fb-c2-dotnet`, sem instalar SDK global.
+O executável foi testado com DOTNET_ROOT apontando a diretório inexistente;
+runtimeconfig contém includedFrameworks 10.0.14, distribuído na pasta do publish.
+
+### [ESTRUTURA DA BRIDGE]
+
+`bridge/LibGuest.PrintingBridge` contém Cloud, Engine, Storage, Diagnostics,
+configuração, CLI e lifetime SCM; `bridge/LibGuest.PrintingBridge.Tests` contém
+testes nativos e ferramentas exclusivamente LAB. `scripts/fb-c2-build.ps1`
+reproduz restore com lockfiles, build, testes, certificado efêmero e publish.
+Instruções detalhadas e configuração inválida de exemplo em `bridge/README.md`
+e `bridge/config.production.example.json`. Nenhum componente Next/cliente muda.
+
+### [WINDOWS SERVICE]
+
+Integração nativa SCM implementa start, stop/shutdown e CancellationToken;
+console permite laboratório sem depender de UI permanente. Comando futuro de
+registro e preparação de conta/perfil/ACL estão documentados no README, sem
+execução. Nenhum serviço instalado, conta criada ou política Windows alterada.
+Execução real sem usuário logado e reboot/queda de energia continuam para C5.
+
+### [PAIRING]
+
+`pair` usa exchange C1 real; segredo entra oculto ou por stdin de supervisor,
+nunca CLI/env/config/log. Código de uso único não é persistido. Se a resposta do
+exchange se perder, o operador precisa gerar novo pairing C1. `reprovision` foi
+testado com código novo e journal preservado. Device revogado continua bloqueado
+pelo Cloud; CLI não reativa device. Novo device exige identidade/diretório
+próprios e preservação do journal antigo para reconciliação.
+
+### [CREDENTIAL STORAGE]
+
+`credential.dpapi`, ligado ao device, é escrito com arquivo temporário,
+Flush(true) e rename. Credencial ilegível bloqueia antes de HTTP. Rotação C1
+revoga a anterior imediatamente, sem overlap: nova credencial é verificada por
+heartbeat antes da troca atômica; falha conserva o arquivo anterior. Importação
+e reprovisionamento reais passaram no LAB. 403 exige operador e preserva ACKs.
+
+### [DPAPI]
+
+**CurrentUser**, sem prompt nativo, DACL protegida contendo somente o SID atual,
+herdada pelos arquivos. Pareamento e serviço deverão usar a mesma identidade com
+perfil DPAPI carregado. Proteção real e ACL foram testadas com a identidade local;
+não foi criada conta de serviço para testar outra identidade. DPAPI não protege
+contra comprometimento do próprio usuário, administrador/kernel ou memória viva.
+
+### [SQLITE]
+
+`winsqlite3.dll` do Windows, versão observada **3.53.4**; WAL, synchronous FULL,
+foreign keys, busy_timeout 3000 ms, secure_delete, temp_store MEMORY e
+trusted_schema OFF. Tabelas `metadata`, `jobs`, `contents`, `outbox`, `events` e
+`simulator_calls`. Transactions e constraints asseguram intent, resultado e
+outbox; escrita concorrente de resultados aceita um único resultado/ACK.
+FileShare.None no lock local impede segunda instância no mesmo journal.
+Destino operacional padrão: ProgramData/LibGuest/PrintingBridge/device-id;
+produção recusa caminho fora da raiz aprovada. Testes usam diretórios isolados.
+
+### [MIGRATIONS LOCAIS]
+
+Schema 0→1→2, application_id próprio, migrations transacionais e integrity_check.
+Testados banco novo/existente, incremento com dados preservados, interrupção nas
+duas etapas, versão desconhecida, banco estrangeiro, corrupção e device distinto.
+Falha bloqueia; não há reset/apagamento silencioso do journal.
+
+### [POLLING]
+
+HTTPS outbound, ativo padrão 5s, idle 20s, jitter, timeout, pooling, cancelamento
+e backoff exponencial limitado. Cadência ativa mínima verificada com dois jobs
+em processo contínuo. Bridge não abre listener. HTTPS 4318 pertence somente ao
+harness Node LAB, que termina TLS e encaminha aos endpoints C1 reais locais.
+
+### [HEARTBEAT]
+
+Somente campos aceitos por C1: protocol_version, software_version e observed_state.
+Software LAB identificado `c2-lab-1.0.0`; printer_ready permanece null.
+Relógio Cloud + Stopwatch fornece âncora de lease e expurgo técnico; antes do
+primeiro heartbeat não se apagam ACKs/tombstones por relógio local incorreto.
+Resultado pendente foi recuperado com âncora histórica 1900 e OS intacto.
+Produção C2 sem adapter fica em heartbeat/degraded e não faz claims novos.
+
+### [CLAIM]
+
+Chave do claim persistida antes da rede. Envelope, versões, IDs, fence, hash dos
+bytes UTF8 exatos de snapshot_canonical e igualdade com snapshot validados.
+Commit de job + conteúdo DPAPI + receipt outbox precede ACK. Falha de proteção
+impede persistência/receipt. Hash/versão inválidos, replay e respostas regressivas
+bloqueiam sem entrar na zona simulada. Tenant é derivado pelo Cloud.
+
+### [RECEIPT]
+
+ACK apenas significa persistência local; chave/estado duráveis permitem repetir
+rede sem imprimir. Receipt é drenado antes de novos claims. Fence antigo
+rejeitado por C1 é reconciliado, bloqueado e diagnosticado com código sanitizado.
+
+### [DISPATCH AUTHORIZATION]
+
+Operação separada após receipt; autorização e projeção mínima protegida são
+commitadas antes do intent. Reinício elimina todo conteúdo em cache e solicita
+autorização nova quando houve autorização sem intent. Lease/fonte inválidos
+impedem entrada no simulador. Rejeição após possível autorização exige operador.
+
+### [DISPATCH INTENT]
+
+Job/attempt/fence, timestamp e metadados de versão são registrados duravelmente
+antes da entrada no simulador. Unicidade job/fence impede segunda entrada. Intent
+sem resultado conclusivo recupera como ambiguous; não é tratado como no-I/O.
+
+### [SIMULATOR]
+
+Único adapter C2, exclusivo LAB explícito; success, safe_failure, ambiguous,
+delay e no_response. Não há renderer/layout físico, spooler, USB, socket 9100,
+ESC/POS, execução de shell ou carregamento arbitrário de executável. Snapshot
+comercial C1 não é reinterpretado: nenhuma busca de catálogo/cálculo de combo.
+Reprint independente e test emitido pelo Cloud passaram nos seis tenants.
+`simulator_calls` registra entrada durável na zona simulada, sem prova de papel.
+
+### [RESULT ACK]
+
+Resultado commitado antes do HTTP; chave e fingerprint estáveis. Endpoints reais
+aceitaram submitted/transport_accepted, pre_send_failed/no_io e
+ambiguous/unknown_after_send. Confirmed físico não pode ser emitido pela C2.
+Resposta perdida após commit Cloud foi provocada: ACK repetido, um evento Cloud,
+uma entrada no simulador. Novo fence só admite retry após falha comprovada no-I/O.
+
+### [CRASH RECOVERY]
+
+Executável self-contained encerrado por processo nos 12 pontos, com SQLite real:
+
+| Ponto | Recuperação | Entradas simuladas finais |
+|---|---|---|
+| before_claim | Claim novo após sincronização | 1 |
+| after_claim | Repetir claim de chave durável | 1 |
+| after_persist | Drenar receipt | 1 |
+| before_receipt | Repetir receipt | 1 |
+| after_receipt | Solicitar dispatch | 1 |
+| before_dispatch | Retomar solicitação durável | 1 |
+| after_authorization | Reautorizar, sem reutilizar projeção anterior | 1 |
+| after_intent | Recuperar/reportar ambiguous | 0 |
+| during_simulator | Recuperar/reportar ambiguous | 1, sem segunda entrada |
+| after_result | Reenviar resultado já persistido | 1 |
+| before_ack | Reenviar ACK | 1 |
+| after_ack | Respeitar tombstone terminal | 1 |
+
+Também passaram offline antes do claim/após receipt/antes de dispatch/após
+resultado, segunda instância e liberação do lock após kill. Isso demonstra crash
+de processo; não substitui teste de reboot/energia/hardware em C5.
+
+### [AMBIGUOUS]
+
+Sem resultado depois de intent, nenhuma nova execução automática. Cloud termina
+ambiguous; C1 preserva sua regra de não requeue automático após possível I/O.
+Revogação foi aplicada em cinco fronteiras e o processo reiniciado: zero entrada
+indevida. Não se promete cancelar retroativamente envio já autorizado; não houve
+envio físico nesta etapa. Intervenção humana/reprint continuam sujeitos a C1.
+
+### [PROTOCOL VERSION]
+
+Bridge 1.0.0, protocolo/payload/renderer v1; incompatibilidade bloqueia, sem
+fallback parcial. Campos adicionais de autoridade são rejeitados. C1 foi lido
+nos contratos/endpoints/validation/credentials/RPC/SQL/diagnostics reais e
+permaneceu integralmente inalterado; nenhuma lacuna exigiu correção C1.
+
+### [RETENTION]
+
+Conteúdo no mínimo da validade da fonte e 24h; projeção privada respeita também
+seu próprio expires_at. Metadados técnicos até 180 dias. Terminal remove conteúdo;
+startup limpa todo conteúdo antes de relógio/rede. Purge técnico só com âncora
+Cloud; idle/backoff também expurgam. Serviço parado não executa GC: ciphertext
+pode permanecer no disco até startup/expurgo; DPAPI/ACL permanecem aplicadas.
+Não se promete eliminação forense de backups externos ou GC de banco corrompido.
+
+### [PII]
+
+Conteúdo comercial e privado separados de tombstones e protegidos por DPAPI em
+SQLite/WAL. Testes leram bytes reais de banco/WAL e não encontraram marcador
+privado plaintext. TTL anterior da fonte, limite 24h e preservação de dedup após
+expurgo passaram. Nenhum nome/apartamento/nota/roomToken entra no log.
+
+### [LOGGING]
+
+JSON com eventos, UUIDs técnicos, fence e error_code sanitizado; no máximo três
+arquivos de 1 MiB. Sem headers, payloads ou exceções brutas. Scan dos logs de
+todos os processos e logs estruturados LAB passou para pairing, bearer e PII.
+
+### [SECURITY]
+
+TLS normal em produção. Certificado LAB efêmero validado por cadeia customizada,
+hostname, validade e pin, restrito a loopback/LAB; pin errado impediu claim.
+Não foi instalado certificado no Windows. Sem service key/JWT humano entregue
+no protocolo, sem autoridade hotel local, sem comando/endereço de impressora
+executável e sem auto-update. Credencial ilegível/expirada/revogada exige operador.
+
+### [FIVE-HOTEL MATRIX]
+
+| Hotel | Fixture | C1↔C2 | Equipamento real | Pendências |
+|---|---|---|---|---|
+| Grand Mercure Copacabana | Tenant sintético isolado | Mesmo binário, combo/grupos, reprint e test | Não usado | C3–C5 |
+| Novotel Leme | Tenant sintético isolado | Mesmo binário, combo/grupos, reprint e test | Não usado | C3–C5 |
+| Novotel Salvador Rio Vermelho | Tenant sintético isolado | Mesmo binário, combo/grupos, reprint e test | Não usado | C3–C5 |
+| Mercure Rio Boutique Copacabana | Tenant sintético isolado | Mesmo binário, combo/grupos, reprint e test | Não usado | C3–C5 |
+| Bugan Recife | Somente fixture sintética | Mesmo binário, Cozinha/Bar, reprint e test | Não usado | C3–C5 |
+| Default técnico | Tenant sintético/fallback | Mesmo binário, combo/grupos, reprint e test | Não usado | C3–C5 |
+
+Home V4 Bugan, temas/versões atuais dos demais hotéis, Goomer e operação real
+preservados. Nenhum recadastro, migração de apresentação ou ativação real.
+
+### [DEPENDENCIES]
+
+Zero PackageReference/NuGet direto; locks gerados. Runtime/framework Microsoft
+10.0.14, SDK 10.0.403; bibliotecas Windows SQLite, Crypt32/Kernel32, Advapi32 e
+ACL via BCL. Inventário completo no README. Runtime packs oficiais foram
+restaurados para build; nenhuma API externa de negócio foi usada. Não há pacote
+de impressora, dependência npm nova ou modificação de package.json/lock web.
+
+### [TESTES]
+
+| Gate executado nesta rodada | Resultado |
+|---|---|
+| .NET nativo Windows, SQLite/DPAPI/ACL/HTTP negativo/migrations/retention/concurrency/clock | **99/99** |
+| C1↔C2 real, seis tenants, HTTPS, self-contained, 12 crashes e adversariais | **204/204** |
+| Regressão C1 completa, aplicação otimizada e Auth normal | **767/767** |
+| SQL C1 metadata/ACL/RLS | **221/221**, rollback |
+
+Correções da própria C2 durante validação: RID consistente nos locks; leitura
+compartilhada de WAL no teste Windows; checkpoint durante o método simulador;
+resultado concorrente atômico; guard de estado antes da entrada; cadência ativa;
+GC técnico aguardando âncora Cloud e limpeza conservadora de conteúdo no startup.
+Nenhuma alteração em C1, histórico de testes ou migrations anteriores.
+
+### [WEB REGRESSION]
+
+Segurança **745/745**, SSR F&B **391/391**, browser V3/V4 **152/152**;
+TypeScript sem erro; lint sem erro, somente **quatro warnings históricos** de img,
+e zero warning nos dois novos harnesses; Next build otimizado aprovado. Diff
+check inclui arquivos novos. Não houve alteração de UI, Auth, RLS ou código web.
+
+### [ARQUIVOS]
+
+Modificados: `.gitignore`, `docs/SPRINT_53_FNB.md`, `docs/PRODUCT_MAP.md`.
+Novos (28):
+
+```text
+bridge/Directory.Build.props
+bridge/global.json
+bridge/NuGet.Config
+bridge/README.md
+bridge/config.production.example.json
+bridge/LibGuest.PrintingBridge/LibGuest.PrintingBridge.csproj
+bridge/LibGuest.PrintingBridge/packages.lock.json
+bridge/LibGuest.PrintingBridge/BridgeFault.cs
+bridge/LibGuest.PrintingBridge/Configuration.cs
+bridge/LibGuest.PrintingBridge/Program.cs
+bridge/LibGuest.PrintingBridge/WindowsService.cs
+bridge/LibGuest.PrintingBridge/Cloud/CloudClient.cs
+bridge/LibGuest.PrintingBridge/Cloud/CloudClock.cs
+bridge/LibGuest.PrintingBridge/Cloud/JobEnvelope.cs
+bridge/LibGuest.PrintingBridge/Diagnostics/BoundedLog.cs
+bridge/LibGuest.PrintingBridge/Engine/BridgeWorker.cs
+bridge/LibGuest.PrintingBridge/Engine/LabCheckpoints.cs
+bridge/LibGuest.PrintingBridge/Engine/Simulator.cs
+bridge/LibGuest.PrintingBridge/Storage/CredentialVault.cs
+bridge/LibGuest.PrintingBridge/Storage/Journal.cs
+bridge/LibGuest.PrintingBridge/Storage/SqliteDatabase.cs
+bridge/LibGuest.PrintingBridge/Storage/WindowsProtection.cs
+bridge/LibGuest.PrintingBridge.Tests/LibGuest.PrintingBridge.Tests.csproj
+bridge/LibGuest.PrintingBridge.Tests/Program.cs
+bridge/LibGuest.PrintingBridge.Tests/packages.lock.json
+scripts/fb-c2-build.ps1
+tests/integration/fb-c2-runtime.mjs
+tests/integration/fb-c2.mjs
+```
+
+Gerados/excluídos do Git: `bridge/**/bin`, `bridge/**/obj`, `out/fb-c2-publish`,
+cache/artefatos .NET, bancos/WAL/SHM, vaults DPAPI, certificados/chaves efêmeros,
+configs/logs LAB, `.next` e evidências de regressão. Nenhum arquivo rastreado foi
+excluído. Temporários/helpers de checkpoint/review/build sob `out/fb-c2-*`.
+Evidências principais:
+`out/libguest-fb-auth-3bcf1efd/c2/report.json` (204),
+`out/libguest-fb-auth-073b78eb/c1/report.json` (767),
+`out/fb-c2-build-final.log` (99 e publish), `out/fb-c2-security.log`,
+`out/fb-c2-ssr.log`, `out/fb-c2-v3v4.log`, `out/fb-c2-lint-accepted.log`,
+`out/fb-c2-lint-directed.log`, `out/fb-c2-review.json` e fonte congelada por SHA256
+em `out/fb-c2-source-freeze.json`. Não incluir qualquer artefato operacional,
+segredo, banco, configuração ou relatório contendo fixtures no futuro commit.
+
+### [GIT]
+
+Branch `sprint-53-fnb`; HEAD inicial/final `3a00e49` (hash completo acima).
+Árvore deliberadamente com três modificados e 28 novos arquivos de fonte/doc,
+zero staged; zero commit, push, merge, reset, clean, restore destrutivo ou deploy.
+Os 28 arquivos novos permaneceram congelados no gate final; C1 preservado.
+
+### [REMOTO]
+
+Zero deploy/Vercel, Supabase remoto, tenant real, conteúdo publicado, API externa
+de negócio, impressão física ou instalação de serviço. Único restore externo:
+runtime packs oficiais Microsoft para o build self-contained. Laboratórios são
+locais, descartáveis, com rede Docker interna; endpoints Next/HTTPS são fixtures
+encerradas após os testes. Isso é GO técnico local C2; homologação editorial da
+Home, instalação SCM em hotel e homologação operacional/física não são concedidas.
+Laboratório final encerrado pelo gerenciador com `otherProjectsTouched:false`;
+chave TLS efêmera removida. Nenhum arquivo de fonte foi removido.

@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Windows printing bridge: build products and local operational/test state
+bridge/**/bin/
+bridge/**/obj/
+bridge/**/publish/
+bridge/**/*.db*
+bridge/**/*.sqlite*
+bridge/**/*.dpapi
+bridge/**/logs/
