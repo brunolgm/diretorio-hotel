@@ -21,3 +21,7 @@ export async function decideOrderCancellation(form:FormData):Promise<OperationRe
  const v=await values(form,['request_id','revision','order_revision','approve','reason']);if(!uuid(v.request_id)||!['true','false'].includes(v.approve)||!['guest_request','unavailable','operational','other'].includes(v.reason))throw new OrderBoundaryError(400,'invalid_input');
  await orderRpc(await createClient(),'decide_current_hotel_fb_order_cancellation_v2',{p_request_id:v.request_id,p_expected_revision:revision(v.revision),p_order_revision:revision(v.order_revision),p_approve:v.approve==='true',p_reason_code:v.reason});return {ok:true};
 }catch(e){return failure(e,'cancellation_rejected');}}
+export async function cancelOrderByStaff(form:FormData):Promise<OperationResult>{try{
+ const v=await values(form,['order_id','revision','reason','confirmed']);if(!uuid(v.order_id)||v.confirmed!=='true'||!['guest_request','unavailable','operational','other'].includes(v.reason))throw new OrderBoundaryError(400,'invalid_input');
+ await orderRpc(await createClient(),'cancel_current_hotel_fb_order_v1',{p_order_id:v.order_id,p_expected_revision:revision(v.revision),p_reason_code:v.reason});return {ok:true};
+}catch(e){return failure(e,'cancellation_rejected');}}

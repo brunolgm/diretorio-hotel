@@ -44,6 +44,21 @@ internal static partial class Program
         Check(text.Contains("C4_PRIVATE_ROOM", StringComparison.Ordinal) && !text.Contains("C4_PRIVATE_NAME", StringComparison.Ordinal) && !text.Contains("NEVER_RENDER", StringComparison.Ordinal), "C4 room only when authorized; name defaults OFF and extra private fields excluded");
         var expired = TicketRendererV1.Render(JsonSerializer.SerializeToElement(order), context, DateTimeOffset.UtcNow.AddHours(1)); Check(!string.Join('\n', expired.Lines).Contains("C4_PRIVATE", StringComparison.Ordinal) && !string.Join('\n', expired.Lines).Contains("C4_COMBO_NOTE", StringComparison.Ordinal), "C4 expired PII cannot reappear or be reconstructed from commercial data");
         Check(!TicketRendererV1.Clean("a\u001bb\u202ec\n d").Any(char.IsControl), "C4 renderer removes device controls and bidi injection");
+        var cancellationSnapshot = JsonSerializer.SerializeToElement(snapshot).Deserialize<Dictionary<string, JsonElement>>()!;
+        cancellationSnapshot["document_kind"] = JsonSerializer.SerializeToElement("cancellation");
+        cancellationSnapshot["cancelled_at"] = JsonSerializer.SerializeToElement(DateTimeOffset.UtcNow);
+        cancellationSnapshot["cancellation_reason_code"] = JsonSerializer.SerializeToElement("guest_request");
+        var cancellationCanonical = JsonSerializer.Serialize(cancellationSnapshot);
+        foreach (var cancellationKind in new[] { "cancellation", "reprint" })
+        {
+            var cancellation = new Dictionary<string, object?>(order) { ["kind"] = cancellationKind, ["snapshot"] = cancellationSnapshot, ["snapshot_canonical"] = cancellationCanonical, ["snapshot_hash"] = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(cancellationCanonical))) };
+            Check(Read(cancellation).Kind == cancellationKind, "Cancellation and explicit reprint parse additive V1 kind");
+            var notice = TicketRendererV1.Render(JsonSerializer.SerializeToElement(cancellation), context, DateTimeOffset.UtcNow);
+            Check(notice.Lines.Contains("CANCELAMENTO") && notice.Lines.Any(l => l.StartsWith("Cancelado em:", StringComparison.Ordinal)), "Cancellation notice has explicit label and timestamp");
+            Check(notice.Lines.Any(l => l.Contains("A1B2C3D4", StringComparison.Ordinal)) && notice.Lines.Any(l => l.Contains("Cozinha", StringComparison.Ordinal)) && notice.Lines.Any(l => l.Contains("Prato de fixture", StringComparison.Ordinal)), "Cancellation preserves original reference, sector and frozen items");
+            var redactedNotice = TicketRendererV1.Render(JsonSerializer.SerializeToElement(cancellation), context, DateTimeOffset.UtcNow.AddHours(1));
+            Check(!string.Join('\n', redactedNotice.Lines).Contains("C4_PRIVATE", StringComparison.Ordinal), "Cancellation never revives expired PII");
+        }
         Denied(() => TicketRendererV1.Clean(new string('x', 2001)), "C4 oversized text fails before physical submission");
         foreach (var scenario in new[] { "accepted", "offline", "missing", "paper", "uncertain", "pre_io", "exception", "retained" })
         {

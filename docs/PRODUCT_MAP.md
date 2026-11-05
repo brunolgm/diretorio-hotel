@@ -3363,3 +3363,41 @@ aditivas candidatas; 56 commitadas preservadas. 42 candidatos, zero staged.
 rede/reboot/offline/paper out e operação assistida. Zero propriedade real ativada,
 serviço registrado, impressão real, stage, commit, push, deploy ou Supabase remoto.
 Home/temas, Goomer e Auth/RLS existentes preservados; Sprint 53 operacional não encerrada.
+
+### Sprint 53 — hotfix local 2026-11-05
+
+Fronteira automática de printing passa de aceite para registro durável B: outbox
+transacional por grupo, sem backfill, preservando flags e snapshots. Aceite não
+duplica jobs. V1 guest é contato com o hotel (PT/EN/ES), sem cancelamento ou
+solicitação digital; contato vem do serviço/departamento publicado existente.
+Staff autorizado cancela pelo Admin com CAS e limites operacionais existentes.
+Cancelamento gera evento/outbox e job independente por original, preservando
+setor, cópia e destino/impressora/fila congelados. Bridge 1.2.0 e renderer V1
+reconhecem CANCELAMENTO; versões antigas não recebem o novo tipo.
+Uma migration aditiva candidata, sem aplicação remota. Domínio/flags únicos para
+cinco hotéis + Default, sem migrar temas nem alterar Home. C5 físico/Bematech
+continua pendente; pacote local sem stage/commit/push/deploy. Evidência canônica:
+`docs/SPRINT_53_FNB.md`, adendo HOTFIX 2026-11-05.
+
+GO técnico local confirmado: direcionados 211; C1 770; C3 181; C4 87; C2 204; C5 116; .NET 188; B1 623; B23/B4 2599; Auth 1434; segurança 748; SSR 391; browser F&B 1524 e V3/V4 152. Builds/TypeScript/lint/diff verdes (quatro avisos img preexistentes). Recovery do original cancelado exige prova Cloud de no-dispatch; incerteza continua conservadora. Sem stage/commit/push/deploy ou validação física. Detalhes e evidências no adendo final de SPRINT_53_FNB.md.
+
+### Productização F&B 1.3.0 — candidato local, fechamento pendente
+
+Admin com modos catálogo somente/pedidos e pré-flight, discovery genérico de filas
+Windows, seleção autorizada e teste pelo C1 antes da ativação. Instalador oficial
+self-contained com conta virtual de serviço e DPAPI CurrentUser sob a mesma
+identidade, sem senha do operador ou edição de JSON. Domínio F&B e temas atuais
+preservados; sem migração visual dos outros hotéis ou alteração da Home.
+
+Hotel sintético novo: 23 verificações aprovadas sem alteração de código durante
+o fluxo. Primeiro TESTE físico submetido exclusivamente à MP-4200 TH, spool ID 4,
+Cloud `submitted`; observação humana pendente, sem pedido/cancelamento/reimpressão
+físicos. Não considerar equipamento ou operação homologados pelo ACK do spooler.
+Gates atuais e pendências em `docs/SPRINT_53_FNB.md`, adendo Productização 1.3.0;
+procedimento em `docs/FNB_PRINTING_DEPLOYMENT_RUNBOOK.md`. Bugan real não ativado.
+Sem stage/commit/push/deploy, Supabase remoto ou publicação de conteúdo.
+
+
+### Fechamento técnico local da productização 1.3.0
+
+Hotel novo sem desenvolvimento aprovado (32 verificações). TESTE físico confirmado por Bruno; pedido registrado antes do aceite (spool 5), aceite sem duplicação e aviso de cancelamento no destino original (spool 6). Três submissões físicas, zero reimpressões; serviço LAB desinstalado preservando estado. Todas as regressões integrais verdes; números, inventário e migrations em SPRINT_53_FNB.md, seção FECHAMENTO LOCAL. Sprint tecnicamente pronta para revisão/checkpoint Git, sem stage/commit/push/deploy. Bugan real não ativado; homologação operacional separada.

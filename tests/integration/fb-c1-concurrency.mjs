@@ -10,14 +10,14 @@ export async function verifyC1Concurrency(x){
  // Force both serializations using a trigger only in this owned disposable database.
  async function waitHeld(key){for(let i=0;i<40;i++){const held=rows('select not pg_try_advisory_lock(530006,'+key+')');if(held)return;await new Promise(r=>setTimeout(r,25));}throw Error('Own concurrency marker not observed');}
  for(const orderFirst of [true,false]){
-  await activate(t,false);const before=await order(t);await accept(t,before.groups[0]);const concurrent=await order(t);const key=orderFirst?1:2;
+  await activate(t,false);const before=await order(t);await accept(t,before.groups[0]);let concurrent;const create=async()=>{concurrent=await order(t);return concurrent;};const key=orderFirst?1:2;
   const table=orderFirst?'fb_order_private.order_events':'fb_print_private.settings';
-  const condition=orderFirst?"new.hotel_id="+literal(t.id)+"::uuid and new.action='orders.accepted' and new.order_id="+literal(concurrent.order_id)+"::uuid":"new.hotel_id="+literal(t.id)+"::uuid and new.enabled and not old.enabled";
+  const condition=orderFirst?"new.hotel_id="+literal(t.id)+"::uuid and new.action='orders.registered'":"new.hotel_id="+literal(t.id)+"::uuid and new.enabled and not old.enabled";
   labSql("create function fb_print_private.c1_activation_delay() returns trigger language plpgsql set search_path='' as $$begin if "+condition+" then perform pg_advisory_xact_lock(530006,"+key+");perform pg_sleep(2);end if;return new;end$$;create trigger c1_activation_delay before "+(orderFirst?'insert':'update')+' on '+table+' for each row execute function fb_print_private.c1_activation_delay()');
   try{
-   const first=orderFirst?accept(t,concurrent.groups[0]):activate(t,true);await waitHeld(key);const second=orderFirst?activate(t,true):accept(t,concurrent.groups[0]);await Promise.all([first,second]);
+   const first=orderFirst?create():activate(t,true);await waitHeld(key);const second=orderFirst?activate(t,true):create();await Promise.all([first,second]);
   }finally{labSql('drop trigger c1_activation_delay on '+table+';drop function fb_print_private.c1_activation_delay()');}
-  await materialize(t);const found=jobs(t).filter(j=>j.order_id===concurrent.order_id);check(found.length===(orderFirst?0:1),'activation concurrent acceptance is deterministic: '+(orderFirst?'B commit first belongs to baseline':'activation commit first remains eligible'));
+  await materialize(t);const found=jobs(t).filter(j=>j.order_id===concurrent.order_id);check(found.length===(orderFirst?0:1),'activation concurrent registration is deterministic: '+(orderFirst?'B commit first belongs to baseline':'activation commit first remains eligible'));
   check(jobs(t).every(j=>j.order_id!==before.order_id),'explicit prior history never becomes a job');
   const after=await order(t);await accept(t,after.groups[0]);await materialize(t);check(jobs(t).filter(j=>j.order_id===after.order_id).length===1,'new accepted group after activation is neither lost nor duplicated');
  }

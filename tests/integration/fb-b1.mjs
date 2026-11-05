@@ -1,3 +1,4 @@
+import {legacyCommissionFixture} from './fb-commission-legacy-fixture.mjs';
 // Real local GoTrue/password + PostgREST + PostgreSQL. No tenant/cloud/API fallback.
 import '../../scripts/bootstrap-runtime.mjs';
 import assert from 'node:assert/strict';
@@ -41,6 +42,7 @@ try{
   for(const cap of ['orders.configure','orders.read','orders.transition','orders.cancel','orders.supervise','orders.pii.read'])
    await config(t.admin,'grant',{user_id:t.admin.id,capability:cap,active:true});
   check(!(await boundary.beginSession(t.slug)).ok,'no B configuration means native orders disabled '+t.name);
+  await legacyCommissionFixture(t);
   t.settings=await config(t.admin,'hotel',{enabled:true,timezone:'America/Recife',cancel_minutes:10,cancel_auto:true,cancel_free:false});
   t.kitchen=await config(t.admin,'sector',{name:'Cozinha',active:true});
   t.bar=await config(t.admin,'sector',{name:'Bar',active:true});

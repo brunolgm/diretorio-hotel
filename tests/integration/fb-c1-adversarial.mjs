@@ -3,7 +3,7 @@ import{rpc,rows,literal,labSql,newPrintCredential}from'./fb-c1-fixture.mjs';
 export async function verifyC1Adversarial(x){
  const{tenants,server,check,expectedError,cfg,grant,order,accept,materialize,claim,receipt,dispatch,result,auth,jobs}=x;
  const records=q=>rows("select coalesce(jsonb_agg(to_jsonb(q)),'[]') from ("+q+')q');
- const tables=records("select tablename from pg_tables where schemaname='fb_print_private'");check(tables.length===15,'exactly fifteen private C1 tables');
+ const tables=records("select tablename from pg_tables where schemaname='fb_print_private'");check(tables.length===18,'eighteen private C1 tables including commissioning and registration outbox');
  for(const t of tables)for(const role of ['anon','authenticated','service_role'])check(!rows("select has_table_privilege('"+role+"','fb_print_private."+t.tablename+"','SELECT,INSERT,UPDATE,DELETE')::text"),'no direct '+role+' grant '+t.tablename);
  check(records("select policyname from pg_policies where schemaname='fb_print_private'").length===0,'no permissive device/browser policy');
  check(!records("select column_name from information_schema.columns where table_schema='fb_print_private'").some(r=>['secret','token','room_token','first_name','last_name','room_label','note'].includes(r.column_name)),'C stores neither guest PII columns nor raw credentials');

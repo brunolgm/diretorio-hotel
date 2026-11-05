@@ -11,6 +11,7 @@ namespace LibGuest.PrintingBridge.Cloud;
 
 public sealed class CloudClient : IDisposable
 {
+    private long lastDiscovery;
     private readonly HttpClient http;
     private readonly BridgeOptions options;
     private readonly CredentialVault vault;
@@ -35,7 +36,7 @@ public sealed class CloudClient : IDisposable
     }
     private async Task<JsonDocument> Send(string operation, object body, CancellationToken cancellation, string? credentialOverride = null)
     {
-        if (operation is not ("exchange" or "heartbeat" or "claim" or "receipt" or "dispatch" or "result" or "spooler_dispatch" or "spooler_observation")) throw new BridgeFault("operation_invalid");
+        if (operation is not ("exchange" or "heartbeat" or "claim" or "receipt" or "dispatch" or "result" or "spooler_dispatch" or "spooler_observation" or "spooler_discovery")) throw new BridgeFault("operation_invalid");
         using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(options.CloudUri, operation.StartsWith("spooler_", StringComparison.Ordinal) ? "api/fb/printing/spooler/" + operation[8..] : "api/fb/printing/device/" + operation));
         request.Content = new ByteArrayContent(JsonSerializer.SerializeToUtf8Bytes(body)); request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
         if (operation != "exchange") request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", credentialOverride ?? vault.Load());
@@ -80,6 +81,12 @@ public sealed class CloudClient : IDisposable
             var value = response.RootElement;
             if (value.GetProperty("device_id").GetGuid() != options.DeviceId || !value.GetProperty("compatible").GetBoolean() || value.GetProperty("printer_ready").ValueKind != JsonValueKind.Null) throw new BridgeFault("heartbeat_incompatible");
             clock.Synchronize(value.GetProperty("server_time").GetDateTimeOffset() + Stopwatch.GetElapsedTime(start));
+            if (options.QueueDiscoveryEnabled && (lastDiscovery == 0 || Stopwatch.GetElapsedTime(lastDiscovery).TotalSeconds >= 60 || value.TryGetProperty("discovery_requested", out var requested) && requested.ValueKind == JsonValueKind.True))
+            {
+                using var discovery = await Send("spooler_discovery", new { protocol_version = 1, queues = new Printing.WindowsSpooler().Discover() }, cancellation, credentialOverride);
+                if (discovery.RootElement.GetProperty("device_id").GetGuid() != options.DeviceId || discovery.RootElement.GetProperty("physical_ready").ValueKind != JsonValueKind.Null) throw new BridgeFault("discovery_response_invalid");
+                lastDiscovery = Stopwatch.GetTimestamp();
+            }
         }
         catch (BridgeFault) { throw; }
         catch { throw new BridgeFault("heartbeat_incompatible"); }

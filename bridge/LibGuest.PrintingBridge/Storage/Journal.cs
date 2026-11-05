@@ -117,6 +117,18 @@ public sealed class Journal : IDisposable
             Database.Execute("DELETE FROM outbox WHERE operation='dispatch' AND job_id=? AND fence=?", job.JobId.ToString("D"), job.Fence); Event(job.JobId, job.Fence, "authorization_committed", now);
         });
     }
+    public void SourceCancelledBeforeDispatch(JournalJob job, JobEnvelope response, DateTimeOffset now)
+    {
+        Database.Transaction(() =>
+        {
+            var current = Get(job.JobId, job.Fence); Match(current, response);
+            if (current.Kind != "order" || current.Intent || current.Result is not null || current.LocalState != "authorization_pending" || current.CloudState != "leased" || response.State != "cancelled" || !response.Received || response.Authorized || response.DispatchRecorded || response.Revision <= current.Revision) throw new BridgeFault("cancellation_not_proven");
+            Update(current, response, "blocked");
+            Database.Execute("DELETE FROM outbox WHERE job_id=? AND fence=?", job.JobId.ToString("D"), job.Fence);
+            Database.Execute("DELETE FROM contents WHERE job_id=? AND fence=?", job.JobId.ToString("D"), job.Fence);
+            Event(job.JobId, job.Fence, "source_cancelled_before_dispatch", now);
+        });
+    }
     public void Intent(JournalJob job, DateTimeOffset now)
     {
         if (job.LocalState != "authorized" || job.Intent) throw new BridgeFault("dispatch_intent_invalid");

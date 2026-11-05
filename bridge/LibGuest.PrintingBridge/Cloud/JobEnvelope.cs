@@ -37,7 +37,7 @@ public sealed class JobEnvelope
             if (!JsonElement.DeepEquals(document.RootElement, value.GetProperty("snapshot"))) throw new BridgeFault("hash_invalid");
             if (document.RootElement.GetProperty("payload_version").GetInt32() != 1 || document.RootElement.GetProperty("renderer_version").GetInt32() != 1 || document.RootElement.GetProperty("lines").ValueKind != JsonValueKind.Array) throw new BridgeFault("version_incompatible");
             var kind = value.GetProperty("kind").GetString() ?? ""; var state = value.GetProperty("state").GetString() ?? "";
-            if (kind is not ("order" or "test" or "reprint") || state is not ("leased" or "dispatching" or "submitted" or "retry_wait" or "blocked" or "ambiguous" or "expired" or "cancelled")) throw new BridgeFault("envelope_invalid");
+            if (kind is not ("order" or "test" or "reprint" or "cancellation") || state is not ("leased" or "dispatching" or "submitted" or "retry_wait" or "blocked" or "ambiguous" or "expired" or "cancelled")) throw new BridgeFault("envelope_invalid");
             var fence = value.GetProperty("fence").GetInt64(); var revision = value.GetProperty("revision").GetInt32(); if (fence < 1 || revision < 1) throw new BridgeFault("envelope_invalid");
             var job = value.GetProperty("job_id").GetGuid(); var attempt = value.GetProperty("attempt_id").GetGuid(); if (job == Guid.Empty || attempt == Guid.Empty) throw new BridgeFault("envelope_invalid");
             DateTimeOffset? until = null;

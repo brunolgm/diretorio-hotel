@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
 
 [assembly: DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
 namespace LibGuest.PrintingBridge.Printing;
@@ -10,6 +11,7 @@ public sealed record QueueObservation(bool SpoolerAvailable, bool Found, string 
     public bool CanSubmit => SpoolerAvailable && Found && State == "unknown" && !RetainsDocuments;
 }
 public sealed record SpoolSubmission(bool Accepted, bool PossibleIo, int? JobId = null);
+public sealed record DiscoveredQueue([property: JsonPropertyName("name")] string Name, [property: JsonPropertyName("driver")] string Driver, [property: JsonPropertyName("state")] string State);
 public interface IWindowsSpooler
 {
     QueueObservation Observe(string queue);
@@ -67,6 +69,31 @@ public sealed class WindowsSpooler : IWindowsSpooler
             finally { ClosePrinter(handle); }
         }
         catch { return new(false, false, "unavailable"); }
+    }
+    public IReadOnlyList<DiscoveredQueue> Discover()
+    {
+        var result = new List<DiscoveredQueue>();
+        foreach (var queue in LocalQueues().Where(SpoolerDestination.ValidQueue).Take(64))
+        {
+            var driver = "";
+            if (OpenPrinter(queue, out var handle, IntPtr.Zero))
+            {
+                try
+                {
+                    GetPrinter(handle, 2, IntPtr.Zero, 0, out var needed);
+                    if (needed >= Marshal.SizeOf<Printer2>() && needed <= 1024 * 1024)
+                    {
+                        var buffer = Marshal.AllocHGlobal((int)needed);
+                        try { if (GetPrinter(handle, 2, buffer, needed, out _)) driver = TicketRendererV1.Clean(Marshal.PtrToStringUni(Marshal.PtrToStructure<Printer2>(buffer).Driver), 160); }
+                        finally { Marshal.FreeHGlobal(buffer); }
+                    }
+                }
+                finally { ClosePrinter(handle); }
+            }
+            var observed = Observe(queue); var state = observed.SpoolerAvailable && observed.Found && !observed.RetainsDocuments && observed.State is "unknown" or "offline" or "paper_out" or "error" ? observed.State : "unavailable";
+            result.Add(new(queue, driver, state));
+        }
+        return result;
     }
     public Task<SpoolSubmission> Submit(string queue, TicketV1 ticket, Action<int> persistId, Func<bool> dispatchAllowed, CancellationToken cancellation) => Task.Run(() => SubmitNative(queue, ticket, persistId, dispatchAllowed, cancellation), CancellationToken.None);
     private SpoolSubmission SubmitNative(string queue, TicketV1 ticket, Action<int> persistId, Func<bool> dispatchAllowed, CancellationToken cancellation)

@@ -10,6 +10,7 @@ import {orderRpc,OrderBoundaryError} from './rpc.server';
 import {nativeOffer,validRoomContext} from './offer.server';
 import type {Language,PublicOrder,QuoteLine} from './journey';
 import {fbOrderDiagnostic} from './diagnostics.server';
+import {cancellationContact,type ContactSource} from './cancellation-contact';
 
 import {privateOrderHeaders,orderBody,redactedOrderError} from './http-request';
 export {privateOrderHeaders,orderBody} from './http-request';
@@ -88,15 +89,14 @@ export async function handleOrderTracking(request:NextRequest,slug:string,id:str
  try{
   validId(id);await routeHotel(request,slug);const secret=request.cookies.get('lg_fb_access')?.value;
   if(!validOrderSecret(secret))throw new OrderBoundaryError(403,'forbidden');
-  let body:Record<string,unknown>|undefined;
-  if(request.method==='POST'){body=await orderBody(request,['revision'],1024);if(!Number.isSafeInteger(body.revision)||(body.revision as number)<1)throw new OrderBoundaryError(400,'invalid_input');}
-  else if(request.method!=='GET')throw new OrderBoundaryError(405,'invalid_input');
-  await admit(request,slug,body?'cancel':'status',secret);
+  if(request.method==='POST')throw new OrderBoundaryError(403,'forbidden');
+  if(request.method!=='GET')throw new OrderBoundaryError(405,'invalid_input');
+  await admit(request,slug,'status',secret);
   const client=createAdminClient();const args={p_hotel_slug:slug,p_access_secret:secret};
   const raw=await orderRpc<RawFacts>(client,'get_fb_order_status',args);
   if(raw?.order_id!==id)throw new OrderBoundaryError(403,'forbidden');
-  if(body){const result=await orderRpc<{status:string}>(client,'request_fb_order_cancellation',{...args,p_expected_revision:body.revision});return NextResponse.json({status:result.status},{headers:privateOrderHeaders});}
-  const cancellation=await orderRpc<PublicOrder['cancellation']>(client,'get_fb_order_cancellation_info',args);
+  const sources=await orderRpc<{specific:ContactSource|null;departments:ContactSource[]}>(client,'get_fb_order_contact_sources',args);
+  const cancellation:PublicOrder['cancellation']={automatic:false,minutes:0,request_status:null,contact:cancellationContact(sources)};
   const safe:PublicOrder={order_id:id,reference:id.slice(0,8).toUpperCase(),status:raw.status,revision:raw.revision,created_at:raw.created_at,currency:raw.currency,total_minor:raw.total_minor,fulfilment:raw.fulfilment,
    groups:raw.groups.map(g=>({label:g.sector_name,status:g.status})),lines:raw.lines.map(l=>({name:l.name,kind:l.kind,quantity:l.quantity,total_minor:l.total_minor,options:raw.options.filter(o=>o.line_id===l.id).map(o=>o.name)})),
    history:raw.history.filter(e=>['orders.registered','orders.accepted','orders.preparing','orders.ready','orders.out_for_delivery','orders.delivered','orders.cancelled','orders.cancellation_requested','orders.cancellation_denied'].includes(e.action)).map(e=>({action:e.action,status:e.status,at:e.at})),cancellation};

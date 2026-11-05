@@ -1,3 +1,4 @@
+import {legacyCommissionFixture} from './fb-commission-legacy-fixture.mjs';
 // Own synthetic tenants in the disposable offline lab. Never resolves a real hotel ID.
 import {randomBytes,randomUUID} from 'node:crypto';
 import {readFileSync} from 'node:fs';
@@ -21,6 +22,7 @@ export async function seedB23(){
   t.admin=await actor(t,'administrador','admin');t.reader=await actor(t,'operador','reader');t.barOperator=await actor(t,'operador','bar');
   for(const capability of ['orders.read','orders.transition','orders.cancel','orders.supervise','orders.pii.read','orders.configure'])await config(t.admin,'grant',{user_id:t.admin.id,capability,active:true});
   t.kitchen=await config(t.admin,'sector',{name:'Cozinha de fixture',active:true,sort_order:1});t.bar=await config(t.admin,'sector',{name:'Bar de fixture',active:true,sort_order:2});
+  await legacyCommissionFixture(t);
   t.settings=await config(t.admin,'hotel',{enabled:true,timezone:'America/Recife',cancel_auto:true,cancel_free:true,cancel_minutes:10});
   t.menu=await saved(t,'menu',{name:'Menu de homologação',is_published:true});t.category=await saved(t,'category',{name:'Categoria de homologação',menu_id:t.menu.id,is_published:true});
   t.item=await saved(t,'item',{name:'Prato de fixture',category_id:t.category.id,is_published:true,price_amount_minor:2500,currency:'BRL'});

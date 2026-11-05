@@ -34,8 +34,17 @@ public static class TicketRendererV1
         var kind = root.GetProperty("kind").GetString(); var lines = new List<string> { destination.Hotel };
         var reference = snapshot.TryGetProperty("reference", out var referenceValue) ? Clean(referenceValue.GetString(), 40) : "";
         if (kind != "test" && !System.Text.RegularExpressions.Regex.IsMatch(reference, "^[0-9A-F]{8}$")) throw new BridgeFault("renderer_reference_invalid");
-        if (kind == "test") lines.Add("TESTE LIBGUEST — NÃO É PEDIDO");
+        if (kind == "test") { lines.Add("LIBGUEST"); lines.Add("TESTE DE IMPRESSÃO"); lines.Add("TESTE LIBGUEST — NÃO É PEDIDO"); }
         else { if (kind == "reprint") lines.Add("REIMPRESSÃO"); lines.Add("Pedido " + reference); }
+        var cancellation = kind == "cancellation" || snapshot.TryGetProperty("document_kind", out var documentKind) && documentKind.GetString() == "cancellation";
+        if (cancellation)
+        {
+            lines.Insert(1, "CANCELAMENTO");
+            if (!snapshot.TryGetProperty("cancelled_at", out var cancelledAt)) throw new BridgeFault("renderer_cancellation_invalid");
+            lines.Add("Cancelado em: " + cancelledAt.GetDateTimeOffset().ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss 'UTC'", CultureInfo.InvariantCulture));
+            var reason = snapshot.GetProperty("cancellation_reason_code").GetString();
+            lines.Add("Motivo: " + (reason switch { "guest_request" => "Hóspede contatou o hotel", "unavailable" => "Indisponibilidade", "operational" => "Operacional", "other" => "Outro motivo registrado pela equipe", _ => throw new BridgeFault("renderer_cancellation_invalid") }));
+        }
         var createdAt = snapshot.TryGetProperty("created_at", out var created) ? created.GetDateTimeOffset() : destination.CreatedAt;
         if (createdAt is DateTimeOffset time)
         {
@@ -62,6 +71,6 @@ public static class TicketRendererV1
         }
         if (Allowed("allow_notes") && Private("note").Length > 0) lines.Add("Observação do pedido: " + Private("note"));
         if (lines.Count > 1000 || lines.Sum(l => l.Length) > 60000) throw new BridgeFault("renderer_content_oversized");
-        return new("LibGuest " + (kind == "test" ? "TESTE" : kind == "reprint" ? "REIMPRESSAO " + reference : reference), lines);
+        return new("LibGuest " + (kind == "test" ? "TESTE" : kind == "reprint" ? "REIMPRESSAO " + (cancellation ? "CANCELAMENTO " : "") + reference : cancellation ? "CANCELAMENTO " + reference : reference), lines);
     }
 }

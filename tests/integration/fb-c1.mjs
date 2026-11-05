@@ -4,9 +4,11 @@ import{seedC1,rpc,rows,literal,labSql}from'./fb-c1-fixture.mjs';
 const checks=[],check=(ok,label)=>{assert.ok(ok,label);checks.push(label);};
 let x;const expectedError=async(actor,name,args,code='42501')=>{const r=await actor.client.rpc(name,args);check(r.error?.code===code,name+' denies '+code+' (actual '+(r.error?.code||'success')+')');return r;};
 try{
+ check(rows('select count(*)::text from fb_print_private.settings')===0,'migration creates no enabled hotel or settings');
+ check(rows('select count(*)::text from fb_print_private.grants')===0,'migration creates no printing grants');
  x=await seedC1();const {tenants,server,cfg,grant,order,accept,activate,pair,auth,claim,receipt,dispatch,result,jobs,materialize}=x;const dir=join(x.s.dir,'c1');mkdirSync(dir,{recursive:true});
  const sql=labSql(readFileSync('supabase/tests/53_c1_print_cloud_matrix.sql','utf8'));writeFileSync(join(dir,'53_c1_print_cloud_matrix.sql.log'),sql);const sqlResult=JSON.parse(sql.split('\n').find(l=>l.includes('"suite"')));check(sqlResult.failed===0,'actual C1 SQL metadata/ACL/RLS '+sqlResult.passed);console.log(JSON.stringify(sqlResult));
- check(rows('select count(*)::text from fb_print_private.settings')===0,'migration creates no enabled hotel or settings');check(rows('select count(*)::text from fb_print_private.grants')===0,'migration creates no printing grants');
+
  for(const t of tenants){
   for(const actor of [t.admin,t.operator,t.viewer,t.reader,x.platform])await expectedError(actor,'get_current_hotel_fb_print_config',{});
   for(const cap of ['printing.configure','printing.test','printing.reprint'])await grant(t,t.admin,cap);
@@ -22,9 +24,9 @@ try{
   const active=await activate(t,true);check(active.enabled&&!!active.activation_id,'explicit activation has a baseline '+t.name);await materialize(t);check(jobs(t).length===0,'historical accepted group does not materialize '+t.name);
   const made=await order(t,x.combo(t));t.c1Order=made;check(made.groups.length===2,'real B combo splits into two sectors '+t.name);
   await accept(t,made.groups.find(g=>g.sector_id===t.kitchen.id));
-  await Promise.all(Array.from({length:50},()=>materialize(t)));check(jobs(t).length===1,'50 reconciliations yield one first-sector job '+t.name);
+  await Promise.all(Array.from({length:50},()=>materialize(t)));check(jobs(t).length===2,'50 reconciliations yield one job per registered sector '+t.name);
   check(rows('select to_jsonb(status) from fb_order_private.orders where id='+literal(made.order_id))==='registered','group prints before aggregate accepted '+t.name);
-  await accept(t,made.groups.find(g=>g.sector_id===t.bar.id));await materialize(t);const all=jobs(t);check(all.length===2,'one job per accepted group/destination '+t.name);
+  await accept(t,made.groups.find(g=>g.sector_id===t.bar.id));await materialize(t);const all=jobs(t);check(all.length===2,'one job per registered group/destination '+t.name);
   const kitchen=all.find(j=>j.sector_id===t.kitchen.id),bar=all.find(j=>j.sector_id===t.bar.id);t.c1Jobs={kitchen,bar};
   check(kitchen.snapshot.lines.length===1&&kitchen.snapshot.lines[0].quantity===2&&kitchen.snapshot.lines[0].name===t.custom.name,'kitchen receives only its expanded combo component '+t.name);
   check(bar.snapshot.lines.length===1&&bar.snapshot.lines[0].quantity===4&&bar.snapshot.lines[0].name===t.drink.name,'bar receives only its expanded quantity without re-multiplication '+t.name);

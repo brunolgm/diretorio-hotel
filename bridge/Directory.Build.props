@@ -8,7 +8,7 @@
     <Deterministic>true</Deterministic>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <NuGetAudit>false</NuGetAudit>
-    <Version>1.1.0</Version>
+    <Version>1.3.0</Version>
     <RuntimeFrameworkVersion>10.0.14</RuntimeFrameworkVersion>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>

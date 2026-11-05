@@ -11,10 +11,10 @@ import {printingDiagnostic} from './diagnostics.server';
 const headers={'Cache-Control':'private, no-store, max-age=0','Pragma':'no-cache','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'};
 export {headers as printingHeaders,failure as printingFailure,body as readPrintingBody,tls as requirePrintingTls};
 function failure(error:unknown){const e=error instanceof PrintBoundaryError?error:new PrintBoundaryError(503,'unavailable');return NextResponse.json({error:e.code},{status:e.status,headers:{...headers,'X-FB-Print-Diagnostic-ID':printingDiagnostic(e.status)}});}
-async function body(request:Request){
+async function body(request:Request,maximum=8192){
  if(!isJsonContentType(request.headers.get('content-type')))throw new PrintBoundaryError(415,'invalid_content_type');
  const controller=new AbortController();const input={headers:request.headers,body:request.body?.pipeThrough(new TransformStream(),{signal:controller.signal})??null};
- let timer:ReturnType<typeof setTimeout>|undefined;try{const r=await Promise.race([readUtf8BodyWithLimit(input,8192),new Promise<never>((_,reject)=>{timer=setTimeout(()=>{reject(new PrintBoundaryError(408,'request_timeout'));controller.abort();},10000);})]);if(!r.ok)throw new PrintBoundaryError(r.reason==='too_large'?413:400,'invalid_body');try{return JSON.parse(r.text) as unknown;}catch{throw new PrintBoundaryError(400,'invalid_json');}}finally{clearTimeout(timer);controller.abort();}
+ let timer:ReturnType<typeof setTimeout>|undefined;try{const r=await Promise.race([readUtf8BodyWithLimit(input,maximum),new Promise<never>((_,reject)=>{timer=setTimeout(()=>{reject(new PrintBoundaryError(408,'request_timeout'));controller.abort();},10000);})]);if(!r.ok)throw new PrintBoundaryError(r.reason==='too_large'?413:400,'invalid_body');try{return JSON.parse(r.text) as unknown;}catch{throw new PrintBoundaryError(400,'invalid_json');}}finally{clearTimeout(timer);controller.abort();}
 }
 function tls(request:NextRequest){if(request.nextUrl.protocol!=='https:'&&!(process.env.FB_LOCAL_LAB==='1'&&['localhost','127.0.0.1'].includes(request.nextUrl.hostname)))throw new PrintBoundaryError(403,'https_required');}
 export async function devicePrintingHttp(request:NextRequest,operation:string){try{

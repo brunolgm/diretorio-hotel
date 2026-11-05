@@ -2236,3 +2236,981 @@ artefatos temporários continuam excluídos do futuro stage.
 **C3 + C4 + C5-LAB tecnicamente aprovados. A arquitetura de impressão nativa está
 pronta para checkpoint Git; C5-REAL permanece pendente e nenhuma propriedade real
 foi ativada.**
+
+## C5-REAL / Fase 0 — pré-comissionamento Bugan Recife, 05/11/2026
+
+### [C5-REAL PILOTO]
+
+**BUGAN RECIFE — APROVADO COMO PILOTO**, por Bruno. A aprovação seleciona o hotel;
+não autoriza instalação, impressão, ativação remota ou virada operacional.
+Identidade fornecida: Bugan Recife, slug `bugan-recife`, subdomínio
+`buganrecife.libguest.digital`, experiência V4 Premium. Não se consultou o tenant.
+Alvo futuro: Restaurante Filipe native, Room Service native, cardápio/pedidos
+LibGuest e impressão por setor. Goomer/TheX/PDV e operação atual permanecem intactos.
+
+### [CHECKPOINT]
+
+Antes da análise: branch `sprint-53-fnb`, HEAD e referência local
+`origin/sprint-53-fnb` em `f3e60f447bb14654230bec143e333489c5cc154e`, mensagem
+`feat: complete F&B printing operations lab`, working tree limpa e zero staged.
+Origin não foi consultado pela rede. Código C1/C2/C3/C4 e C5-LAB congelados.
+C5-REAL físico não foi executado. Esta seção é o único arquivo versionado alterado
+na Fase 0; o runbook anterior não continha levantamento/procedimento específicos.
+
+### [READINESS DO CÓDIGO]
+
+| Componente | Evidência no código congelado | Classificação / condição |
+|---|---|---|
+| C1/C3 | Domínio, capabilities, CAS, pairing, fila e auditoria; gates LAB anteriores | PRONTO PARA PILOTO técnico; implantação/configuração remota pendentes |
+| Build | Release/win-x64/self-contained novamente compilado/publicado, zero warnings/erros | PRONTO PARA PILOTO como artefato identificado; não instalado |
+| Config production example | URL example.invalid, GUID vazio, adapter Windows ausente/default false | REQUER CONFIGURAÇÃO; exemplo não é arquivo operacional pronto |
+| Cloud/TLS | HTTPS obrigatório, raiz `/`, sem redirect, produção rejeita pin/certificado LAB | REQUER CONFIGURAÇÃO e validação futura do endpoint real |
+| Proxy | HttpClientHandler.UseProxy=false | REQUER LEVANTAMENTO; se proxy HTTP explícito for obrigatório, REQUER ALTERAÇÃO DE CÓDIGO ou saída direta aprovada |
+| DPAPI/ACL | CurrentUser, mesmo SID/device; diretório com ACL protegida só para identidade atual | REQUER CONFIGURAÇÃO e HOMOLOGAÇÃO FÍSICA sob conta do serviço |
+| Windows Service | Dispatcher/handler SCM, STOP/SHUTDOWN e CancellationToken; não instala nem configura recovery | REQUER CONFIGURAÇÃO e HOMOLOGAÇÃO FÍSICA de startup/reboot/stop/recovery |
+| Paths | CommonApplicationData/LibGuest/PrintingBridge/device-id; produção rejeita raiz externa | PRONTO no código; REQUER provisionamento de pasta/permissões |
+| SQLite | DLL Windows, WAL/FULL, schema incremental 0→1→2→3, integrity check, lock único | REQUER HOMOLOGAÇÃO FÍSICA de OS/DLL/disco/EDR; sem instalar SQLite por suposição |
+| Renderer V1 | Snapshot canônico, setor/quantidades congelados, políticas PII, TESTE/REIMPRESSÃO | PRONTO tecnicamente; HOMOLOGAÇÃO FÍSICA de papel, fontes, margens e legibilidade |
+| Spooler | EnumPrinters LOCAL, fila autorizada; recusa nome UNC/caminho e retenção KEEPPRINTEDJOBS | REQUER CONFIGURAÇÃO/HOMOLOGAÇÃO FÍSICA; fila compartilhada só por UNC não é suportada diretamente |
+| Driver/I/O | GDI pode bloquear; cancelamento não interrompe necessariamente chamada nativa | REQUER HOMOLOGAÇÃO FÍSICA; alteração de código somente se requisito/defeito real exigir |
+| Health/logs/recovery | Estado técnico, JSONL limitado, intent/result/ACK duráveis; nunca confirmed | PRONTO tecnicamente; rotina operacional/monitoramento local a definir |
+| Shadow comercial | Não há flag de shadow por pedido, sandbox financeiro ou exclusividade de fila no produto | REQUER PLANO DE ISOLAMENTO; BLOQUEADOR do segundo teste até sua aprovação |
+| Hardware/fluxo atual | Nenhuma evidência física do Bugan foi fornecida | BLOQUEADOR do primeiro teste físico; não é defeito comprovado do código |
+
+Não foi encontrada necessidade incondicional de alterar código para um piloto
+com fila Windows local compatível, saída HTTPS direta e identidade provisionada.
+Isso não comprova que o Bugan possui essas condições. Nenhum hardcode de localhost
+ou certificado LAB é necessário em produção. Nome SCM fixado no código:
+`LibGuestPrintingBridge`; usar esse nome no procedimento futuro. Não planejar
+múltiplas instâncias/contas no mesmo PC sem revisar o desenho do piloto.
+
+Divergência documental localizada: a lista de tabelas da seção Journal do README
+anterior omite `spooler_calls`; o schema local 3 a cria e a utiliza. A informação
+correta nesta Fase 0 inclui essa tabela técnica. Prefixo de software reportado em
+produção é `c2-1.1.0`, apesar de conter C4; não é indicador de modo LAB.
+
+### [BRIDGE PACKAGE]
+
+Build/release local somente, sem restore/rede, execução da bridge, testes físicos
+ou instalação. SDK 10.0.403, runtime incluído 10.0.14, bridge 1.1.0, RID win-x64,
+configuração Release. InformationalVersion:
+`1.1.0+f3e60f447bb14654230bec143e333489c5cc154e`.
+
+Artefatos em `out/c5-real-phase0-f3e60f4/` (ignorados, não commitar):
+
+- `publish/`: 192 arquivos, 80.748.294 bytes (~77,0 MiB); copiar a pasta completa.
+- `manifest.json`: commit, versão, SDK/runtime, RID, build e SHA-256 de cada arquivo.
+- `LibGuest.PrintingBridge-1.1.0-f3e60f4-win-x64.zip`: 35.849.168 bytes (~34,2 MiB).
+- `package.sha256`: integridade do ZIP. As 192 entradas foram verificadas contra
+  o manifesto por hash, com normalização do separador de paths do ZIP Windows.
+
+SHA-256 ZIP:
+`166eda144696b667fe42e24ee292631697b5d5987e044b494f9624c5ddcfa6f2`
+
+SHA-256 EXE:
+`bdce66799439accf221825daa2af06096076e1e0635dead932de1a32cea50598`
+
+Pacote contém EXE, DLL principal, deps/runtimeconfig, PDB produzido pelo publish,
+assemblies/runtime .NET e componentes nativos distribuídos pelo runtime. Relação
+exata: manifesto; não copiar somente o EXE. Não contém configuração operacional,
+credenciais ou certificado LAB. Zero PackageReference direto. Ainda depende do
+Windows: winsqlite3.dll, Crypt32/Kernel32, Advapi32, Winspool/GDI e driver da fila.
+Não precisa de SDK/.NET global no PC alvo, mas self-contained não torna qualquer
+Windows compatível. Confirmar edição/build x64 e suporte oficial do .NET 10; o
+check do programa `Windows major >=10` sozinho não comprova suporte do OS.
+
+O PE do EXE tem certificate-table size zero: sem assinatura Authenticode embutida
+neste artefato. Checksum identifica integridade/origem registrada, não identidade
+criptográfica de editor. Não se criou assinatura, MSI, instalador ou auto-update.
+Se EDR/política exigir assinatura, isso será decisão antes da instalação.
+Na futura transferência: comparar SHA do ZIP, extrair em área controlada, validar
+cada arquivo pelo manifesto e registrar commit/versão/hash/PC/SID/data/operador em
+termo de instalação. ZIP futuro pode ter hash diferente; não reaproveitar este
+hash para outro pacote. Updates do runtime exigem novo pacote, não troca avulsa.
+
+### [WINDOWS SERVICE]
+
+**Procedimento futuro, NÃO EXECUTADO:**
+
+1. TI aprova PC, conta, logon de serviço, perfil, ACLs, fila, acesso e rollback.
+2. Validar hashes; copiar binários completos para pasta versionada somente leitura.
+3. Criar configuração sem segredo fora do repositório; inicialmente adapter OFF.
+4. Sob a identidade final, com perfil disponível, realizar pairing por entrada
+   oculta e comprovar descriptografia/heartbeat. Não parear como Bruno/Admin e
+   simplesmente mudar o usuário do serviço depois.
+5. Criar serviço sob a mesma identidade, parado até liberação do teste. Exemplo
+   PowerShell conceitual abaixo: placeholders obrigatórios, somente TI autorizada.
+6. Configurar recovery no SCM: primeira falha reiniciar após 60s, segunda após
+   180s, subsequentes sem ação; reset do contador após 1 dia. Não usar reinício
+   infinito para mascarar credential_unreadable/operator_required. Incluir falhas
+   reportadas com SERVICE_STOPPED/erro não zero, pois o wrapper usa 1066/1.
+7. Validar configuração real, permissões, startup automático sem login, logs,
+   shutdown/reboot e recovery. Não depender do working directory do SCM.
+8. Somente com autorização específica habilitar adapter/fila e iniciar primeiro TESTE.
+
+```powershell
+# SOMENTE MODELO FUTURO — NÃO EXECUTAR NESTA FASE
+$pilotBinaryPath = '"C:\Program Files\LibGuest\PrintingBridge\1.1.0-f3e60f4\LibGuest.PrintingBridge.exe" service --config "C:\ProgramData\LibGuest\PrintingBridge\config.json"'
+$pilotCredential = Get-Credential -UserName '<CONTA_WINDOWS_APROVADA>' -Message 'Credencial somente na interface segura da TI; nunca no chat'
+New-Service -Name 'LibGuestPrintingBridge' -BinaryPathName $pilotBinaryPath -StartupType Automatic -Credential $pilotCredential
+# Definir as três ações acima no painel Recovery do serviço e então, com autorização:
+sc.exe failureflag LibGuestPrintingBridge 1
+```
+
+Nenhum comando deste bloco foi executado. Não há senha em argumento, arquivo ou
+relatório. O wrapper aceita stop/shutdown, mas driver bloqueado pode impedir
+encerramento rápido; WaitHint 15s não é garantia de término em 15s. Se houver
+travamento, preservar journal/evidência e classificar possível I/O; não matar e
+apagar fila para “resolver”. Não alterar timeout global do Windows sem decisão.
+O dispatcher SCM é chamado depois da preparação local do diretório/journal;
+medir também essa inicialização/integrity_check com volume representativo, sem
+presumir que o build self-contained comprova o tempo de startup no hotel.
+
+### [DPAPI / CONTA]
+
+Identidade real: **[NÃO CONFIRMADO — LEVANTAMENTO FÍSICO NECESSÁRIO]**.
+Proposta: conta dedicada de menor privilégio, aprovada pela TI (local ou domínio
+conforme acesso à fila/rede); não presumir LocalSystem, conta de Bruno ou nome fixo.
+Precisa de logon como serviço, leitura/execução de binários, leitura da configuração,
+controle do seu diretório de dados e acesso à fila. Não precisa ser administrador
+para operação normal; instalação/provisionamento são tarefas separadas da TI.
+
+CurrentUser exige material de perfil/DPAPI disponível. SCM carrega o perfil da
+conta de serviço segundo a documentação Microsoft; isso não substitui validar
+o perfil e o round-trip após reboot, sem sessão interativa. Pairing e serviço
+devem usar o mesmo SID no mesmo PC. Conferir SID e diretório, não só nome da conta.
+Pairing é de uso único/5 minutos; credencial C1 tem validade de 90 dias, sem
+renovação automática comprovada: definir responsável/alerta para rotação explícita.
+
+Se política permitir provisionamento interativo temporário, TI abre sessão segura
+da identidade final com perfil e executa `pair --config <path-absoluto>` com entrada
+oculta. Depois comprova operação SCM sem login. Se a conta não pode logar
+interativamente, não presumir que o runbook já possui bootstrap seguro: definir
+mecanismo não interativo aprovado, sob o mesmo SID/perfil, usando stdin protegido;
+nunca tarefa com segredo em linha de comando/arquivo/environment. Se isso exigir
+ferramenta/código novo, apresentar decisão, sem implementar silenciosamente.
+
+Trocar conta, apagar/recriar perfil, reinstalar Windows ou mover vault pode impedir
+decrypt. Preservar journal, suspender operação e planejar reprovisionamento/rotação
+sob controle, sem apagar tombstones nem repetir ambiguous. CurrentUser continua;
+LocalMachine só por decisão expressa, não é correção automática.
+
+### [PATHS / ACL]
+
+Paths propostos, ainda não criados no Bugan:
+
+| Uso | Path / permissão |
+|---|---|
+| Binários | `C:\Program Files\LibGuest\PrintingBridge\1.1.0-f3e60f4\`; serviço Read/Execute, manutenção por TI |
+| Config sem segredo | `C:\ProgramData\LibGuest\PrintingBridge\config.json`; leitura pelo serviço, escrita somente por manutenção autorizada |
+| Dados por device | `%ProgramData%\LibGuest\PrintingBridge\<device-id>\`; CurrentUser proprietário/FullControl do leaf, sem acesso de usuários comuns |
+| SQLite | leaf `journal.sqlite`, `journal.sqlite-wal`, `journal.sqlite-shm`; mesmo volume/local, não share de rede/sync cloud |
+| Material protegido | leaf `credential.dpapi`; não exportar plaintext nem copiar para outro SID |
+| Logs | leaf `logs\bridge.jsonl`, `.1`, `.2`; até 3×1 MiB, códigos técnicos sem conteúdo do pedido |
+| Lock | leaf `.bridge.lock`; não remover com processo ativo |
+
+O código regrava proprietário/DACL protegida do leaf com somente o SID atual em
+FullControl/herança. Preparar direitos necessários para criar/ajustar essa pasta;
+não presumir que apenas Modify basta. ACL adicional do leaf será substituída pela
+rotina; não depender dela como mecanismo externo de manutenção. Binário/config
+ficam fora do leaf mutável. Caminhos absolutos obrigatórios no serviço; produção
+rejeita DataDirectory fora da raiz CommonApplicationData\LibGuest\PrintingBridge.
+Não usar Program Files/repositório para SQLite, vault ou logs. Considerar espaço
+para WAL/runtime/retidos e política EDR/backup sem exclusão ampla de antivírus.
+
+SQLite: WAL/FULL, lock único, schema 3, corrupção/schema incompatível bloqueiam sem
+reset. Conteúdo DPAPI expira pelo menor prazo da fonte/24h; PII tem TTL próprio;
+metadados até 180 dias. Startup/terminal limpam conteúdo; processo parado não faz
+GC. Checkpoint/secure_delete não garantem eliminação forense em SSD/backups.
+
+### [CLOUD PREREQUISITES]
+
+Todos os itens reais abaixo: **[PENDENTE DE ATIVAÇÃO REMOTA AUTORIZADA]**;
+estado aplicado/deployado não foi consultado nesta Fase 0.
+
+- Migrations/pré-requisitos e deployment de C1–C4 correspondentes ao commit,
+  reconciliados pelo fluxo canônico; nunca reaplicar versões já presentes.
+- Backend: NEXT_PUBLIC_SUPABASE_URL/ANON_KEY e SUPABASE_SERVICE_ROLE_KEY corretos
+  no servidor; nenhuma service role/JWT humano/Supabase secret na bridge.
+- HTTPS com hostname/cadeia/validade reconhecidos pelo Windows da conta final,
+  sem redirect, login de preview/SSO ou desafio de browser no protocolo máquina.
+- Candidato de base pela identidade fornecida: `https://buganrecife.libguest.digital/`.
+  Confirmar que esse origin serve os endpoints sem rewrite/proteção incompatível;
+  não é URL testada. CloudUri exige `/`, sem path de slug/api, query ou fragmento.
+- DNS, relógio correto para TLS, saída TCP 443 direta; `UseProxy=false`, cookies
+  e redirects desativados. Sem listener/inbound da bridge e sem abrir firewall
+  nesta fase. Tráfego PC→impressora pertence ao driver/rede existente a levantar.
+- `FB_LOCAL_LAB` não habilitado; configuração production sem simulator, checkpoint,
+  laboratory_spooler ou certificado/pin LAB. Não copiar configs/vaults de out.
+- Admin normal, perfil ativo/tenant correto, grants setoriais e auditoria.
+- Device novo, pairing seguro, destination/printer/routing revisados; printing
+  habilitado somente em janela autorizada após inspeção de backlog/rotas existentes.
+- Plano de manutenção/expurgo Cloud B/C1, operação e rotação de credencial; migrations
+  não criam schedules nem provisionam tenant. Não presumir collector agendado.
+
+Endpoints necessários no mesmo origin:
+
+```text
+POST /api/fb/printing/device/exchange
+POST /api/fb/printing/device/heartbeat
+POST /api/fb/printing/device/claim
+POST /api/fb/printing/device/receipt
+POST /api/fb/printing/device/dispatch
+POST /api/fb/printing/device/result
+POST /api/fb/printing/spooler/dispatch
+POST /api/fb/printing/spooler/observation
+GET/POST /api/admin/fb-printing/console
+/admin/impressao e /admin/pedidos
+```
+
+Modelo de configuração futura (NÃO pronto, GUID/URL finais precisam de aprovação):
+environment production; DeviceId real; base HTTPS validada; DataDirectory por device;
+simulator_enabled false; laboratory_spooler false; sem pin/checkpoint LAB.
+windows_spooler_enabled false no provisionamento inicial e true somente para teste
+autorizado. Defaults: active poll 5s, idle 20s, heartbeat 15s, HTTP timeout 15s,
+backoff máximo 300s + jitter. Não há push/atualização automática.
+
+### [MIGRATIONS NECESSÁRIAS]
+
+Ordem dos oito arquivos Sprint 53, depois dos históricos anteriores exigidos:
+
+| Ordem | Etapa | Arquivo |
+|---|---|---|
+| 1 | A | 20261102223413_sprint_53_fb_foundation.sql |
+| 2 | A/governança | 20261102230145_sprint_53_fb_governance_available.sql |
+| 3 | B1 | 20261103035109_sprint_53_b1_orders_foundation.sql |
+| 4 | B2+B3 | 20261103050831_sprint_53_b23_public_journey_operations.sql |
+| 5 | B4 | 20261103095658_sprint_53_b4_maintenance_hardening.sql |
+| 6 | C1 | 20261103162805_sprint_53_c1_print_cloud.sql |
+| 7 | C3 | 20261104231319_sprint_53_c3_print_admin.sql |
+| 8 | C4 | 20261104235347_sprint_53_c4_spooler_authorization.sql |
+
+Aplicação real: pendente de autorização e reconciliação do histórico real, não
+verificado. Nenhuma migration nova criada/aplicada nesta rodada. A exige helpers
+Auth/entitlement/audit e identidade composta Service existentes; Storage hotel-assets
+server-only/RLS. Governança verifica corpo/owner/ACL da função e aborta drift;
+não substituir definição divergente à força. B depende de A; B23/B4 evoluem B;
+C1 usa setores/eventos B; C3/C4 dependem de C1. Não executar SQL de testes/bootstrap.
+
+Riscos de janela: DDL, constraints/FKs, substituição de funções e índices não
+concurrent podem bloquear/aguardar locks; índice C3 usa jobs existentes. C1/C3/C4
+e B4 definem lock_timeout 5s, sem significar que toda migration termina em 5s.
+A/B iniciais não têm esse guard universal. Planejar volume/janela/backup e testar
+drift antes da aplicação futura; não editar migrations congeladas ou desabilitar
+RLS/guards para fazê-las passar. Migrations não ativam printing nem publicam menus.
+
+### [TENANT BUGAN — CONFIGURAÇÃO FUTURA]
+
+| Item | Conhecido por código/fixture | Ainda necessário no real |
+|---|---|---|
+| Identidade | Nome/slug/subdomínio/V4 fornecidos por Bruno | Reconciliar ID/host/tenant no ambiente autorizado, sem usar IDs de fixture |
+| Módulos | core.directory + fb.menu para native; rooms.qr para contexto de quarto | Estado real e opt-in aprovado; não presumir habilitados |
+| Operação B | hotel_settings.enabled, timezone, outlet mode/accepting/pickup/room_delivery | Horários, política/cancelamento, responsáveis; aceitar native só após homologação |
+| Outlets | Restaurante Filipe e Room Service são alvos aprovados; fixtures existem | Cadastro/vínculos/cardápio/idiomas/preços/itens reais homologados; Goomer preservado |
+| Setores | Modelo genérico, fixtures Cozinha/Bar | Nomes físicos, distribuição de itens/modifiers/combos, impressoras e backup |
+| Printing | enabled default false, fan_out false, ticket_minutes default 15 (1–120) | TTL e flags aprovados por operação/privacidade; ativação explícita em janela |
+| Device | Opaque credential, protocolo/payload/renderer 1 | PC/conta real, novo device e pairing; nenhuma credencial LAB |
+| Destinations/printers | tenant/device/fila/revisões próprios | Fila local exata, adapter windows_spooler, prioridade/principal/backup |
+| Routing | setor→destino, frozen por job | Mapa aprovado; nenhuma alteração de roteamento atual nesta fase |
+| Capabilities | printing.configure/test/reprint + orders.configure/read/transition/cancel/supervise/pii.read conforme função | Pessoas reais, mínimo escopo, concessões e confirmação auditadas |
+| PII | Nome default OFF; room/notes defaults C1 true sob projeção/TTL | Aprovar room/notes explicitamente; não copiar defaults da fixture sem revisão |
+
+Antes do primeiro test, pode ser necessário configurar setor e fb.menu para gestão
+B; isso não exige abrir checkout native. Manter novas admissões native fechadas.
+Printing ON permite claim/materialização; inspecionar jobs/rotas/novos accepted
+existentes antes, sem presumir fila vazia. Baseline de ativação não elimina jobs
+já existentes nem prova ausência de possível I/O. Primeiro piloto não é virada.
+
+### [SETORES — CONFIRMADO × NÃO CONFIRMADO]
+
+Confirmado somente no domínio/fixtures: separação por setor, componentes de combo,
+Cozinha/Bar conceituais (nomes das fixtures: Cozinha e Bar), destino lógico, backup.
+**Setores reais, nomes, itens por setor, quantidade de filas/impressoras, impressora
+compartilhada e backup: [NÃO CONFIRMADO — LEVANTAMENTO FÍSICO NECESSÁRIO].**
+Não transferir o mapa de fixtures automaticamente. Impressora de rede pode funcionar
+como fila local Windows com driver; nome UNC direto/queue só per-user/redirected
+não pode ser presumido compatível com EnumPrinters LOCAL e conta SCM.
+
+### [PC PILOTO — DADOS NECESSÁRIOS]
+
+Checklist para TI/Bruno, sem senha/token, sem instalar/coletar remotamente agora:
+
+- [ ] Qual equipamento ficará ligado? Desktop/mini-PC, fabricante/modelo, hostname.
+- [ ] Windows edition, versão/build, x64, domínio/workgroup e política de suporte.
+- [ ] Conta candidata, SID a confirmar pela TI, perfil, logon de serviço e direitos
+  de provisionamento; política permite pairing sob essa identidade?
+- [ ] Janela/uptime esperado, suspensão/hibernação, reboot/update, energia/UPS existente.
+- [ ] Internet, DNS, saída HTTPS direta, rede/VLAN e eventual proxy obrigatório.
+- [ ] Antivírus/EDR, política de binários não assinados e aprovação por hash.
+- [ ] Espaço livre/disco local, permissões ProgramData, backup/sync/retensão.
+- [ ] Permissão para instalar serviço futuro e acesso às filas sem usuário logado.
+- [ ] Quem administra e quem acompanha o teste; contato operacional e rollback.
+
+Todos os valores reais acima: **[NÃO CONFIRMADO — LEVANTAMENTO FÍSICO NECESSÁRIO]**.
+Não enviar senha, chave, pairing ou documento com dados de hóspedes ao chat.
+
+### [IMPRESSORAS — DADOS NECESSÁRIOS]
+
+Preencher uma ficha por equipamento, sem alterar:
+
+- [ ] Setor/local, fabricante/modelo, quantidade e responsável operacional.
+- [ ] USB/rede/outra conexão; IP/porta configurada se rede, sem presumir TCP 9100.
+- [ ] PC responsável, fila local/compartilhada, nome exato, servidor de impressão.
+- [ ] Driver/nome/versão, arquitetura, disponibilidade para a conta do serviço.
+- [ ] Papel/largura/formulário/margens/corte e comportamento atual.
+- [ ] Linguagem conhecida, processamento GDI suportado, status/offline/paper out
+  observado pelo operador; não presumir que ESC/POS puro aceita renderer GDI.
+- [ ] Retenção KEEPPRINTEDJOBS, preferências por usuário, diálogos interativos.
+- [ ] Outros sistemas que usam a fila e condições de uso concorrente seguro.
+- [ ] Existe backup? É outra fila/PC/impressora? Nenhum failover pós-I/O automático.
+
+Fabricante/modelo/IP/porta/driver/papel/filas/quantidade/setores reais:
+**[NÃO CONFIRMADO — LEVANTAMENTO FÍSICO NECESSÁRIO]**.
+
+### [FLUXO ATUAL GOOMER/THEX — PONTOS A CONFIRMAR]
+
+Quem efetivamente gera a impressão hoje: Goomer direto, TheX, PDV ou serviço local?
+Qual PC/servidor fica ligado, sob qual conta, e existe fila Windows ou IP/protocolo
+direto? Como os setores são separados? Uma impressora recebe vários setores?
+Há compartilhamento, impressão fiscal/financeira, redirecionamento ou processo
+intermediário? Como operador detecta falta de papel/reimprime hoje? Quem autoriza
+uma janela sem interferir na produção? **Tudo não confirmado.** Nenhuma integração
+ou substituição foi inferida só porque Goomer/TheX aparecem no histórico.
+
+### [PLANO PRIMEIRO TESTE]
+
+Somente depois do GO e autorização física/remota específicos:
+
+1. Registrar PC/SID/fila/modelo/driver/pacote/hash e responsáveis; preservar o fluxo
+   Goomer atual. Garantir que o destino escolhido não prejudique impressões reais.
+2. Provisionar Cloud/conta/device/fila aprovados, native admissions fechadas,
+   backlog inspecionado; parear/iniciar sob conta final. Verificar heartbeat sem
+   confundir conectividade com prontidão física. Não copiar pairing para histórico.
+3. Liberação explícita de printing/adapter no escopo revisado; Admin C3 gera um
+   único job tipo test em rota/setor aprovados: TESTE LIBGUEST — NÃO É PEDIDO.
+4. Operador ao lado da impressora confere papel, legibilidade, referência de teste,
+   destino/setor e quantidade de vias. Registrar job/fence, timestamps, ID spool
+   local, resultado Cloud e evidência física sem dados privados.
+5. Aceitação exige ticket correto, sem via inesperada, sem interferência na operação.
+   Se incerto, não clicar várias vezes nem reenviar documento por suposição.
+
+Não há modo de shadow automático no código. Shadow inicial significa só o teste
+identificado e assistido, sem espelhar/duplicar pedidos Goomer. Não mudar Goomer.
+
+Segundo teste, separado e futuro: primeiro definir ambiente/tenant/janela isolada
+de homologação e autorização; não há flag “pedido sem efeito comercial” nem menu
+privado de teste garantidos pelo código. Não publicar produto fictício no catálogo
+visível a hóspedes. Se não houver isolamento aceitável, NO-GO para pedidos; manter
+somente job test. Quando aprovado: pedido sintético de setor único, item simples,
+modifier e observação controlada NÃO PREPARAR/SEM COBRANÇA, preferindo retirada.
+Quarto fictício somente em contexto de homologação validado, sem QR de hóspede
+real. Nenhum PMS/PDV/pagamento/lançamento financeiro; conferir que integrações
+externas não recebem/exportam essa homologação. B ainda cria registro de pedido;
+isso não é um sandbox financeiro nativo. Não executar nada disso na Fase 0.
+
+### [PLANO TESTE MULTISSETOR]
+
+Depois do simples: usar os setores REAIS confirmados (Cozinha/Bar apenas exemplos),
+combo com componentes destinados a mais de um grupo, modifiers e quantidades
+conhecidas. Registrar uma folha esperada por grupo/destino. Operadores confirmam
+cada impressora recebendo somente suas linhas, contexto preservado, sem cruzamento,
+via extra, multiplicação de quantidade ou recálculo de preço. Se uma fila atende
+mais de um setor, combinar identificação/ordem de retirada, não inventar hardware.
+
+### [PLANO DE FALHAS]
+
+Somente janela assistida futura; não parar spooler/rede compartilhados sem TI e
+responsável operacional. Usar teste/pedido sintético, um cenário por vez:
+
+| Cenário | Evidência/critério |
+|---|---|
+| Restart bridge | journal/ACK recuperados, sem segunda submissão após possível I/O |
+| Reboot Windows | conta/perfil/DPAPI/filas disponíveis sem login; startup/recovery efetivos |
+| Internet indisponível | backoff, fila/resultado duráveis, reconexão sem duplicar |
+| Spooler parado | separar pré-I/O de chamada incerta; proteger outros sistemas |
+| Impressora offline/cabo | distinguir aceitação no spool de entrega física; sem retry cego |
+| Papel ausente | registrar percepção no driver/Windows e no hardware; pode ficar unknown |
+| ACK perdido | não manipular prod/forçar falha sem mecanismo aprovado; mesmo ACK, sem novo documento |
+| Ambiguous | conferir fisicamente a via, manter original/histórico, nenhuma repetição automática |
+| Reprint | capability/motivo/confirmação, novo job REIMPRESSÃO, conferir vias e vínculo |
+
+Paper out no código: `GetPrinter(PRINTER_INFO_2).Status & 0x10`; só detectável se
+driver/porta/equipamento reportarem o bit. Estado zero/outros não mapeados é unknown,
+nunca “pronto”. No Bugan: **DEPENDE DO DRIVER/EQUIPAMENTO — NÃO HOMOLOGADO**.
+Fila com KEEPPRINTEDJOBS não é aceita para submit; não desmarcar em fila compartilhada
+sem avaliar impacto/autorização. Não confiar em status genérico como confirmação.
+
+`submitted ≠ impresso fisicamente`. Código C4 não emite confirmed nem consome
+confirmação física correlacionada. Foto/observação assinada de ticket permite
+homologação manual registrada externamente, não promoção automática do estado.
+Mesmo GetJob concluído pode não provar papel. Qualquer futuro confirmed automático
+exige evidência confiável correlacionada a job/fence/ID/equipamento e evolução
+aprovada do contrato/adapter; não habilitar por suposição nesta versão.
+
+### [ROLLBACK]
+
+Plano futuro sem destruição, executável só após autorização:
+
+1. Suspender o piloto e avisar operação; manter Goomer e continuidade do atendimento.
+2. Bloquear novas admissões native nos outlets piloto (accepting false) ou operação
+   B aprovada; printing OFF sozinho NÃO bloqueia novos pedidos comerciais.
+3. Printing OFF por Admin/CAS autorizado; coordenar stop da bridge e inspeção de
+   intent/resultado/ACK. OFF não desfaz documento já entregue ao spooler nem impede
+   instantaneamente I/O de autorização já concedida.
+4. Não apagar jobs, journal/WAL, vault, histórico ou spool queue; não reinserir pedido
+   no Goomer se houver possibilidade de já estar em produção sem conferência humana.
+5. Registrar queued/leased/dispatching/submitted/ambiguous e IDs; reprint somente
+   após conferência e autorização, novo job marcado. Preservar resultado durável.
+6. Não reativar printing/bridge automaticamente: auditar backlog/TTL/possível I/O e
+   atendimento manual. Baseline de nova ativação não limpa jobs antigos existentes.
+   Decisão de retorno/virada para native permanece separada, mantendo Goomer.
+
+Suporte: bridge offline → verificar serviço/conta/perfil/internet/logs; fila bloqueada
+→ TI verifica fila/driver sem purge; falha antes de I/O → caminho seguro C1; ambiguous
+→ operador confere via/setor antes de qualquer nova via. Em todos, preservar
+atendimento atual, metadados e logs sanitizados; não “resolver” apagando SQLite.
+
+### [GO / NO-GO]
+
+**GO de planejamento/Fase 0. NO-GO para primeiro teste físico neste estado.**
+GO futuro só com responsáveis e evidências de todos os itens:
+
+- [ ] Migrations/deployment/HTTPS/secret server-side planejados e autorizados;
+  ambiente real reconciliado e validado na fase apropriada.
+- [ ] Pacote/version/commit/hash aceitos, PC x64/Windows suportado e disco/EDR compatíveis.
+- [ ] Conta/SID/perfil/DPAPI/ACL/logon de serviço definidos; sem login interativo
+  dependente; pairing/descriptografia/reboot e fila sob essa identidade validados.
+- [ ] Internet/DNS/443 direto ou decisão aprovada para proxy; nenhuma exceção TLS LAB.
+- [ ] Fila/printer/driver/papel/setor conhecidos e acessíveis, sem diálogo interativo.
+- [ ] Mapa/routing/principal/backup e PII/TTL revisados; baseline/backlog inspecionados.
+- [ ] Operador/coordenação física, teste marcado, critérios de aprovação e rollback.
+- [ ] Convivência Goomer/TheX/PDV segura; nenhuma duplicação de pedido real.
+- [ ] Autorização explícita da próxima fase, distinta da seleção de Bugan como piloto.
+
+NO-GO se equipamento/conta/fila/driver desconhecidos, perfil/DPAPI incompatível,
+fila inacessível ao serviço, conflito com operação atual, isolamento/rollback
+ausente ou operação não autorizada. Não transformar ausência de levantamento em
+defeito presumido do código.
+
+### [BLOQUEADORES ATUAIS]
+
+Fatos desta Fase 0: nenhum inventário de PC/impressoras/setores reais fornecido;
+conta/SID/perfil/fila de serviço ainda não definidos; impressão atual Goomer/TheX
+não descrita; condições de rede/proxy/EDR não confirmadas; estado remoto não
+inspecionado e execução remota/física não autorizada; isolamento do segundo teste
+não definido. Serviço/driver/papel/reboot físicos não homologados. Não há defeito
+incondicional novo comprovado que obrigue alterar código antes do levantamento.
+
+### [PRÓXIMA AÇÃO HUMANA]
+
+Primeira coleta única: **identificar com o responsável de operação/TI quem gera a
+impressão atual do Goomer/TheX e qual computador/serviço a sustenta**. Se não houver
+PC local, registrar isso. Só então escolher PC candidato e preencher sua ficha;
+depois levantar filas/impressoras. Não solicitar senha nem vinte dados de uma vez.
+
+### [GIT]
+
+HEAD/branch/origin local preservados no checkpoint f3e60f4. Somente este documento
+canônico alterado para registrar o plano que faltava; zero código/migration alterados,
+stage, commit ou push. Pacote/manifesto/hashes/logs em out são temporários ignorados,
+não binários versionados. Preferência por árvore limpa respeitada no checkpoint;
+a exceção documental necessária fica explicitamente disponível para revisão.
+
+### [REMOTO]
+
+Zero deploy, Supabase remoto, credencial de produção, alteração Bugan/Goomer/TheX/PDV,
+device/pairing/routing reais, instalação/registro de serviço/firewall/impressora,
+execução da bridge ou impressão. Apenas leitura local, build/publish/empacotamento
+no computador de desenvolvimento e consulta a documentação pública oficial Microsoft.
+
+Referências primárias para condições operacionais (não evidência do hotel):
+[conta/perfil SCM](https://learn.microsoft.com/en-us/windows/win32/services/service-user-accounts),
+[DPAPI](https://learn.microsoft.com/en-us/windows/win32/api/dpapi/nf-dpapi-cryptprotectdata),
+[recovery não-crash](https://learn.microsoft.com/en-us/windows/win32/api/winsvc/ns-winsvc-service_failure_actions_flag),
+[PRINTER_INFO_2](https://learn.microsoft.com/en-us/windows/win32/printdocs/printer-info-2),
+[suporte Windows/.NET](https://learn.microsoft.com/en-us/dotnet/core/install/windows).
+
+## HOTFIX local — registro durável e cancelamento pela equipe (2026-11-05)
+
+Este adendo substitui a fronteira de impressão descrita anteriormente como
+`orders.accepted`. Preserva integralmente o runbook C5-REAL Fase 0 anterior e seu
+registro histórico; o pacote 1.1.0 dessa fase não é o candidato deste hotfix.
+Checkpoint: `sprint-53-fnb`, `f3e60f447bb14654230bec143e333489c5cc154e`.
+Nenhum stage, commit, push, deploy, Supabase remoto ou tenant real autorizado.
+
+### Fronteira e atomicidade
+
+A confirmação B continua sendo a única operação que registra um pedido. O evento
+pai `orders.registered`, inserido após grupos, linhas, opções e acesso, deriva
+`orders.group_registered` por grupo e grava `fb_print_private.registration_facts`
+com snapshot comercial imutável na MESMA transação. Falha no snapshot/outbox
+reverte a confirmação, inclusive chave idempotente. Cart, quote e checkout sem
+commit não originam impressão. Polling C1 consome a fonte durável, respeitando
+ativação por tenant, baseline sem backfill, roteamento e TTL existentes.
+Aceite é somente operacional: não origina outro job.
+
+A fonte privada tem RLS forçada e nenhum acesso direto de anon/authenticated/
+service_role. As únicas novas FKs seguem o GC de B por CASCADE, com o guard de
+retenção já existente; jobs técnicos continuam independentes da retenção B.
+Unicidade por hotel/grupo/tipo do fato, processing por evento, originais por
+grupo/destino/cópia e cancelamento por evento/job original tornam replay e
+polling concorrente idempotentes. A migration é aditiva, sem backfill ou ativação.
+
+### Hóspede, contato e operação
+
+V1 não permite ao hóspede cancelar nem solicitar cancelamento. UI não envia POST;
+HTTP retorna 403 e a RPC antiga falha com 42501, mesmo via service_role. Tracking
+PT/EN/ES orienta contato e informa que só a equipe confirma o cancelamento.
+
+Fonte canônica: serviço publicado em `hotel_sections`, ligado ao outlet por
+`hotel_fb_service_links`; depois departamentos habilitados do próprio hotel,
+priorizando F&B e Recepção/contato geral. A RPC service-only
+`get_fb_order_contact_sources` exige o token opaco do pedido e limita o tenant.
+`lib/fb/orders/cancellation-contact.ts` reutiliza `publishedContactPhones` de
+`lib/contact-phones.ts`; só aceita telefone internacional explícito, sem deduzir
+DDI, WhatsApp ou cadastrar conteúdo. Sem contato adequado, mostra o marcador
+localizado BLOQUEADO/BLOCKED, sem inventar telefone ou mecanismo de solicitação.
+
+Admin usa `cancel_current_hotel_fb_order_v1`, com autenticação normal, perfil
+ativo, hotel corrente, leitura/cancelamento em TODOS os setores, revisão CAS,
+motivo enumerado e confirmação explícita no formulário. Entregue é terminal;
+em entrega exige supervisão. A operação preserva a capacidade existente de
+drenar pedidos com admissão OFF. Pedidos cancelados nunca são reativados.
+Solicitações históricas continuam visíveis/decidíveis pela equipe, mas fixtures
+que as exercitam as inserem somente no laboratório descartável próprio.
+
+### Compensação impressa e destino congelado
+
+`orders.cancelled` deriva `orders.group_cancelled` e outbox por grupo na transação
+do cancelamento. Cada original materializado recebe um NOVO job `cancellation`,
+com seu `original_job_id`, referência, setor, linhas/opções/quantidades congeladas,
+data/hora e motivo estruturado. Não é reprint nem mudança do job original.
+Destino, dispositivo, revisão da impressora, fila e cópia vêm EXATAMENTE do
+`routing_snapshot` original, nunca da rota atual. Original ambíguo/submitted
+continua nesse estado: cancelamento não constitui confirmação física nem desfaz
+uma impressão anterior. Alteração/desativação da configuração original bloqueia
+a autorização; não há failover, reroteamento ou impressão em outra fila.
+
+Cancelamento antes do polling continua com ambos os fatos duráveis. O consumidor
+materializa o original antes de clonar seu destino. Sem original elegível (por
+exemplo, baseline anterior à ativação), mantém bloqueio `source_unavailable`;
+não inventa destino. TTL continua impedindo aviso automático tardio. A ativação
+não reproduz pedidos/cancelamentos históricos. Equipe deve resolver bloqueios
+operacionais e confirmar com o hóspede; printing nunca determina estado B.
+
+Bridge 1.2.0 aceita `cancellation`; protocolo/payload/renderer permanecem V1,
+como extensão aditiva. Claims de avisos e suas reimpressões exigem software 1.2+
+conhecido. Bridges anteriores continuam com order/test/reprint normais, sem
+consumir avisos desconhecidos. Renderer marca CANCELAMENTO (inclusive reprint de
+aviso), preserva REIMPRESSÃO quando aplicável e redige PII expirada. DPAPI,
+journal SQLite, fencing, intent/result, retry e ACK permanecem os mesmos.
+O console Admin reconhece/faz filtro do novo tipo; não foi criada administração
+paralela nem modificado o modelo de grants.
+
+### Catálogo e matriz visual
+
+A publica o catálogo; B.enabled, entitlements, outlet.mode e accepting_orders
+existentes decidem admissão. Catálogo publicado sem ordering continua visível,
+com compra bloqueada; externo continua externo. Não existe novo modo/configuração.
+Mesmo domínio para Grand Mercure Copacabana, Novotel Leme, Novotel Salvador Rio
+Vermelho, Mercure Rio Boutique Copacabana, Bugan e Default técnico. V4 somente
+onde já aprovada; Home, temas, QR e integrações externas permanecem preservados.
+
+### Homologação e limites
+
+Evidências e contagens finais estão registradas na homologação abaixo.
+Toda execução é local com fixtures, GoTrue/PostgREST/Postgres descartáveis próprios,
+HTTPS de laboratório e transportes falsos. Submitted significa entrada no spooler,
+sem prova de impressão física. C5-PHYSICAL-LAB/Bugan permanece pendente de execução
+assistida autorizada. Bematech MP-4200 HS não foi utilizada, configurada, instalada
+ou acionada. Nenhum serviço Windows foi instalado e nenhuma fila física recebeu
+pedido, teste ou cancelamento.
+
+### Recuperação comprovada de cancelamento antes do dispatch
+
+C5 encontrou e corrigiu um bloqueio real: a resposta Cloud `cancelled` para o
+original recebido antes de qualquer autorização deixava o journal aguardando
+intervenção e impedia consumir o aviso independente. Bridge 1.2.0 agora registra
+atomicamente o bloqueio definitivo daquele original, sua revisão/estado Cloud,
+a auditoria e a remoção de pendências/cache, somente quando há prova autenticada
+do mesmo job/attempt/fence/hash, receipt confirmado, revisão avançada e nenhum
+intent, resultado ou dispatch autorizado/registrado. O worker pode então consumir
+o job independente de cancelamento. Não inventa resultado submitted do original.
+
+Se a resposta de cancelamento se perde, 409/410 isolados NÃO provam ausência de
+I/O: o worker relê receipt do mesmo attempt e só avança com a mesma prova completa.
+Dispatching, intent, resultado ambíguo, fence/hash incompatível ou ausência de prova
+continuam conservadores e exigem intervenção quando cabível. Journals previamente
+marcados com intervenção não são liberados automaticamente. SQLite continua em
+schema 3; protocolo, persistência e ACK existentes permanecem preservados.
+
+### Arquivos candidatos do hotfix
+
+Relação completa dos 37 arquivos, incluindo os novos testes e a documentação. O adendo C5-REAL preexistente permanece integralmente preservado.
+
+- `app/admin/pedidos/actions.ts`
+- `bridge/Directory.Build.props`
+- `bridge/LibGuest.PrintingBridge.Tests/Program.cs`
+- `bridge/LibGuest.PrintingBridge.Tests/SpoolerTests.cs`
+- `bridge/LibGuest.PrintingBridge/BridgeFault.cs`
+- `bridge/LibGuest.PrintingBridge/Cloud/JobEnvelope.cs`
+- `bridge/LibGuest.PrintingBridge/Engine/BridgeWorker.cs`
+- `bridge/LibGuest.PrintingBridge/Printing/TicketV1.cs`
+- `bridge/LibGuest.PrintingBridge/Storage/Journal.cs`
+- `bridge/README.md`
+- `components/admin/fb-orders-panel.tsx`
+- `components/admin/fb-printing-console.tsx`
+- `components/public/order-tracking.tsx`
+- `docs/PRODUCT_MAP.md`
+- `docs/SPRINT_53_FNB.md`
+- `lib/fb/orders/http.server.ts`
+- `lib/fb/orders/journey.ts`
+- `lib/fb/printing/contracts.ts`
+- `supabase/tests/53_c1_print_cloud_matrix.sql`
+- `tests/integration/fb-b1-adversarial.mjs`
+- `tests/integration/fb-b23-compatibility.mjs`
+- `tests/integration/fb-b23-operations.mjs`
+- `tests/integration/fb-b23-public.mjs`
+- `tests/integration/fb-b4-contracts.mjs`
+- `tests/integration/fb-c1-adversarial.mjs`
+- `tests/integration/fb-c1-concurrency.mjs`
+- `tests/integration/fb-c1-fixture.mjs`
+- `tests/integration/fb-c1.mjs`
+- `tests/integration/fb-c2-runtime.mjs`
+- `tests/integration/fb-c2.mjs`
+- `tests/integration/fb-c4.mjs`
+- `tests/integration/fb-c5-lab.mjs`
+- `bridge/LibGuest.PrintingBridge.Tests/CancellationTests.cs`
+- `lib/fb/orders/cancellation-contact.ts`
+- `supabase/migrations/20261105075655_sprint_53_registration_cancellation_printing.sql`
+- `tests/integration/fb-historical-cancellation-fixture.mjs`
+- `tests/integration/fb-registration-cancellation.mjs`
+
+Checkpoint e 58 migrations anteriores conferidos por SHA-256; zero stage.
+
+### Homologação técnica local final — 2026-11-05
+
+**[HOTFIX IMPLEMENTADO] GO técnico local.** Zero falhas nos gates abaixo.
+
+| Suite | Aprovados | Falhas |
+|---|---:|---:|
+| C1 completo (HTTP/concorrência) | 770 | 0 |
+| C3 Admin autenticado | 181 | 0 |
+| Registro/cancelamento direcionados | 211 | 0 |
+| C4 HTTPS/renderer/spooler falso | 87 | 0 |
+| C1↔C2 nativo | 204 | 0 |
+| C5-LAB completo | 116 | 0 |
+| B1 completo | 623 | 0 |
+| B23/B4 produção/browser | 2599 | 0 |
+| Auth/RLS/CAS/Storage completo | 1434 | 0 |
+| .NET / DPAPI / SQLite / renderer | 188 | 0 |
+| Segurança | 748 | 0 |
+| SSR | 391 | 0 |
+| Browser F&B | 1524 | 0 |
+| Browser V3/V4 / Home | 152 | 0 |
+
+SQL: A **197**, C1 **258**, B1 **232**, B23 **63**, B4 manutenção **20** e temporal **15**, todos sem falhas. Os checks SQL integrados não são somados novamente como cenários independentes.
+
+TypeScript, build Next de produção, build/publish .NET local e diff check passaram. Lint: zero erros, quatro avisos de img preexistentes; nenhum novo aviso.
+
+Matriz pública real em fixtures: seis identidades, PT/EN/ES, 390/1440 px, 59 migrations e zero requisições externas. Formulário novo de cancelamento pela equipe exercitado com autenticação normal nos seis hotéis; tracking sem botão/form de solicitação pelo hóspede. Supervisor pode cancelar em entrega; perfil sem supervisão não pode; qualquer grupo entregue impede cancelamento.
+
+C5 comprovou que cancelamento antes do dispatch bloqueia somente o original sem I/O e deixa consumir o aviso independente, inclusive com resposta perdida. Cancelamento de original ambíguo produz aviso separado e preserva a ambiguidade. Cancelamento/reprint do aviso em C4 percorreu HTTPS e transporte falso nos seis hotéis.
+
+Evidências: `out/fb-hotfix-final-report.json`, `out/fb-hotfix-integrity.json`, relatórios por suite referenciados nesses arquivos. Capturas de fixtures inspecionadas:
+
+- `out/libguest-fb-auth-fccb44ea/b23/screenshots/fb-lab-bugan-tracking-1440-pt.png`
+- `out/libguest-fb-auth-fccb44ea/b23/screenshots/fb-lab-bugan-tracking-390-es.png`
+
+Executável local: `out/fb-c2-publish/LibGuest.PrintingBridge.exe`, versão 1.2.0 (base f3e60f4, candidato não commitado). SHA-256: `EA302462BE165530F79FEA61A71F319BA5502DCE9B8775153A88692A991EE7FE`. O pacote ZIP 1.1.0 anterior continua como evidência histórica, sem substituição silenciosa.
+
+Migration candidata: `20261105075655_sprint_53_registration_cancellation_printing.sql`, aplicada somente em laboratórios descartáveis. As 58 migrations anteriores e o documento preexistente estão preservados por conferência de hash/prefixo.
+
+Git: `sprint-53-fnb`, HEAD inicial/final `f3e60f447bb14654230bec143e333489c5cc154e`, 32 arquivos alterados + 5 novos, zero stage, zero commit, zero push. A árvore permanece com o candidato local para revisão. Laboratório final encerrado, relatórios/capturas mantidos, demais projetos não tocados.
+
+**Homologação operacional/física pendente:** telefone publicado real, setores/equipamentos/filas reais e piloto assistido. GO local não homologa papel, equipamentos ou operação do hotel. Bematech MP-4200 HS não utilizada. Zero deploy, Supabase remoto, tenant real, publicação de conteúdo, serviço Windows instalado ou impressão física. Home aprovada e experiências existentes preservadas.
+
+## 2026-11-05 — Productização 1.3.0 e LAB físico: checkpoint humano pendente
+
+Esta seção registra a execução posterior ao hotfix acima; não substitui seus
+resultados históricos nem autoriza tenant real. Checkpoint Git preservado:
+`sprint-53-fnb`, HEAD e ref local origin
+`f3e60f447bb14654230bec143e333489c5cc154e`, sem stage/commit/push/deploy.
+
+Implementados modos explícitos no Admin, pré-flight, catálogo técnico de filas
+detectadas, seleção de fila, refresh e bloqueio por ausência/driver alterado,
+teste antes de ativar pedidos e evidência humana separada do estado técnico.
+Catálogo somente conserva a projeção publicada A sem carrinho/checkout nativos.
+As regras de pedidos, setores, cancelamento e roteamento congelado do hotfix
+permanecem compartilhadas por tenant; a Home não foi alterada.
+
+Instalador oficial PowerShell/self-contained: Program Files/ProgramData,
+configuração gerada por device, conta virtual `NT SERVICE\LibGuestPrintingBridge`,
+DPAPI **CurrentUser**, provisionamento por pipe local com ACL e verificação do
+PID do SCM. Não há listener TCP nem endpoint local de impressão. Credencial não
+vai em argumentos, JSON, logs ou arquivo plaintext. Criar/parar/desinstalar o
+serviço e ler a credencial pela própria identidade do serviço foram comprovados
+no Windows. Desinstalação preserva journal/configuração/binários. Runbook:
+[`FNB_PRINTING_DEPLOYMENT_RUNBOOK.md`](FNB_PRINTING_DEPLOYMENT_RUNBOOK.md).
+
+Correções encontradas na validação: diretório padrão do instalador; tipos CIM
+`uint8` e senha **NULL** da conta virtual; espera pelos estados do SCM; scripts
+do pacote em UTF-8 com BOM; contrato `name/driver/state` do discovery; credencial
+de substituição também no discovery; teste C1 permitido antes de ativar impressão;
+projeção de carrinho retirada em catálogo somente. As tentativas bloqueadas e
+correções do harness foram preservadas em `out/fb-deployment/attempt-*.json`.
+
+Hotel sintético NOVO, sem configuração operacional anterior: **23 verificações
+aprovadas**, somente superfícies oficiais depois da preparação da fixture, sem
+exceção técnica e sem alterar código durante a tentativa aprovada. Incluiu
+catálogo sem carrinho PT/EN/ES, instalação/pareamento/heartbeat/discovery, seleção
+pelo formulário Admin, teste simulado, pré-flight e ativação normal.
+Fingerprint do código congelado:
+`dbea2a4dd288e6a2d843b09f396524841819d9a9cb59b064ac7ad0f4801ac6b7`.
+Capturas inspecionadas: `out/fb-deployment/admin-desktop.png`,
+`admin-mobile.png` e `catalog-only-{pt,en,es}.png`.
+
+Pacote candidato `out/fb-productization-package-9.zip`, versão
+`1.3.0+f3e60f447bb14654230bec143e333489c5cc154e`, SHA-256
+`cf1d101f07b45672d9acdf9816fe5e6ca2d8573f036f4f929c0d114cdfca939f`.
+Checksum não é assinatura de código. O pacote corresponde ao candidato local,
+não a um commit/release novo.
+
+Equipamento desta rodada: **MP-4200 TH**, driver `MP-4200 TH`, porta confirmada
+`Bematech_IP_172.21.7.248`, IP informado por Bruno `172.21.7.248`.
+A porta usa Bematech Port Monitor e não expõe PrinterHostAddress via CIM; não
+inferir confirmação independente do IP apenas pelo nome. A fila HS existe e
+foi apenas enumerada como metadado; não é destino autorizado para submissão.
+
+Um único TESTE físico submetido; **não há confirmação humana até este registro**:
+
+- Job: `a36fb5a6-4f5c-4eb8-95be-c7beb48d72d4`.
+- Tentativa: `2a763a7e-edd2-464a-8361-b66535854b58`, fence 1.
+- Device: `e1ce3993-11cb-42ee-9b64-ae346fb2b0f5`.
+- Destino: `68b08c5a-8c7f-4358-9b63-066299c820c0`.
+- Printer: `58aaa2cb-eb0f-45b9-8c04-467d41a4ce07`, revisão 1.
+- Fila `MP-4200 TH`; spool job ID **4**; resultado local/Cloud `submitted`.
+
+`submitted` não comprova papel. Checkpoint único enviado a Bruno para papel,
+legibilidade, largura/alinhamento, acentos e corte. Nenhum ticket físico de
+pedido, cancelamento ou reimpressão foi enviado. LAB/serviço preservados para
+continuidade; não reiniciar TESTE nem executar carga física.
+
+Gates reconfirmados até aqui: .NET **206**, segurança **754**, SQL A **197**,
+metadados C1 **283**, metadados de comissionamento **34**, SSR **391**, browser
+F&B **1524**, V3/V4 **152**, TypeScript e diff check aprovados. Lint: zero erros,
+quatro avisos img preexistentes. 58 migrations históricas e prefixo documental
+anterior preservados. Extensão local:
+`20261105164841_sprint_53_printing_commissioning.sql`, após o hotfix
+`20261105075655_sprint_53_registration_cancellation_printing.sql`; total 60.
+
+**Não é fechamento final da Sprint.** Pendentes: resposta ao checkpoint humano,
+pedido/cancelamento físicos condicionados a ela, regressões integrais isoladas,
+atualização final do README e auditoria consolidada. Relatório recuperável:
+`out/fb-productization-checkpoint.json`; evidência viva em
+`out/fb-deployment/report.json`. Bugan real continua piloto aprovado, não ativado;
+zero Supabase remoto, publicação de conteúdo, commit, push ou deploy.
+
+
+## 2026-11-05 — FECHAMENTO LOCAL: productização e LAB físico 1.3.0
+
+Este fechamento sucede o checkpoint humano pendente acima. Bruno confirmou o TESTE legível, alinhado, com acentos corretos e corte automático. Não houve nova pergunta nem reimpressão.
+
+**[RECUPERAÇÃO DO HOTFIX]** Preservados os 32 arquivos modificados e cinco novos anteriores, o adendo C5-REAL Fase 0 e as 58 migrations históricas. Extensão reaproveita o hotfix; não houve implementação do zero, reset, restore destrutivo ou alteração do worktree libguest-content-bridge.
+
+**[GATE HOTFIX]** Direcionados 211 aprovados novamente com a extensão. **[PRINTING ON REGISTER]** Pedido origina job enquanto registrado. **[GUEST CANCELLATION]** Hóspede só contata o hotel; HTTP/RPC de cancelamento bloqueados. **[STAFF CANCELLATION]** Staff normal com permissão, motivo e CAS; estados terminais e supervisão preservados. **[CANCELLATION PRINTING]** Novo job por evento/setor/cópia no roteamento original, sem alterar o anterior.
+
+**[CATALOG ONLY]** Publicação A preservada, sem carrinho/checkout nativos em PT/EN/ES; pedidos/impressão de pedidos desligados. **[ORDERING MODE]** Ativação explícita e atômica pelos flags existentes, sem BLOCKER. **[PRODUCTIZATION GATE]** APROVADO em LAB. **[BRIDGE INSTALLATION]** Pacote oficial self-contained, Program Files/ProgramData, ACLs e recuperação SCM; instalação/desinstalação comprovadas. **[PAIRING]** Código oculto por pipe local, PID verificado contra SCM; DPAPI CurrentUser e serviço sob a mesma conta virtual, leitura do vault comprovada no modo normal.
+
+**[PRINTER DISCOVERY]** Enumeração genérica, metadados técnicos apenas. **[ADMIN PRINTER SELECTION]** Formulário de seleção de fila detectada comprovado, sem queue name livre. **[TEST PRINT]** Teste C1 anterior à ativação normal e um teste físico. **[PREFLIGHT]** PASS/WARNING/BLOCKER; driver/fila ausente/obsoleta bloqueia; evidência humana não fabrica estado físico. **[FRESH HOTEL WITHOUT CODE]** APROVADO: 23 verificações antes do LAB físico, 32 no fluxo completo, nenhuma exceção técnica ou alteração de código durante a tentativa aprovada.
+
+**[PHYSICAL LAB GATE]** APROVADO no escopo técnico local com observação humana do TESTE. **[MP-4200 TH]** Fila e driver MP-4200 TH; porta Bematech_IP_172.21.7.248 confirmada. IP 172.21.7.248 informado por Bruno; monitor Bematech não expõe PrinterHostAddress no CIM. Três tickets efetivamente submetidos, nenhuma outra fila utilizada para I/O.
+
+| Ticket | Job | Tentativa | Spool ID | Resultado local/Cloud |
+|---|---|---|---:|---|
+| test | `a36fb5a6-4f5c-4eb8-95be-c7beb48d72d4` | `2a763a7e-edd2-464a-8361-b66535854b58` | 4 | submitted |
+| order | `5a428aaa-f543-4d62-a914-5bc7f06ff9a4` | `f5639157-1823-487d-92d5-d3a2edeb7426` | 5 | submitted |
+| cancellation | `6e099dc0-160e-48af-aaf3-4d9e5b27b1a8` | `a150337d-42da-4d49-94c9-0a522dcff279` | 6 | submitted |
+
+Destino comum `68b08c5a-8c7f-4358-9b63-066299c820c0`; printer `58aaa2cb-eb0f-45b9-8c04-467d41a4ce07`, revisão 1; device `e1ce3993-11cb-42ee-9b64-ae346fb2b0f5`. Fence 1 nos três attempts. Identidade `S-1-5-80-2056785065-2179409850-3283408200-815845478-1695560389`.
+
+**[PHYSICAL HUMAN VERIFICATION]** Bruno atestou somente o TESTE: papel, legibilidade, alinhamento/largura, acentos e corte automático. Os outros ACKs não são confirmação humana individual de papel. **[ORDER PRINT]** Quantidade 2, modificador e observação controlada, job submetido antes do aceite; impressão não alterou status comercial. **[ACCEPT NO DUPLICATE]** Aceite posterior sem segundo original nem spool call. **[CANCELLATION PRINT]** Staff cancelou e o aviso independente usou a mesma impressora/fila/destino original. **[REPRINT]** Não necessária, zero submissões.
+
+**[NETWORK MODEL]** Hóspede envia ao Cloud; pedido não depende da LAN do hotel. Bridge faz saída HTTPS ao Cloud; somente o PC/Windows Spooler precisa alcançar a fila instalada. Sem porta TCP de entrada na Bridge, RAW TCP, socket direto ou ESC/POS. Pipe local administrativo nega logon de rede e não imprime. **[FIVE-HOTEL MATRIX]** Cinco identidades atuais + Default em fixtures, desktop/mobile e PT/EN/ES, 1524 browser e 391 SSR; V3/V4/futura apresentação 152. Nenhum hotel foi migrado visualmente.
+
+**[FINAL AUDIT]** Serviço Windows de LAB desinstalado oficialmente, journal/configuração/vault/binários preservados; LABs de regressão descartáveis, nenhum I/O físico posterior. Cabeçalho histórico anterior e migrations preservados; sem artefatos gerados no inventário versionável.
+
+**[TESTES]** Zero falhas:
+
+| Suíte | Aprovados |
+|---|---:|
+| directed | 211 |
+| commissioning | 156 |
+| c1 | 776 |
+| c3 | 187 |
+| c4 | 87 |
+| c2 | 204 |
+| c5 | 116 |
+| b1 | 623 |
+| b23-b4 | 2599 |
+| auth | 1434 |
+| 53_b1_foundation_matrix | 238 |
+| 53_b23_journey_operations | 63 |
+| 53_b4_maintenance_matrix | 20 |
+| 53_b4_temporal_matrix | 15 |
+| security | 754 |
+| native | 206 |
+| sqlA | 197 |
+| c1Metadata | 283 |
+| commissioningMetadata | 34 |
+| ssr | 391 |
+| publicFb | 1524 |
+| v3v4 | 152 |
+
+TypeScript, Next otimizado, .NET build/tests/publish self-contained, parser dos scripts e diff check aprovados. Lint: zero erros, quatro avisos img preexistentes. Logs e paths exatos das suítes em `out/fb-productization-final-report.json`.
+
+**[MIGRATIONS]** 58 históricas inalteradas; hotfix local 59 preservado e extensão local 60. Ordem completa aplicada nos LABs (hashes no relatório JSON):
+
+1. `20260418_add_translation_tables.sql`
+2. `20260419_add_hotel_analytics_events.sql`
+3. `20260420_add_select_policy_for_hotel_analytics_events.sql`
+4. `20260421_add_session_id_to_hotel_analytics_events.sql`
+5. `20260422_add_hotel_theme_fields.sql`
+6. `202604230001_add_profiles_is_active.sql`
+7. `20260423_add_hotel_subdomain.sql`
+8. `202604260001_add_hotel_promotional_banners.sql`
+9. `202604260002_add_promotional_banner_storage_policies.sql`
+10. `202604260003_allow_promotional_banner_storage_in_hotel_folder.sql`
+11. `20260426_add_hotel_announcements.sql`
+12. `202604270001_add_service_action_type_to_hotel_sections.sql`
+13. `20260427_add_hotel_room_links.sql`
+14. `20260721_add_hotel_hero_image_url.sql`
+15. `20260724_add_hotel_brand_code.sql`
+16. `202608110001_45b_authz_helpers_and_rls_baseline.sql`
+17. `202608110002_45b_close_direct_analytics_insert.sql`
+18. `202608110003_45b_admin_audit_log.sql`
+19. `202608110004_45b_last_admin_rpc.sql`
+20. `202608110005_45b_storage_policies.sql`
+21. `202608110006_45b_room_links_rls.sql`
+22. `202608130001_46a_platform_identity_authorization.sql`
+23. `202608140001_46b_platform_dashboard_directory.sql`
+24. `202608140002_46c_platform_hotel_governance.sql`
+25. `202608150001_46_8_module_entitlements.sql`
+26. `202608170001_47_multi_hotel_onboarding.sql`
+27. `202608170002_48_activation_readiness.sql`
+28. `202608170003_49_analytics_pro.sql`
+29. `202608180001_50_public_experience_composition.sql`
+30. `202608250001_51_travel_flights_entitlement.sql`
+31. `202608250002_51_flight_center_configuration.sql`
+32. `202608250003_51_flight_center_airport_reorder.sql`
+33. `202608250004_51_public_flight_center.sql`
+34. `202608250005_51_public_flight_home_card.sql`
+35. `202608260001_51_flight_center_analytics.sql`
+36. `20260907034531_51_airlabs_distributed_coordinator.sql`
+37. `20260910043520_52_1_tourism_foundation.sql`
+38. `20260911011338_52_2a_tourism_main_image.sql`
+39. `20260914014530_52_2b1_tourism_revision_conflict.sql`
+40. `20261027215620_bugan_canonical_brand.sql`
+41. `20261028012744_52_2_tourism_governance_available.sql`
+42. `20261028034907_public_experience_media_v3.sql`
+43. `20261028100544_platform_existing_hotel_admin.sql`
+44. `20261028105402_hotel_bootstrap_and_slug.sql`
+45. `20261028165619_readiness_published_experience_hero.sql`
+46. `20261028230359_public_editorial_presentation.sql`
+47. `20261029024616_public_experience_v4_selection.sql`
+48. `20261029105535_tourism_editorial_destinations.sql`
+49. `20261029231150_airlabs_operational_budget_rollover.sql`
+50. `20261030045619_service_room_guides.sql`
+51. `20261102223413_sprint_53_fb_foundation.sql`
+52. `20261102230145_sprint_53_fb_governance_available.sql`
+53. `20261103035109_sprint_53_b1_orders_foundation.sql`
+54. `20261103050831_sprint_53_b23_public_journey_operations.sql`
+55. `20261103095658_sprint_53_b4_maintenance_hardening.sql`
+56. `20261103162805_sprint_53_c1_print_cloud.sql`
+57. `20261104231319_sprint_53_c3_print_admin.sql`
+58. `20261104235347_sprint_53_c4_spooler_authorization.sql`
+59. `20261105075655_sprint_53_registration_cancellation_printing.sql`
+60. `20261105164841_sprint_53_printing_commissioning.sql`
+
+**[RUNBOOK]** `docs/FNB_PRINTING_DEPLOYMENT_RUNBOOK.md` e `bridge/README.md` atualizados: instalar, parear, descobrir/selecionar, setores, teste, pré-flight, modos, primeiro pedido e rollback conservador sem apagar dados. Pacote `out/fb-productization-package-9.zip`, versão `1.3.0+f3e60f447bb14654230bec143e333489c5cc154e`, SHA-256 `cf1d101f07b45672d9acdf9816fe5e6ca2d8573f036f4f929c0d114cdfca939f`. Checksum não é assinatura de código; é candidato local, não release/commit novo.
+
+**[C5-REAL BUGAN]** Piloto aprovado, não ativado. Homologação editorial/operacional real, dados publicados, equipe, setores e equipamentos do hotel continuam ação posterior explicitamente autorizada. O LAB local não equivale a implantação no Bugan.
+
+**[SPRINT 53 STATUS]** Sprint 53 tecnicamente pronta para fechamento e checkpoint Git. O F&B nativo pode ser implantado em um novo hotel por instalação e configuração, sem desenvolvimento adicional. A ativação operacional do Bugan permanece separada e não foi executada.
+
+**[ARQUIVOS]** Inventário completo do working tree: 42 modified, 26 untracked. 68 arquivos. Artefatos bin/obj/publish, bancos, logs, certificados, caches, spool e screenshots não canônicos continuam fora do futuro commit.
+
+- ` M` `app/admin/pedidos/actions.ts`
+- ` M` `bridge/Directory.Build.props`
+- ` M` `bridge/LibGuest.PrintingBridge.Tests/Program.cs`
+- ` M` `bridge/LibGuest.PrintingBridge.Tests/SpoolerTests.cs`
+- ` M` `bridge/LibGuest.PrintingBridge/BridgeFault.cs`
+- ` M` `bridge/LibGuest.PrintingBridge/Cloud/CloudClient.cs`
+- ` M` `bridge/LibGuest.PrintingBridge/Cloud/JobEnvelope.cs`
+- ` M` `bridge/LibGuest.PrintingBridge/Configuration.cs`
+- ` M` `bridge/LibGuest.PrintingBridge/Engine/BridgeWorker.cs`
+- ` M` `bridge/LibGuest.PrintingBridge/Printing/TicketV1.cs`
+- ` M` `bridge/LibGuest.PrintingBridge/Printing/WindowsSpooler.cs`
+- ` M` `bridge/LibGuest.PrintingBridge/Program.cs`
+- ` M` `bridge/LibGuest.PrintingBridge/Storage/Journal.cs`
+- ` M` `bridge/README.md`
+- ` M` `components/admin/fb-orders-panel.tsx`
+- ` M` `components/admin/fb-printing-config.tsx`
+- ` M` `components/admin/fb-printing-console.tsx`
+- ` M` `components/public/order-tracking.tsx`
+- ` M` `docs/PRODUCT_MAP.md`
+- ` M` `docs/SPRINT_53_FNB.md`
+- ` M` `lib/fb/orders/http.server.ts`
+- ` M` `lib/fb/orders/journey.ts`
+- ` M` `lib/fb/printing/contracts.ts`
+- ` M` `lib/fb/printing/http.server.ts`
+- ` M` `supabase/tests/53_c1_print_cloud_matrix.sql`
+- ` M` `tests/integration/fb-b1-adversarial.mjs`
+- ` M` `tests/integration/fb-b1.mjs`
+- ` M` `tests/integration/fb-b23-compatibility.mjs`
+- ` M` `tests/integration/fb-b23-operations.mjs`
+- ` M` `tests/integration/fb-b23-public.mjs`
+- ` M` `tests/integration/fb-b23-seed.mjs`
+- ` M` `tests/integration/fb-b4-contracts.mjs`
+- ` M` `tests/integration/fb-c1-adversarial.mjs`
+- ` M` `tests/integration/fb-c1-concurrency.mjs`
+- ` M` `tests/integration/fb-c1-fixture.mjs`
+- ` M` `tests/integration/fb-c1.mjs`
+- ` M` `tests/integration/fb-c2-runtime.mjs`
+- ` M` `tests/integration/fb-c2.mjs`
+- ` M` `tests/integration/fb-c3.mjs`
+- ` M` `tests/integration/fb-c4.mjs`
+- ` M` `tests/integration/fb-c5-lab.mjs`
+- ` M` `tests/security/fb-c1.test.ts`
+- `??` `app/api/admin/fb-printing/commissioning/route.ts`
+- `??` `app/api/fb/printing/spooler/discovery/route.ts`
+- `??` `bridge/LibGuest.PrintingBridge.Tests/CancellationTests.cs`
+- `??` `bridge/LibGuest.PrintingBridge.Tests/DiscoveryTests.cs`
+- `??` `bridge/LibGuest.PrintingBridge/ServiceProvisioning.cs`
+- `??` `bridge/deployment/Bridge-Deployment.ps1`
+- `??` `bridge/deployment/Complete-LibGuestBridgePairing.ps1`
+- `??` `bridge/deployment/Get-LibGuestBridgeStatus.ps1`
+- `??` `bridge/deployment/Install-LibGuestPrintingBridge.ps1`
+- `??` `bridge/deployment/Set-LibGuestBridgeLabTransport.ps1`
+- `??` `bridge/deployment/Uninstall-LibGuestPrintingBridge.ps1`
+- `??` `components/admin/fb-printing-commissioning.tsx`
+- `??` `docs/FNB_PRINTING_DEPLOYMENT_RUNBOOK.md`
+- `??` `lib/fb/orders/cancellation-contact.ts`
+- `??` `lib/fb/printing/commissioning.ts`
+- `??` `scripts/fb-bridge-package.ps1`
+- `??` `scripts/fb-deployment-lab.ps1`
+- `??` `supabase/migrations/20261105075655_sprint_53_registration_cancellation_printing.sql`
+- `??` `supabase/migrations/20261105164841_sprint_53_printing_commissioning.sql`
+- `??` `supabase/tests/53_printing_commissioning_metadata.sql`
+- `??` `tests/integration/fb-commission-legacy-fixture.mjs`
+- `??` `tests/integration/fb-commissioning.mjs`
+- `??` `tests/integration/fb-deployment.mjs`
+- `??` `tests/integration/fb-historical-cancellation-fixture.mjs`
+- `??` `tests/integration/fb-registration-cancellation.mjs`
+- `??` `tests/security/fb-commissioning.test.ts`
+
+**[GIT]** Branch `sprint-53-fnb`, HEAD `f3e60f447bb14654230bec143e333489c5cc154e`, ref local origin `f3e60f447bb14654230bec143e333489c5cc154e`; staged 0, modified 42, untracked 26, zero commit/push/merge. Main preservada.
+
+**[REMOTO]** Zero deploy, Supabase remoto, tenant real, Goomer/TheX/PMS/OPERA, publicação de conteúdo ou instalação em hotel. Zero chamadas Google/Airlabs.
+
+Capturas: `out/fb-deployment/admin-desktop.png`, `admin-mobile.png`, `catalog-only-{pt,en,es}.png`; capturas públicas carregadas em `out/libguest-fb-auth-18de8e31/b23/screenshots/`; screenshots dos testes públicos em `out/fb-browser`.

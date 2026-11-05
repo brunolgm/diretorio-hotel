@@ -7,7 +7,7 @@ export type PrintState=typeof PRINT_STATES[number];
 export const PRINT_CAPABILITIES=['printing.configure','printing.test','printing.reprint'] as const;
 export const PRINT_RETENTION={metadataDays:180,privateMaxHours:24,pairingMinutes:5,credentialDays:90,leaseSeconds:60} as const;
 export interface PrintEnvelope {
- job_id:string|null;kind?:'order'|'test'|'reprint';state?:PrintState;revision?:number;fence?:number;attempt_id?:string;
+ job_id:string|null;kind?:'order'|'test'|'reprint'|'cancellation';state?:PrintState;revision?:number;fence?:number;attempt_id?:string;
  order_id?:string|null;group_id?:string|null;sector_id?:string|null;destination_id?:string;copy_number?:number;
  received?:boolean;dispatch_authorized?:boolean;dispatch_recorded?:boolean;lease_until?:string;expires_at?:string;
  protocol_version?:number;payload_version?:number;renderer_version?:number;

@@ -131,6 +131,14 @@ public sealed class BridgeWorker(BridgeOptions options, Journal journal, CloudCl
             var response = await client.Dispatch(job, cancellation);
             try
             {
+                if (response.State == "cancelled")
+                {
+                    // Only an owned, receipted order with authoritative proof of
+                    // no dispatch can clear this pending request. Intent/uncertainty
+                    // still fail closed; the next cancellation job stays independent.
+                    journal.SourceCancelledBeforeDispatch(job, response, clock.RetentionNow);
+                    log.Write(EventCode.ProtocolBlocked, job.JobId, job.AttemptId, job.Fence, "source_cancelled_before_dispatch"); return true;
+                }
                 if (!clock.Permits(response.LeaseUntil, response.ExpiresAt)) throw new BridgeFault("authorization_expired");
                 journal.Authorized(job, response, clock.Now);
             }
@@ -140,6 +148,21 @@ public sealed class BridgeWorker(BridgeOptions options, Journal journal, CloudCl
         }
         catch (BridgeFault e) when (e.Code is "cloud_409" or "cloud_410")
         {
+            if (!job.Intent && job.CloudState == "leased")
+            {
+                // A lost cancellation response can be recovered only by reading
+                // authoritative state for this same attempt/hash, never by error code.
+                var proof = await client.Receipt(job, cancellation);
+                try
+                {
+                    if (proof.State == "cancelled")
+                    {
+                        journal.SourceCancelledBeforeDispatch(job, proof, clock.RetentionNow);
+                        log.Write(EventCode.ProtocolBlocked, job.JobId, job.AttemptId, job.Fence, "source_cancelled_before_dispatch"); return true;
+                    }
+                }
+                finally { System.Security.Cryptography.CryptographicOperations.ZeroMemory(proof.Content); }
+            }
             // A dispatch request may already have committed. Never infer no-I/O from its missing response.
             throw new BridgeFault("authorization_reconciliation_required");
         }

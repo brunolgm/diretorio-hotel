@@ -1,11 +1,12 @@
-# LibGuest Printing Bridge — C2 / C4
+# LibGuest Printing Bridge — C2 / C4 / implantação 1.3.0
 
-Componente Windows separado do Next.js, versão 1.1.0, preservando a fundação C2.
+Componente Windows separado do Next.js, versão 1.3.0, preservando a fundação C2.
 O adapter Windows Spooler e o renderer V1 estão implementados; C3 integra sua
 configuração ao Admin existente. Sem adapter habilitado, faz heartbeat e informa
-adapter indisponível, sem novos claims. A validação é local: **C5-REAL permanece
-pendente**. Não há listener na bridge, socket de impressora, RAW TCP, ESC/POS,
-shell, auto-update ou instalador. Nenhum serviço ou equipamento de hotel foi ativado.
+adapter indisponível, sem novos claims. **C5-REAL Bugan permanece pendente**.
+Há instalador oficial e IPC local administrativo com ACL; não há listener TCP,
+socket direto de impressora, RAW TCP, ESC/POS, shell de impressão ou auto-update.
+O LAB físico local foi executado na MP-4200 TH. Nenhum hotel real foi ativado.
 
 ## Build e laboratório
 
@@ -210,3 +211,75 @@ C3 181, C4 75, C5-LAB 104, .NET 162, C1↔C2 204 e
 C1 767: zero falhas. Regressões B/Auth/SSR/browser/segurança/builds verdes;
 relatório completo e inventário em docs/SPRINT_53_FNB.md. GO técnico local para
 revisão; C5-REAL pendente, nenhuma propriedade real ativada. Zero stage/commit/push.
+
+## Contrato 1.2.0 — registro e cancelamento
+
+Printing automático nasce de `orders.group_registered` e da outbox transacional
+imutável gravada com a confirmação B, não de `orders.accepted`. Aceite não duplica.
+`orders.group_cancelled` origina um novo job `cancellation` para cada original:
+mesmo setor, cópia e routing_snapshot (dispositivo, impressora, fila e revisões).
+Nenhum aviso consulta a rota atual; configuração original alterada bloqueia,
+sem failover. Cancelamento antes de materializar aguarda o original; ausência de
+original mantém bloqueio, sem escolher destino novo. TTL e ativação sem backfill
+continuam vigentes. Original submitted/ambiguous não é sobrescrito nem reimpresso.
+
+Protocolo, payload e renderer continuam V1 com tipo aditivo. Software 1.2+ é
+necessário para claim de cancellation e reprint de cancellation; tipos normais
+continuam compatíveis com bridges anteriores. Renderer imprime CANCELAMENTO,
+referência, setor, itens congelados, data/hora e motivo estruturado; reimpressão
+explícita preserva também o marcador REIMPRESSÃO. PII expirada continua redigida.
+SQLite schema 3, DPAPI, intent/result e ACK idempotente permanecem preservados.
+
+V1 guest apenas contata o hotel; staff autorizado confirma o cancelamento pelo
+Admin. Imprimir aviso não cancela comercialmente e submitted não prova papel.
+O pacote 1.1.0 do C5-REAL Fase 0 é evidência histórica, não candidato deste hotfix.
+Na execução inicial do hotfix não houve instalação de serviço ou impressão.
+O LAB físico autorizado posterior usa exclusivamente **MP-4200 TH**; a fila HS
+existe e foi apenas enumerada. Não é destino autorizado desta rodada.
+
+Cancelamento comprovado antes do dispatch do original é encerrado atomicamente
+no journal como bloqueado, sem inventar resultado ou chamar o spooler. Exige prova
+Cloud do mesmo attempt/hash/fence, receipt confirmado, revisão avançada e ausência
+de intent/dispatch/result. Se a resposta se perde, usa receipt para confirmar;
+409/410 sozinhos nunca autorizam inferência de no-I/O. Incerteza e intervenção já
+sinalizada continuam conservadoras. Isso libera apenas a fila para o NOVO aviso,
+sem reimprimir o original ou mudar SQLite schema 3.
+
+## Implantação oficial sem desenvolvimento — candidato 1.3.0
+
+Procedimento canônico: [runbook de implantação/reversão](../docs/FNB_PRINTING_DEPLOYMENT_RUNBOOK.md).
+Pacote self-contained Windows x64, protocolo/payload/renderer V1, SQLite schema 3.
+Distribui binários e scripts oficiais, manifesto e SHA-256. Checksum não equivale
+a assinatura de código. Não requer SDK, Node, VS Code, Codex ou edição de JSON no PC.
+
+- `Install-LibGuestPrintingBridge.ps1`: instalar/atualizar com Administrador Windows.
+- `Complete-LibGuestBridgePairing.ps1`: concluir modo automático e provar leitura do vault.
+- `Get-LibGuestBridgeStatus.ps1`: diagnóstico técnico sem payload/credenciais.
+- `Uninstall-LibGuestPrintingBridge.ps1`: remover somente serviço identificado,
+  preservando configuração, vault, journal e versões dos binários.
+- `Set-LibGuestBridgeLabTransport.ps1`: troca de transporte exclusivamente LAB.
+
+Binários versionados em Program Files; configuração gerada por device e dados em
+ProgramData. Conta virtual `NT SERVICE\LibGuestPrintingBridge`, sem senha de
+operador. Pareamento e vault DPAPI **CurrentUser** executados sob a mesma conta
+do serviço; essa leitura foi comprovada depois de reiniciar em modo normal.
+O provisionador passa o código oculto por pipe local protegido, verifica PID
+contra SCM e não o inclui em argumentos, arquivos plaintext, JSON ou logs.
+O pipe nega logon de rede e não oferece operação de impressão.
+
+Discovery enumera somente metadados das filas visíveis ao serviço Windows.
+O Admin escolhe fila detectada, destino e rota de setor. Ausência, descoberta
+vencida ou driver alterado não muda a configuração silenciosamente e bloqueia
+o fluxo normal. Teste segue C1 antes da ativação; o pré-flight distingue
+PASS/WARNING/BLOCKER e registra evidência humana separada, sem fabricar `printed`.
+
+Hotel sintético novo: 23 verificações antes do LAB físico, sem exceção técnica e
+sem mudar código durante a tentativa aprovada. Fluxo completo: **32 aprovadas**.
+MP-4200 TH, porta `Bematech_IP_172.21.7.248`, IP informado `172.21.7.248`:
+três submissões técnicas, spool IDs **4 TESTE**, **5 pedido**, **6 CANCELAMENTO**.
+Bruno confirmou presencialmente o TESTE legível/alinhado, acentos corretos e
+corte automático. Pedido submetido enquanto registrado; aceite sem duplicação;
+cancelamento independente no destino original. Reimpressão não necessária.
+Os ACKs dos outros tickets não são confirmação humana individual de papel.
+Serviço local de LAB desinstalado oficialmente ao final, dados preservados.
+Isso não é homologação operacional do Bugan nem autorização de implantação real.

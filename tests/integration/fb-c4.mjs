@@ -13,7 +13,7 @@ try{
  }
  function configure(target,changes){Object.assign(target.value,changes);writeFileSync(target.config,JSON.stringify(target.value));}
  const cloud=id=>query('select id,state,fence,revision from fb_print_private.jobs where id='+literal(id))[0];
- async function source(target,combo=false){const made=await order(target.t,combo?x.combo(target.t):undefined);const group=made.groups.find(g=>g.sector_id===target.t.kitchen.id);await accept(target.t,group);await materialize(target.t);const job=query('select id from fb_print_private.jobs where order_id='+literal(made.order_id)+' and group_id='+literal(group.id))[0];return {made,job};}
+ async function source(target,combo=false){const made=await order(target.t,combo?x.combo(target.t):undefined);const group=made.groups.find(g=>g.sector_id===target.t.kitchen.id);await accept(target.t,group);await materialize(target.t);const job=query('select id from fb_print_private.jobs where order_id='+literal(made.order_id)+' order by created_at,id limit 1')[0];return {made,job};}
  async function checkpoint(target){await waitFor(()=>existsSync(join(target.data,'laboratory.checkpoint.json')),'C4 checkpoint '+target.value.laboratory_checkpoint);}
  async function kill(process){process.child.kill('SIGKILL');await process.completed;}
  if(!process.argv.includes('--c5-only')){
@@ -23,6 +23,12 @@ try{
   const detail=await rpc(t.admin,'get_current_hotel_fb_print_detail',{p_job_id:made.job.id});await rpc(t.admin,'execute_current_hotel_fb_print_admin',{p_operation:'reprint',p_body:{destination_id:target.destination.id,original_job_id:made.job.id,reason:'operational',revision:detail.job.revision},p_key:randomUUID()});await run('run-once',target.config);check(inspect(target.data).spooler_calls.length===3,'C3 authorized reprint uses C4 as a separate marked job '+t.name);
   const before=Number(rows('select count(*)::text from fb_order_private.orders where hotel_id='+literal(t.id)));await rpc(t.admin,'execute_current_hotel_fb_print_admin',{p_operation:'test',p_body:{destination_id:target.destination.id,sector_id:t.kitchen.id},p_key:randomUUID()});await run('run-once',target.config);check(inspect(target.data).spooler_calls.length===4&&Number(rows('select count(*)::text from fb_order_private.orders where hotel_id='+literal(t.id)))===before,'C3 test traverses C4 without fake order '+t.name);
   const observed=query('select observed_state,observed_at from fb_print_private.printers where destination_id='+literal(target.destination.id))[0];check(observed.observed_state==='unknown'&&observed.observed_at,'C4 authenticated queue metadata reaches Admin without readiness claim '+t.name);
+  const revision=rows('select revision::text from fb_order_private.orders where id='+literal(made.made.order_id));await rpc(t.admin,'cancel_current_hotel_fb_order_v1',{p_order_id:made.made.order_id,p_expected_revision:revision,p_reason_code:'guest_request'});
+  await run('run-once',target.config);await run('run-once',target.config);
+  const notices=query("select id,state,original_job_id,destination_id from fb_print_private.jobs where order_id="+literal(made.made.order_id)+" and kind='cancellation'");
+  check(notices.length===2&&notices.every(j=>j.state==='submitted'&&j.destination_id===target.destination.id)&&inspect(target.data).spooler_calls.length===6,'C4 native cancellation V1 per sector preserves destination and independent originals '+t.name);
+  const noticeDetail=await rpc(t.admin,'get_current_hotel_fb_print_detail',{p_job_id:notices[0].id});await rpc(t.admin,'execute_current_hotel_fb_print_admin',{p_operation:'reprint',p_body:{destination_id:target.destination.id,original_job_id:notices[0].id,reason:'operational',revision:noticeDetail.job.revision},p_key:randomUUID()});await run('run-once',target.config);
+  check(inspect(target.data).spooler_calls.length===7,'C4 explicit cancellation reprint preserves both document markers '+t.name);
   console.log('C4 six-hotel HTTPS/renderer/spooler abstraction: '+t.name);
  }
  for(const scenario of ['offline','missing_queue','paper_out','ambiguous','no_response','delay']){

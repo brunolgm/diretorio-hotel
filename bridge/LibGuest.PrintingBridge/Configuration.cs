@@ -12,6 +12,7 @@ public sealed class BridgeOptions
     public string? LaboratoryCertificateSha256 { get; init; }
     public bool SimulatorEnabled { get; init; }
     public bool WindowsSpoolerEnabled { get; init; }
+    public bool QueueDiscoveryEnabled { get; init; }
     public bool LaboratorySpooler { get; init; }
     public string LaboratorySpoolerScenario { get; init; } = "success";
     [JsonIgnore] public bool AdapterEnabled => SimulatorEnabled || WindowsSpoolerEnabled;
@@ -33,7 +34,8 @@ public sealed class BridgeOptions
         try
         {
             var bytes = File.ReadAllBytes(path); if (bytes.Length > 8192) throw new BridgeFault("configuration_invalid");
-            var options = JsonSerializer.Deserialize<BridgeOptions>(bytes, Json) ?? throw new BridgeFault("configuration_invalid"); options.Validate(); return options;
+            var payload = bytes.AsSpan(); if (payload.StartsWith(new byte[] { 0xef, 0xbb, 0xbf })) payload = payload[3..];
+            var options = JsonSerializer.Deserialize<BridgeOptions>(payload, Json) ?? throw new BridgeFault("configuration_invalid"); options.Validate(); return options;
         }
         catch (BridgeFault) { throw; }
         catch { throw new BridgeFault("configuration_invalid"); }

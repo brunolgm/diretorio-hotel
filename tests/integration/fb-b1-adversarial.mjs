@@ -1,3 +1,4 @@
+import {historicalCancellation} from './fb-historical-cancellation-fixture.mjs';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {writeFileSync} from 'node:fs';
@@ -98,7 +99,7 @@ export async function verifyB1Adversarial(io){
   const audit=query("select count(*)::text from fb_order_private.order_events where order_id="+literal(parallel[0].data.order_id)+" and action='orders.registered'");
   check(audit===1,'one creation event under concurrency '+t.name);
   const created=parallel[0].data;
-  const auto=await boundary.requestCancellation(t.slug,created.accessSecret,1);check(auto.ok&&auto.data.status==='cancelled','automatic pre-accept cancellation '+t.name);
+  const auto=await boundary.requestCancellation(t.slug,created.accessSecret,1);check(!auto.ok,'guest pre-accept cancellation disabled '+t.name);await rpc(t.admin,'cancel_current_hotel_fb_order_v1',{p_order_id:created.order_id,p_expected_revision:1,p_reason_code:'guest_request'});
   check(query("select count(*)::text from fb_order_private.orders where id="+literal(created.order_id))===1,'cancellation never deletes order '+t.name);
   // Native/external/mixed and entitlement OFF use the same domain in all identities.
   const originalRoom=t.roomCfg;
@@ -213,8 +214,8 @@ export async function verifyB1Adversarial(io){
  // Pending cancellation after operational acceptance; no hidden state regression.
  const pendingOrder=await make(tenants[5]),pg=groups(pendingOrder.receipt.order_id)[0];
  await rpc(tenants[5].admin,'transition_current_hotel_fb_order_group',{p_group_id:pg.id,p_expected_revision:1,p_status:'accepted'});
- const cancel=await boundary.requestCancellation(tenants[5].slug,pendingOrder.receipt.accessSecret,2);check(cancel.ok&&cancel.data.status==='pending','post-accept cancel is request only');
- await rpc(tenants[5].admin,'decide_current_hotel_fb_order_cancellation',{p_request_id:cancel.data.request_id,p_expected_revision:1,p_order_revision:2,p_approve:true,p_reason_code:'guest_request'});
+ const cancel=await boundary.requestCancellation(tenants[5].slug,pendingOrder.receipt.accessSecret,2);check(!cancel.ok,'post-accept guest request disabled');const historical=historicalCancellation(tenants[5],pendingOrder.receipt.order_id);
+ await rpc(tenants[5].admin,'decide_current_hotel_fb_order_cancellation',{p_request_id:historical.id,p_expected_revision:1,p_order_revision:2,p_approve:true,p_reason_code:'guest_request'});
  check(order(pendingOrder.receipt.order_id).status==='cancelled','authorized cancellation changes whole order');
  await deny(tenants[5].admin,'transition_current_hotel_fb_order_group',{p_group_id:pg.id,p_expected_revision:3,p_status:'accepted'},'22023','cancelled group cannot revive');
  // Expiration is enforced in reads, even before maintenance runs.

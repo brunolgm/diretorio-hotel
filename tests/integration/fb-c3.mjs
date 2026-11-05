@@ -14,10 +14,11 @@ try{
  x=await seedC1();const {tenants,grant,order,accept,materialize}=x;
  for(const t of tenants){
   const initial=await consoleRpc(t.admin);check(initial.access.manage_grants&&!initial.access.configure&&!initial.config.settings,'administrator bootstraps explicit capabilities, no enabled settings '+t.name);
-  for(const cap of ['printing.configure','printing.test','printing.reprint'])await command(t.admin,'grant',{user_id:t.admin.id,capability:cap,sector_id:null,active:true,revision:0});
+  for(const cap of ['printing.configure','printing.test','printing.reprint']){const prior=query('select revision from fb_print_private.grants where hotel_id='+literal(t.id)+' and user_id='+literal(t.admin.id)+' and capability='+literal(cap)+' and sector_id is null')[0];await command(t.admin,'grant',{user_id:t.admin.id,capability:cap,sector_id:null,active:true,revision:prior?.revision??0});}
   const denied=await t.viewer.client.rpc('get_current_hotel_fb_print_console');check(denied.error?.code==='42501','viewer denied at actual RPC '+t.name);
-  await command(t.admin,'config',{kind:'settings',id:null,revision:0,values:{ticket_minutes:120}});let setting=(await consoleRpc(t.admin)).config.settings[0];check(!setting.enabled&&!setting.allow_name&&!setting.fan_out,'printing/name/fan-out default OFF '+t.name);
-  await command(t.admin,'activate',{enabled:true,revision:setting.revision});
+  const setup=(await consoleRpc(t.admin)).config.settings?.[0];await command(t.admin,'config',{kind:'settings',id:null,revision:setup?.revision??0,values:{ticket_minutes:120}});let setting=(await consoleRpc(t.admin)).config.settings[0];check(!setting.enabled&&!setting.allow_name&&!setting.fan_out,'printing/name/fan-out default OFF '+t.name);
+  const normal=await t.admin.client.rpc('execute_current_hotel_fb_print_admin',{p_operation:'activate',p_body:{enabled:true,revision:setting.revision},p_key:randomUUID()});check(normal.error?.code==='PT409','normal activation requires commissioning '+t.name);
+  await rpc(t.admin,'execute_current_hotel_fb_commissioning',{p_operation:'technical_override',p_body:{enabled:true,revision:setting.revision,reason:'isolated_contract_validation'},p_key:randomUUID()});
   t.c3device=await command(t.admin,'config',{kind:'device',id:null,revision:0,values:{name:'C3 bridge '+t.name}});t.c3backup=await command(t.admin,'config',{kind:'device',id:null,revision:0,values:{name:'C3 backup'}});
   t.c3dest=await command(t.admin,'config',{kind:'destination',id:null,revision:0,values:{name:'Destino Cozinha/Bar',device_id:t.c3device.id,backup_device_id:t.c3backup.id}});
   await command(t.admin,'config',{kind:'printer',id:null,revision:0,values:{name:'C3 LAB metadata only',device_id:t.c3device.id,destination_id:t.c3dest.id,adapter:'windows_spooler',config:{queue_name:'LIBGUEST_LAB_NO_SUBMISSION'}}});
