@@ -3344,3 +3344,22 @@ Home/tema alterado, conteúdo publicado ou tenant real acessado. Zero stage,
 commit, push, merge ou deploy; HEAD continua `3a00e49`, trabalho disponível para
 revisão. Content-bridge intocado. Restore externo restrito a runtime packs
 oficiais Microsoft para build; zero APIs externas de negócio/produção.
+
+### Sprint 53 — C3/C4/C5-LAB aprovados localmente, 05/11/2026
+
+C1+C2 preservados; C3 Admin 181, C4 Windows Spooler 75 e C5-LAB 104
+aprovados em fixtures dos cinco hotéis + Default. Regressões finais: B1 623,
+B2+B3+B4 2503, C1 767, C1↔C2 204, Auth/RLS 1434, .NET
+162, segurança 748, SSR 391, browser F&B 1524 e V3/V4 152. SQL, TypeScript, lint,
+builds/publish local e diff check verdes. Lista/evidências em SPRINT_53_FNB.md.
+
+Configuração por tenant, pairing único, fila paginada, grants, reprint/test, health
+e dimensões comerciais/printing separadas no Admin existente. Spooler/renderer V1
+respeitam snapshot e PII/políticas; intent/result duráveis, ACK idempotente e
+recuperação conservadora. submitted não é confirmação física. Duas migrations
+aditivas candidatas; 56 commitadas preservadas. 42 candidatos, zero staged.
+
+**C5-REAL pendente:** serviço/conta operacional, equipamento/fila/driver/papel,
+rede/reboot/offline/paper out e operação assistida. Zero propriedade real ativada,
+serviço registrado, impressão real, stage, commit, push, deploy ou Supabase remoto.
+Home/temas, Goomer e Auth/RLS existentes preservados; Sprint 53 operacional não encerrada.

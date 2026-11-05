@@ -1,0 +1,9 @@
+import '../../scripts/bootstrap-runtime.mjs';
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {consoleArguments,validateConsoleCommand} from '../../lib/fb/printing/admin-validation.ts';
+import {PrintBoundaryError} from '../../lib/fb/printing/validation.ts';
+test('C3 console cursor and filters reject ambiguous/forged query authority',()=>{for(const query of ['hotel_id='+randomUUID(),'limit=0','limit=51','limit=1&limit=2','after_id='+randomUUID(),'sector=wrong','after_created=wrong&after_id='+randomUUID()])assert.throws(()=>consoleArguments(new URLSearchParams(query)),PrintBoundaryError);assert.equal(consoleArguments(new URLSearchParams()).p_limit,25);});
+test('C3 human commands require confirmation, idempotency and closed operation bodies',()=>{const good={operation:'test',body:{destination_id:randomUUID(),sector_id:randomUUID()},key:randomUUID(),confirmed:true};assert.equal(validateConsoleCommand(good).operation,'test');for(const patch of [{confirmed:false},{confirmed:'true'},{key:null},{operation:'shell'},{body:{...good.body,hotel_id:randomUUID()}},{body:{destination_id:good.body.destination_id}},{bearer:'unsafe'}])assert.throws(()=>validateConsoleCommand({...good,...patch}),PrintBoundaryError);});
+test('C3 rejects string booleans, invalid revisions and unapproved reasons before RPC',()=>{const base={key:randomUUID(),confirmed:true};for(const body of [{revision:-1,enabled:true},{revision:1,enabled:'true'}])assert.throws(()=>validateConsoleCommand({...base,operation:'activate',body}),PrintBoundaryError);for(const reason of ['',null,'raw guest observation'])assert.throws(()=>validateConsoleCommand({...base,operation:'reprint',body:{destination_id:randomUUID(),original_job_id:randomUUID(),revision:1,reason}}),PrintBoundaryError);});

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using LibGuest.PrintingBridge.Cloud;
 using LibGuest.PrintingBridge.Diagnostics;
 using LibGuest.PrintingBridge.Storage;
+using LibGuest.PrintingBridge.Printing;
 
 namespace LibGuest.PrintingBridge;
 
@@ -27,7 +28,7 @@ public sealed class BridgeWorker(BridgeOptions options, Journal journal, CloudCl
                     {
                         await client.Heartbeat(cancellation); lastHeartbeat = Stopwatch.GetTimestamp(); Purge(); log.Write(EventCode.Heartbeat);
                     }
-                    if (!options.SimulatorEnabled)
+                    if (!options.AdapterEnabled)
                     {
                         log.Write(EventCode.AdapterUnavailable); await Delay(TimeSpan.FromSeconds(options.IdlePollSeconds), cancellation); continue;
                     }
@@ -107,6 +108,10 @@ public sealed class BridgeWorker(BridgeOptions options, Journal journal, CloudCl
         {
             if (response.State == (operation.Result == "pre_send_failed" ? "retry_wait" : operation.Result)) journal.ResultAcknowledged(job, response, operation.Result!, clock.RetentionNow);
             else if (operation.Result == "submitted" && response.State == "ambiguous") journal.Revise(job, response);
+            else if (response.State == "dispatching" && response.DispatchRecorded && response.Received && response.Revision > job.Revision && job.Intent && job.Result == operation.Result)
+                // Same owned attempt/hash, durable result; only its CAS revision advanced (e.g. Admin reprint).
+                // Keep the outbox key/result and retry the ACK. Never render or call an adapter again.
+                journal.Revise(job, response);
             else throw new BridgeFault("attempt_reconciliation_required");
         }
         else if (!job.Intent && response.State == "leased" && response.Received) journal.ReceiptConfirmed(job, response, clock.RetentionNow);
@@ -151,9 +156,12 @@ public sealed class BridgeWorker(BridgeOptions options, Journal journal, CloudCl
         if (!clock.Permits(job.LeaseUntil, job.ExpiresAt)) throw new BridgeFault("authorization_expired");
         journal.Intent(job, clock.Now); log.Write(EventCode.DispatchIntent, job.JobId, job.AttemptId, job.Fence);
         await checkpoints.Reach("after_intent", job.JobId, job.Fence, cancellation);
-        var current = journal.Get(job.JobId, job.Fence); journal.EnterSimulator(current, options.SimulatorScenario, clock.Now);
+        var current = journal.Get(job.JobId, job.Fence);
+        IPrintAdapter adapter;
+        if (options.WindowsSpoolerEnabled) adapter = new WindowsSpoolerAdapter(options, journal, clock, options.LaboratorySpooler ? new LaboratorySpooler(options, journal, current) : new WindowsSpooler(), client);
+        else { journal.EnterSimulator(current, options.SimulatorScenario, clock.Now); adapter = new LaboratorySimulator(options); }
         AdapterResult result;
-        try { result = await new LaboratorySimulator(options).Execute(current, cancellation); }
+        try { result = await adapter.Execute(current, cancellation); }
         catch (OperationCanceledException) { result = new("ambiguous", "unknown_after_send", false); }
         journal.RecordResult(current, result.Result, result.Code, result.NoIo, clock.RetentionNow); log.Write(EventCode.ResultCommitted, job.JobId, job.AttemptId, job.Fence);
         await checkpoints.Reach("after_result", job.JobId, job.Fence, cancellation);

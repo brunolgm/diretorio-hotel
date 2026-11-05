@@ -9,6 +9,7 @@ import {PrintBoundaryError,validateDeviceBody,objectWithKeys,printId,positive} f
 import {printRpc} from './rpc.server';
 import {printingDiagnostic} from './diagnostics.server';
 const headers={'Cache-Control':'private, no-store, max-age=0','Pragma':'no-cache','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'};
+export {headers as printingHeaders,failure as printingFailure,body as readPrintingBody,tls as requirePrintingTls};
 function failure(error:unknown){const e=error instanceof PrintBoundaryError?error:new PrintBoundaryError(503,'unavailable');return NextResponse.json({error:e.code},{status:e.status,headers:{...headers,'X-FB-Print-Diagnostic-ID':printingDiagnostic(e.status)}});}
 async function body(request:Request){
  if(!isJsonContentType(request.headers.get('content-type')))throw new PrintBoundaryError(415,'invalid_content_type');

@@ -34,7 +34,7 @@ public sealed class Journal : IDisposable
     {
         var version = (long)Database.Query("PRAGMA user_version")[0][0]!;
         var application = (long)Database.Query("PRAGMA application_id")[0][0]!;
-        if (version > 2 || (application != 0 && application != ApplicationId) || (version == 0 && Database.Query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").Count != 0)) throw new BridgeFault("journal_version_incompatible");
+        if (version > 3 || (application != 0 && application != ApplicationId) || (version == 0 && Database.Query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").Count != 0)) throw new BridgeFault("journal_version_incompatible");
         if (version > 0 && application != ApplicationId) throw new BridgeFault("journal_version_incompatible");
         if (version < 1) Database.Transaction(() =>
         {
@@ -52,6 +52,11 @@ public sealed class Journal : IDisposable
             Database.Execute("CREATE INDEX jobs_retention ON jobs(retain_until)");
             Database.Execute("CREATE INDEX contents_expiry ON contents(expires_at)");
             fault?.Invoke(2); Database.Execute("PRAGMA user_version=2");
+        });
+        if (version < 3) Database.Transaction(() =>
+        {
+            Database.Execute("CREATE TABLE spooler_calls(job_id TEXT NOT NULL,fence INTEGER NOT NULL,printer_id TEXT NOT NULL,printer_revision INTEGER NOT NULL,queue_name TEXT NOT NULL,spool_job_id INTEGER,observation TEXT NOT NULL DEFAULT 'unknown',created_at TEXT NOT NULL,submitted_at TEXT,PRIMARY KEY(job_id,fence))");
+            fault?.Invoke(3); Database.Execute("PRAGMA user_version=3");
         });
         if ((string?)Database.Query("PRAGMA integrity_check")[0][0] != "ok") throw new BridgeFault("journal_corrupt");
     }
@@ -128,7 +133,7 @@ public sealed class Journal : IDisposable
         if (result is not ("submitted" or "pre_send_failed" or "ambiguous") || (noIo && result != "pre_send_failed") || (!noIo && result == "pre_send_failed")) throw new BridgeFault("result_invalid");
         Database.Transaction(() => {
             var current = Get(job.JobId, job.Fence);
-            if (!current.Intent || current.Result is not null || (result == "submitted" && code != "transport_accepted") || (result == "ambiguous" && code != "unknown_after_send") || (result == "pre_send_failed" && code != "no_io")) throw new BridgeFault("result_invalid");
+            if (!current.Intent || current.Result is not null || (result == "submitted" && code is not ("transport_accepted" or "spooler_accepted")) || (result == "ambiguous" && code != "unknown_after_send") || (result == "pre_send_failed" && code is not ("no_io" or "connection_unavailable"))) throw new BridgeFault("result_invalid");
             Database.Execute("UPDATE jobs SET result=?,local_state='result_pending' WHERE job_id=? AND fence=?", result, job.JobId.ToString("D"), job.Fence); Queue("result", job.JobId, job.Fence, result, code, noIo); Event(job.JobId, job.Fence, "result_committed", now);
         });
     }
@@ -154,10 +159,25 @@ public sealed class Journal : IDisposable
     public void Resume() => Database.Execute("DELETE FROM metadata WHERE key='needs_operator'");
     public void Purge(DateTimeOffset now)
     {
-        Database.Transaction(() => { Database.Execute("DELETE FROM contents WHERE expires_at<=?", Time(now)); Database.Execute("DELETE FROM outbox WHERE job_id IN(SELECT job_id FROM jobs WHERE retain_until<=?) OR (job_id IS NULL AND created_at<=?)", Time(now), Time(now.AddDays(-180))); Database.Execute("DELETE FROM events WHERE job_id IN(SELECT job_id FROM jobs WHERE retain_until<=?) OR created_at<=?", Time(now), Time(now.AddDays(-180))); Database.Execute("DELETE FROM jobs WHERE retain_until<=?", Time(now)); Database.Execute("DELETE FROM simulator_calls WHERE created_at<=?", Time(now.AddDays(-180))); });
+        Database.Transaction(() => { Database.Execute("DELETE FROM contents WHERE expires_at<=?", Time(now)); Database.Execute("DELETE FROM outbox WHERE job_id IN(SELECT job_id FROM jobs WHERE retain_until<=?) OR (job_id IS NULL AND created_at<=?)", Time(now), Time(now.AddDays(-180))); Database.Execute("DELETE FROM events WHERE job_id IN(SELECT job_id FROM jobs WHERE retain_until<=?) OR created_at<=?", Time(now), Time(now.AddDays(-180))); Database.Execute("DELETE FROM jobs WHERE retain_until<=?", Time(now)); Database.Execute("DELETE FROM simulator_calls WHERE created_at<=?", Time(now.AddDays(-180))); Database.Execute("DELETE FROM spooler_calls WHERE created_at<=?", Time(now.AddDays(-180))); });
         Database.Execute("PRAGMA wal_checkpoint(TRUNCATE)");
     }
     public void ClearPrivate() { Database.Execute("DELETE FROM contents WHERE is_private=1"); Database.Execute("PRAGMA wal_checkpoint(TRUNCATE)"); }
     internal byte[]? ReadProtectedContent(Guid id, long fence, bool privateData) => Database.Query("SELECT body FROM contents WHERE job_id=? AND fence=? AND is_private=?", id.ToString("D"), fence, privateData).FirstOrDefault()?[0] as byte[];
+    internal byte[] AuthorizationContent(JournalJob job, DateTimeOffset now)
+    {
+        var current = Get(job.JobId, job.Fence); if (!current.Intent || current.Result is not null) throw new BridgeFault("dispatch_intent_required");
+        var body = Database.Query("SELECT body FROM contents WHERE job_id=? AND fence=? AND is_private=1 AND expires_at>?", job.JobId.ToString("D"), job.Fence, Time(now)).FirstOrDefault()?[0] as byte[] ?? throw new BridgeFault("authorization_content_expired"); return protection.Unprotect(body);
+    }
+    internal void EnterSpooler(JournalJob job, Guid printer, int revision, string queue, DateTimeOffset now)
+    {
+        Database.Transaction(() => { var current = Get(job.JobId, job.Fence); if (!current.Intent || current.Result is not null || current.LocalState != "intent") throw new BridgeFault("dispatch_intent_required"); Database.Execute("INSERT INTO spooler_calls(job_id,fence,printer_id,printer_revision,queue_name,created_at) VALUES(?,?,?,?,?,?)", job.JobId.ToString("D"), job.Fence, printer.ToString("D"), revision, queue, Time(now)); });
+    }
+    internal void SpoolId(JournalJob job, int id)
+    {
+        if (id < 1) throw new BridgeFault("spool_identifier_invalid");
+        Database.Execute("UPDATE spooler_calls SET spool_job_id=? WHERE job_id=? AND fence=? AND spool_job_id IS NULL", id, job.JobId.ToString("D"), job.Fence);
+    }
+    internal void SpoolObservation(JournalJob job, string observation, DateTimeOffset? submitted = null) => Database.Execute("UPDATE spooler_calls SET observation=?,submitted_at=? WHERE job_id=? AND fence=?", observation, submitted is null ? null : Time(submitted.Value), job.JobId.ToString("D"), job.Fence);
     public void Dispose() => Database.Dispose();
 }

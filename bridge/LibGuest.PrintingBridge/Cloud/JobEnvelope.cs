@@ -26,7 +26,7 @@ public sealed class JobEnvelope
         {
             if (value.ValueKind != JsonValueKind.Object) throw new BridgeFault("envelope_invalid");
             if (value.TryGetProperty("job_id", out var id) && id.ValueKind == JsonValueKind.Null) return null;
-            var allowed = new HashSet<string>(["job_id", "kind", "state", "revision", "fence", "order_id", "group_id", "sector_id", "destination_id", "copy_number", "attempt_id", "lease_until", "received", "dispatch_recorded", "dispatch_authorized", "protocol_version", "payload_version", "renderer_version", "expires_at", "snapshot", "snapshot_canonical", "snapshot_hash", "routing", "reprint", "duplicate_risk", "private"]);
+            var allowed = new HashSet<string>(["job_id", "kind", "state", "revision", "fence", "order_id", "group_id", "sector_id", "destination_id", "copy_number", "attempt_id", "lease_until", "received", "dispatch_recorded", "dispatch_authorized", "protocol_version", "payload_version", "renderer_version", "expires_at", "snapshot", "snapshot_canonical", "snapshot_hash", "routing", "reprint", "duplicate_risk", "private", "spooler"]);
             if (value.EnumerateObject().Any(p => !allowed.Contains(p.Name)) || value.EnumerateObject().Select(p => p.Name).Distinct().Count() != value.EnumerateObject().Count()) throw new BridgeFault("envelope_invalid");
             foreach (var field in new[] { "protocol_version", "payload_version", "renderer_version" }) if (value.GetProperty(field).GetInt32() != 1) throw new BridgeFault("version_incompatible");
             var canonical = value.GetProperty("snapshot_canonical").GetString() ?? throw new BridgeFault("envelope_invalid");

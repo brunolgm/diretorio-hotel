@@ -3,6 +3,7 @@ import {useCallback,useEffect,useRef,useState,type FormEvent} from 'react';
 import {decideOrderCancellation,transitionOrderGroup} from '@/app/admin/pedidos/actions';
 import {money,publicOrderStatus} from '@/lib/fb/orders/journey';
 import {nextGroupStatus,type OperationResult,type PanelOrder,type PanelPage,type PrivateOrderView} from '@/lib/fb/orders/operations';
+import {printingStateText} from '@/lib/fb/printing/admin';
 
 const inputClass='min-h-11 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3 text-[var(--admin-text)]';
 const buttonClass=inputClass+' disabled:opacity-50';
@@ -40,6 +41,7 @@ export function FbOrdersPanel({initial}:{initial:PanelPage}){
   <div className="grid items-start gap-5 xl:grid-cols-2">{orders.map(o=><article key={o.order_id} data-fb-operation-order={o.order_id} className="min-w-0 rounded-2xl border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5">
    <header><h2 className="break-words text-lg font-semibold">Pedido {o.order_id.slice(0,8).toUpperCase()}</h2><p>{new Date(o.created_at).toLocaleString('pt-BR')} · {publicOrderStatus(o.status,'pt')}</p><p>{o.fulfilment==='pickup'?'Retirada no local':'Entrega no apartamento'}{o.total_minor!==null?' · '+money(o.total_minor,o.currency,'pt'):''}</p></header>
    {o.groups.filter(g=>!sector||sector===g.sector_id).map(g=>{const next=nextGroupStatus(g.status,o.fulfilment);return <section key={g.id} data-fb-operation-group={g.id} className="mt-4 rounded-xl border border-[var(--admin-border)] p-4"><h3 className="font-semibold">{g.sector_name} · {publicOrderStatus(g.status,'pt')}</h3><ul>{o.lines.filter(l=>l.group_id===g.id).map(l=><li key={l.id} className="mt-2 break-words">{l.name} ×{l.quantity}{o.options.filter(x=>x.line_id===l.id).map((x,i)=><p key={i} className="text-sm">{x.group_name}: {x.name}</p>)}</li>)}</ul>
+    <div className="mt-3 border-t border-[var(--admin-border)] pt-2 text-sm" data-group-printing><p className="font-semibold">Impressão · estado independente do atendimento</p>{o.printing_unavailable?<p>Consulta de impressão indisponível. O atendimento continua disponível.</p>:o.printing?.some(p=>p.group_id===g.id)?o.printing.filter(p=>p.group_id===g.id).map(p=><p key={p.job_id}>{p.kind==='reprint'?'REIMPRESSÃO':p.kind==='test'?'TESTE':'Via original'} · cópia {p.copy_number} · {printingStateText[p.state]}</p>):<p>Sem trabalho de impressão para este grupo.</p>}</div>
     {next&&o.permissions.transition_groups.includes(g.id)?<form onSubmit={e=>act(e,transitionOrderGroup)}><input type="hidden" name="group_id" value={g.id}/><input type="hidden" name="revision" value={g.revision}/><input type="hidden" name="status" value={next}/><button className={buttonClass+' mt-3'} disabled={busy||stale} type="submit">{publicOrderStatus(next,'pt')}</button></form>:null}
    </section>;})}
    {o.cancellation_requests.some(r=>r.status==='pending')?<p className="mt-4 font-semibold">Hóspede solicitou cancelamento — decisão pendente.</p>:null}

@@ -2,6 +2,7 @@ using System.Text;
 using LibGuest.PrintingBridge.Cloud;
 using LibGuest.PrintingBridge.Diagnostics;
 using LibGuest.PrintingBridge.Storage;
+using LibGuest.PrintingBridge.Printing;
 
 namespace LibGuest.PrintingBridge;
 
@@ -12,8 +13,10 @@ public static class Program
         try
         {
             if (!OperatingSystem.IsWindows() || Environment.OSVersion.Version.Major < 10) throw new BridgeFault("windows_required");
-            if (args.Length != 3 || args[1] != "--config" || args[0] is not ("pair" or "reprovision" or "import-credential" or "resume" or "run" or "run-once" or "service")) throw new BridgeFault("command_invalid");
-            var options = BridgeOptions.Load(args[2]); PrivateFiles.DirectoryForIdentity(options.ResolvedDataDirectory);
+            if (args.Length != 3 || args[1] != "--config" || args[0] is not ("pair" or "reprovision" or "import-credential" or "resume" or "run" or "run-once" or "service" or "diagnose")) throw new BridgeFault("command_invalid");
+            var options = BridgeOptions.Load(args[2]);
+            if (args[0] == "diagnose") { var native = new WindowsSpooler(); var metadata = WindowsSpooler.LocalQueues().Select(q => new { queue = q, observation = native.Observe(q) }); Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new { scope = "current_windows_identity", physical_ready = (bool?)null, submissions = 0, queues = metadata })); return 0; }
+            PrivateFiles.DirectoryForIdentity(options.ResolvedDataDirectory);
             using var instance = new SingleInstance(options.ResolvedDataDirectory);
             var protection = new WindowsProtection(); var vault = new CredentialVault(options.ResolvedDataDirectory, options.DeviceId, protection); var clock = new CloudClock();
             using var client = new CloudClient(options, vault, clock); var log = new BoundedLog(Path.Combine(options.ResolvedDataDirectory, "logs"));

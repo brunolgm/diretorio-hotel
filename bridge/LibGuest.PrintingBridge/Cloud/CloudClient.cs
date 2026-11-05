@@ -35,8 +35,8 @@ public sealed class CloudClient : IDisposable
     }
     private async Task<JsonDocument> Send(string operation, object body, CancellationToken cancellation, string? credentialOverride = null)
     {
-        if (operation is not ("exchange" or "heartbeat" or "claim" or "receipt" or "dispatch" or "result")) throw new BridgeFault("operation_invalid");
-        using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(options.CloudUri, "api/fb/printing/device/" + operation));
+        if (operation is not ("exchange" or "heartbeat" or "claim" or "receipt" or "dispatch" or "result" or "spooler_dispatch" or "spooler_observation")) throw new BridgeFault("operation_invalid");
+        using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(options.CloudUri, operation.StartsWith("spooler_", StringComparison.Ordinal) ? "api/fb/printing/spooler/" + operation[8..] : "api/fb/printing/device/" + operation));
         request.Content = new ByteArrayContent(JsonSerializer.SerializeToUtf8Bytes(body)); request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
         if (operation != "exchange") request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", credentialOverride ?? vault.Load());
         try
@@ -74,7 +74,7 @@ public sealed class CloudClient : IDisposable
     public async Task Heartbeat(CancellationToken cancellation, string? credentialOverride = null)
     {
         var start = Stopwatch.GetTimestamp();
-        using var response = await Send("heartbeat", new { protocol_version = 1, software_version = options.SoftwareVersion, observed_state = options.SimulatorEnabled ? "online" : "degraded" }, cancellation, credentialOverride);
+        using var response = await Send("heartbeat", new { protocol_version = 1, software_version = options.SoftwareVersion, observed_state = options.AdapterEnabled ? "online" : "degraded" }, cancellation, credentialOverride);
         try
         {
             var value = response.RootElement;
@@ -99,11 +99,16 @@ public sealed class CloudClient : IDisposable
     }
     public async Task<JobEnvelope> Dispatch(JournalJob job, CancellationToken cancellation)
     {
-        using var response = await Send("dispatch", new { protocol_version = 1, job_id = job.JobId, fence = job.Fence, revision = job.Revision, snapshot_hash = job.Hash }, cancellation); return JobEnvelope.Parse(response.RootElement) ?? throw new BridgeFault("envelope_invalid");
+        using var response = await Send(options.WindowsSpoolerEnabled ? "spooler_dispatch" : "dispatch", new { protocol_version = 1, job_id = job.JobId, fence = job.Fence, revision = job.Revision, snapshot_hash = job.Hash }, cancellation); return JobEnvelope.Parse(response.RootElement) ?? throw new BridgeFault("envelope_invalid");
     }
     public async Task<JobEnvelope> Result(JournalJob job, PendingOperation operation, CancellationToken cancellation)
     {
         using var response = await Send("result", new { protocol_version = 1, job_id = job.JobId, fence = job.Fence, revision = job.Revision, key = operation.Key, result = operation.Result, code = operation.Code, no_io = operation.NoIo }, cancellation); return JobEnvelope.Parse(response.RootElement) ?? throw new BridgeFault("envelope_invalid");
     }
     public void Dispose() => http.Dispose();
+    public async Task ObserveSpooler(JournalJob job, Guid printer, int revision, string state, CancellationToken cancellation)
+    {
+        try { using var response = await Send("spooler_observation", new { protocol_version = 1, job_id = job.JobId, fence = job.Fence, printer_id = printer, revision, state }, cancellation); }
+        catch (BridgeFault e) when (e.Code is "cloud_offline" or "cloud_timeout" or "cloud_408" or "cloud_429" or "cloud_500" or "cloud_502" or "cloud_503" or "cloud_504") { /* Diagnostic loss never becomes a second submission; dispatch still has its deadline. */ }
+    }
 }

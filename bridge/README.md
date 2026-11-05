@@ -1,9 +1,11 @@
-# LibGuest Printing Bridge — C2
+# LibGuest Printing Bridge — C2 / C4
 
-Componente Windows separado do Next.js. C2 só tem simulador LAB; produção faz
-heartbeat e informa adapter indisponível, sem claims novos. C3 Admin, C4 adapters
-físicos e C5 instalação/homologação continuam posteriores. Não há listener,
-spooler, socket de impressora, ESC/POS, shell, auto-update ou instalador.
+Componente Windows separado do Next.js, versão 1.1.0, preservando a fundação C2.
+O adapter Windows Spooler e o renderer V1 estão implementados; C3 integra sua
+configuração ao Admin existente. Sem adapter habilitado, faz heartbeat e informa
+adapter indisponível, sem novos claims. A validação é local: **C5-REAL permanece
+pendente**. Não há listener na bridge, socket de impressora, RAW TCP, ESC/POS,
+shell, auto-update ou instalador. Nenhum serviço ou equipamento de hotel foi ativado.
 
 ## Build e laboratório
 
@@ -41,6 +43,7 @@ LibGuest.PrintingBridge.exe resume --config C:\caminho\config.json
 LibGuest.PrintingBridge.exe run --config C:\caminho\config.json
 LibGuest.PrintingBridge.exe run-once --config C:\caminho\config-lab.json
 LibGuest.PrintingBridge.exe service --config C:\caminho\config.json
+LibGuest.PrintingBridge.exe diagnose --config C:\caminho\config.json
 ```
 
 `pair`, `reprovision` e `import-credential` recebem segredo por entrada oculta
@@ -57,6 +60,14 @@ necessário, `laboratory_certificate_sha256`. Failpoints são exclusivos LAB.
 Exit codes: 0 encerramento normal/cancelamento; 20 bloqueio conhecido; 21 falha
 inesperada sanitizada. `run-once` é exclusivo LAB, para um resultado/ACK recuperado
 ou novo trabalho; sem trabalho anterior pode aguardar até existir job.
+
+Para Windows Spooler: `windows_spooler_enabled: true` e
+`simulator_enabled: false`. O destino/fila vem da autorização Cloud, nunca do
+conteúdo comercial; não existe fallback para a impressora padrão. Em produção,
+`laboratory_spooler` permanece false. A opção LAB explícita
+`laboratory_spooler: true` permite testar o adapter sem enviar documento ao Windows;
+é recusada em produção. `diagnose` apenas enumera/consulta metadata das filas da
+identidade atual, sem criar journal, instalar serviço ou submeter documento.
 
 ## Identidade, segredo e arquivos
 
@@ -83,7 +94,7 @@ entre contas/máquinas nem apague SQLite para resolver incerteza.
 
 SQLite do Windows (`winsqlite3.dll`), WAL, synchronous FULL, foreign keys,
 busy_timeout 3000 ms, secure_delete, temp_store MEMORY, trusted_schema OFF.
-Migrations locais 0→1→2 transacionais; application_id próprio; integrity_check;
+Migrations locais 0→1→2→3 transacionais; application_id próprio; integrity_check;
 schema desconhecido, corrupção e device divergente bloqueiam sem reset. Um lock
 de arquivo FileShare.None impede duas bridges no mesmo diretório/journal, inclusive
 entre sessões Windows. Configurar diretórios diferentes para o mesmo device não é
@@ -109,11 +120,11 @@ de relógio Cloud + Stopwatch, validade conservadora com margem, sem depender s�
 do relógio local. Expurgo técnico aguarda a primeira âncora Cloud para não apagar
 ACKs/tombstones por relógio local incorreto. Polling ativo padrão 5s, idle 20s, jitter, timeout, backoff
 exponencial limitado e cancelamento. Receipt só depois do commit local. Dispatch
-é autorizado separadamente e gravado antes do intent; intent antes do simulador.
+é autorizado separadamente e gravado antes do intent; intent antes do adapter.
 Resultado é commitado antes do HTTP e tem chave estável nos retries.
 
 Depois de intent sem resultado: `ambiguous`, sem nova execução. Com resultado
-durável e ACK perdido: repetir ACK, sem executar simulador. Após autorização sem
+durável e ACK perdido: repetir ACK, sem executar adapter. Após autorização sem
 intent: reautorizar, sem reutilizar projeção privada do processo anterior. Fence
 antigo é reconciliado e bloqueado; após possível I/O e conflito exige operador.
 403 pode representar revogação, expiração ou outra proibição C1: parar, manter
@@ -150,6 +161,52 @@ sc.exe create LibGuestPrintingBridge binPath= "\"C:\Program Files\LibGuest\Print
 Nenhum serviço foi registrado nesta rodada. Integração nativa SCM implementa
 start/stop/shutdown e CancellationToken, mas funcionamento real sem usuário
 logado, recuperação SCM, reboot/queda de energia e permissões da conta dedicada
-não foram homologados. C4 deverá carregar conteúdo autorizado válido através de
-fronteira controlada e não reutilizar cegamente o simulador; C5 valida instalação,
-hardware, papel, setor, cópias, rede e operação. Submitted não é papel impresso.
+não foram homologados. C4 usa conteúdo autorizado válido e uma fronteira de I/O
+durável própria. C5-REAL deverá validar instalação, hardware, papel, setor, cópias,
+rede e operação. Submitted não é papel impresso.
+
+## Windows Spooler / renderer V1
+
+O endpoint adicional `/api/fb/printing/spooler/dispatch` delega a autorização C1
+e acrescenta contexto autorizado de hotel, setor, printer e revisão. Os seis
+endpoints C1 continuam preservados. A observação autenticada adicional só admite
+`unknown`, `offline`, `paper_out` ou `error`; não declara prontidão física.
+
+Renderer lógico Unicode separado do GDI/Spooler: usa quantidades e opções já
+congeladas, sem recalcular combo/preço. Nome default OFF; quarto, nome e notas
+dependem de política e projeção privada ainda válida. Marca TESTE LIBGUEST — NÃO
+É PEDIDO e REIMPRESSÃO; remove controles de dispositivo/bidi e limita conteúdo.
+O renderer usa uma lista explícita de campos; não serializa campos bearer,
+roomToken, segredo, CPF, e-mail ou telefone da projeção privada.
+
+Enumeração local/metadata precedem qualquer chamada. A implementação usa
+Winspool/GDI, valida fila/configuração/revisão e verifica novamente o deadline
+antes de StartDoc. ID positivo é persistido em `spooler_calls` por job/fence;
+aceitação termina em `submitted/spooler_accepted`, nunca `confirmed`. Qualquer
+incerteza depois da fronteira StartDoc é `ambiguous`, inclusive falha sem ID.
+Após intent e restart não há nova submissão automática. Resultado durável conserva
+a mesma chave de ACK; revisão avançada pelo reprint administrativo é reconciliada
+somente no mesmo job/attempt/fence/hash, sem novo claim ou I/O.
+
+Referências oficiais: [EnumPrinters](https://learn.microsoft.com/en-us/windows/win32/printdocs/enumprinters),
+[StartDocW](https://learn.microsoft.com/windows/win32/api/wingdi/nf-wingdi-startdocw).
+APIs de driver podem bloquear; cancelamento não garante interrupção de chamada
+nativa em andamento. Latência, stop/recovery SCM e comportamento do driver exigem
+C5-REAL. Filas visíveis ao usuário podem não existir para a conta do serviço;
+pareamento, DPAPI, ACLs e acesso à fila devem usar a identidade operacional definida.
+
+Neste computador havia somente OneNote e Microsoft Print to PDF (esta era a padrão).
+Nenhuma foi usada para submissão: potencial UI/arquivo não é um destino LAB seguro.
+Testes usam abstraction explícita e metadata nativa; zero documento, spool/PDF ou
+papel real. Isso não homologa a impressora de qualquer hotel.
+
+Expurgo lógico usa exclusão, secure_delete e checkpoint WAL; conteúdo persistido
+é DPAPI e não reaproveitado no startup. Não há promessa de eliminação física em
+SSD, snapshots, backups ou arquivos recuperáveis. Serviço parado não executa GC.
+
+## Gates locais finais — 05/11/2026
+
+C3 181, C4 75, C5-LAB 104, .NET 162, C1↔C2 204 e
+C1 767: zero falhas. Regressões B/Auth/SSR/browser/segurança/builds verdes;
+relatório completo e inventário em docs/SPRINT_53_FNB.md. GO técnico local para
+revisão; C5-REAL pendente, nenhuma propriedade real ativada. Zero stage/commit/push.

@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/server';
 import {headers} from 'next/headers';
 import {redirect} from 'next/navigation';
 import {currentOrderAccess,requireOrderShell} from '@/lib/fb/orders/operations.server';
+import {currentPrintAccess} from '@/lib/fb/printing/admin.server';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -30,11 +31,13 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   const archivedDrain=orderShell&&orderAccess?.hotel_status==='archived';
   const enabledModules = archivedDrain?new Set<never>():await getCurrentHotelEntitlements();
   const navGroups = archivedDrain?[]:getAdminNavigationForRole(profile.normalizedRole, enabledModules);
+  const printAccess=profile.normalizedRole==='visualizador'||archivedDrain?null:await currentPrintAccess();
   if(orderAccess){
     const operationItem={href:'/admin/pedidos',label:'Pedidos',icon:'menu' as const,requiredRole:'operador' as const,availability:'available' as const};
     const management=navGroups.find(g=>g.key==='management');
     if(management)management.items.push(operationItem);else navGroups.push({key:'management',label:'Operação',items:[operationItem]});
   }
+  if(printAccess){const printingItem={href:'/admin/impressao',label:'Impressão F&B',icon:'menu' as const,requiredRole:'operador' as const,availability:'available' as const};const group=navGroups.find(g=>g.key==='management');if(group)group.items.push(printingItem);else navGroups.push({key:'management',label:'Operação',items:[printingItem]});}
   const supabase = await createClient();
   const { data: hotel } = archivedDrain ? {data:orderAccess.hotel} : await supabase
     .from('hotels')

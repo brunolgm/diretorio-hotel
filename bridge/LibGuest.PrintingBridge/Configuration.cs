@@ -11,6 +11,10 @@ public sealed class BridgeOptions
     public string? DataDirectory { get; init; }
     public string? LaboratoryCertificateSha256 { get; init; }
     public bool SimulatorEnabled { get; init; }
+    public bool WindowsSpoolerEnabled { get; init; }
+    public bool LaboratorySpooler { get; init; }
+    public string LaboratorySpoolerScenario { get; init; } = "success";
+    [JsonIgnore] public bool AdapterEnabled => SimulatorEnabled || WindowsSpoolerEnabled;
     public string SimulatorScenario { get; init; } = "success";
     public int SimulatorDelayMilliseconds { get; init; } = 50;
     public string? LaboratoryCheckpoint { get; init; }
@@ -36,6 +40,7 @@ public sealed class BridgeOptions
     }
     public void Validate()
     {
+        if (SimulatorEnabled && WindowsSpoolerEnabled || LaboratorySpooler && (!IsLaboratory || !WindowsSpoolerEnabled) || !IsLaboratory && LaboratorySpoolerScenario != "success" || LaboratorySpoolerScenario is not ("success" or "offline" or "missing_queue" or "paper_out" or "ambiguous" or "no_response" or "delay")) throw new BridgeFault("configuration_invalid");
         if (DeviceId == Guid.Empty || !Uri.TryCreate(CloudBaseUrl, UriKind.Absolute, out var uri) || uri.Scheme != "https" || uri.UserInfo.Length != 0 || uri.Query.Length != 0 || uri.Fragment.Length != 0 || uri.AbsolutePath != "/") throw new BridgeFault("configuration_invalid");
         if (Environment is not ("laboratory" or "production") || ActivePollSeconds is < 1 or > 30 || IdlePollSeconds is < 15 or > 60 || HeartbeatSeconds is < 5 or > 60 || HttpTimeoutSeconds is < 1 or > 30 || MaximumBackoffSeconds is < 5 or > 300 || SimulatorDelayMilliseconds is < 0 or > 30000) throw new BridgeFault("configuration_invalid");
         if (SimulatorScenario is not ("success" or "safe_failure" or "ambiguous" or "delay" or "no_response")) throw new BridgeFault("configuration_invalid");

@@ -13,7 +13,7 @@ as Sprints 54–62 e sem reabrir a implementação aprovada da Etapa A.
 |---|---|---|
 | A — Catálogo F&B nativo | [IMPLEMENTADO, AUDITADO E HOMOLOGADO LOCALMENTE] | Outlets, menus, categorias, itens, preços, traduções, mídia, Admin, publicação editorial, público, compatibilidade com Serviços, Goomer/room_restaurant_menu preservados e governança fb.menu. |
 | B — Pedidos e painéis | [B1 PRESERVADO — B2+B3 IMPLEMENTADOS — B4 APROVADA LOCALMENTE] | Carrinho, cotação, checkout, acompanhamento e painel operacional sobre B1. GO técnico local para checkpoint Git; implantação, conteúdo e ativação operacional reais permanecem pendentes. |
-| C — Impressão local | [C1+C2 IMPLEMENTADOS — GO TÉCNICO LOCAL — C3–C5 PENDENTES] | Cloud e bridge Windows/SQLite/DPAPI validados com simulador LAB e seis tenants sintéticos. Admin visual, adapters e homologação física permanecem posteriores. |
+| C — Impressão local | [C1+C2 PRESERVADOS — C3+C4+C5-LAB APROVADOS TECNICAMENTE — C5-REAL PENDENTE] | Admin integrado, adapter Windows Spooler e auditoria local concluídos; nenhuma propriedade/equipamento real ativado. Homologação física e operação assistida permanecem pendentes. |
 | D — Evoluções posteriores | [PLANEJADO] | Detalhamento futuro; nenhum comportamento adicional é declarado implementado. |
 
 A auditoria técnica anterior continua válida para a Etapa A da Sprint 53.
@@ -1846,3 +1846,393 @@ encerradas após os testes. Isso é GO técnico local C2; homologação editoria
 Home, instalação SCM em hotel e homologação operacional/física não são concedidas.
 Laboratório final encerrado pelo gerenciador com `otherProjectsTouched:false`;
 chave TLS efêmera removida. Nenhum arquivo de fonte foi removido.
+
+## Recuperação C3/C4/C5-LAB — checkpoint intermediário de 05/11/2026 (superado abaixo)
+
+Base preservada: `sprint-53-fnb`, HEAD e referência local origin em
+`25199232fe1a41a191fe3d12312ff7fafb29715f`. Recuperação encontrou 16 modificados
+e 22 novos candidatos, zero staged. C3 tinha gate 175 e C4 69 + 7 health/ACL;
+C5 tinha somente a regressão CAS de três verificações. Matriz ampliada estava
+escrita e ainda não concluída. Nenhuma implementação foi reiniciada ou descartada.
+
+Nesta continuação, C5 reproduziu bloqueio de ACK após reprint avançar a revisão
+do original. A bridge agora reconcilia somente o resultado já durável do mesmo
+job/attempt/fence/hash e conserva sua chave; não faz novo claim ou I/O. Nove testes
+nativos adicionais passaram: .NET total 162, build e publish self-contained locais.
+A correção CAS administrativa anterior também foi preservada: mesma chave retorna
+a cópia existente; intenção independente com revisão consumida recebe PT409.
+
+Direcionados finais: C3 **181**, C4 **75**, C5-LAB **104**, todos zero falhas.
+Evidências: `out/libguest-fb-auth-e4f4cb8e/c3/report.json`,
+`out/libguest-fb-auth-32ba3836/c2/c4-report.json`,
+`out/libguest-fb-auth-055153df/c2/c5-report.json` e
+`out/fb-c345-dotnet-reconciliation.log`. Segurança 748, SSR 391, browser F&B 1524,
+V3/V4 152, SQL A 197, TypeScript e diff check passaram; lint somente quatro
+warnings históricos. Capturas C3 desktop/mobile dos seis tenants ficam no diretório
+do relatório C3. Comparação SHA256 confirmou zero alteração nas 56 migrations
+commitadas. As duas migrations novas continuam candidatas locais.
+
+**Checkpoint em regressão final:** C2, C1, B e Auth/RLS ainda não aprovados nesta
+continuação. Não interpretar os direcionados como encerramento global do C5-LAB.
+Somente após essas regressões haverá relatório final consolidado abaixo.
+
+Sem stage, commit, push, merge, deploy, Supabase remoto, tenant real, API externa
+de negócio, instalação de serviço, alteração de firewall ou submissão a fila real.
+C5-REAL continua pendente; Home/Goomer, Auth e RLS já commitados foram preservados.
+
+## C3 + C4 + C5-LAB — relatório final local, 05/11/2026
+
+### [RECUPERAÇÃO DA EXECUÇÃO ANTERIOR]
+
+Recuperados 16 modificados e 22 novos, com HEAD/origin local em 25199232fe1a41a191fe3d12312ff7fafb29715f, zero
+staged. C3 já tinha implementação/gate 175; C4 já tinha adapter, gate 69 e 7
+health/ACL. C5 tinha regressão CAS 3; sua matriz ampliada ainda não estava concluída.
+Implementações válidas foram preservadas. Nenhum reset, restore, clean, troca de
+branch, descarte ou reimplementação do zero.
+
+Esta continuação validou a matriz e corrigiu um bloqueio de ACK quando o reprint
+administrativo avançava a revisão do original. Antes: resultado durável ficava
+retido com attempt_reconciliation_required. Depois: mesmo job/attempt/fence/hash,
+receipt/dispatch comprovados e revisão superior permitem apenas revisar o CAS e
+reenviar o mesmo ACK. Sem novo claim, renderer ou I/O. Nove regressões nativas
+cobrem submitted, ambiguous e pre_send_failed. A correção CAS já recuperada foi
+mantida: mesma chave é idempotente; chave independente com revisão consumida é PT409.
+Execuções anteriores que pararam em asserção são diagnóstico, não aprovação final.
+
+### [C3 GATE]
+
+**APROVADO — 181 direcionados finais.** Segurança, SSR, browser,
+TypeScript, lint, Next build e diff check passaram. Gate inicial C3 precedeu C4;
+após os defeitos encontrados em C5, regressões pertinentes foram repetidas.
+
+### [C4 GATE]
+
+**APROVADO tecnicamente em LAB — 75 direcionados finais e 162
+nativos.** Gate inicial C4 precedeu C5-LAB. Sem submissão a fila real.
+
+### [C5-LAB]
+
+**APROVADO — 104 direcionados e regressões completas abaixo.** Cadeia
+B→C1→C2→C3→C4 exercitada somente com fixtures próprias e bancos locais descartáveis.
+
+### [C3 ADMIN]
+
+Impressão integrada ao Admin existente em /admin/impressao e à navegação autorizada.
+/admin/pedidos recebe estado técnico por grupo, independente do status comercial;
+leitura de printing é best-effort e não muda checkout, preço, cancelamento ou pedido.
+Printing e nome continuam default OFF; ativação, TTL, políticas, fan-out e grants
+exigem autorização/confirmação/CAS/auditoria conforme C1. Nada ativado em propriedade real.
+
+### [DEVICES]
+
+Nome/ID seguro, revisão, ativo/revogado, heartbeat, protocolo, versão e estado.
+Sem digest, bearer, material DPAPI ou pareamento consumido na leitura administrativa.
+
+### [PAIRING]
+
+Código gerado no servidor, validade C1, exibição única em RAM por até 60 segundos;
+limpeza ao ocultar/sair/revogar permissão. Sem URL, storage, analytics ou log.
+Rotação/revogação explícitas e auditadas, sem apagar histórico.
+
+### [DESTINATIONS]
+
+Destino lógico separado da impressora; principal, backup, prioridade e políticas
+por tenant. RAW TCP/ESC-POS permanecem sem implementação/homologação.
+
+### [ROUTING]
+
+Setor→destino, revisão/CAS, principal/backup e fan-out explícito, default OFF.
+Job existente preserva routing congelado. Backup não assume automaticamente após
+possível I/O. Failover pré-I/O controlado exige decisão explícita e novo job marcado.
+
+### [QUEUE]
+
+Cursor estável por created_at/id, 25 itens por página, máximo 50; filtros por
+estado/setor/tipo/destino. Detalhe técnico com versões/hash/original/tentativas/eventos,
+sem snapshot ou PII. Carga com mais de 100 jobs, paginação sem perda/duplicação.
+Polling com geração, abort, pause hidden, retorno online, backoff e snapshot válido;
+403/200 atrasados não sobrescrevem autorização nem reapresentam segredo.
+
+### [AMBIGUOUS UX]
+
+Resultado incerto destacado e explicado: não repetir automaticamente para evitar
+duplicidade. Sem botão genérico de retry. Estado comercial permanece independente.
+
+### [REPRINT]
+
+printing.reprint + orders.read no setor, motivo enumerado, confirmação e aviso de
+duplicidade. Novo job vinculado/auditado, marca REIMPRESSÃO; original preservado.
+Comando C3 consome revisão do original na mesma transação serializada por tenant.
+Teste de concorrência antes da correção aceitou duas intenções na mesma revisão;
+regressão final aceita uma, conflita a segunda e mantém replay da mesma chave.
+
+### [TEST JOB]
+
+printing.test setorial cria job C1 test na mesma infraestrutura; contador de pedidos
+permanece igual. Renderer marca TESTE LIBGUEST — NÃO É PEDIDO. Somente fixtures locais.
+
+### [HEALTH]
+
+Heartbeat/compatibilidade/stale da bridge, backlog autorizado, idade e erro atual.
+Observação autenticada de fila unknown/offline/paper_out/error por printer/revisão;
+não incrementa revisão de configuração. Último submit/erro permanece no histórico
+técnico. Bridge online não significa impressora fisicamente pronta.
+
+### [C4 ADAPTER]
+
+Windows Spooler nativo, renderer separado, destino autorizado pelo Cloud e validado
+contra device/destination/printer/configuração/revisão. Sem shell, RAW, TCP 9100,
+ESC/POS, USB direto, caminho executável vindo de conteúdo ou fallback para padrão.
+
+### [RENDERER]
+
+V1 lê snapshot canônico/hash e linhas já expandidas do próprio setor; preserva
+quantidades/modifiers/contexto do combo sem recalcular preço/quantidade. Hotel,
+referência operacional, horário/timezone, setor e modalidade; nome default OFF,
+quarto/notas somente sob política e TTL. Lista explícita exclui campos de segredo,
+CPF/e-mail/telefone e IDs internos desnecessários. Controles de dispositivo/bidi e
+tamanho são limitados; texto comercial é dado, não comando físico/executável.
+
+### [WINDOWS SPOOLER]
+
+- Implementação: Winspool/GDI, enumeração/metadata, validação, StartDoc/ID, páginas,
+  deadline final e encerramento/abort conservador.
+- Teste técnico: metadata nativa real + IWindowsSpooler/LaboratorySpooler controlados,
+  executável self-contained e journal/DPAPI reais.
+- Filas virtuais: OneNote e Microsoft Print to PDF identificadas, zero submissões;
+  PDF padrão não foi considerado destino LAB seguro por UI/arquivo.
+- Equipamento físico: nenhum modelo, fila de hotel, driver ou papel homologado.
+
+Compatibilidade arquitetural SCM e CurrentUser preservada; nenhum serviço registrado.
+Conta de serviço, perfil DPAPI e filas por identidade exigem validação C5-REAL.
+Chamada nativa de driver pode bloquear; cancelamento não garante interrupção imediata.
+
+### [SUBMISSION SEMANTICS]
+
+**submitted ≠ confirmação física.** Máximo emitido pelo adapter após aceitação é
+submitted/spooler_accepted. Nenhuma execução emitiu confirmed.
+
+### [SPOOL JOB ID]
+
+ID positivo capturado pela implementação e persistido em SQLite por job/fence,
+com printer/revisão/fila/observação. Testes exercitaram IDs de abstraction LAB;
+nenhum ID real de submissão Windows foi produzido. ID não comprova papel.
+
+### [RECOVERY]
+
+Persistência→receipt→autorização→intent→renderer/adapter→resultado durável→ACK.
+Sem resultado após intent: ambiguous, sem nova submissão. Com resultado: mesmo
+ACK/chave, sem nova chamada ao adapter. 12 fronteiras de encerramento forçado
+testadas no adapter; reboot é simulado por reinício do processo/journal, não OS real.
+
+### [DUPLICATE PREVENTION]
+
+ACK perdido, Cloud retry, timeout, resposta fora de ordem, crashes e lease/fence
+antigos não produziram segunda submissão automática após possível I/O. Ausência
+comprovada de I/O usa somente o retry seguro C1. Duas identidades/20 claims mantêm
+um owner; backup não toma dispatch incerto. Dois processos não compartilham journal.
+
+Matriz C5: Cloud offline em quatro fronteiras; PostgreSQL próprio realmente pausado;
+SQLite write lock/corrupção reais; credenciais inválidas/revogadas/expiradas; versões,
+hash e payload incompatíveis; fila adulterada; configuração/rename; resposta atrasada,
+perdida/fora de ordem; concorrência administrativa, cancelamento antes de autorização,
+routing congelado, failover controlado e 12 crashes. Evidências sintéticas preservadas.
+
+### [PII]
+
+Projeção privada não é snapshot comercial e não é reconstruída após expiração.
+Entrega com PII expirada foi bloqueada; renderer expira nome/quarto/notas. DPAPI
+CurrentUser + ACL da identidade e TTL; cache removido no startup/terminal. Scans de
+logs, journals/WAL/temp próprios e respostas/UI verificaram marcadores privados e
+segredos; zero tentativa externa no browser. Artefatos com fixtures são temporários.
+secure_delete/checkpoint são expurgo lógico: não se promete eliminação física em
+SSD, páginas recuperáveis, snapshots/backups; bridge parada não executa GC.
+
+### [FIVE-HOTEL MATRIX]
+
+Mesmo Admin, domínio e binário; sem fork Bugan. Fixtures incluem Restaurante Filipe,
+Room Service e múltiplos setores; Goomer e apresentações V3/V4 foram preservados.
+
+| Fixture | Dados | C3 | C4 LAB/renderer | C1↔C2 | Equipamento real | Ativação real | Pendência |
+|---|---|---|---|---|---|---|---|
+| Grand Mercure Copacabana | Sintética local | Aprovado | Aprovado | Aprovado | Não | Não | C5-REAL por equipamento/conta/fila |
+| Novotel Leme | Sintética local | Aprovado | Aprovado | Aprovado | Não | Não | C5-REAL por equipamento/conta/fila |
+| Novotel Salvador Rio Vermelho | Sintética local | Aprovado | Aprovado | Aprovado | Não | Não | C5-REAL por equipamento/conta/fila |
+| Mercure Rio Boutique Copacabana | Sintética local | Aprovado | Aprovado | Aprovado | Não | Não | C5-REAL por equipamento/conta/fila |
+| Bugan Recife | Sintética local | Aprovado | Aprovado | Aprovado | Não | Não | C5-REAL por equipamento/conta/fila |
+| Default técnico | Sintética local | Aprovado | Aprovado | Aprovado | Não | Não | Somente LAB; não é propriedade piloto |
+
+Cada fixture passou por device/destination/routing/queue, combo Cozinha/Bar,
+reprint/test/ambiguous e autorização. Desktop 1440/mobile 390; doze capturas em
+out/libguest-fb-auth-e4f4cb8e/c3. Bugan desktop/mobile também inspecionados visualmente.
+
+### [B REGRESSION]
+
+B1 623; B2+B3+B4 2503, completos, sem falhas.
+Carrinho/cotação/checkout, PII, cancelamento, grupos, estados, modo externo,
+compatibilidade pública, atomicidade, manutenção e polling preservados.
+
+### [C1 REGRESSION]
+
+767 completos, SQL 250; Auth administrativo normal e protocolo HTTP
+real nos seis tenants. 56 migrations commitadas preservadas por SHA256.
+
+### [C2 REGRESSION]
+
+204 C1↔C2 real/HTTPS + 162 nativos. Seis operações C1
+originais continuam no modo C2; endpoints Spooler são extensão opcional separada.
+Crash/journal/DPAPI/polling/rotação/reprovisionamento e relógio cobertos.
+
+### [TESTES]
+
+Contagens por suíte, sem somar execuções interrompidas ou contar novamente os
+checks nativos antigos dentro do total novo. SQL é informado separadamente.
+
+| Suíte final | Aprovados, zero falhas |
+|---|---:|
+| C3 direcionado | 181 |
+| C4 direcionado | 75 |
+| C5-LAB direcionado | 104 |
+| CAS reprint, regressão isolada | 3 |
+| .NET unit/integração nativa | 162 |
+| C1 completo, modo full | 767 |
+| C1↔C2 executável real/HTTPS | 204 |
+| B1 completo | 623 |
+| B2+B3+B4 completos | 2503 |
+| Auth/DB/RLS/Storage completo | 1434 |
+| Segurança web | 748 |
+| SSR | 391 |
+| Browser F&B | 1524 |
+| Browser público V3/V4 | 152 |
+| SQL A / B1 / B23 | 197 / 232 / 63 |
+| SQL B4 manutenção / temporal | 20 / 15 |
+| SQL C1, incluindo ACLs novas | 250 |
+
+TypeScript, lint (somente quatro warnings históricos img), Next production build,
+.NET build e publish self-contained e git diff --check aprovados. Carga: 20 jobs no
+worker contínuo com journal/ACK drenados, >100 no Admin, 50 materializações/claims
+concorrentes C1. Todo volume do adapter usa abstraction; zero papel real.
+
+Evidências finais:
+- c3: C:/Users/bruno/diretorio-hotel/out/libguest-fb-auth-e4f4cb8e/c3/report.json
+- c4: C:/Users/bruno/diretorio-hotel/out/libguest-fb-auth-32ba3836/c2/c4-report.json
+- c2: C:/Users/bruno/diretorio-hotel/out/libguest-fb-auth-5e3b965e/c2/report.json
+- c1: C:/Users/bruno/diretorio-hotel/out/libguest-fb-auth-8609337b/c1/report.json
+- b1: C:/Users/bruno/diretorio-hotel/out/libguest-fb-auth-6c823714/b1-report.json
+- b23-b4: C:/Users/bruno/diretorio-hotel/out/libguest-fb-auth-0531fa13/b23/report.json
+- auth: C:/Users/bruno/diretorio-hotel/out/libguest-fb-auth-7fdf31da/report.json
+- C5-LAB: out/libguest-fb-auth-055153df/c2/c5-report.json
+- .NET: out/fb-c345-dotnet-reconciliation.log
+- Segurança/SSR/browser/V3V4/SQL: out/fb-c345-*-final.log e out/fb-c345-sql-a.log
+- Auditoria/inventário/hashes: out/fb-c345-inventory.json e out/fb-c345-final-gates.json
+
+### [MIGRATIONS]
+
+20261104231319_sprint_53_c3_print_admin.sql: aditiva; leitura administrativa
+paginada/escopada, índice, comandos CAS/idempotentes, ACLs e auditoria C1.
+20261104235347_sprint_53_c4_spooler_authorization.sql: necessária para contexto de
+hotel/printer/fila autorizado e sinais autenticados, sem alterar snapshot ou seis
+endpoints C1. Reutiliza tabelas; sem seed, ativação ou conteúdo. Somente LAB local.
+SQLite local 2→3 aditivo/transacional; rollback de upgrade preserva v2. Nenhuma
+migration já commitada foi modificada.
+
+### [ARQUIVOS]
+
+42 candidatos: 19 modificados, 23 novos. Classificação completa:
+
+**PRODUÇÃO (28)**
+
+```text
+app/admin/impressao/page.tsx
+app/admin/layout.tsx
+app/api/admin/fb-printing/console/route.ts
+app/api/fb/printing/spooler/dispatch/route.ts
+app/api/fb/printing/spooler/observation/route.ts
+bridge/Directory.Build.props
+bridge/LibGuest.PrintingBridge/BridgeFault.cs
+bridge/LibGuest.PrintingBridge/Cloud/CloudClient.cs
+bridge/LibGuest.PrintingBridge/Cloud/JobEnvelope.cs
+bridge/LibGuest.PrintingBridge/Configuration.cs
+bridge/LibGuest.PrintingBridge/Engine/BridgeWorker.cs
+bridge/LibGuest.PrintingBridge/Engine/LabCheckpoints.cs
+bridge/LibGuest.PrintingBridge/Printing/TicketV1.cs
+bridge/LibGuest.PrintingBridge/Printing/WindowsSpooler.cs
+bridge/LibGuest.PrintingBridge/Printing/WindowsSpoolerAdapter.cs
+bridge/LibGuest.PrintingBridge/Program.cs
+bridge/LibGuest.PrintingBridge/Storage/Journal.cs
+components/admin/fb-orders-panel.tsx
+components/admin/fb-printing-config.tsx
+components/admin/fb-printing-console.tsx
+lib/fb/orders/operations.server.ts
+lib/fb/orders/operations.ts
+lib/fb/printing/admin-validation.ts
+lib/fb/printing/admin.server.ts
+lib/fb/printing/admin.ts
+lib/fb/printing/http.server.ts
+supabase/migrations/20261104231319_sprint_53_c3_print_admin.sql
+supabase/migrations/20261104235347_sprint_53_c4_spooler_authorization.sql
+```
+
+**DOCUMENTAÇÃO (3)**
+
+```text
+bridge/README.md
+docs/PRODUCT_MAP.md
+docs/SPRINT_53_FNB.md
+```
+
+**TESTE REGRESSIONAL (9)**
+
+```text
+bridge/LibGuest.PrintingBridge.Tests/Program.cs
+bridge/LibGuest.PrintingBridge.Tests/RevisionTests.cs
+bridge/LibGuest.PrintingBridge.Tests/SpoolerTests.cs
+tests/integration/fb-c3-polling.mjs
+tests/integration/fb-c3.mjs
+tests/integration/fb-c4.mjs
+tests/integration/fb-c5-lab.mjs
+tests/integration/fb-c5-reprint-race.mjs
+tests/security/fb-c3.test.ts
+```
+
+**FERRAMENTA PERMANENTE (2)**
+
+```text
+tests/integration/fb-c2-runtime.mjs
+tests/integration/fb-printing-lab.mjs
+```
+
+**TEMPORÁRIO — EXCLUIR DO FUTURO COMMIT:** out/** (relatórios, capturas, certificados,
+configs, vaults DPAPI, fixtures, helpers desta execução e caches), .next/**,
+bridge/**/bin/**, bridge/**/obj/**, publish/**, SQLite/WAL/SHM, logs, .env, segredos,
+pairing, spool/PDF e tsbuildinfo. Não são candidatos de produto. Nenhum path
+desconhecido/suspeito; nenhuma fonte ou evidência anterior descartada.
+
+### [C5-REAL PENDENTE]
+
+Homologação física controlada ainda pendente: hotel piloto autorizado; PC/mini-PC;
+Windows/SQLite suportados; conta de serviço/perfil DPAPI/ACL; instalação SCM real;
+fila real, modelo, driver, papel/margens/fontes; rede/cabo; reboot/energia;
+internet indisponível; impressora offline; paper out; spool/resultado incerto;
+reprint assistido; roteamento por setor e operação acompanhada. Validar acesso à
+fila sem usuário logado, stop/recovery SCM e chamadas bloqueantes do driver.
+Não se declara a Sprint 53 operacionalmente encerrada nem impressora homologada.
+
+### [GIT]
+
+sprint-53-fnb; HEAD inicial/final 25199232fe1a41a191fe3d12312ff7fafb29715f, referência origin local igual. Zero
+staged, commit, push, merge; working tree preservado para revisão humana. Sem
+alteração no worktree libguest-content-bridge.
+
+### [REMOTO]
+
+Zero deploy, Supabase remoto, tenant/hotel real, API externa de negócio, instalação
+em hotel, registro de serviço, firewall, listener da bridge ou submissão real.
+Laboratório final encerrado pelo gerenciador com otherProjectsTouched:false;
+chave TLS privada efêmera removida. Sem processo da bridge ou listener LAB nas
+portas 4317/4318 após encerramento. Evidências e fontes permanecem disponíveis;
+artefatos temporários continuam excluídos do futuro stage.
+
+**C3 + C4 + C5-LAB tecnicamente aprovados. A arquitetura de impressão nativa está
+pronta para checkpoint Git; C5-REAL permanece pendente e nenhuma propriedade real
+foi ativada.**

@@ -13,7 +13,7 @@ using LibGuest.PrintingBridge.Storage;
 
 namespace LibGuest.PrintingBridge.Tests;
 
-internal static class Program
+internal static partial class Program
 {
     private static readonly List<string> Checks = [];
     private static string root = "";
@@ -55,8 +55,9 @@ internal static class Program
             if (args[0] == "certificate") { Certificate(root); return 0; }
             if (args[0] == "inspect") { Inspect(root); return 0; }
             if (args[0] == "hold-lock") { using var held = new SingleInstance(root); Console.WriteLine("locked"); Console.ReadLine(); return 0; }
+            if (args[0] == "hold-sqlite") { using var held = new SqliteDatabase(Path.Combine(root, "journal.sqlite")); held.Execute("BEGIN IMMEDIATE"); Console.WriteLine("locked"); Console.ReadLine(); return 0; }
             if (args[0] != "test") throw new Exception("test_arguments_invalid");
-            Storage(); Envelopes(); await Http(); await Simulator(); await RecoveryClock();
+            Storage(); Envelopes(); await Http(); await Simulator(); await RecoveryClock(); await SpoolerTests(); await RevisionTests();
             Console.WriteLine(JsonSerializer.Serialize(new { suite = "fb-c2-dotnet", passed = Checks.Count, failed = 0, sqlite = SqliteDatabase.Version, dpapi = "CurrentUser", checks = Checks })); return 0;
         }
         catch (Exception e) { Console.Error.WriteLine(JsonSerializer.Serialize(new { suite = "fb-c2-dotnet", passed = Checks.Count, failed = 1, error = e is BridgeFault fault ? fault.Code : "assertion_failed", last = Checks.LastOrDefault() })); return 1; }
@@ -72,7 +73,7 @@ internal static class Program
         using (var first = new SingleInstance(dir)) Denied(() => new SingleInstance(dir), "second instance cannot acquire journal lock"); using (var later = new SingleInstance(dir)) Check(true, "lock released after process owner closes");
         using (var journal = new Journal(dir, device, protection))
         {
-            Check((long)journal.Database.Query("PRAGMA user_version")[0][0]! == 2, "new SQLite migration version two"); Check((string?)journal.Database.Query("PRAGMA journal_mode")[0][0] == "wal", "SQLite WAL enabled"); Check((long)journal.Database.Query("PRAGMA synchronous")[0][0]! == 2, "SQLite synchronous FULL"); Check((long)journal.Database.Query("PRAGMA foreign_keys")[0][0]! == 1, "SQLite foreign keys enabled");
+            Check((long)journal.Database.Query("PRAGMA user_version")[0][0]! == 3, "new SQLite migration version three"); Check((string?)journal.Database.Query("PRAGMA journal_mode")[0][0] == "wal", "SQLite WAL enabled"); Check((long)journal.Database.Query("PRAGMA synchronous")[0][0]! == 2, "SQLite synchronous FULL"); Check((long)journal.Database.Query("PRAGMA foreign_keys")[0][0]! == 1, "SQLite foreign keys enabled");
             try { journal.Database.Transaction(() => { journal.Database.Execute("INSERT INTO metadata VALUES('rollback','x')"); throw new BridgeFault("injected"); }); } catch (BridgeFault) { }
             Check(journal.Database.Query("SELECT value FROM metadata WHERE key='rollback'").Count == 0, "transaction rollback preserves atomicity");
             Parallel.For(0, 40, i => journal.Database.Execute("INSERT INTO metadata(key,value) VALUES(?,?)", "concurrent_" + i, "ok")); Check((long)journal.Database.Query("SELECT count(*) FROM metadata WHERE key LIKE 'concurrent_%'")[0][0]! == 40, "concurrent internal writes serialized without loss");
@@ -95,8 +96,8 @@ internal static class Program
         using (var reopened = new Journal(dir, device, protection)) Check((string?)reopened.Database.Query("PRAGMA integrity_check")[0][0] == "ok", "journal reopens with intact integrity");
         var interrupted = DirectoryName(); Denied(() => new Journal(interrupted, device, protection, step => { if (step == 2) throw new BridgeFault("migration_interrupted"); }), "interrupted incremental migration fails closed");
         using (var v1 = new SqliteDatabase(Path.Combine(interrupted, "journal.sqlite"))) { Check((long)v1.Query("PRAGMA user_version")[0][0]! == 1 && v1.Query("SELECT name FROM sqlite_master WHERE name='outbox'").Count == 0, "interrupted migration leaves committed v1 and no partial v2"); v1.Execute("INSERT INTO metadata VALUES('preserved','before_upgrade')"); }
-        using (var upgraded = new Journal(interrupted, device, protection)) Check((long)upgraded.Database.Query("PRAGMA user_version")[0][0]! == 2 && (string?)upgraded.Database.Query("SELECT value FROM metadata WHERE key='preserved'")[0][0] == "before_upgrade", "incremental migration preserves existing state");
-        var initialFault = DirectoryName(); Denied(() => new Journal(initialFault, device, protection, _ => throw new BridgeFault("migration_interrupted")), "initial migration rollback"); using (var restarted = new Journal(initialFault, device, protection)) Check((long)restarted.Database.Query("PRAGMA user_version")[0][0]! == 2, "new database recovers from interrupted first migration");
+        using (var upgraded = new Journal(interrupted, device, protection)) Check((long)upgraded.Database.Query("PRAGMA user_version")[0][0]! == 3 && (string?)upgraded.Database.Query("SELECT value FROM metadata WHERE key='preserved'")[0][0] == "before_upgrade", "incremental migration preserves existing state");
+        var initialFault = DirectoryName(); Denied(() => new Journal(initialFault, device, protection, _ => throw new BridgeFault("migration_interrupted")), "initial migration rollback"); using (var restarted = new Journal(initialFault, device, protection)) Check((long)restarted.Database.Query("PRAGMA user_version")[0][0]! == 3, "new database recovers from interrupted first migration");
         var unknown = DirectoryName(); using (var known = new Journal(unknown, device, protection)) known.Database.Execute("PRAGMA user_version=99"); Denied(() => new Journal(unknown, device, protection), "unknown schema blocks without reset"); using (var unchanged = new SqliteDatabase(Path.Combine(unknown, "journal.sqlite"))) Check((long)unchanged.Query("PRAGMA user_version")[0][0]! == 99, "unknown version not overwritten");
         var foreign = DirectoryName(); using (var other = new SqliteDatabase(Path.Combine(foreign, "journal.sqlite"))) other.Execute("CREATE TABLE foreign_data(value TEXT)"); Denied(() => new Journal(foreign, device, protection), "foreign database not recreated");
         var corrupt = DirectoryName(); File.WriteAllBytes(Path.Combine(corrupt, "journal.sqlite"), RandomNumberGenerator.GetBytes(1024)); Denied(() => new Journal(corrupt, device, protection), "corrupt SQLite blocks without reset");
@@ -183,6 +184,6 @@ internal static class Program
     }
     private static void Inspect(string directory)
     {
-        using var db = new SqliteDatabase(Path.Combine(directory, "journal.sqlite")); var jobs = db.Query("SELECT job_id,fence,local_state,intent,result,revision FROM jobs").Select(r => new { job_id = r[0], fence = r[1], state = r[2], intent = r[3], result = r[4], revision = r[5] }); Console.WriteLine(JsonSerializer.Serialize(new { jobs, pending = db.Query("SELECT operation,count(*) FROM outbox GROUP BY operation").Select(r => new { operation = r[0], count = r[1] }), simulator_calls = db.Query("SELECT count(*) FROM simulator_calls")[0][0], contents = db.Query("SELECT count(*) FROM contents")[0][0], private_contents = db.Query("SELECT count(*) FROM contents WHERE is_private=1")[0][0] }));
+        using var db = new SqliteDatabase(Path.Combine(directory, "journal.sqlite")); var jobs = db.Query("SELECT job_id,fence,local_state,intent,result,revision FROM jobs").Select(r => new { job_id = r[0], fence = r[1], state = r[2], intent = r[3], result = r[4], revision = r[5] }); Console.WriteLine(JsonSerializer.Serialize(new { jobs, pending = db.Query("SELECT operation,count(*) FROM outbox GROUP BY operation").Select(r => new { operation = r[0], count = r[1] }), simulator_calls = db.Query("SELECT count(*) FROM simulator_calls")[0][0], spooler_calls = db.Query("SELECT job_id,fence,spool_job_id,observation,submitted_at FROM spooler_calls").Select(r => new { job_id=r[0], fence=r[1], spool_job_id=r[2], observation=r[3], submitted_at=r[4] }), contents = db.Query("SELECT count(*) FROM contents")[0][0], private_contents = db.Query("SELECT count(*) FROM contents WHERE is_private=1")[0][0] }));
     }
 }
