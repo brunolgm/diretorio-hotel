@@ -15,7 +15,7 @@ await build({...options,outfile:join(output,'fixture.js')});
 const baselinePaths=['components/public/hotel-public-page-content.tsx','components/public/hotel-public-area-content.tsx','components/public/public-experience-overview.tsx','lib/public-experience-v4.ts'];
 const baseline=new Map(baselinePaths.map(p=>[resolve(p),execFileSync('git',['show','e7b514620879f1feb91b2f62b5d27e9e529f843d:'+p],{encoding:'utf8'})]));
 await build({...options,outfile:join(output,'baseline.js'),plugins:[{name:'baseline',setup(b){b.onLoad({filter:/\.[tj]sx?$/},args=>baseline.has(args.path)?{contents:baseline.get(args.path),loader:args.path.endsWith('.tsx')?'tsx':'ts',resolveDir:resolve(args.path,'..')}:undefined);}}]});
-const css=await postcss([require('@tailwindcss/postcss')()]).process(readFileSync('app/globals.css','utf8'),{from:resolve('app/globals.css')});writeFileSync(join(output,'style.css'),css.css);
+const css=await postcss([require('@tailwindcss/postcss')()]).process(readFileSync('app/globals.css','utf8'),{from:resolve('app/globals.css')});writeFileSync(join(output,'style.css'),css.css+'\n'+readFileSync('components/admin/fb-workspace.css','utf8'));
 const server=createServer((req,res)=>{
  const path=new URL(req.url,'http://127.0.0.1').pathname;
  if(path.startsWith('/storage/v1/object/public/hotel-assets/')){res.setHeader('Content-Type','image/png');res.end(readFileSync('docs/references/bugan/public-v3/restaurante-filipe-real.png'));return;}
@@ -43,8 +43,8 @@ try {
  }
  // All four editorial forms; viewer cannot mutate. Actions are test adapters only.
  for(let index=0;index<6;index++)for(const kind of ['outlet','menu','category','item']) {
-  await visit({index:String(index),view:'admin',kind,viewer:'1'});assert.equal(await page.locator('fieldset:disabled').count()>0,true);assert.equal(await page.getByRole('button',{name:'Salvar conteúdo PT'}).count(),0);results.push({index,kind,viewer:true});
-  await visit({index:String(index),view:'admin',kind});await page.getByRole('button',{name:'Salvar conteúdo PT'}).click();await page.waitForFunction(()=>document.body.dataset.fbLocalSave);results.push({index,kind,localSave:true});
+  await visit({index:String(index),view:'admin',kind,viewer:'1'});assert.equal(await page.locator('fieldset:disabled').count()>0,true);assert.equal(await page.getByRole('button',{name:'Salvar alterações'}).count(),0);results.push({index,kind,viewer:true});
+  await visit({index:String(index),view:'admin',kind});await page.getByRole('button',{name:'Salvar alterações'}).click();await page.waitForFunction(()=>document.body.dataset.fbLocalSave);results.push({index,kind,localSave:true});
  }
  // Module OFF must preserve baseline rendered output (both V3 and V4).
  for(let index=0;index<6;index++)for(const width of [390,1440]) {

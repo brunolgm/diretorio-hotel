@@ -30,24 +30,25 @@ async function login(actor,target){
  const context=await browser.newContext({viewport:{width:1440,height:1000}});contexts.push(context);
  await context.route('**/*',route=>{const u=new URL(route.request().url());if(!['127.0.0.1','localhost'].includes(u.hostname)&&!u.hostname.endsWith('.localhost')){externalRequests++;return route.abort();}return route.continue();});
  const page=await context.newPage();page.on('pageerror',e=>pageErrors.push(e.message));
- await page.goto(s.app+'/login?next='+encodeURIComponent(target));await page.locator('input[type=email]').fill(actor.email);await page.locator('input[type=password]').fill(actor.password);await page.locator('button[type=submit]').click();
+ await page.goto(s.app+'/login?next='+encodeURIComponent(target));await page.locator('button[type=submit]').evaluate(el=>new Promise((resolve,reject)=>{const started=Date.now(),timer=setInterval(()=>{if(Object.keys(el.form).some(key=>key.startsWith('__reactProps'))){clearInterval(timer);resolve();}else if(Date.now()-started>30000){clearInterval(timer);reject(Error('Login hydration timeout'));}},50);}));await page.locator('input[type=email]').fill(actor.email);await page.locator('input[type=password]').fill(actor.password);await page.locator('button[type=submit]').click();
  await page.waitForURL(u=>u.pathname.startsWith(target.startsWith('/platform')?'/platform':'/admin'),{timeout:120000});
  await page.goto(s.app+target);await page.locator('h1').first().waitFor();
  check(new URL(page.url()).pathname===target.split('?')[0],'normal application password login '+target);
  return {context,page};
 }
 async function uiSave(page,kind,values,id){
- await page.goto(s.app+'/admin/cardapio?kind='+kind+(id?'&id='+id:''));
- const form=page.locator('form').filter({has:page.getByRole('button',{name:'Salvar conteúdo PT',exact:true})});
+ await page.goto(s.app+'/admin/cardapio?kind='+kind+(id?'&id='+id:'&new=1'));
+ const form=page.locator('form').filter({has:page.getByRole('button',{name:/^(Salvar alterações|Criar .+)$/})});
  for(const [key,value]of Object.entries(values)){
   const input=form.locator('[name="'+key+'"]');
+  const panel=await input.first().evaluate(el=>el.closest('[role=tabpanel]')?.getAttribute('aria-labelledby'));if(panel)await page.locator('[id="'+panel+'"]').click();
   if(Array.isArray(value)){for(const id of value)await form.locator('[name="'+key+'"][value="'+id+'"]').check();}
   else if(typeof value==='boolean')await input.setChecked(value);
   else if(await input.evaluate(e=>e.tagName)==='SELECT')await input.selectOption(value);
   else await input.fill(String(value));
  }
  const requestPromise=page.waitForRequest(r=>r.method()==='POST'&&Boolean(r.headers()['next-action']));
- await form.getByRole('button',{name:'Salvar conteúdo PT',exact:true}).click();
+ await form.getByRole('button',{name:/^(Salvar alterações|Criar .+)$/}).click();
  const request=await requestPromise;
  actionRequests.set(page,{url:request.url(),headers:Object.fromEntries(['next-action','content-type','accept'].map(k=>[k,request.headers()[k]]).filter(([,v])=>v)),data:request.postDataBuffer()});
  await page.waitForURL(u=>u.searchParams.has('success')&&u.searchParams.get('kind')===kind,{timeout:120000});
@@ -135,7 +136,7 @@ try{
   await saved(t,'item',null,{name:'Oculto ancestral',category_id:hiddenCategory.id,is_published:true});
   for(const language of ['en','es'])check(await rpc(t.operator,'save_current_hotel_fb_translation',{p_kind:'item',p_id:t.item.id,p_language:language,p_source_revision:t.item.source_revision,p_fields:{name:language==='en'?'Fixture dish':'Plato de fixture'}}),'real persisted partial translation '+language+' '+t.name);
   const viewer=await login(t.viewer,'/admin/cardapio?kind=item&id='+t.item.id);t.viewerUi=viewer;
-  check(await viewer.page.getByRole('button',{name:'Salvar conteúdo PT',exact:true}).count()===0,'Viewer UI no save '+t.name);
+  check(await viewer.page.getByRole('button',{name:'Salvar alterações',exact:true}).count()===0,'Viewer UI no save '+t.name);
   check(await viewer.page.locator('fieldset:disabled').count()>0,'Viewer actual detail read-only '+t.name);
   check(await viewer.page.locator('input[type=file]').count()===0,'Viewer no upload '+t.name);
   if(!focusCore)for(const [actorPage,role]of [[op.page,'operator'],[viewer.page,'viewer']])for(const width of [390,1440]){

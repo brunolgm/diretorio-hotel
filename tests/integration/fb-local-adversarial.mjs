@@ -25,7 +25,7 @@ export async function verifyAdversarial(io){
   await t.ui.page.goto(s.app+'/admin/cardapio?kind=outlet');
   const orderForm=t.ui.page.locator('form').filter({has:t.ui.page.locator('input[name=rows]')});
   const originalOrder=JSON.parse(await orderForm.locator('input[name=rows]').inputValue());
-  await orderForm.getByRole('button',{name:'Descer',exact:true}).click();await t.ui.page.waitForURL(u=>u.searchParams.has('success'));
+  await orderForm.getByRole('button',{name:'Mover conteúdo para baixo',exact:true}).click();await t.ui.page.waitForURL(u=>u.searchParams.has('success'));
   const actualOrder=rows("select json_agg(id order by sort_order,id) from public.hotel_fb_outlets where hotel_id="+literal(t.id));
   check(actualOrder[1]===originalOrder[0].id&&actualOrder[0]===originalOrder[1].id,'Operator actual UI reorder '+t.name);
   for(const actor of [op,t.viewer])for(const table of tables){
@@ -79,9 +79,9 @@ export async function verifyAdversarial(io){
  const image='docs/references/bugan/public-v3/restaurante-filipe-real.png';
  const validImage={name:'fixture-local.png',mimeType:'image/png',buffer:await sharp(readFileSync(image)).resize({width:900,height:600,fit:'inside',withoutEnlargement:true}).png({compressionLevel:9,palette:true,colors:128}).toBuffer()};
  const mediaCount=()=>rows("select count(*)::text from storage.objects where bucket_id='hotel-assets' and name like "+literal(t.id+'/fb/%'));
- async function imageForm(target,kind,id){await target.goto(s.app+'/admin/cardapio?kind='+kind+'&id='+id);return target.locator('form').filter({has:target.locator('input[type=file]')});}
+ async function imageForm(target,kind,id){await target.goto(s.app+'/admin/cardapio?kind='+kind+'&id='+id);await target.getByRole('tab',{name:'Imagem',exact:true}).click();return target.locator('form').filter({has:target.locator('input[type=file]')});}
  async function upload(target,kind,id,payload=validImage,success=true){
-  const form=await imageForm(target,kind,id);await form.locator('input[type=file]').setInputFiles(payload);await form.getByRole('button',{name:'Enviar imagem',exact:true}).click();
+  const form=await imageForm(target,kind,id);await form.locator('input[type=file]').setInputFiles(payload);await form.getByRole('button',{name:/^(Enviar|Alterar) imagem$/}).click();
   await target.waitForURL(u=>u.searchParams.has(success?'success':'error'),{timeout:120000});return record(kind,id);
  }
  const first=await upload(page,'outlet',t.outlet.id);
@@ -97,10 +97,10 @@ export async function verifyAdversarial(io){
  const publicObject=await fetch(s.api+'/storage/v1/object/public/hotel-assets/'+first.main_image_path);
  check(publicObject.ok&&(await publicObject.arrayBuffer()).byteLength>0,'actual public Storage object readable');
  const other=await t.ui.context.newPage();await imageForm(other,'outlet',t.outlet.id);
- await other.locator('input[name=name]').fill('Rascunho local anterior ao conflito');
+ await other.getByRole('tab',{name:'Conteúdo',exact:true}).click();await other.locator('input[name=name]').fill('Rascunho local anterior ao conflito');await other.getByRole('tab',{name:'Imagem',exact:true}).click();
  const second=await upload(page,'outlet',t.outlet.id);const before=auditCount(t);
  const staleForm=other.locator('form').filter({has:other.locator('input[type=file]')});
- await staleForm.locator('input[type=file]').setInputFiles(validImage);await staleForm.getByRole('button',{name:'Enviar imagem',exact:true}).click();
+ await staleForm.locator('input[type=file]').setInputFiles(validImage);await staleForm.getByRole('button',{name:/^(Enviar|Alterar) imagem$/}).click();
  await other.waitForURL(u=>u.searchParams.has('error'),{timeout:120000});
  check(record('outlet',t.outlet.id).main_image_path===second.main_image_path,'stale media upload preserves first tab winner');
  check(await other.locator('input[name=name]').inputValue()===record('outlet',t.outlet.id).name,'RSC conflict refresh never combines stale editable fields with a fresh revision');
@@ -115,14 +115,16 @@ export async function verifyAdversarial(io){
  const oversized=await sharp({create:{width:6100,height:1,channels:3,background:'#abcdef'}}).png().toBuffer();
  await upload(page,'outlet',t.outlet.id,{name:'dimensions.png',mimeType:'image/png',buffer:oversized},false);check(mediaCount()===1,'dimensions rejected by real action');
  await page.goto(s.app+'/admin/cardapio?kind=outlet&id='+t.outlet.id);
+ await page.getByRole('tab',{name:'Imagem',exact:true}).click();page.once('dialog',dialog=>dialog.accept());
  await page.getByRole('button',{name:'Remover imagem',exact:true}).click();await page.waitForURL(u=>u.searchParams.has('success'));
  check(record('outlet',t.outlet.id).main_image_path===null&&mediaCount()===0,'real image removal associates null then cleans');
  const {verifyLateCommit}=await import('./fb-local-late-commit.mjs');
  await verifyLateCommit({s,t,project,check,record,bytes:validImage.buffer});
  // Reusable menu deletion rules, exercised through actual application confirmation.
  async function deleteUi(kind,id){
-  await page.goto(s.app+'/admin/cardapio?kind='+kind+'&id='+id);
-  const row=page.locator('li').filter({has:page.locator('a[href*="id='+id+'"]')});
+  await page.goto(s.app+'/admin/cardapio?kind='+kind);
+  const row=page.locator('[data-fb-admin-record]').filter({has:page.locator('a[href*="id='+id+'"]')});
+  await row.getByLabel('Mais ações do conteúdo',{exact:true}).click();
   let confirmed=false;page.once('dialog',async dialog=>{confirmed=true;await dialog.accept();});
   await row.getByRole('button',{name:'Excluir definitivamente',exact:true}).click();
   await page.waitForURL(u=>u.searchParams.has('success')&&!u.searchParams.has('id'),{timeout:120000});

@@ -29,7 +29,8 @@ export function AdminSidebar({
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--admin-sidebar)] text-[var(--admin-sidebar-text)]">
       <div className="shrink-0 border-b border-[var(--admin-sidebar-border)] px-5 py-5">
-        <div className="flex min-h-12 items-center gap-3">
+        <div className="mb-4 flex items-center gap-3"><Building2 className="h-7 w-7 text-[var(--admin-focus)]" aria-hidden="true"/><div><p className="text-lg font-semibold tracking-tight">LibGuest</p><p className="text-[10px] text-[var(--admin-sidebar-muted)]">Painel do hotel</p></div></div>
+        <div className="flex min-h-12 items-center gap-3 rounded-lg border border-[var(--admin-sidebar-border)] bg-white/[0.06] p-2" title={themeLabel || undefined}>
           {hotelLogoUrl ? (
             <div className="relative h-12 w-14 shrink-0 overflow-hidden rounded-lg bg-white/95 p-1.5">
               <Image src={hotelLogoUrl} alt={`Logo de ${hotelName}`} fill sizes="56px" unoptimized className="object-contain p-1" />
@@ -40,11 +41,10 @@ export function AdminSidebar({
             </div>
           )}
           <div className="min-w-0">
-            <p className="line-clamp-2 text-sm font-semibold leading-4 text-[var(--admin-sidebar-text)]">{themeLabel || hotelName}</p>
+            <p className="line-clamp-2 text-sm font-semibold leading-4 text-[var(--admin-sidebar-text)]">{hotelName}</p>
             <p className="mt-1 truncate text-[10px] uppercase tracking-[0.1em] text-[var(--admin-sidebar-muted)]">{hotelCity || 'Administração do hotel'}</p>
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 text-[10px] text-[var(--admin-sidebar-muted)]"><Building2 className="h-3.5 w-3.5" /><span><strong className="font-semibold text-[var(--admin-sidebar-text)]">LibGuest</strong> · plataforma do hotel</span></div>
       </div>
 
       <div className="admin-scrollbar-hidden min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3">

@@ -41,7 +41,9 @@ test('filters sidebar with server-resolved entitlements while structural routes 
   const layout = read('app', 'admin', 'layout.tsx');
   const navigation = read('lib', 'admin-navigation.ts');
   assert.match(layout, /getCurrentHotelEntitlements/);
-  assert.match(layout, /getAdminNavigationForRole\(profile\.normalizedRole, enabledModules\)/);
+  assert.match(layout, /getAdminNavigationForRole\(profile\.normalizedRole, enabledModules, /);
+  assert.match(layout, /orders:\s*!!orderAccess/);
+  assert.match(layout, /printing:\s*!!printAccess/);
   assert.match(navigation, /enabledModules\.has\(navigationItem\.moduleKey\)/);
   for (const route of ["href: '/admin'", "href: '/admin/usuarios'", "href: '/admin/configuracoes'"]) {
     const line = navigation.split('\n').find((value) => value.includes(route));

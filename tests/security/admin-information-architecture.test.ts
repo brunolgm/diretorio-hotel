@@ -21,13 +21,15 @@ test('defines the canonical module catalog with unique typed keys', () => {
 });
 
 test('organizes the sidebar into the approved information architecture', () => {
-  assert.deepEqual(ADMIN_NAVIGATION.map(({ key }) => key), ['principal', 'guest_experience', 'management']);
-  assert.deepEqual(ADMIN_NAVIGATION[0].items.map(({ label }) => label), ['Dashboard', 'Unidades', 'Usuários', 'Configurações']);
+  assert.deepEqual(ADMIN_NAVIGATION.map(({ key }) => key), ['principal', 'guest_experience', 'operation', 'management', 'system']);
+  assert.deepEqual(ADMIN_NAVIGATION[0].items.map(({ label }) => label), ['Dashboard']);
   assert.deepEqual(ADMIN_NAVIGATION[1].items.map(({ label }) => label), [
-    'Experiência Pública', 'Banners', 'Serviços', 'Departamentos',
-    'Cardápio (F&B)', 'Turismo', 'Comunicados', 'Central de Voos', 'Informações', 'Políticas',
+    'Experiência Pública', 'Serviços', 'Departamentos', 'Gastronomia (F&B)',
+    'Turismo', 'Comunicados', 'Banners', 'Políticas',
   ]);
-  assert.deepEqual(ADMIN_NAVIGATION[2].items.map(({ label }) => label), ['Analytics', 'Idiomas', 'Logs de Acesso']);
+  assert.deepEqual(ADMIN_NAVIGATION[2].items.map(({ label }) => label), ['Unidades e QR', 'Central de Voos']);
+  assert.deepEqual(ADMIN_NAVIGATION[3].items.map(({ label }) => label), ['Analytics', 'Idiomas', 'Usuários', 'Informações do hotel']);
+  assert.deepEqual(ADMIN_NAVIGATION[4].items.map(({ label }) => label), ['Configurações', 'Logs de Acesso']);
   for (const item of ADMIN_NAVIGATION.flatMap(({ items }) => items)) {
     assert.ok(item.requiredRole);
     assert.ok(item.availability);
@@ -87,7 +89,7 @@ test('matches the compact golden-master navigation without sidebar roadmap badge
   const navigation = read('lib', 'admin-navigation.ts');
   const links = read('components', 'admin', 'nav-links.tsx');
   const sidebar = read('components', 'admin', 'admin-sidebar.tsx');
-  assert.match(navigation, /href: '\/admin\/apartamentos', label: 'Unidades'/);
+  assert.match(navigation, /href: '\/admin\/apartamentos', label: 'Unidades e QR'/);
   assert.match(navigation, /href: '\/admin\/comunicados', label: 'Comunicados'/);
   assert.doesNotMatch(links, /item\.badge|Em breve/);
   assert.match(sidebar, /admin-scrollbar-hidden/);

@@ -1,7 +1,9 @@
 import {redirect} from 'next/navigation';
 import {requireAdminAccess} from '@/lib/auth';
-import {AdminPageHero} from '@/components/admin/ui';
+import {AdminBreadcrumbs} from '@/components/admin/ui';
+import {FbWorkspaceHeader} from '@/components/admin/fb-workspace-header';
+import {readFbWorkspaceLinks} from '@/lib/fb/admin-workspace.server';
 import {FbPrintingConsole} from '@/components/admin/fb-printing-console';
 import {printingConsole} from '@/lib/fb/printing/admin.server';
 export const dynamic='force-dynamic';
-export default async function Page(){await requireAdminAccess('operador');let initial;try{initial=await printingConsole();}catch{redirect('/admin/acesso-negado');}return <div className="space-y-6"><AdminPageHero eyebrow="Gastronomia · operação" title="Impressão" description="Bridges, destinos, roteamento e fila por setor. A impressão é independente do atendimento comercial."/><FbPrintingConsole initial={initial}/></div>;}
+export default async function Page(){await requireAdminAccess('operador');let initial;try{initial=await printingConsole();}catch{redirect('/admin/acesso-negado');}const links=await readFbWorkspaceLinks({operationalRole:true});return <div className="fb-workspace"><AdminBreadcrumbs items={[{label:'Gastronomia',href:links[0]?.href},{label:'Impressão'}]}/><FbWorkspaceHeader links={links} active="printing" title="Impressão" description="Bridges, destinos, roteamento e fila por setor. A impressão é independente do atendimento comercial."/><FbPrintingConsole initial={initial}/></div>;}

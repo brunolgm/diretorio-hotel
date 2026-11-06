@@ -3214,3 +3214,10 @@ TypeScript, Next otimizado, .NET build/tests/publish self-contained, parser dos 
 **[REMOTO]** Zero deploy, Supabase remoto, tenant real, Goomer/TheX/PMS/OPERA, publicação de conteúdo ou instalação em hotel. Zero chamadas Google/Airlabs.
 
 Capturas: `out/fb-deployment/admin-desktop.png`, `admin-mobile.png`, `catalog-only-{pt,en,es}.png`; capturas públicas carregadas em `out/libguest-fb-auth-18de8e31/b23/screenshots/`; screenshots dos testes públicos em `out/fb-browser`.
+
+
+## 2026-11-06 — Gastronomia Admin UX V1
+
+A apresentação administrativa passa a agrupar Visão geral, Estabelecimentos, Cardápios, Itens, Pedidos e Impressão, preservando as URLs e o motor homologado. Referência, rotas, regras de visibilidade e limites da UX estão na documentação canônica de arquitetura Admin: [Gastronomia Admin UX V1](SPRINT_46_7_ADMIN_INFORMATION_ARCHITECTURE.md#gastronomia-admin-ux-v1--apresentação-após-a-sprint-53).
+
+Este refinamento não altera tabelas, migrations, RPCs, RLS, capabilities, tradução, regras de pedidos/cancelamento, Bridge, commissioning, impressão ou apresentação pública V3/V4. Métricas e filtros são de apresentação. Testes utilizam fixtures e LAB descartável; não há nova impressão física ou escrita em tenant real. Integração/publicação técnica ficam fora desta entrega sem autorização posterior.

@@ -19,8 +19,8 @@ export async function verifyLateCommit({s,t,project,check,record,bytes}){
   const kind=url.searchParams.get('kind'),id=url.searchParams.get('id');
   const entity=record(kind,id);if(!entity)throw Error('Admin screenshot requires existing selected entity');
   const slug=labSql("select slug from public.hotels where id='"+entity.hotel_id+"'",true);
-  await page.locator('h1').first().waitFor();await page.locator('input[name=name]').waitFor();
-  const role=await page.getByRole('button',{name:'Salvar conteúdo PT',exact:true}).count()?'operator':'viewer';
+  await page.locator('h1').first().waitFor();await page.getByRole('tab',{name:'Conteúdo',exact:true}).click();await page.locator('input[name=name]').waitFor();
+  const role=await page.getByRole('button',{name:'Salvar alterações',exact:true}).count()?'operator':'viewer';
   for(const width of [390,1440]){
    await page.setViewportSize({width,height:1000});
    await page.locator('input[name=name]').waitFor();

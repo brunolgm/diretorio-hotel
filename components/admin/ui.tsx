@@ -109,12 +109,15 @@ export function AdminStatCard({
   title,
   value,
   description,
+  compact = false,
 }: {
   icon: ReactNode;
   title: string;
   value: string;
   description: string;
+  compact?: boolean;
 }) {
+  if (compact) return <div className="fb-workspace-metric"><div className="fb-workspace-symbol">{icon}</div><div className="min-w-0"><strong>{value}</strong><p>{title}</p><small>{description}</small></div></div>;
   return (
     <div className="admin-theme-surface rounded-2xl border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5 shadow-[0_10px_28px_-26px_rgba(15,23,42,0.25)]">
       <div className="flex items-start justify-between gap-4">
@@ -402,14 +405,16 @@ export function AdminLinkButton({
   href: string;
   children: ReactNode;
   className?: string;
-  variant?: 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'danger';
 }) {
   return (
     <Link
       href={href}
       className={cn(
         'inline-flex items-center justify-center rounded-xl text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-        variant === 'secondary'
+        variant === 'primary'
+          ? 'h-11 bg-[var(--admin-accent)] px-4 text-[var(--admin-accent-text)] hover:bg-[var(--admin-accent-hover)] focus-visible:ring-[var(--admin-focus)]'
+          : variant === 'secondary'
           ? 'h-11 border border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 text-[var(--admin-text)] hover:bg-[var(--admin-surface-muted)] focus-visible:ring-[var(--admin-focus)]'
           : 'h-11 border border-red-200 bg-white px-4 text-red-600 hover:bg-red-50 focus-visible:ring-red-200',
         className
@@ -612,11 +617,14 @@ export function AdminStatusPill({
   active,
   activeText = 'Ativo',
   inactiveText = 'Inativo',
+  publication = false,
 }: {
   active: boolean;
   activeText?: string;
   inactiveText?: string;
+  publication?: boolean;
 }) {
+  if (publication) return <span className={cn('fb-workspace-pill', active ? 'published' : 'draft')}>{active ? activeText : inactiveText}</span>;
   return active ? (
     <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
       {activeText}

@@ -22,7 +22,7 @@ for(let index=0;index<6;index++)for(const language of ['pt','en','es'] as const)
 for(let index=0;index<6;index++)for(const kind of FB_KINDS)for(const canManage of [false,true]){
  const data=fbFixture(index),graph=data.fb!;const row={outlet:graph.outlets[0],menu:graph.menus[0],category:graph.categories[0],item:graph.items[0]}[kind];
  const html=renderToStaticMarkup(<FbEditor kind={kind} row={row} graph={graph} services={data.sections} canManage={canManage}/>);
- assert.equal(html.includes('Salvar conteúdo PT'),canManage);assert.equal(html.includes('<fieldset disabled'),!canManage);count++;
+ assert.equal(html.includes('Salvar alterações'),canManage);assert.equal(/<fieldset\b[^>]*\bdisabled/.test(html),!canManage);count++;
 }
 for(let index=0;index<6;index++)for(const language of ['pt','en','es'] as const)for(const roomRestaurantState of ['missing-context','invalid-context','missing-menu'] as const){
  const data=fbFixture(index,language);const section={...data.sections[1],service_action_type:'room_restaurant_menu' as const};

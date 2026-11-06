@@ -1,5 +1,25 @@
 # Sprint 46.7 — Admin Information Architecture Foundation
 
+Referência visual canônica de Gastronomia Admin UX V1: [Golden Master aprovado](references/admin/fnb-admin-ux-v1-golden-master.png), fornecido por Bruno como “Painel LibGuest_ Gastronomia em Foco.png”. O roxo ilustrativo não é uma nova identidade: permanecem os tokens e os temas existentes de cada hotel.
+
+## Gastronomia Admin UX V1 — apresentação após a Sprint 53
+
+- `/admin/cardapio`: visão geral, métricas derivadas e estabelecimentos.
+- `?kind=outlet|menu|item`: listas com filtros GET e páginas de até 24 registros.
+- `?kind=category&parent=<menu>`: categorias dentro do cardápio; `?kind=item&parent=<category>` mantém o contexto de itens.
+- `&id=<id>` continua abrindo o conteúdo existente; `&new=1` apresenta criação para quem já pode gerenciar. IDs permanecem em URLs e campos ocultos, fora dos rótulos da interface.
+- `/admin/pedidos` e `/admin/impressao`: URLs, painéis e lógica operacional preservados; breadcrumbs e navegação contextual compartilhados.
+
+O editor organiza os mesmos campos e server actions em Conteúdo, Preço e disponibilidade, Informações, Imagem, Idiomas e Publicação. O CTA é “Salvar alterações” ou “Criar item/estabelecimento/cardápio/categoria”. A imagem continua sendo uma operação separada, com propriedade, revisão e política de upload existentes. Exclusão definitiva fica nas ações secundárias com confirmação. Reordenação usa o RPC existente e um único snapshot da lista completa, com controles de seta e seletor limitado à página visível.
+
+EN/ES são consultados somente para os registros visíveis ou em edição, com `source_revision`, completude e fallback em PT calculados pela lógica existente. Não há outra implementação de tradução. O preview reutiliza `PublicExperiencePreview` e a rota pública salva do próprio hotel; alterações não salvas e rascunhos não são simulados. Não há mudança do frontend público nem migração V3/V4.
+
+O modo exibido vem da leitura do RPC existente de commissioning. Falta de permissão ou falha de consulta não significa `catalog_only`: a interface informa que o modo não está disponível/consultado. Esta apresentação não ativa pedidos, impressão ou Goomer.
+
+Diferenças funcionais necessárias frente ao quadro conceitual: identidade do hotel estática, sem seletor multi-hotel; controles globais inexistentes não são inventados; cardápios sem imagem própria usam ícone; dados, quantidades e imagens dependem do conteúdo salvo; preview é o frontend público real. Não há tabelas agregadoras, métricas persistidas, migrations, RPCs novos, alteração de RLS/capabilities ou Bridge.
+
+Evidências locais desta entrega ficam em `out/admin-fb-ux-v1/`: matriz browser/SSR, screenshots nos temas existentes e comparação com o Golden Master. A recomendação técnica é separada da homologação visual humana. Nenhuma impressão física faz parte desta validação.
+
 ## Objetivo
 
 Reorganizar o `/admin` do hotel em uma arquitetura de informação escalável, sem alterar backend, segurança, regras de negócio ou disponibilidade contratual de módulos. A entrega cria uma camada estática e tipada para orientar navegação e evolução futura.
@@ -16,11 +36,17 @@ Reorganizar o `/admin` do hotel em uma arquitetura de informação escalável, s
 
 ### Navegação
 
-1. **Principal:** Dashboard, Unidades, Usuários e Configurações.
-2. **Experiência do hóspede:** Experiência Pública, Banners, Serviços, Departamentos, Cardápio (F&B), Turismo, Comunicados, Informações e Políticas.
-3. **Após divisor:** Idiomas e Logs de Acesso.
+Atualização aprovada em 06/11/2026 — Gastronomia Admin UX V1:
 
-`lib/admin-navigation.ts` é a fonte central de grupos, labels, rotas, ícones, `moduleKey`, role mínima, disponibilidade e badge. O filtro continua usando somente `hasMinimumRole`; não há entitlement dinâmico.
+1. **Visão geral:** Dashboard.
+2. **Conteúdo e experiência:** Experiência Pública, Serviços, Departamentos, Gastronomia (F&B), Turismo, Comunicados, Banners e Políticas.
+3. **Operação:** Unidades e QR, Central de Voos.
+4. **Gestão:** Analytics, Idiomas, Usuários e Informações do hotel.
+5. **Sistema:** Configurações e Logs de Acesso.
+
+`lib/admin-navigation.ts` é a fonte central de grupos, labels, rotas, ícones, `moduleKey`, role mínima e disponibilidade. O shell fornece os entitlements resolvidos no servidor e os resultados dos getters de acesso já existentes de Pedidos e Impressão. A navegação não concede permissões. Departamentos mantém rota e visibilidade anteriores. As definições estáticas não são mutadas entre requests/tenants.
+
+Gastronomia é um grupo expansível no mesmo componente de sidebar usado pelo desktop e pelo drawer mobile. Seus subitens são Visão geral, Estabelecimentos, Cardápios, Itens e, somente com acesso autorizado, Pedidos e Impressão. As rotas operacionais mantêm o fluxo restrito de pedidos para hotéis arquivados, sem reabrir navegação editorial.
 
 ### Catálogo de módulos
 

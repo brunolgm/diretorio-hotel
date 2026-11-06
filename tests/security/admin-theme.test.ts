@@ -47,7 +47,9 @@ test('shows only natural canonical brand labels in the sidebar', () => {
 
   assert.match(layout, /themeLabel=\{adminTheme\.brandCode \? adminTheme\.label : null\}/);
   assert.doesNotMatch(sidebar, /Identidade \{themeLabel\}/);
-  assert.match(sidebar, /\{themeLabel \|\| hotelName\}/);
+  assert.match(sidebar, />\{hotelName\}<\/p>/);
+  assert.match(sidebar, /title=\{themeLabel \|\| undefined\}/);
+  assert.doesNotMatch(sidebar, />\{themeCode\}|>\{themePreset\}/);
 });
 
 test('allows only bounded preset refinement and keeps semantic colors stable', () => {
