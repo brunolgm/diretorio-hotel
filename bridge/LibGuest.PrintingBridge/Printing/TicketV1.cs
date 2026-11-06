@@ -20,7 +20,11 @@ public sealed record SpoolerDestination(Guid PrinterId, int Revision, string Que
     }
     public static bool ValidQueue(string value) => value.Length is > 0 and <= 120 && value == value.Trim() && !value.Any(c => char.IsControl(c) || c is '\\' or '/' or '<' or '>');
 }
-public sealed record TicketV1(string DocumentName, IReadOnlyList<string> Lines);
+public sealed record TicketRow(string Text, int Points = 10, bool Bold = false, bool Center = false, int Indent = 0);
+public sealed record TicketV1(string DocumentName, IReadOnlyList<string> Lines)
+{
+    public IReadOnlyList<TicketRow> Rows { get; init; } = Lines.Select(text => new TicketRow(text)).ToArray();
+}
 public static class TicketRendererV1
 {
     public static string Clean(string? value, int maximum = 2000)
@@ -31,46 +35,71 @@ public static class TicketRendererV1
     public static TicketV1 Render(JsonElement root, SpoolerDestination destination, DateTimeOffset now)
     {
         var snapshot = root.GetProperty("snapshot"); if (snapshot.GetProperty("payload_version").GetInt32() != 1 || snapshot.GetProperty("renderer_version").GetInt32() != 1) throw new BridgeFault("version_incompatible");
-        var kind = root.GetProperty("kind").GetString(); var lines = new List<string> { destination.Hotel };
+        var kind = root.GetProperty("kind").GetString(); var rows = new List<TicketRow>();
+        void Add(string text, int points = 10, bool bold = false, bool center = false, int indent = 0) => rows.Add(new(Clean(text), points, bold, center, indent));
+        void Rule() => Add("--------------------------------", 9, center: true);
+        Add("LibGuest", 14, true, true); Add(Clean(destination.Hotel, 200), 12, true, true); Rule();
         var reference = snapshot.TryGetProperty("reference", out var referenceValue) ? Clean(referenceValue.GetString(), 40) : "";
         if (kind != "test" && !System.Text.RegularExpressions.Regex.IsMatch(reference, "^[0-9A-F]{8}$")) throw new BridgeFault("renderer_reference_invalid");
-        if (kind == "test") { lines.Add("LIBGUEST"); lines.Add("TESTE DE IMPRESSÃO"); lines.Add("TESTE LIBGUEST — NÃO É PEDIDO"); }
-        else { if (kind == "reprint") lines.Add("REIMPRESSÃO"); lines.Add("Pedido " + reference); }
+        if (kind == "reprint") Add("REIMPRESSÃO", 16, true, true);
         var cancellation = kind == "cancellation" || snapshot.TryGetProperty("document_kind", out var documentKind) && documentKind.GetString() == "cancellation";
+        string? cancellationReason = null;
+        if (kind == "test") { Add("TESTE DE IMPRESSÃO", 16, true, true); Add("NÃO É PEDIDO", 14, true, true); }
+        else if (cancellation) { Add("X CANCELADO X", 18, true, true); Add("PEDIDO Nº " + reference, 14, true, true); }
+        else { Add("PEDIDO", 14, true, true); Add("Nº " + reference, 18, true, true); }
         if (cancellation)
         {
-            lines.Insert(1, "CANCELAMENTO");
             if (!snapshot.TryGetProperty("cancelled_at", out var cancelledAt)) throw new BridgeFault("renderer_cancellation_invalid");
-            lines.Add("Cancelado em: " + cancelledAt.GetDateTimeOffset().ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss 'UTC'", CultureInfo.InvariantCulture));
             var reason = snapshot.GetProperty("cancellation_reason_code").GetString();
-            lines.Add("Motivo: " + (reason switch { "guest_request" => "Hóspede contatou o hotel", "unavailable" => "Indisponibilidade", "operational" => "Operacional", "other" => "Outro motivo registrado pela equipe", _ => throw new BridgeFault("renderer_cancellation_invalid") }));
+            cancellationReason = reason switch { "guest_request" => "Hóspede contatou o hotel", "unavailable" => "Indisponibilidade", "operational" => "Motivo operacional", "other" => "Outro motivo registrado pela equipe", _ => throw new BridgeFault("renderer_cancellation_invalid") };
         }
         var createdAt = snapshot.TryGetProperty("created_at", out var created) ? created.GetDateTimeOffset() : destination.CreatedAt;
+        if (cancellation) createdAt = snapshot.GetProperty("cancelled_at").GetDateTimeOffset();
+        string? timestamp = null;
         if (createdAt is DateTimeOffset time)
         {
             var zone = TimeZoneInfo.Utc; if (snapshot.TryGetProperty("timezone", out var timezone) && timezone.ValueKind == JsonValueKind.String) { try { zone = TimeZoneInfo.FindSystemTimeZoneById(timezone.GetString()!); } catch (TimeZoneNotFoundException) { } catch (InvalidTimeZoneException) { } }
-            lines.Add(TimeZoneInfo.ConvertTime(time, zone).ToString("yyyy-MM-dd HH:mm:ss zzz", CultureInfo.InvariantCulture) + " " + zone.Id);
+            timestamp = TimeZoneInfo.ConvertTime(time, zone).ToString("dd/MM/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture);
         }
-        lines.Add("Setor: " + (snapshot.TryGetProperty("sector_name", out var sector) ? Clean(sector.GetString(), 120) : destination.Sector));
-        var routing = root.GetProperty("routing"); var privateAllowed = root.TryGetProperty("private", out var privateData) && privateData.TryGetProperty("expired", out var expired) && !expired.GetBoolean() && privateData.TryGetProperty("expires_at", out var expiry) && expiry.GetDateTimeOffset() > now;
+        var routing = root.GetProperty("routing"); var privateAllowed = kind != "test" && root.TryGetProperty("private", out var privateDataValue) && privateDataValue.TryGetProperty("expired", out var expired) && expired.ValueKind == JsonValueKind.False && privateDataValue.TryGetProperty("expires_at", out var expiry) && expiry.GetDateTimeOffset() > now;
+        var privateData = root.TryGetProperty("private", out var privateValue) ? privateValue : default;
         bool Allowed(string field) => routing.TryGetProperty(field, out var flag) && flag.ValueKind == JsonValueKind.True;
         string Private(string field) => privateAllowed && privateData.TryGetProperty(field, out var v) && v.ValueKind == JsonValueKind.String ? Clean(v.GetString()) : "";
         var delivery = snapshot.TryGetProperty("fulfilment", out var fulfilment) && fulfilment.GetString() == "room_delivery";
-        lines.Add(delivery ? Allowed("allow_room") && Private("room_label").Length > 0 ? "Apartamento: " + Private("room_label") : "Entrega no apartamento — dados privados indisponíveis" : "RETIRADA NO LOCAL");
-        if (Allowed("allow_name") && privateAllowed && privateData.TryGetProperty("name_enabled", out var name) && name.ValueKind == JsonValueKind.True) { var guest = (Private("first_name") + " " + Private("last_name")).Trim(); if (guest.Length > 0) lines.Add("Nome: " + guest); }
-        var notes = privateAllowed && Allowed("allow_notes") && privateData.TryGetProperty("line_notes", out var noteArray) && noteArray.ValueKind == JsonValueKind.Array ? noteArray.EnumerateArray().ToArray() : [];
-        var renderedNotes = new HashSet<string>();
-        foreach (var item in snapshot.GetProperty("lines").EnumerateArray())
+        if (kind == "test")
         {
-            if (lines.Count > 500) throw new BridgeFault("renderer_content_oversized");
-            if (item.TryGetProperty("combo_context", out var combo) && combo.ValueKind == JsonValueKind.String) lines.Add("Combo: " + Clean(combo.GetString(), 120));
-            var quantity = item.GetProperty("quantity").GetDecimal(); if (quantity <= 0 || quantity > 10000) throw new BridgeFault("renderer_quantity_invalid");
-            lines.Add(quantity.ToString(CultureInfo.InvariantCulture) + " × " + Clean(item.GetProperty("name").GetString(), 120));
-            foreach (var option in item.GetProperty("options").EnumerateArray()) lines.Add("  " + Clean(option.GetProperty("group_name").GetString(), 120) + ": " + Clean(option.GetProperty("name").GetString(), 120) + (option.TryGetProperty("quantity", out var q) ? " ×" + q.GetDecimal().ToString(CultureInfo.InvariantCulture) : ""));
-            foreach (var n in notes.Where(n => n.GetProperty("line_id").GetString() == item.GetProperty("line_id").GetString() || item.TryGetProperty("parent_id", out var parent) && parent.ValueKind == JsonValueKind.String && n.GetProperty("line_id").GetString() == parent.GetString())) if (renderedNotes.Add(n.GetProperty("line_id").GetString()!)) lines.Add("  Observação: " + Clean(n.GetProperty("note").GetString()));
+            // Technical identifiers already in the authorized envelope; no protocol extension or PII.
+            var context = root.GetProperty("spooler");
+            foreach (var field in new[] { ("destination_id", "Destino: "), ("device_id", "Bridge: ") })
+                if (context.TryGetProperty(field.Item1, out var value) && value.ValueKind == JsonValueKind.String) Add(field.Item2 + Clean(value.GetString(), 120));
+            Add("Fila: " + Clean(destination.Queue, 120));
         }
-        if (Allowed("allow_notes") && Private("note").Length > 0) lines.Add("Observação do pedido: " + Private("note"));
-        if (lines.Count > 1000 || lines.Sum(l => l.Length) > 60000) throw new BridgeFault("renderer_content_oversized");
-        return new("LibGuest " + (kind == "test" ? "TESTE" : kind == "reprint" ? "REIMPRESSAO " + (cancellation ? "CANCELAMENTO " : "") + reference : cancellation ? "CANCELAMENTO " + reference : reference), lines);
+        else
+        {
+            if (Allowed("allow_name") && privateAllowed && privateData.TryGetProperty("name_enabled", out var name) && name.ValueKind == JsonValueKind.True) { var guest = (Private("first_name") + " " + Private("last_name")).Trim(); if (guest.Length > 0) Add("Hóspede: " + guest, 12, true); }
+            Add(delivery ? Allowed("allow_room") && Private("room_label").Length > 0 ? "Quarto: " + Private("room_label") : "Entrega: Quarto (dados indisponíveis)" : "Entrega: Retirada", 12, true);
+        }
+        if (timestamp is not null) Add((cancellation ? "Cancelado em: " : "Data: ") + timestamp);
+        Add("Setor: " + (snapshot.TryGetProperty("sector_name", out var sector) ? Clean(sector.GetString(), 120) : destination.Sector), 12, true); Rule();
+        var notes = privateAllowed && Allowed("allow_notes") && privateData.TryGetProperty("line_notes", out var noteArray) && noteArray.ValueKind == JsonValueKind.Array ? noteArray.EnumerateArray().ToArray() : [];
+        var renderedNotes = new HashSet<string>(); decimal total = 0;
+        foreach (var item in kind == "test" ? [] : snapshot.GetProperty("lines").EnumerateArray().ToArray())
+        {
+            if (rows.Count > 500) throw new BridgeFault("renderer_content_oversized");
+            if (item.TryGetProperty("combo_context", out var combo) && combo.ValueKind == JsonValueKind.String) Add("Combo: " + Clean(combo.GetString(), 120));
+            var quantity = item.GetProperty("quantity").GetDecimal(); if (quantity <= 0 || quantity > 10000) throw new BridgeFault("renderer_quantity_invalid");
+            total += quantity; Add(quantity.ToString(CultureInfo.InvariantCulture) + " x " + Clean(item.GetProperty("name").GetString(), 120), 12, true);
+            foreach (var option in item.GetProperty("options").EnumerateArray()) Add(Clean(option.GetProperty("group_name").GetString(), 120) + ": " + Clean(option.GetProperty("name").GetString(), 120) + (option.TryGetProperty("quantity", out var q) ? " x" + q.GetDecimal().ToString(CultureInfo.InvariantCulture) : ""), indent: 1);
+            foreach (var n in notes.Where(n => n.GetProperty("line_id").GetString() == item.GetProperty("line_id").GetString() || item.TryGetProperty("parent_id", out var parent) && parent.ValueKind == JsonValueKind.String && n.GetProperty("line_id").GetString() == parent.GetString())) if (renderedNotes.Add(n.GetProperty("line_id").GetString()!)) Add("Obs.: " + Clean(n.GetProperty("note").GetString()), indent: 1);
+        }
+        if (Allowed("allow_notes") && Private("note").Length > 0) Add("Obs. do pedido: " + Private("note"));
+        if (kind != "test")
+        {
+            Rule(); Add("Total de itens: " + total.ToString(CultureInfo.InvariantCulture), 11, true);
+            if (cancellation) { Add("MOTIVO DO CANCELAMENTO:", 11, true); Add(cancellationReason!); }
+            Rule(); Add(cancellation ? "NÃO PREPARAR" : "PREPARAR", 18, true, true);
+        }
+        if (rows.Count > 1000 || rows.Sum(l => l.Text.Length) > 60000) throw new BridgeFault("renderer_content_oversized");
+        return new("LibGuest " + (kind == "test" ? "TESTE" : kind == "reprint" ? "REIMPRESSAO " + (cancellation ? "CANCELAMENTO " : "") + reference : cancellation ? "CANCELAMENTO " + reference : reference), rows.Select(r => r.Text).ToArray()) { Rows = rows.ToArray() };
     }
 }

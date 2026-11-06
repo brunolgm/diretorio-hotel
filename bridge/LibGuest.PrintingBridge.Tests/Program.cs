@@ -50,6 +50,7 @@ internal static partial class Program
     {
         try
         {
+            if (args.Length == 2 && args[0] == "layout-metadata" && LibGuest.PrintingBridge.Printing.SpoolerDestination.ValidQueue(args[1])) { Console.WriteLine(JsonSerializer.Serialize(TicketMetrics.PrinterMetadata(args[1]))); return 0; }
             if (args.Length != 2 || !Path.IsPathFullyQualified(args[1])) throw new Exception("test_arguments_invalid");
             root = args[1]; PrivateFiles.DirectoryForIdentity(root);
             if (args[0] == "certificate") { Certificate(root); return 0; }
@@ -57,7 +58,7 @@ internal static partial class Program
             if (args[0] == "hold-lock") { using var held = new SingleInstance(root); Console.WriteLine("locked"); Console.ReadLine(); return 0; }
             if (args[0] == "hold-sqlite") { using var held = new SqliteDatabase(Path.Combine(root, "journal.sqlite")); held.Execute("BEGIN IMMEDIATE"); Console.WriteLine("locked"); Console.ReadLine(); return 0; }
             if (args[0] != "test") throw new Exception("test_arguments_invalid");
-            Storage(); Envelopes(); await Http(); await DiscoveryTests(); await Simulator(); await RecoveryClock(); await SpoolerTests(); await RevisionTests(); CancellationTests();
+            Storage(); Envelopes(); await Http(); await DiscoveryTests(); await Simulator(); await RecoveryClock(); await SpoolerTests(); await RevisionTests(); CancellationTests(); TicketLayoutTests();
             Console.WriteLine(JsonSerializer.Serialize(new { suite = "fb-c2-dotnet", passed = Checks.Count, failed = 0, sqlite = SqliteDatabase.Version, dpapi = "CurrentUser", checks = Checks })); return 0;
         }
         catch (Exception e) { Console.Error.WriteLine(JsonSerializer.Serialize(new { suite = "fb-c2-dotnet", passed = Checks.Count, failed = 1, error = e is BridgeFault fault ? fault.Code : "assertion_failed", last = Checks.LastOrDefault() })); return 1; }

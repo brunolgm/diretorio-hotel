@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
@@ -41,6 +40,8 @@ public sealed class WindowsSpooler : IWindowsSpooler
     [DllImport("gdi32.dll")] private static extern int EndPage(IntPtr dc);
     [DllImport("gdi32.dll", EntryPoint = "TextOutW", CharSet = CharSet.Unicode)] [return: MarshalAs(UnmanagedType.Bool)] private static extern bool TextOut(IntPtr dc, int x, int y, string text, int count);
     [DllImport("gdi32.dll", EntryPoint = "GetTextExtentPoint32W", CharSet = CharSet.Unicode)] [return: MarshalAs(UnmanagedType.Bool)] private static extern bool Measure(IntPtr dc, string text, int count, out Size size);
+    [DllImport("gdi32.dll")] private static extern int SetBkMode(IntPtr dc, int mode);
+    [DllImport("gdi32.dll")] private static extern uint SetTextColor(IntPtr dc, uint color);
 
     public static IReadOnlyList<string> LocalQueues()
     {
@@ -100,37 +101,35 @@ public sealed class WindowsSpooler : IWindowsSpooler
     {
         if (!Observe(queue).CanSubmit || cancellation.IsCancellationRequested) return new(false, false);
         var dc = CreateDc("WINSPOOL", queue, null, IntPtr.Zero); if (dc == IntPtr.Zero) return new(false, false);
-        IntPtr font = IntPtr.Zero, previous = IntPtr.Zero; var possible = false; var complete = false; int? id = null;
+        IntPtr previous = IntPtr.Zero; var fonts = new Dictionary<(int, bool), IntPtr>(); var possible = false; var complete = false; int? id = null;
         try
         {
-            var dpi = GetDeviceCaps(dc, 90); var width = GetDeviceCaps(dc, 8); var height = GetDeviceCaps(dc, 10); if (dpi <= 0 || width <= 0 || height <= 0) return new(false, false);
-            var fontHeight = Math.Max(12, dpi * 10 / 72); var step = fontHeight + Math.Max(4, dpi / 50); var margin = Math.Max(4, dpi / 12);
-            font = CreateFont(-fontHeight, 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, 0, 0, "Arial"); if (font == IntPtr.Zero) return new(false, false); previous = SelectObject(dc, font); if (previous == IntPtr.Zero || previous == new IntPtr(-1)) return new(false, false);
-            var printable = ticket.Lines.SelectMany(line => Wrap(dc, line, width - 2 * margin)).ToArray(); var perPage = (height - 2 * margin) / step;
-            if (perPage < 1 || printable.Length > perPage * 30 || cancellation.IsCancellationRequested || !dispatchAllowed()) return new(false, false);
+            var dpiY = GetDeviceCaps(dc, 90); var dpiX = GetDeviceCaps(dc, 88); var width = GetDeviceCaps(dc, 8); var height = GetDeviceCaps(dc, 10);
+            IntPtr Font(TicketRow row)
+            {
+                var key = (row.Points, row.Bold);
+                if (!fonts.TryGetValue(key, out var font)) { font = CreateFont(-(int)Math.Ceiling(dpiY * row.Points / 72d), 0, 0, 0, row.Bold ? 700 : 400, 0, 0, 0, 1, 0, 0, 0, 0, "Arial"); if (font == IntPtr.Zero) throw new BridgeFault("spooler_font_failed"); fonts.Add(key, font); }
+                var selected = SelectObject(dc, font); if (selected == IntPtr.Zero || selected == new IntPtr(-1)) throw new BridgeFault("spooler_font_failed"); if (previous == IntPtr.Zero) previous = selected;
+                return font;
+            }
+            int MeasureRow(TicketRow row, string text) { Font(row); if (!Measure(dc, text, text.Length, out var size)) throw new BridgeFault("spooler_measure_failed"); return size.Width; }
+            int HeightRow(TicketRow row) { Font(row); if (!Measure(dc, "Mg", 2, out var size)) throw new BridgeFault("spooler_measure_failed"); return size.Height; }
+            // Measure all text and bounds before the existing durable StartDoc I/O boundary.
+            var printable = ThermalLayoutV1.Arrange(ticket, dpiX, dpiY, width, height, MeasureRow, HeightRow);
+            if (SetBkMode(dc, 1) == 0 || SetTextColor(dc, 0) == uint.MaxValue || cancellation.IsCancellationRequested || !dispatchAllowed()) return new(false, false);
             var info = new DocInfo { Size = Marshal.SizeOf<DocInfo>(), Name = ticket.DocumentName };
             // From this exact boundary every failure is potentially after I/O, even a failing StartDoc.
             possible = true; var value = StartDoc(dc, ref info); if (value <= 0) return new(false, true); id = value; persistId(value);
-            for (var offset = 0; offset < printable.Length; offset += perPage)
+            foreach (var page in printable.GroupBy(row => row.Page))
             {
                 if (cancellation.IsCancellationRequested || StartPage(dc) <= 0) return new(false, true, id);
-                for (var n = offset; n < Math.Min(offset + perPage, printable.Length); n++) if (cancellation.IsCancellationRequested || !TextOut(dc, margin, margin + (n - offset) * step, printable[n], printable[n].Length)) return new(false, true, id);
+                if (SetBkMode(dc, 1) == 0 || SetTextColor(dc, 0) == uint.MaxValue) return new(false, true, id);
+                foreach (var row in page) { Font(row.Style); if (cancellation.IsCancellationRequested || !TextOut(dc, row.X, row.Y, row.Text, row.Text.Length)) return new(false, true, id); }
                 if (EndPage(dc) <= 0) return new(false, true, id);
             }
             if (EndDoc(dc) <= 0) return new(false, true, id); complete = true; return new(true, true, id);
         }
         catch { return new(false, possible, id); }
-        finally { if (possible && !complete) AbortDoc(dc); if (previous != IntPtr.Zero && previous != new IntPtr(-1)) SelectObject(dc, previous); if (font != IntPtr.Zero) DeleteObject(font); DeleteDC(dc); }
-    }
-    private static IEnumerable<string> Wrap(IntPtr dc, string text, int width)
-    {
-        if (width < 1) throw new BridgeFault("spooler_page_invalid"); if (text.Length == 0) { yield return ""; yield break; }
-        var boundaries = StringInfo.ParseCombiningCharacters(text); var start = 0;
-        while (start < boundaries.Length)
-        {
-            var low = start + 1; var high = boundaries.Length; var fit = start;
-            while (low <= high) { var middle = (low + high) / 2; var end = middle == boundaries.Length ? text.Length : boundaries[middle]; var part = text[boundaries[start]..end]; if (!Measure(dc, part, part.Length, out var size)) throw new BridgeFault("spooler_measure_failed"); if (size.Width <= width) { fit = middle; low = middle + 1; } else high = middle - 1; }
-            if (fit == start) throw new BridgeFault("spooler_page_invalid"); var last = fit == boundaries.Length ? text.Length : boundaries[fit]; yield return text[boundaries[start]..last]; start = fit;
-        }
+        finally { if (possible && !complete) AbortDoc(dc); if (previous != IntPtr.Zero && previous != new IntPtr(-1)) SelectObject(dc, previous); foreach (var font in fonts.Values) DeleteObject(font); DeleteDC(dc); }
     }
 }

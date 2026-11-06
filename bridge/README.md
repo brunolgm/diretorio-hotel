@@ -283,3 +283,67 @@ cancelamento independente no destino original. Reimpressão não necessária.
 Os ACKs dos outros tickets não são confirmação humana individual de papel.
 Serviço local de LAB desinstalado oficialmente ao final, dados preservados.
 Isso não é homologação operacional do Bugan nem autorização de implantação real.
+
+## Layout térmico oficial V1 — 05/11/2026
+
+Branch de implementação `feat/fb-ticket-layout-v1`, base `e4d5faffc87d4c04cc0ddf0d444624715020e4e6`.
+Um renderer compartilhado usa o nome do hotel da autorização existente: cabeçalho
+centralizado **LibGuest + hotel**, sem outlet, ícone quadrado, imagens, gradientes
+ou tarjas pretas. Setor aparece na área operacional. Texto preto, negrito,
+alinhamento e separadores compõem a hierarquia de papel 80 mm / 203 dpi.
+
+- **Pedido:** `PEDIDO`, referência real do snapshot em destaque, nome autorizado,
+  quarto válido ou retirada, data/hora do snapshot e fuso, setor, quantidade e
+  produto em negrito, modificadores e observações permitidas, soma das quantidades
+  das linhas do setor e rodapé **PREPARAR**.
+- **Cancelamento:** **X CANCELADO X**, referência original, PII ainda válida,
+  data/hora e motivo humano derivados do snapshot de cancelamento, linhas do
+  próprio setor e rodapé **NÃO PREPARAR**. Não consulta cardápio ou routing atuais.
+- **Reimpressão:** mantém o documento e acrescenta **REIMPRESSÃO**. A de
+  cancelamento reúne REIMPRESSÃO, CANCELADO e NÃO PREPARAR no mesmo papel.
+- **Teste:** TESTE DE IMPRESSÃO / NÃO É PEDIDO, hotel, identificadores técnicos de
+  destino e Bridge já presentes no envelope, setor, fila e data/hora. Exclui PII,
+  produtos de pedido e comando PREPARAR.
+
+Decisão de Bruno nesta tarefa: preservar C1; imprimir nome somente quando a
+projeção autorizada o fornecer dentro da validade. Permanecem as permissões
+existentes de hotel, destino, snapshot e `name_enabled`. A mudança global do
+default OFF é uma decisão separada. Nome/quarto/observações expirados ou ausentes
+não são reconstruídos. Nome não entra em título do spool, logs ou diagnóstico.
+O renderer anterior não imprimia preços e não possui configuração de preço:
+mantido ticket operacional sem valores, sem alterar totais comerciais.
+
+`ThermalLayoutV1` mede texto e altura de fonte GDI, limita a largura à área
+imprimível do driver e a 80 mm, reserva margens, quebra palavras longas em
+fronteiras Unicode e pagina antes de StartDoc. Fonte, desenho e limpeza de
+recursos continuam locais; protocolo/payload/renderer V1 e SQLite schema 3
+permanecem iguais. Nenhuma mudança em C1, pairing, commissioning ou migrations.
+
+Cobertura adicional: `LibGuest.PrintingBridge.Tests/TicketLayoutTests.cs`;
+prévias SVG sintéticas produzidas por testes com GDI em memória, sem spool.
+LAB desta rodada: executor separado `tests/integration/fb-ticket-layout-lab.mjs`,
+somente pedido + cancelamento físicos, sem teste físico/reimpressão. Confirmação
+humana de papel é independente dos ACKs técnicos; resultado será registrado
+após o checkpoint presencial. O bootstrap local do schema existente foi
+explicitamente autorizado, sem migration nova nem acesso remoto.
+
+Gates desta implementação: **259 testes nativos** (53 específicos do layout),
+segurança **754**, registro/cancelamento **211**, commissioning **156**, C1 **776**,
+C2 **204** (12 interrupções de processo), C3 **187**, C4 **87**, C5 **116**.
+TypeScript, builds .NET/Next, lint (zero erros; quatro avisos de imagem já
+existentes), parser PowerShell e diff check aprovados. Os quatro motivos de
+cancelamento usam os mesmos termos do Admin, sem deduzir uma causa adicional.
+Prévias sintéticas: `out/fb-ticket-layout-previews/`; inventário e evidências:
+`out/fb-ticket-layout-report.json`. Essas prévias não são confirmação de papel.
+
+LAB V1 encerrado: **37 verificações aprovadas**, um pedido físico (spool **7**)
+e um cancelamento físico (spool **8**), ambos `submitted` no Cloud e no resultado
+local, com ACK durável e `local_state=terminal`. Aceite não duplicou o original;
+cancelamento manteve destino/impressora. Nenhum TESTE físico ou reprint.
+**Confirmação humana dos dois papéis aprovada por Bruno**, em checkpoint único
+em 05/11/2026: pedido legível, cancelamento em destaque, nome, quarto, quantidade,
+observações, acentos, largura/alinhamento corretos e corte automático nos dois.
+Homologação física do layout concluída no LAB; isso não homologa a operação de
+um hotel real. Os estados técnicos continuam `submitted`, separados da evidência humana.
+Serviço LAB desinstalado oficialmente com dados técnicos preservados; containers
+próprios encerrados. Sem stage, commit, push, deploy ou acesso a tenant real.
