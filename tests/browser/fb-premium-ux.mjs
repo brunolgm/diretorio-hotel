@@ -1,0 +1,96 @@
+// Synthetic, local-only visual and behavior review. No DB, Auth or physical jobs.
+import assert from 'node:assert/strict';
+import {previewId} from '../fixtures/bugan-menu-homologation.mjs';
+import {createRequire} from 'node:module';
+import {createServer} from 'node:http';
+import {readFileSync,writeFileSync,mkdirSync,existsSync,readdirSync} from 'node:fs';
+import {resolve,join,extname} from 'node:path';
+const require=createRequire(import.meta.url),{build}=require('esbuild'),{chromium}=require('playwright'),postcss=require('postcss');
+const finalReview=process.argv.includes('--final');
+const output=resolve(finalReview?'out/fb-premium-final':'out/fb-premium-correction');
+const photoRoot=resolve('out/fb-premium-correction/photos');mkdirSync(output,{recursive:true});
+await build({entryPoints:['tests/browser/fb-premium-ux-fixture.tsx'],bundle:true,platform:'browser',loader:{'.png':'dataurl'},jsx:'automatic',format:'esm',tsconfig:'tsconfig.json',outfile:join(output,'fixture.js'),define:{'process.env':'{}','process.env.NEXT_PUBLIC_SUPABASE_URL':JSON.stringify('http://127.0.0.1:4199'),'process.env.NODE_ENV':JSON.stringify('development')},alias:{'node:crypto':resolve('tests/browser/public-v3-crypto-stub.ts'),'next/image':resolve('tests/browser/public-v3-next-stubs.tsx'),'next/link':resolve('tests/browser/public-v3-link-stub.tsx'),'next/navigation':resolve('tests/browser/public-v3-next-stubs.tsx')}});
+const css=await postcss([require('@tailwindcss/postcss')()]).process(readFileSync('app/globals.css','utf8'),{from:resolve('app/globals.css')});
+writeFileSync(join(output,'style.css'),css.css+'\n'+readFileSync('components/public/fb-catalog.css','utf8')+'\n'+readFileSync('components/public/native-ordering.css','utf8')+'\n'+readFileSync('components/public/fb-premium.css','utf8'));
+const menuSource=JSON.parse(readFileSync('docs/bootstrap/bugan-cardapio-v2/lote-rascunho.json','utf8'));
+const photoIds=existsSync(photoRoot)?readdirSync(photoRoot).filter(n=>n.endsWith('.jpg')).map(n=>n.slice(0,-4)):[];
+const photoFiles=new Map(menuSource.itens.filter(i=>photoIds.includes(i.goomer_id)).map(i=>[previewId(5,i.goomer_id),join(photoRoot,i.goomer_id+'.jpg')]));
+const server=createServer((req,res)=>{
+ const path=new URL(req.url,'http://127.0.0.1').pathname;res.setHeader('Cache-Control','no-store');
+ if(req.method!=='GET'||path.startsWith('/api/')){res.writeHead(403);res.end();return;}
+ if(path==='/__review/photos'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify(photoIds));return;}
+ let file=['/fixture.js','/style.css'].includes(path)?join(output,path.slice(1)):path.startsWith('/brand/')&&!path.includes('..')?join('public',path):null;
+ if(path==='/__review/logo.png')file='docs/references/bugan/public-v3/bugan-logo-oficial.png';
+ if(path.includes('/hero/hero/'))file='docs/references/bugan/public-v3/hero-piscina-real.png';
+ const item=path.match(/\/fb\/item\/([0-9a-f-]+)\//);if(item)file=photoFiles.get(item[1]);
+ if(path.startsWith('/gallery/')&&!path.includes('..')&&/^[-a-z0-9.]+$/.test(path.slice(9)))file=join(output,path.slice(9));
+ if(file&&existsSync(file)){res.setHeader('Content-Type',extname(file)==='.js'?'application/javascript':extname(file)==='.css'?'text/css':extname(file)==='.html'?'text/html; charset=utf-8':extname(file)==='.json'?'application/json':extname(file)==='.png'?'image/png':extname(file)==='.svg'?'image/svg+xml':'image/jpeg');res.end(readFileSync(file));return;}
+ if(/\.(png|jpg|webp|svg|json|css|js)$/.test(path)){res.writeHead(404);res.end();return;}
+ res.setHeader('Content-Type','text/html; charset=utf-8');res.end('<!doctype html><html lang="pt"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"><body><div id="root"></div><script type="module" src="/fixture.js"></script></body></html>');
+});
+await new Promise(r=>server.listen(4199,'127.0.0.1',r));
+if(process.argv.includes('--serve')){console.log('Revisão local: http://127.0.0.1:4199/?view=home · ?view=menu');await new Promise(()=>{});}
+const browser=await chromium.launch({channel:'chrome',headless:true}),checks=[],errors=[];let external=0;
+const check=(value,label)=>{assert.ok(value,label);checks.push(label);};
+try{
+ const page=await browser.newPage();page.on('pageerror',e=>errors.push(e.message));await page.route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():(external++,route.abort()));
+ const visit=async(query)=>{await page.goto('http://127.0.0.1:4199/?'+new URLSearchParams(query));await page.locator('h1').first().waitFor();};
+ const captures=[];
+ const finalCaptures=new Set(['home-0-1440','home-0-390','room-entradas-1440','room-entradas-390','room-direct-1-1440','dining-search-1440']);
+ const shot=async(name)=>{
+  if(finalReview&&!finalCaptures.has(name))return;
+  await page.evaluate(async()=>{window.scrollTo(0,0);await document.fonts.ready;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));});
+  await page.waitForFunction(()=>Array.from(document.images).filter(i=>i.getBoundingClientRect().top<innerHeight&&i.getBoundingClientRect().bottom>0).every(i=>i.complete&&i.naturalWidth>0));
+  check(await page.locator('h1').first().isVisible(),'rendered heading before capture '+name);
+  check(await page.locator('main').evaluate(el=>el.getBoundingClientRect().height>200&&el.innerText.trim().length>150),'nonempty page before capture '+name);
+  if(await page.locator('[data-fb-native]').count())check(await page.locator('[data-fb-native]>article:visible [data-fb-catalog-product],[data-fb-native]>article:visible [data-fb-order-product]').count()>0,'rendered products before capture '+name);
+  const png=await page.screenshot({path:join(output,name+'.png'),fullPage:false});
+  const pixels=await page.evaluate(async base64=>{const img=new Image();img.src='data:image/png;base64,'+base64;await img.decode();const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);const d=ctx.getImageData(0,0,c.width,c.height).data;let ink=0;for(let i=0;i<d.length;i+=64)if(d[i]<210||d[i+1]<210||d[i+2]<210)ink++;return ink/(d.length/64);},png.toString('base64'));
+  check(pixels>0.02,'capture contains visible pixels '+name);captures.push({name,pixels});
+ };
+ for(const width of [1440,390]){
+  await page.setViewportSize({width,height:width>900?1024:950});await visit({view:'menu'});if(!await page.locator('[data-fb-premium]').count())await page.locator('[data-fb-native]>article').first().locator('summary').first().click();const catalog=page.locator('[data-fb-catalog]').first();
+  check(await catalog.locator('h5').count()<143,'progressive initial mount '+width);check(await catalog.locator('[data-catalog-category]').count()===23,'all category headings '+width);check(await page.getByText(/^Ver todos/).count()===0,'no Ver todos '+width);await shot('dining-all-'+width);
+  await catalog.getByRole('button',{name:'Saladas',exact:true}).click();await shot('dining-salads-'+width);
+  const buttons=catalog.locator('nav>button');await catalog.getByRole('button',{name:'Entradas',exact:true}).click();const count=Number((await catalog.locator('h4 small').innerText()).match(/\d+/)[0]);check(await catalog.locator('h5').count()===count,'full selected category '+width);await shot('dining-category-'+width);
+  const current=await catalog.getByRole('button',{name:'Entradas',exact:true}).innerText();await catalog.locator('input[type=search]').fill('hamburguer');check(await catalog.locator('h5').count()>0,'search outside selected category '+width);await shot('dining-search-'+width);await catalog.locator('input[type=search]').fill('');check(await catalog.getByRole('button',{name:'Entradas',exact:true}).getAttribute('aria-pressed')==='true'&&await catalog.getByRole('button',{name:'Entradas',exact:true}).innerText()===current,'clear search restores selection '+width);
+  await buttons.first().click();for(const section of await catalog.locator('[data-catalog-category]').all()){await section.scrollIntoViewIfNeeded();await page.waitForTimeout(60);}check(await catalog.locator('h5').count()===143,'all products after scrolling '+width);check(new Set(await catalog.locator('h5').allTextContents()).size===143,'no duplicate products '+width);
+  await catalog.locator('.fb-more-categories summary').click();await shot('dining-more-'+width);await catalog.locator('.fb-more-categories button').last().click();check(await catalog.locator('[data-catalog-category]').count()===1,'extra category filters '+width);
+  check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'catalog responsive '+width);
+  for(const on of ['0','1']){await visit({view:'home',on});const room=page.locator('a[data-access=roomService],a[data-v4-action=roomService]').filter({visible:true}).first();await room.waitFor();check((await room.innerText()).includes(on==='1'?'Fazer pedido':'Consultar cardápio'),'context CTA '+on+' '+width);check(await page.locator('a[data-access=menu],a[data-v4-action=dining]').count()>0,'dining retained '+width);await shot('home-'+on+'-'+width);check(await page.locator('.v3-desktop-nav').getByRole('link',{name:'Room Service',exact:true,includeHidden:true}).count()===0,'Room Service absent from main navigation '+on+' '+width);
+ check(await page.locator('.v3-desktop-nav').getByRole('link',{name:'Gastronomia',exact:true,includeHidden:true}).count()===1,'Dining remains in main navigation '+on+' '+width);
+ if(width<900){await page.locator('.v3-menu-trigger').click();await page.getByRole('dialog').waitFor();check(await page.getByRole('dialog').getByRole('link',{name:'Room Service',exact:true}).count()===0,'no Room Service duplication in mobile drawer '+on);check(await page.getByRole('dialog').getByRole('link',{name:'Gastronomia',exact:true}).count()===1,'Dining retained in mobile drawer '+on);await page.keyboard.press('Escape');}
+ const href=await room.getAttribute('href');check(new URL(href,'http://localhost').hash==='#outlet-'+previewId(2),'Home targets Room Service UUID '+on+' '+width);await page.goto('http://127.0.0.1:4199/?view=menu&on='+on+new URL(href,'http://localhost').hash);await page.locator('[data-fb-native]').waitFor();check(await page.locator('[data-fb-native]>article:visible').count()===1,'direct selected outlet '+on+' '+width);if(on==='0')check(await page.locator('[data-fb-native]>article:visible details').first().getAttribute('open')!==null,'direct editorial outlet opens '+width);const selectedArticle=page.locator('[data-fb-native]>article:visible');
+ check(await selectedArticle.getAttribute('id')==='outlet-'+previewId(2),'resolved outlet identity '+on+' '+width);
+ const summary=await page.locator('.fb-outlet-summary').textContent();
+ check(summary.includes(on==='1'?'13 categorias · 56 itens':'22 categorias · 142 itens'),'counts follow selected consultation/ordering projection '+on+' '+width);
+ check((await page.locator('.fb-outlet-summary>span').first().textContent())===(on==='1'?'Pedidos disponíveis':'Cardápio para consulta'),'projection modality label '+on+' '+width);
+ check(await selectedArticle.locator('[data-catalog-category="'+previewId(4,'1994997')+'"]').count()===0,'Filipe event absent from Room Service '+on+' '+width);
+ if(on==='0'){check(await selectedArticle.locator('.fb-menu-heading').count()===1,'Room Service has only shared menu '+width);check(await selectedArticle.locator('.fb-menu-heading').getAttribute('id')==='menu-'+previewId(2)+'-'+previewId(3),'Room Service menu UUID '+width);}
+ await shot('room-direct-'+on+'-'+width);if(on==='0'){const roomCatalog=page.locator('[data-fb-native]>article:visible [data-fb-catalog]');await roomCatalog.getByRole('button',{name:'Entradas',exact:true}).click();await shot('room-entradas-'+width);}}
+ }
+ for(const [lang,one,two,zero]of [['pt','1 item','2 itens','0 itens'],['en','1 item','2 items','0 items'],['es','1 producto','2 productos','0 productos']]){
+  await visit({view:'menu',lang});
+  const cat=page.locator('[data-fb-native]>article:visible [data-fb-catalog]');
+  check((await cat.locator('[data-catalog-category="'+previewId(4,'1994997')+'"] h4 small').innerText()).trim()==='· '+one,'single-item category '+lang);
+  await cat.locator('input[type=search]').fill('Noite de Massas');check((await cat.locator(':scope>p[role=status]').first().innerText())===one,'one search result '+lang);check(await cat.locator('h5').count()===1,'one rendered search product '+lang);
+  await cat.locator('input[type=search]').fill('chapa');check((await cat.locator(':scope>p[role=status]').first().innerText())===two,'two search results '+lang);
+  await cat.locator('input[type=search]').fill('__not_in_menu__');check((await cat.locator(':scope>p[role=status]').first().innerText())===zero,'zero search results '+lang);
+ }
+ await visit({view:'menu',on:'1'});await page.locator('nav[aria-label=Cardápios]').getByRole('link',{name:'Room Service',exact:true}).click();const native=page.locator('[data-fb-order-outlet]');await native.locator('.fb-order-products li').first().getByRole('button',{name:'Adicionar',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Adicionar',exact:true}).click();await page.locator('nav[aria-label=Cardápios]').getByRole('link',{name:'Restaurante Filipe',exact:true}).click();await page.locator('nav[aria-label=Cardápios]').getByRole('link',{name:'Room Service',exact:true}).click();check(await native.locator('.fb-order-cart li').count()===1,'switching outlets preserves transient cart');
+ await page.waitForFunction(()=>window.scrollY<2);check(await page.locator('.fb-premium-header').evaluate(el=>el.getBoundingClientRect().top>=-1),'outlet switching preserves hero and header composition');
+ await page.goBack();await page.waitForFunction(()=>document.querySelector('.fb-outlet-option a[aria-current=page]')?.textContent.includes('Filipe'));await page.goForward();await page.waitForFunction(()=>document.querySelector('.fb-outlet-option a[aria-current=page]')?.textContent.includes('Room Service'));check(await native.locator('.fb-order-cart li').count()===1,'browser history preserves outlet UUID and cart');
+ for(const lang of ['en','es']){await visit({view:'menu',lang});if(!await page.locator('[data-fb-premium]').count())await page.locator('[data-fb-native]>article').first().locator('summary').first().click();check(await page.locator('[data-fb-catalog]').first().getByRole('button',{name:lang==='en'?'All':'Todas',exact:true}).count()===1,'localized catalog '+lang);}
+ for(let hotel=0;hotel<6;hotel++){await visit({view:'home',hotel:String(hotel),off:'1'});check(await page.locator('[data-access=roomService],[data-v4-action=roomService]').count()===0,'module OFF '+hotel);}
+ for(const width of [360,375,430,768,1024,1536]){await page.setViewportSize({width,height:950});await visit({view:'menu'});await page.getByRole('button',{name:'Entradas',exact:true}).click();check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'additional responsive viewport '+width);}
+ await page.setViewportSize({width:390,height:950});await visit({view:'menu',photos:'0'});await page.getByRole('button',{name:'Entradas',exact:true}).click();await shot('dining-no-imported-photos-390');
+ check(await page.locator('[data-fb-native]>article:visible .fb-catalog-product>img').count()===0,'honest image fallback when catalogue has no imported photos');
+ await visit({view:'menu'});await page.getByRole('button',{name:'Entradas',exact:true}).click();const filterPanel=page.locator('[data-fb-native]>article:visible .fb-catalog-options');await filterPanel.locator('summary').click();await filterPanel.getByRole('checkbox',{name:'Somente com foto'}).check();check(await page.locator('[data-fb-native]>article:visible .fb-catalog-product:not(:has(>img))').count()===0,'photo filter uses actual image availability');await filterPanel.getByRole('button',{name:'Limpar filtros',exact:true}).click();check(await page.locator('[data-fb-native]>article:visible h5').count()===10,'clear extra filters preserves complete category');
+ check(errors.length===0,'no runtime errors '+errors.join(';'));check(external===0,'no external requests');check(!await page.evaluate(()=>document.body.dataset.post),'no remote writes');
+
+ const images=captures.map(c=>c.name+'.png');
+ writeFileSync(join(output,'index.html'),'<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LibGuest — F&B Premium UX v2</title><style>body{font:16px system-ui;background:#fcf7ef;color:#3b2419;margin:24px}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}figure{margin:0;padding:16px;background:white;border:1px solid #d8e1dc;border-radius:16px}img{display:block;width:100%;height:440px;object-fit:contain;object-position:top}a{color:#a8460c}figcaption{padding-top:12px}</style><h1>F&B Premium UX v2</h1><p>GO VISUAL COM AJUSTES PONTUAIS — FECHAMENTO PARA REVISÃO. Nova revisão com fixtures e fotografias reais de origem em cache local; fotos de produtos não importadas/publicadas. Nenhum dado do hotel alterado.</p><p><a href="report.json">Verificações browser e integridade das capturas</a> · Desktop 1440 px / mobile 390 px. Abra cada imagem para inspecionar em tamanho integral.</p><main>'+images.map(name=>'<figure><a href="'+name+'"><img loading="lazy" src="'+name+'" alt="'+name.replace('.png','')+'"></a><figcaption>'+name+'</figcaption></figure>').join('')+'</main></html>');
+ const served=await fetch('http://127.0.0.1:4199/gallery/'+(finalReview?'dining-search':'dining-category')+'-1440.png');check(served.ok&&served.headers.get('content-type')==='image/png','gallery serves PNG instead of fixture HTML');
+ writeFileSync(join(output,'report.json'),JSON.stringify({passed:checks.length,failed:0,external,remoteWrites:0,physicalPrinting:false,captures,checks},null,2));
+ console.log(JSON.stringify({passed:checks.length,failed:0,external,captures:captures.length}));
+}catch(e){writeFileSync(join(output,'failure.json'),JSON.stringify({passed:checks.length,error:e.message,errors},null,2));throw e;}finally{await browser.close();await new Promise(r=>server.close(r));}

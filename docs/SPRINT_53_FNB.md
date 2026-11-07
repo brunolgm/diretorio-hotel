@@ -3221,3 +3221,73 @@ Capturas: `out/fb-deployment/admin-desktop.png`, `admin-mobile.png`, `catalog-on
 A apresentação administrativa passa a agrupar Visão geral, Estabelecimentos, Cardápios, Itens, Pedidos e Impressão, preservando as URLs e o motor homologado. Referência, rotas, regras de visibilidade e limites da UX estão na documentação canônica de arquitetura Admin: [Gastronomia Admin UX V1](SPRINT_46_7_ADMIN_INFORMATION_ARCHITECTURE.md#gastronomia-admin-ux-v1--apresentação-após-a-sprint-53).
 
 Este refinamento não altera tabelas, migrations, RPCs, RLS, capabilities, tradução, regras de pedidos/cancelamento, Bridge, commissioning, impressão ou apresentação pública V3/V4. Métricas e filtros são de apresentação. Testes utilizam fixtures e LAB descartável; não há nova impressão física ou escrita em tenant real. Integração/publicação técnica ficam fora desta entrega sem autorização posterior.
+
+### Publicação editorial Bugan — 06/11/2026
+
+Após autorização de Bruno, a importação autenticada reaproveitou o cardápio
+compartilhado em rascunho. A verificação pública confirmou 143 produtos,
+23 categorias, dois cardápios, dois estabelecimentos e três vínculos.
+O Restaurante Filipe consulta o menu compartilhado e o menu exclusivo de
+eventos, que contém a Noite de Massas. Room Service consulta apenas o menu
+compartilhado. A página pública respondeu com os dois estabelecimentos,
+sem componente de pedidos. No banco, zero outlets nativos e pedidos desligados.
+Horários aprovados estão registrados no plano editorial para etapa operacional
+posterior. Nenhuma foto foi importada nesta publicação.
+
+## 2026-11-07 — Candidato local F&B Premium UX v2
+
+### Gastronomia, filtros, Todas e busca
+
+**[IMPLEMENTADO E CONFIRMADO NO CÓDIGO]** `FbCatalog` compartilha apresentação
+editorial/nativa. Não há “Ver todos”; categoria selecionada mostra todos os produtos
+elegíveis. “Todas” mantém agrupamento e contagens reais. Dois grupos são montados
+inicialmente; IntersectionObserver revela os demais, preservando os títulos e sem
+paginação/dependência externa. Sem observer há fallback integral após hidratação.
+Categoria específica e busca montam todos os resultados; combos sem categoria
+aparecem em “Outros”; tipo/ID deduplicam entradas. Cinco categorias ficam visíveis,
+as demais em “+ Mais categorias”, com seleção atual destacada e toque de 44 px.
+
+Busca global por nome/descrições, normalizada por acentos, ignora temporariamente
+a categoria. Limpar restaura o filtro anterior. PT/EN/ES seguem a estrutura atual
+de copy. Preços, conteúdo, imagens com ownership e disponibilidade são os mesmos.
+`PublicFbContent` mantém elegibilidade, URLs e resolução de destinos no servidor;
+`PublicFbOutlets` recebe a projeção para interatividade no cliente.
+
+### Home V4, CTA e seleção direta
+
+**[IMPLEMENTADO E CONFIRMADO NO CÓDIGO]** Atalho Room Service coexiste com Gastronomia,
+Serviços, Central de Voos e Contato nas composições existentes. Deriva de
+`eligibleFbGraph`, tipo `room_service`, publicação, vínculos e itens; sem nome literal
+ou regra por hotel. V3, módulo OFF, outlet estrangeiro/não publicado, catálogo vazio
+e `external_url` não geram o atalho. O link usa rota canônica, idioma, escopo e
+`#outlet-<UUID>`. A abertura seleciona o outlet e expande o editorial. Trocar outlets
+preserva o carrinho transitório, sem desmontar o componente nativo.
+
+Ambas as Homes públicas (slug/subdomínio) reutilizam `nativeOffer` somente com
+Room Service V4 elegível. A projeção é encaminhada às composições pelo componente
+Home. CTA “Fazer pedido” exige oferta não oculta, `available`, produto disponível
+e modalidade utilizável: pickup ou room_delivery com contexto válido. Demais casos,
+incluindo falha de leitura: “Consultar cardápio”. `available` já integra modo nativo,
+admissão, configurações e horários no contrato SQL existente. Nenhuma flag, RPC,
+configuração ou estrutura F&B exclusiva da Home foi criada. Prévia autenticada
+mantém seu comportamento anterior, sem nova leitura operacional.
+
+### 2026-11-07 — GO visual com ajustes pontuais, fechamento sem commit
+
+Preservada a composição aprovada das 21 capturas. Corrigidos singular/plural em
+PT/EN/ES nos títulos, busca e resumo do outlet, mantendo ES producto/productos.
+Room Service permanece ação rápida e outlet; foi retirado somente da navegação
+principal desktop/mobile. CTA, UUID, carrinho e histórico permanecem preservados.
+
+A divergência 143/23 no Room Service era da fixture: o rascunho anterior ligava
+ambos os outlets a um menu único. O plano/checkpoint local da publicação de 06/11
+registra Filipe → compartilhado + eventos; Room Service → somente compartilhado.
+A fixture Premium agora reproduz esses três vínculos: Filipe 143 itens/23 categorias;
+Room Service 142/22, sem Noite de Massas. A projeção real por UUID/menu não foi alterada.
+
+Os 56 itens/13 categorias são a oferta **simulada** às 11h: 14 itens 24h e 42 na
+janela candidata 11h–22h30; janelas não confirmadas ficam excluídas. Não significam
+ordering ativado no tenant. O código real usa a oferta canônica/RPC e suas regras
+de admissão/disponibilidade. Sem consulta ao Supabase remoto, mudança de dados,
+ativação ou homologação operacional nesta rodada. Evidências e seis capturas
+direcionadas em `out/fb-premium-final/`; Impressão e CSS aprovados não alterados.

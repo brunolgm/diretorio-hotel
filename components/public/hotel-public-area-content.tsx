@@ -1,4 +1,5 @@
 import {PublicFbContent} from './public-fb-content';
+import {PublicFbPremiumShell} from './public-fb-premium-shell';
 import {PublicStayInformation} from './public-stay-information';
 import {InternalAccommodation} from './public-internal-editorial';
 import {PublicAnnouncementDirectory} from './public-announcement-directory';
@@ -175,6 +176,7 @@ export function HotelPublicAreaContent({
   const isV4=pageData.presentation?.experienceVersion==='v4';
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const isBugan = theme.preset === 'bugan';
+  if(isBugan&&isV4&&area==='cardapio'&&pageData.fb&&!pageData.trackingOrderId)return <PublicFbPremiumShell pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>;
   const isNovotel = theme.preset === 'novotel';
   const isGrandMercure = theme.preset === 'grand-mercure';
   const isMercure = theme.preset === 'mercure';

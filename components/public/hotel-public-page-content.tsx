@@ -306,6 +306,7 @@ function PolicyCard({
 }
 
 export function HotelPublicPageContent({
+  ordering,
   fb = null,
   hotel,
   banners,
@@ -326,6 +327,7 @@ export function HotelPublicPageContent({
   activeRoomContext,
   preferSubdomainRoot,
 }: {
+  ordering?: import('@/lib/fb/orders/journey').NativeOffer;
   fb?: import('@/lib/fb/types').FbGraph|null;
   hotel: PublicHotel;
   banners: PublicHotelPromotionalBanner[];
@@ -377,7 +379,7 @@ export function HotelPublicPageContent({
 
   if (theme.preset === 'bugan') {
     return <PublicExperienceOverview
-      pageData={{ fb, hotel, banners, announcements, sections, serviceGuides, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, tourismPreview, hasFallbackContent }}
+      pageData={{ ordering, fb, hotel, banners, announcements, sections, serviceGuides, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, tourismPreview, hasFallbackContent }}
       language={language} domainContext={domainContext} preferSubdomainRoot={useSubdomainRoot}
       activeRoomContext={activeRoomContext}
     />;
@@ -411,7 +413,7 @@ export function HotelPublicPageContent({
   if (isGrandMercureExperience) {
     return (
       <GrandMercurePublicHome
-        pageData={{ fb, hotel, banners, announcements, sections, serviceGuides, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, hasFallbackContent }}
+        pageData={{ ordering, fb, hotel, banners, announcements, sections, serviceGuides, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -422,7 +424,7 @@ export function HotelPublicPageContent({
   if (isMercureExperience) {
     return (
       <MercurePublicHome
-        pageData={{ fb, hotel, banners, announcements, sections, serviceGuides, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, hasFallbackContent }}
+        pageData={{ ordering, fb, hotel, banners, announcements, sections, serviceGuides, departments, policies, layout, flightHomeCard, tourismHomeAvailable, presentation, experienceMedia, hasFallbackContent }}
         language={language}
         domainContext={domainContext}
         preferSubdomainRoot={useSubdomainRoot}
@@ -585,7 +587,7 @@ export function HotelPublicPageContent({
           </div>
         </section>
 
-        {version==='v4'?<PublicExperienceMobileTasks pageData={{fb,hotel,banners,announcements,sections,departments,policies,layout,flightHomeCard,tourismHomeAvailable,presentation,experienceMedia,tourismPreview,hasFallbackContent}} language={language} domainContext={domainContext} preferSubdomainRoot={useSubdomainRoot} style={blockStyle('hero')}/>:null}
+        {version==='v4'?<PublicExperienceMobileTasks pageData={{ordering,fb,hotel,banners,announcements,sections,departments,policies,layout,flightHomeCard,tourismHomeAvailable,presentation,experienceMedia,tourismPreview,hasFallbackContent}} language={language} domainContext={domainContext} preferSubdomainRoot={useSubdomainRoot} style={blockStyle('hero')}/>:null}
         {hasFallbackContent ? (
           <section style={blockStyle('hero')} className="mt-4 rounded-[24px] border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-800 shadow-[0_16px_35px_-30px_rgba(120,53,15,0.35)]">
             {copy.fallbackNotice}

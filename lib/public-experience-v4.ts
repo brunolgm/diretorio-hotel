@@ -1,3 +1,4 @@
+import {roomServiceAccess} from './fb/room-service-access.ts';
 import {publicEditorialHref} from './public-editorial-link.ts';
 import {getPublicEssentials} from './public-essentials.ts';
 import type { PublicHotelPageData } from './public-hotel-data';
@@ -21,8 +22,10 @@ export function getUniversalMobileHome(data: PublicHotelPageData, language: Supp
   let dining = publicEditorialHref({url:restaurant?.cta_url,hotel:data.hotel,sections,language,domainContext,preferSubdomainRoot});
   if (data.fb) dining = enabled('services') && data.fb.outlets.length ? buildPublicHotelAreaHref({...route,area:'cardapio'}) : null;
   if (!data.fb && !dining && enabled('services') && sections.some(s => s.service_action_type === 'room_restaurant_menu')) dining = buildPublicHotelAreaHref({...route,area:'cardapio'});
-  const actions: { key: 'services'|'dining'|'flights'|'contact'; href: string }[] = [
+  const roomService=roomServiceAccess(data,language,domainContext,preferSubdomainRoot);
+  const actions: { key: 'services'|'dining'|'flights'|'contact'|'roomService'; href: string; cta?:string }[] = [
     ...(enabled('services') && sections.length ? [{key:'services' as const,href:buildPublicHotelAreaHref({...route,area:'servicos'})}] : []),
+    ...(roomService ? [roomService] : []),
     ...(dining ? [{key:'dining' as const,href:dining}] : []),
     ...(data.flightHomeCard ? [{key:'flights' as const,href:buildPublicHotelFlightCenterHref(route)}] : []),
     ...(enabled('contact') && (data.hotel.website_url || data.hotel.booking_url || data.hotel.whatsapp_number || data.departments.some(d => d.hotel_id === data.hotel.id && d.enabled)) ? [{key:'contact' as const,href:buildPublicHotelAreaHref({...route,area:'contato'})}] : []),

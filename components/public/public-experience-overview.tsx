@@ -1,3 +1,4 @@
+import {roomServiceAccess} from '@/lib/fb/room-service-access';
 import {FlightHomeAccess} from './home-saved-flight';
 import {RoomGuideLinks} from './room-guide-links';
 import {PublicCommunications} from './public-communications';
@@ -64,7 +65,9 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
   const hasMenu = sections.some(row => row.service_action_type === 'room_restaurant_menu');
   const reserve = experienceHttpsUrl(hotel.booking_url);
   const hasContact = enabled('contact') && Boolean(hotel.whatsapp_number || experienceHttpsUrl(hotel.website_url) || reserve || pageData.departments.length);
+  const roomService=roomServiceAccess(pageData,language,domainContext,preferSubdomainRoot);
   const accesses = [
+    ...(roomService?[{...roomService,icon:ConciergeBell}]:[]),
     ...(enabled('quick_info') ? [{ key: 'information', href: areaHref('informacoes'), label: t.hotel, icon: Building2 }] : []),
     ...(pageData.fb ? (enabled('services') && pageData.fb.outlets.length ? [{key:'menu',href:areaHref('cardapio'),label:t.dining,icon:Utensils}] : []) : restaurant || hasMenu ? [{ key: 'menu', href: restaurant ? '#restaurant' : areaHref('cardapio'), label: t.dining, icon: Utensils }] : []),
     ...(enabled('services') && sections.length ? [{ key: 'services', href: areaHref('servicos'), label: t.services, icon: ConciergeBell }] : []),
@@ -72,8 +75,8 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
     ...(flightHomeCard ? [{ key: 'flights', href: buildPublicHotelFlightCenterHref(route), label: t.flights, icon: Plane }] : []),
     ...(hasContact ? [{ key: 'contact', href: areaHref('contato'), label: t.contact, icon: MessageCircle }] : []),
   ];
-  const short = language === 'en' ? {information:'Hotel',menu:'Dining',services:'Services',tourism:'Tourism',flights:'Flights',contact:'Contact'} : language === 'es' ? {information:'Hotel',menu:'Gastronomía',services:'Servicios',tourism:'Turismo',flights:'Vuelos',contact:'Contacto'} : {information:'Hotel',menu:'Gastronomia',services:'Serviços',tourism:'Turismo',flights:'Voos',contact:'Contato'};
-  const links = [{ href: homeHref, label: copy.navigationHome }, ...accesses.slice().sort((a,b)=>['information','services','menu','tourism','flights','contact'].indexOf(a.key)-['information','services','menu','tourism','flights','contact'].indexOf(b.key)).map(({ href, key }) => ({ href, label: short[key as keyof typeof short] }))];
+  const short = language === 'en' ? {roomService:'Room Service',information:'Hotel',menu:'Dining',services:'Services',tourism:'Tourism',flights:'Flights',contact:'Contact'} : language === 'es' ? {roomService:'Room Service',information:'Hotel',menu:'Gastronomía',services:'Servicios',tourism:'Turismo',flights:'Vuelos',contact:'Contacto'} : {roomService:'Room Service',information:'Hotel',menu:'Gastronomia',services:'Serviços',tourism:'Turismo',flights:'Voos',contact:'Contato'};
+  const links = [{ href: homeHref, label: copy.navigationHome }, ...accesses.filter(item=>item.key!=='roomService').sort((a,b)=>['information','services','menu','roomService','tourism','flights','contact'].indexOf(a.key)-['information','services','menu','roomService','tourism','flights','contact'].indexOf(b.key)).map(({ href, key }) => ({ href, label: short[key as keyof typeof short] }))];
   const heroForDisplay = hero && presentation?.heroDesktopFocal ? {...hero,focal_x:presentation.heroDesktopFocal.x,focal_y:presentation.heroDesktopFocal.y} : hero;
   const editorialHref = (url:string|null,slot?:string) => slot==='restaurant' && pageData.fb ? (pageData.fb.outlets.length ? areaHref('cardapio') : null) : publicEditorialHref({url,hotel,sections,language,domainContext,preferSubdomainRoot});
   const curated = pageData.tourismHomeAvailable ? (presentation?.tourism.cards ?? []).map(card=>({card,href:tourismEditorialHref(card,pageData.tourismPreview??[],hotel.id,route)})).filter(row=>row.href) : [];
@@ -99,7 +102,7 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
         <h1>{presentation?.heroTitleMode === 'hotel_name' ? hotel.name : hero?.title || hotel.name}</h1>
         <p className="v3-subtitle">{hero?.description || copy.heroDescription}</p>
       </div>
-      <nav className="v3-accesses" aria-label={copy.navigationLabel} data-v3-accesses data-legacy-home-access>{accesses.map(item => item.key==='flights'&&version==='v4'?<FlightHomeAccess key={item.key} hotelId={hotel.id} href={item.href} language={language} enabled={domainContext.navigationScope!=='authenticated-preview'} label={item.label} icon={<item.icon aria-hidden/>} arrow={<ChevronRight className="v3-access-arrow" aria-hidden/>} access={item.key}/>:<a key={item.key} href={item.href} data-access={item.key}><item.icon aria-hidden /><span>{item.label}</span><ChevronRight className="v3-access-arrow" aria-hidden /></a>)}</nav>
+      <nav className="v3-accesses" aria-label={copy.navigationLabel} data-v3-accesses data-legacy-home-access>{accesses.map(item => item.key==='flights'&&version==='v4'?<FlightHomeAccess key={item.key} hotelId={hotel.id} href={item.href} language={language} enabled={domainContext.navigationScope!=='authenticated-preview'} label={item.label} icon={<item.icon aria-hidden/>} arrow={<ChevronRight className="v3-access-arrow" aria-hidden/>} access={item.key}/>:<a key={item.key} href={item.href} data-access={item.key}><item.icon aria-hidden /><span>{item.label}{'cta' in item?<small className="block text-xs font-normal">{item.cta} →</small>:null}</span><ChevronRight className="v3-access-arrow" aria-hidden /></a>)}</nav>
     </section>
     {version==='v4'?<PublicExperienceMobileTasks pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} desktopEssentials/>:null}
     <div className="v3-body">

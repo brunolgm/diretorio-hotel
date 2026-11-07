@@ -5,6 +5,7 @@ import { getPublicHotelPageDataBySubdomain } from '@/lib/public-hotel-data';
 import { normalizePublicLanguage } from '@/lib/public-language';
 import { readRoomContext } from '@/lib/room-context';
 import { resolveActiveRoomContextForHotel } from '@/lib/room-links';
+import {roomServiceHomeOffer} from '@/lib/fb/room-service-access.server';
 
 export const dynamic = 'force-dynamic';
 
@@ -287,6 +288,7 @@ export default async function Home({ searchParams }: HomePageProps) {
     }
 
     const roomContext = await readRoomContext();
+    const ordering=await roomServiceHomeOffer(pageData,language);
     const activeRoomContext =
       roomContext?.roomToken && roomContext.hotelId === pageData.hotel.id
         ? await resolveActiveRoomContextForHotel({
@@ -298,6 +300,7 @@ export default async function Home({ searchParams }: HomePageProps) {
     return (
       <HotelPublicPageContent
         {...pageData}
+        ordering={ordering}
         hotel={pageData.hotel}
         banners={pageData.banners}
         announcements={pageData.announcements}
