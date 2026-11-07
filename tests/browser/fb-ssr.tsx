@@ -1,3 +1,4 @@
+import {FbCatalog} from '../../components/public/fb-catalog';
 import {renderToStaticMarkup} from 'react-dom/server';
 import assert from 'node:assert/strict';
 import {fbFixture} from '../fixtures/fb';
@@ -34,5 +35,17 @@ for(let index=0;index<6;index++)for(const language of ['pt','en','es'] as const)
  const data=fbFixture(0);const rows=Array.from({length:100},(_,i)=>({...data.fb!.items[0],id:'item-'+i}));
  const html=renderToStaticMarkup(<><FbReorderForm kind="item" rows={rows} canManage/>{rows.map(row=><FbRecordActions key={row.id} kind="item" row={row} canManage/>)}</>);
  assert.equal((html.match(/name="rows"/g)||[]).length,1,'one shared snapshot, never quadratic hidden payload');count++;
+}
+// The SSR snapshot must have only complete initial groups and one compact sentinel.
+for(const language of ['pt','en','es'] as const){
+ const categories=Array.from({length:9},(_,i)=>({id:'group-'+i,name:'Group '+i}));
+ const items=categories.flatMap(c=>Array.from({length:3},(_,i)=>({id:c.id+'-'+i,category_id:c.id,name:'Product '+i})));
+ const html=renderToStaticMarkup(<FbCatalog categories={categories} items={items} language={language} renderItem={item=><li key={item.id}>{item.name}</li>}/>);
+ assert.equal((html.match(/data-catalog-category=/g)||[]).length,2);
+ assert.equal((html.match(/data-catalog-sentinel=/g)||[]).length,1);
+ assert.equal((html.match(/<li/g)||[]).length,6);
+ assert.ok(!html.includes('fb-catalog-placeholder'));
+ assert.ok(!html.includes('data-catalog-category="group-2"'));
+ count++;
 }
 assert.equal(calls,0);console.log(JSON.stringify({suite:'fb-ssr',passed:count,failed:0,networkCalls:calls}));

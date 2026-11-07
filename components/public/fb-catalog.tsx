@@ -5,7 +5,7 @@ import {LayoutGrid,UtensilsCrossed,Leaf,Pizza,Sandwich,Soup,CookingPot,Wine,IceC
 import './fb-catalog.css';
 import {fbCatalogCount} from '@/lib/fb/public-copy';
 
-const copy={pt:{all:'Todas',more:'+ Mais categorias',none:'Nenhum item encontrado.',loading:'Carregando categoria…'},en:{all:'All',more:'+ More categories',none:'No items found.',loading:'Loading category…'},es:{all:'Todas',more:'+ Más categorías',none:'No se encontraron productos.',loading:'Cargando categoría…'}};
+const copy={pt:{all:'Todas',more:'+ Mais categorias',none:'Nenhum item encontrado.',loading:'Carregando mais categorias…'},en:{all:'All',more:'+ More categories',none:'No items found.',loading:'Loading more categories…'},es:{all:'Todas',more:'+ Más categorías',none:'No se encontraron productos.',loading:'Cargando más categorías…'}};
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase();
 const subscribeSupport=()=>()=>{};
 const missingObserver=()=>!('IntersectionObserver' in window);
@@ -17,19 +17,25 @@ function CategoryIcon({name}:{name:string}){
 }
 type CatalogItem={id:string;category_id:string|null;name:string;kind?:string;description?:string|null;short_description?:string|null;full_description?:string|null;image?:string|null;image_url?:string|null;dietary?:string|null;dietary_info?:string|null};
 
-function ProgressiveCategory({eager,label,children}:{eager:boolean;label:string;children:()=>ReactNode}){
- const ref=useRef<HTMLDivElement>(null),[visible,setVisible]=useState(eager);
+// Mount complete category blocks in small batches, never placeholders for future groups.
+function ProgressiveCategories({total,eager,active,label,children}:{total:number;eager:boolean;active:boolean;label:string;children:(limit:number)=>ReactNode}){
+ const sentinel=useRef<HTMLDivElement>(null),[visible,setVisible]=useState(2);
+ const limit=eager?total:Math.min(visible,total);
  useEffect(()=>{
-  if(eager||visible)return;
-  if(!('IntersectionObserver' in window))return;
-  const observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){setVisible(true);observer.disconnect();}},{rootMargin:'300px'});
-  if(ref.current)observer.observe(ref.current);
+  if(eager||!active||limit>=total||!sentinel.current||!('IntersectionObserver' in window))return;
+  let advanced=false;
+  const observer=new IntersectionObserver(entries=>{
+   if(!advanced&&entries.some(entry=>entry.isIntersecting)){
+    advanced=true;observer.disconnect();setVisible(count=>Math.min(count+2,total));
+   }
+  },{rootMargin:'200px'});
+  observer.observe(sentinel.current);
   return()=>observer.disconnect();
- },[eager,visible]);
- return <div ref={ref}>{eager||visible?children():<div className="fb-catalog-placeholder" role="status">{label}</div>}</div>;
+ },[eager,active,limit,total]);
+ return <>{children(limit)}{limit<total?<div ref={sentinel} className="fb-catalog-more" data-catalog-sentinel role="status">{label}</div>:null}</>;
 }
 
-export function FbCatalog<T extends CatalogItem>({categories,items,language,renderItem,listClass='fb-catalog-products'}:{categories:{id:string;name:string}[];items:T[];language:Language;renderItem:(item:T)=>ReactNode;listClass?:string}){
+export function FbCatalog<T extends CatalogItem>({categories,items,language,renderItem,listClass='fb-catalog-products',active=true}:{categories:{id:string;name:string}[];items:T[];language:Language;renderItem:(item:T)=>ReactNode;listClass?:string;active?:boolean}){
  const [category,setCategory]=useState(''),[search,setSearch]=useState('');
  const [photosOnly,setPhotosOnly]=useState(false),[dietaryOnly,setDietaryOnly]=useState(false);
  // Unsupported browsers fall back after hydration, preserving the server snapshot.
@@ -55,6 +61,6 @@ export function FbCatalog<T extends CatalogItem>({categories,items,language,rend
   <div className="fb-catalog-tools"><label className="fb-catalog-search"><Search aria-hidden/><input aria-label={order.search} placeholder={order.search+'…'} type="search" value={search} onChange={e=>setSearch(e.target.value)}/></label><details className="fb-catalog-options"><summary><SlidersHorizontal aria-hidden/><span>{filtersCopy.filters}{photosOnly||dietaryOnly?' · '+(Number(photosOnly)+Number(dietaryOnly)):''}</span><ChevronDown aria-hidden/></summary><div><label><input type="checkbox" checked={photosOnly} onChange={e=>setPhotosOnly(e.target.checked)}/>{filtersCopy.photos}</label><label><input type="checkbox" checked={dietaryOnly} onChange={e=>setDietaryOnly(e.target.checked)}/>{filtersCopy.dietary}</label><button type="button" onClick={()=>{setPhotosOnly(false);setDietaryOnly(false);}}>{filtersCopy.clear}</button></div></details></div>
   {query?<p role="status">{fbCatalogCount(results.length,'item',language)}</p>:null}
   {!results.length?<p role="status">{t.none}</p>:null}
-  {groups.map((c,index)=><section className="fb-catalog-category" data-catalog-category={c.id} key={c.id}><h4><CategoryIcon name={c.name}/><span>{c.name}</span><small>· {fbCatalogCount(results.filter(i=>categoryId(i)===c.id).length,'item',language)}</small></h4><ProgressiveCategory key={query||selected?'filtered':'all'} eager={noObserver||Boolean(query||selected||photosOnly||dietaryOnly)||index<2} label={t.loading}>{()=> <ul className={listClass}>{results.filter(i=>categoryId(i)===c.id).map(renderItem)}</ul>}</ProgressiveCategory></section>)}
+  <ProgressiveCategories key={String(active)+':'+(query||selected||photosOnly||dietaryOnly?'filtered':'all')+':'+groups.map(c=>c.id).join(',')} total={groups.length} active={active} eager={noObserver||Boolean(query||selected||photosOnly||dietaryOnly)} label={t.loading}>{limit=>groups.slice(0,limit).map(c=><section className="fb-catalog-category" data-catalog-category={c.id} key={c.id}><h4><CategoryIcon name={c.name}/><span>{c.name}</span><small>· {fbCatalogCount(results.filter(i=>categoryId(i)===c.id).length,'item',language)}</small></h4><ul className={listClass}>{results.filter(i=>categoryId(i)===c.id).map(renderItem)}</ul></section>)}</ProgressiveCategories>
  </div>;
 }

@@ -39,7 +39,7 @@ export function PublicFbOutlets({outlets,language,slug,hasRoomContext,premium,pr
         {outlet.location_info ? <p className="mt-3 whitespace-pre-line text-sm">{outlet.location_info}</p> : null}
         {destination ? <a href={destination.href} target={destination.kind==='external'?'_blank':undefined} rel="noopener noreferrer" className="mt-4 inline-flex min-h-11 items-center rounded-lg border border-[var(--hotel-border)] px-4 text-sm font-semibold">{t.open}</a> : null}
         {menus.map(menu=><section className="fb-menu-heading" key={menu.id} id={'menu-'+outlet.id+'-'+menu.id} ><h3 className="text-lg font-semibold">{menu.name}</h3>{menu.short_description?<p>{menu.short_description}</p>:null}</section>)}
-        <FbCatalog language={language} categories={categories} items={items} renderItem={item=>{
+        <FbCatalog active={!selected||selected===outlet.id} language={language} categories={categories} items={items} renderItem={item=>{
           const image=item.image,price=item.price;
           return <li key={item.id} className="fb-catalog-product" data-fb-catalog-product={item.id}><div className="fb-product-copy"><h5>{item.name}</h5>{item.short_description||item.full_description?<p className="fb-product-description">{item.short_description||item.full_description}</p>:null}{item.dietary_info?<p className="fb-product-dietary"><Leaf aria-hidden/>{item.dietary_info}</p>:null}{price?<p className="fb-product-price">{price}</p>:null}{item.allergens_info?<details className="fb-product-allergens"><summary>{t.allergens}</summary><p>{item.allergens_info}</p></details>:null}</div>{image?<Image unoptimized src={image} alt="" width={240} height={180}/>:null}</li>;
         }}/>
