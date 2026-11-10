@@ -46,7 +46,7 @@ internal static class ServiceProvisioning
         }
         finally { CryptographicOperations.ZeroMemory(secret); }
     }
-    public static async Task ServeStatus(BridgeOptions options, Journal journal, CancellationToken cancellation)
+    public static async Task ServeStatus(BridgeOptions options, Journal journal, CancellationToken cancellation, bool maintenance = false, CloudClient? client = null, CloudClock? clock = null)
     {
         while (!cancellation.IsCancellationRequested)
         {
@@ -54,11 +54,20 @@ internal static class ServiceProvisioning
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation); timeout.CancelAfter(TimeSpan.FromSeconds(5));
             try
             {
-                var command = await Read(pipe, 16, timeout.Token); if (Encoding.UTF8.GetString(command) != "status") continue;
+                var command = Encoding.UTF8.GetString(await Read(pipe, 16, timeout.Token));
+                if (command == "resume")
+                {
+                    if (!maintenance || client is null || clock is null) { await Write(pipe, JsonSerializer.SerializeToUtf8Bytes(new { status = "blocked", error_code = "maintenance_required" }), timeout.Token); continue; }
+                    timeout.CancelAfter(TimeSpan.FromSeconds(50));
+                    try { await MaintenanceRecovery.Resume(journal, client, clock, timeout.Token); await Write(pipe, JsonSerializer.SerializeToUtf8Bytes(new { status = "resumed", worker_started = false }), timeout.Token); }
+                    catch (BridgeFault fault) { await Write(pipe, JsonSerializer.SerializeToUtf8Bytes(new { status = "blocked", error_code = System.Text.RegularExpressions.Regex.IsMatch(fault.Code, "^[a-z0-9_]{1,60}$") ? fault.Code : "recovery_failed" }), timeout.Token); }
+                    continue;
+                }
+                if (command != "status") continue;
                 var jobs = journal.Database.Query("SELECT job_id,fence,kind,cloud_state,local_state,intent,result FROM jobs ORDER BY first_seen DESC LIMIT 50").Select(r => new { job_id = r[0], fence = r[1], kind = r[2], cloud_state = r[3], local_state = r[4], intent = r[5], result = r[6] }).ToArray();
                 var submissions = journal.Database.Query("SELECT job_id,fence,printer_id,printer_revision,queue_name,spool_job_id,observation FROM spooler_calls ORDER BY created_at DESC LIMIT 50").Select(r => new { job_id = r[0], fence = r[1], printer_id = r[2], printer_revision = r[3], queue = r[4], spool_job_id = r[5], observation = r[6] }).ToArray();
                 var credentialReadable = false; try { _ = new CredentialVault(options.ResolvedDataDirectory, options.DeviceId, new WindowsProtection()).Load(); credentialReadable = true; } catch (BridgeFault) { }
-                await Write(pipe, JsonSerializer.SerializeToUtf8Bytes(new { status = "running", device_id = options.DeviceId, identity = WindowsIdentity.GetCurrent().User!.Value, dpapi = "CurrentUser", credential_readable = credentialReadable, version = BridgeVersion.Current, operator_required = journal.OperatorRequired, pending = journal.Pending().Count, jobs, submissions }), timeout.Token);
+                await Write(pipe, JsonSerializer.SerializeToUtf8Bytes(new { status = maintenance ? "maintenance" : "running", device_id = options.DeviceId, identity = WindowsIdentity.GetCurrent().User!.Value, dpapi = "CurrentUser", credential_readable = credentialReadable, version = BridgeVersion.Current, operator_required = journal.OperatorRequired, pending = journal.Pending().Count, jobs, submissions, diagnostics = maintenance ? MaintenanceDiagnostics.Read(options.ResolvedDataDirectory) : [] }), timeout.Token);
             }
             catch (OperationCanceledException) when (!cancellation.IsCancellationRequested) { }
             catch (IOException) { }
@@ -81,12 +90,13 @@ internal static class ServiceProvisioning
         }
         finally { CloseServiceHandle(manager); }
     }
-    public static async Task<string> Client(BridgeOptions options, string? pairingSecret, CancellationToken cancellation)
+    public static async Task<string> Client(BridgeOptions options, string? pairingSecret, CancellationToken cancellation, string command = "status")
     {
         using var pipe = new NamedPipeClientStream(".", PipeName(options), PipeDirection.InOut, PipeOptions.Asynchronous, TokenImpersonationLevel.Identification);
         await pipe.ConnectAsync(30000, cancellation);
         if (!GetNamedPipeServerProcessId(pipe.SafePipeHandle, out var actual) || actual == 0 || actual != ServiceProcess()) throw new BridgeFault("service_identity_unverified");
-        var bytes = Encoding.UTF8.GetBytes(pairingSecret ?? "status");
+        if (command is not ("status" or "resume") || pairingSecret is not null && command != "status") throw new BridgeFault("provision_packet_invalid");
+        var bytes = Encoding.UTF8.GetBytes(pairingSecret ?? command);
         try { await Write(pipe, bytes, cancellation); return Encoding.UTF8.GetString(await Read(pipe, 65536, cancellation)); }
         finally { CryptographicOperations.ZeroMemory(bytes); }
     }

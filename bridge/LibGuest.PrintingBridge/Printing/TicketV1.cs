@@ -27,6 +27,19 @@ public sealed record TicketV1(string DocumentName, IReadOnlyList<string> Lines)
 }
 public static class TicketRendererV1
 {
+    internal static TimeZoneInfo TimestampZone(JsonElement snapshot, string? kind, TimeZoneInfo localZone)
+    {
+        // Diagnostic tests have no order timezone; show the onsite Bridge's local clock.
+        // Operational documents continue to prefer their frozen canonical timezone.
+        var fallback = kind == "test" ? localZone : TimeZoneInfo.Utc;
+        if (snapshot.TryGetProperty("timezone", out var timezone) && timezone.ValueKind == JsonValueKind.String)
+        {
+            try { return TimeZoneInfo.FindSystemTimeZoneById(timezone.GetString()!); }
+            catch (TimeZoneNotFoundException) { }
+            catch (InvalidTimeZoneException) { }
+        }
+        return fallback;
+    }
     public static string Clean(string? value, int maximum = 2000)
     {
         var text = (value ?? "").Normalize(NormalizationForm.FormC); if (text.Length > maximum) throw new BridgeFault("renderer_content_oversized"); text = text.Replace('\r', ' ').Replace('\n', ' ').Replace('\t', ' ');
@@ -58,7 +71,7 @@ public static class TicketRendererV1
         string? timestamp = null;
         if (createdAt is DateTimeOffset time)
         {
-            var zone = TimeZoneInfo.Utc; if (snapshot.TryGetProperty("timezone", out var timezone) && timezone.ValueKind == JsonValueKind.String) { try { zone = TimeZoneInfo.FindSystemTimeZoneById(timezone.GetString()!); } catch (TimeZoneNotFoundException) { } catch (InvalidTimeZoneException) { } }
+            var zone = TimestampZone(snapshot, kind, TimeZoneInfo.Local);
             timestamp = TimeZoneInfo.ConvertTime(time, zone).ToString("dd/MM/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture);
         }
         var routing = root.GetProperty("routing"); var privateAllowed = kind != "test" && root.TryGetProperty("private", out var privateDataValue) && privateDataValue.TryGetProperty("expired", out var expired) && expired.ValueKind == JsonValueKind.False && privateDataValue.TryGetProperty("expires_at", out var expiry) && expiry.GetDateTimeOffset() > now;
