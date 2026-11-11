@@ -1,6 +1,6 @@
-# LibGuest Printing Bridge — C2 / C4 / implantação 1.3.0
+# LibGuest Printing Bridge — C2 / C4 / implantação 1.3.2
 
-Componente Windows separado do Next.js, versão 1.3.0, preservando a fundação C2.
+Componente Windows separado do Next.js, versão 1.3.2, preservando a fundação C2.
 O adapter Windows Spooler e o renderer V1 estão implementados; C3 integra sua
 configuração ao Admin existente. Sem adapter habilitado, faz heartbeat e informa
 adapter indisponível, sem novos claims. **C5-REAL Bugan permanece pendente**.
@@ -9,6 +9,21 @@ socket direto de impressora, RAW TCP, ESC/POS, shell de impressão ou auto-updat
 O LAB físico local foi executado na MP-4200 TH. Nenhum hotel real foi ativado.
 
 ## Build e laboratório
+
+Atualização de 10/11/2026: a correção local `97a18be` de recuperação administrativa
+e fuso do teste foi incluída como ancestral do candidato universal Premium V4.
+Isso não distribui/atualiza automaticamente a instalação de nenhum hotel. O
+procedimento oficial está em [deployment/RECOVERY.md](deployment/RECOVERY.md).
+Os registros físicos históricos abaixo conservam seus respectivos escopos/datas;
+não significam homologação física dos próximos hotéis.
+
+O Admin orienta a preparação do pacote oficial versionado e do checksum antes
+de gerar o código. `Install-LibGuestPrintingBridge.ps1` solicita interativamente
+os parâmetros ausentes; `Complete-LibGuestBridgePairing.ps1` usa o fluxo oficial
+de conclusão. Não há MSI assinado nem endpoint público de download introduzidos
+por esta entrega. Assinatura/distribuição dependem do processo de release.
+Nunca passar código de pairing em argumento, arquivo, log ou variável de ambiente.
+O assistente não instala serviços ou atualiza computadores reais por navegador.
 
 Windows x64, SDK local **10.0.403**, runtime de publicação **10.0.14**. SDK fixado
 por `global.json`, sem instalação automática. Na raiz do repositório:

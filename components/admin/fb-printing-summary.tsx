@@ -1,3 +1,4 @@
+import {FbPrintingGuestReadiness} from './fb-printing-deployment';
 import {AlertTriangle, ArrowRight, ClipboardCheck, ListChecks, Monitor, Printer, Route} from 'lucide-react';
 import type {Commissioning} from '@/lib/fb/printing/commissioning';
 import type {PrintConsole} from '@/lib/fb/printing/admin';
@@ -15,7 +16,7 @@ export function FbPrintingSummary({snapshot, readiness, stale, navigate}: {snaps
  const pending = readiness?.checks.filter(check => check.status !== 'PASS') ?? [];
  const pendingHint = pendingAction ?? (pending.length === 1 && pendingActions[pending[0].code] ? pendingActions[pending[0].code] + (pending[0].sector ? ` · ${pending[0].sector}` : '') : pending.length ? 'Confira as pendências na implantação.' : 'Verificações concluídas.');
  const cards = [
-  {label: 'Verificação para ativação', value: !access.configure ? 'Acesso restrito' : stale ? 'Atualizando' : !readiness ? 'Não confirmada' : readiness.blockers ? pendingAction ?? `${readiness.blockers} ${readiness.blockers === 1 ? 'pendência' : 'pendências'}` : readiness.ready ? 'Verificada' : 'Incompleta', target: 'deployment', Icon: ClipboardCheck},
+  {label: 'Verificação para ativação', value: !access.configure ? 'Acesso restrito' : stale ? 'Atualizando' : !readiness ? 'Não confirmada' : readiness.blockers ? pendingAction ?? `${readiness.blockers} ${readiness.blockers === 1 ? 'pendência' : 'pendências'}` : readiness.warnings ? 'Papel / avisos pendentes' : readiness.ready ? 'Preflight verificado' : 'Incompleta', target: 'deployment', Icon: ClipboardCheck},
   {label: 'Computador de impressão', value: online === undefined ? 'Escopo restrito' : `${online} online`, target: 'deployment', Icon: Monitor},
   {label: 'Impressoras', value: config.printers ? `${config.printers.length} ${config.printers.length === 1 ? 'configurada' : 'configuradas'}` : 'Escopo restrito', target: 'printers', Icon: Printer},
   {label: 'Roteamento', value: config.routes ? `${config.routes.filter(r => r.active).length} ${config.routes.filter(r => r.active).length === 1 ? 'rota ativa' : 'rotas ativas'}` : 'Escopo restrito', target: 'routing', Icon: Route},
@@ -37,6 +38,7 @@ export function FbPrintingSummary({snapshot, readiness, stale, navigate}: {snaps
     <p>{health.ambiguous ? 'Revise o envio antes de autorizar uma nova via.' : readiness?.blockers ? 'Confira as pendências antes de liberar a operação.' : 'Consulte a fila antes de repetir uma ação.'}</p>
    </div><button className="fb-print-secondary" onClick={() => navigate(health.ambiguous || health.last_error ? 'queue' : 'deployment')}>{health.ambiguous || health.last_error ? 'Revisar fila' : 'Ver pendências'}<ArrowRight size={16} aria-hidden="true"/></button>
   </section> : null}
+  {access.configure?<FbPrintingGuestReadiness data={readiness}/>:null}
   <p className="fb-print-footnote">Computador online e envio ao sistema de impressão não comprovam saída de papel. Atendimento e impressão são independentes.</p>
  </section>;
 }

@@ -164,3 +164,28 @@ Diferenças intencionais por honestidade funcional:
 - ator da última atualização não é mostrado porque não existe fonte confiável no contrato atual;
 - o preview renderiza a rota pública real por slug e mostra o conteúdo efetivamente disponível;
 - os três quadros explicativos inferiores do mockup permanecem fora da aplicação.
+
+## 2026-11-10 — Impressão Premium V4 universal
+
+Evolução aprovada dentro de `/admin/impressao`, reutilizando o AdminShell e os
+tokens do hotel autenticado. Não cria outro painel, seletor de tenant ou identidade
+de marca. Grand Mercure, os dois Novotel, Mercure, Bugan e futuros hotéis usam
+os mesmos componentes. Nomes/temas dos hotéis são dados do shell, nunca regras
+operacionais de impressão.
+
+As cinco áreas principais são Visão geral, Implantação, Impressoras, Roteamento
+e Fila. Permissões continuam disponíveis por ação contextual e para manutenção
+posterior, com os mesmos grants e matriz de autorização. A mudança de seis tabs
+da apresentação Premium V3 para cinco áreas é intencional; não remove o editor
+de permissões. A Implantação contém o assistente de seis etapas, trilho desktop,
+seletor mobile, foco visível, barra inferior com espaço reservado/safe-area e
+retorno ao fluxo normal durante a redução do viewport com edição ativa.
+
+Configuração, submissão técnica ao Spooler, confirmação humana de papel,
+conclusão administrativa, impressão operacional, ordering e acesso do hóspede
+permanecem estados separados. O histórico anterior não valida um job posterior
+pendente. A conclusão exige ação explícita no contexto e revisão atuais.
+
+Escopo técnico, migration aditiva, testes, evidências e gates restantes estão no
+adendo canônico de 10/11/2026 em [Sprint 53](SPRINT_53_FNB.md). O candidato é local;
+não houve ativação de módulos, alteração de navegação fora da Impressão ou deploy.

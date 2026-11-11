@@ -68,3 +68,23 @@ Protocolo, payload, renderer V1 e schema SQLite 3 permanecem compatíveis.
 Testes de regressão exercitam falha de autorização, needs_operator,
 heartbeat-before-resume, preservação de histórico, recusa de I/O ambíguo,
 retorno ao worker e virada do dia em UTC.
+
+## Uso no Admin Premium V4 universal — 10/11/2026
+
+O mesmo procedimento se aplica a todos os hotéis; o tenant permanece definido
+pela credencial canônica do device. Não há tratamento operacional por nome/slug.
+O Admin exibe metadados e orientações; não lê vault/journal nem executa esses
+scripts remotamente. Atualização de UI não substitui a recuperação oficial.
+
+Encerrar a exceção técnica temporária no Cloud (`end_override`) e sair do modo
+de manutenção local da Bridge são ações diferentes. O comando Cloud aditivo
+requer printing.configure, orders.supervise, revisão e auditoria; não chama
+resume nem Exit-LibGuestBridgeMaintenance, não liga/desliga ordering e não prova
+quiescência local. Continue seguindo os passos supervisionados acima para a
+Bridge. Nenhum desses passos autoriza repetir I/O ambíguo ou confirmar papel
+sem observação humana.
+
+No candidato universal foram aprovados 286 testes nativos de regressão da
+Bridge 1.3.2, com zero instalação de serviço e zero impressão física. Protocolo,
+payload/renderer V1 e SQLite 3 continuam preservados. Distribuição do pacote e
+homologação física de cada instalação exigem execução autorizada separadamente.

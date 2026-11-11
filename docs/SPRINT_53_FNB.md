@@ -3291,3 +3291,152 @@ ordering ativado no tenant. O código real usa a oferta canônica/RPC e suas reg
 de admissão/disponibilidade. Sem consulta ao Supabase remoto, mudança de dados,
 ativação ou homologação operacional nesta rodada. Evidências e seis capturas
 direcionadas em `out/fb-premium-final/`; Impressão e CSS aprovados não alterados.
+
+## 2026-11-10 — Impressão Premium V4 universal, candidato local consolidado
+
+### Decisão e checkpoint
+
+Bruno aprovou a evolução universal de P0/P1/P2 a partir do protótipo Premium V4
+R2 com GO VISUAL FINAL. Substitui apenas a apresentação de implantação da
+Impressão Premium V3; não altera o roadmap, a Home pública ou Gastronomia V4.
+Os 380 checks do protótipo são referência de apresentação, não testes do produto.
+
+A implementação atende ao tenant autenticado, incluindo Grand Mercure Copacabana,
+Novotel Leme, Novotel Salvador Rio Vermelho, Mercure Rio Boutique Copacabana,
+Bugan Recife e futuros hotéis. Não há condicionais por nome/slug, impressoras
+fixas, tabelas por hotel ou ativação automática de módulos. Bugan é piloto futuro.
+
+Main remota novamente consultada via GitHub: `c2abc7b174808b8ce342cbefe47bdd43e8037622`.
+`97a18bea0b6138239809d5e71466e513b66230eb` é descendente direto dessa base e
+continua não localizado no remoto. Foi adotado como ancestral do worktree
+`out/printing-premium-v4-universal/worktree`, branch
+`feat/printing-premium-v4-universal`. O checkout original de cardápio, seus arquivos
+modificados e não rastreados permanecem preservados por hashes no checkpoint.
+
+### Experiência e contratos implementados
+
+Cinco áreas: Visão geral, Implantação, Impressoras, Roteamento e Fila. Permissões
+continuam em acesso contextual com editor de grants e explicação de capabilities.
+Os tokens de marca e o AdminShell são os mesmos. A jornada contém seis etapas:
+
+1. Política-base, setor existente/criação via `save_current_hotel_fb_order_config`
+   e orientação de acesso. Criar setor exige editor e `orders.configure`, além
+   do acesso autorizado ao módulo. Não concede grants.
+2. Computador lógico, instalação oficial preparada antes do pairing, heartbeat,
+   versão/protocolo e diagnóstico. Código de uso único fica apenas em memória,
+   com prazo de validade informado separadamente da exposição de até 60 segundos.
+   Copiar tem feedback; navegação/ocultação/expiração removem o código. Rotação,
+   revogação e edição de computadores permanecem no avançado.
+3. Discovery assíncrono das filas do computador selecionado. Nome, driver,
+   presença/observação, fingerprint e revisão são metadados Cloud da Bridge.
+   Selecionar não cria impressora; ausência, driver alterado e leitura obsoleta
+   bloqueiam a configuração normal.
+4. Setor → destino → impressora → rota. A sequência de persistência é
+   **Destino → Impressora → Rota**, pelos comandos canônicos de config/select_queue.
+   Configuração existente conserva IDs/revisões e recursos não selecionados.
+   Cópia, papel da rota, prioridade e reserva permanecem explícitos/avançados.
+   Confirmações parciais, corpo e chave da intenção são preservados em
+   sessionStorage versionado, por tenant e usuário; nenhum segredo é persistido.
+   A resposta perdida é retomada com a mesma chave, inclusive após reload.
+   Sem armazenamento da sessão, a jornada não inicia um novo comando sem
+   preservar a intenção. Limpar a sessão não é um mecanismo de reconciliação.
+5. Mesmo job e mesma revisão. Receipt, autorização/dispatch e resultado técnico
+   são distintos de papel. `verify_test` exige checklist e confirmação humana
+   explícitos. Um job posterior pendente bloqueia o avanço, conservando as provas
+   anteriores; o histórico mostra também revisões anteriores. Prévia ilustrativa,
+   timeline e histórico são recolhíveis. Nenhum I/O incerto é repetido.
+6. Prontidão da impressão e prontidão de pedidos/acesso aparecem separadamente.
+   **Pronta para concluir** precede o clique autorizado. A conclusão é persistida
+   no servidor para job, impressora, rota, destino, computador e respectivas
+   revisões, incluindo a política. Mudança de contexto ou novo teste invalida
+   a apresentação da conclusão anterior, preservando o registro histórico.
+
+Fila, filtros, detalhe técnico autorizado por `orders.read`, reimpressão com
+motivo/revisão/confirmação, formulários avançados, grants e histórico permanecem.
+Uma indisponibilidade de leitura da página não é mais apresentada como falta de
+permissão: somente o erro autorizado 403 redireciona para acesso negado.
+Polling de commissioning pausa em hidden/offline, cancela leituras obsoletas e
+mantém bloqueio de comandos sem leitura confiável. A execução usa lock imediato
+contra duplo clique e CAS do servidor. O fluxo serial de três vínculos é
+intencional; leituras independentes de atualização ocorrem em paralelo.
+
+### Alteração aditiva do banco, ainda não aplicada
+
+Migration local `20261111003611_printing_premium_v4_universal.sql`, criada pela
+CLI instalada. Preserva os contratos antigos em funções privadas, sem conceder
+acesso direto aos wrappers anteriores, e amplia o mesmo endpoint de commissioning:
+
+- `sector`: criação idempotente delegada ao contrato canônico de pedidos.
+- `end_override`: `printing.configure` + `orders.supervise`, revisão esperada,
+  replay e auditoria. Remove somente prazo/motivo temporários e incrementa a
+  revisão; não chama ativação, não modifica ordering, baseline ou jobs.
+- `complete_deployment`: registra a revisão explícita depois de validar filas,
+  heartbeat, vínculos, versões e papel do último job da mesma configuração.
+- A tabela privada `deployment_reviews` usa RLS forçada, sem privilégios diretos
+  para anon/authenticated/service_role. A retenção de jobs pode remover sua
+  revisão associada por FK com cascade, sem impedir o expurgo existente.
+- A criação canônica de teste mantém replay, autorização e congelamento da
+  implementação anterior; uma chave nova não contorna job em andamento,
+  resultado ambíguo ou submitted ainda sem papel. Reimpressões continuam com
+  o contrato anterior. Não há mudança de protocolo, receipt, dispatch ou renderer.
+
+O diagnóstico adicional usa somente metadados: ordering/módulos, outlets nativos,
+publicação/atendimento/modalidades, calendário canônico, existência de itens
+publicados/disponíveis com preço e acesso de apartamento. Entrega exclusivamente
+`room_delivery`, sem pickup, exige `rooms.qr` e ao menos um link ativo para não
+exibir a condição de acesso como disponível. Não lê nem transmite room_token,
+PII, carrinho ou conteúdo de pedidos. Não altera admissão de pedidos e não
+certifica combinações, adicionais, cada produto ou a jornada real do hóspede.
+A homologação dessa jornada continua explicitamente pendente.
+
+### Bridge, validação e limites reais
+
+O recovery 1.3.2 está incluído pelo ancestral `97a18be`, sem substituição de
+comportamento: identidade do serviço, DPAPI CurrentUser, ACL, journal, deduplicação,
+retorno ao worker e recusa de I/O ambíguo permanecem. Build/publicação local e
+**286 testes nativos aprovados**, sem instalação de serviço ou impressão física.
+Não há MSI assinado ou URL pública de distribuição inventada: a UI orienta o
+pacote versionado e os scripts oficiais. Assinatura/distribuição e uma instalação
+real futura continuam tarefas autorizadas separadamente.
+
+Validação desta execução: **780 testes de segurança aprovados e 3 falhas
+estruturais preexistentes**, comparadas nominalmente à baseline de 768/3;
+12 testes novos de domínio/boundary passam. As falhas preservadas são os três
+testes estáticos de AdminThemeProvider/themeLabel/themeStyle que ainda procuram
+essas responsabilidades diretamente no layout, em vez do AdminShell existente.
+Não foram alterados, removidos ou flexibilizados.
+
+**166 checks browser aprovados**, com componentes reais, transporte HTTP e
+persistência sintética explicitamente identificada. Cobrem os cinco hotéis e
+Default, desktop/mobile, seis etapas em 320/360/390/768/1024/1440 px, foco real,
+papel pendente/histórico, verify_test, conclusão, perda de resposta/reload sem
+duplicação, fila, detalhe, reimpressão, grants, primeira instalação, cópia do
+código fictício e expiração. Não são prova de integração PostgreSQL.
+TypeScript, build Next local com URL loopback/chave pública fictícia, lint com
+zero erros/quatro avisos de imagem preexistentes e diff check foram executados.
+Evidências e resultados: `out/printing-premium-v4-universal/` e
+`worktree/out/printing-v4/index.html` dentro dessa pasta.
+
+**Pendência bloqueante para homologação integrada:** o daemon Docker local está
+desligado (`dockerDesktopLinuxEngine` indisponível). As integrações SQL/HTTP com
+Postgres real, a aplicação/rollback da nova migration, advisors e as suítes
+anteriores C1/C3/commissioning/registro-cancelamento precisam ser executados no
+LAB descartável antes de qualquer rollout. Novos testes estão em
+`tests/integration/printing-v4.mjs` e `supabase/tests/53_printing_v4_metadata.sql`.
+As 380 verificações do protótipo e a fixture browser não substituem esse gate.
+O teste canônico escolhe a impressora principal do destino; o assistente não
+fabrica direcionamento físico para uma reserva nem troca o destino de jobs.
+Uma homologação individual da reserva exige procedimento autorizado e análise
+desse contrato, sem repetição de I/O incerto. Teclado virtual/safe-area precisam
+também de verificação física iOS/Android; a automação usa viewport controlado.
+
+Critério para próximos hotéis: migrar em LAB e validar gates; revisar entitlements
+já contratados, roles/grants por setor, pacote/checksum, Windows/fuso, discovery,
+destino/rota, um teste autorizado e sua evidência humana; escolher explicitamente
+impressão operacional/ordering; validar canal real e QR quando necessário.
+Nada é habilitado por abrir ou concluir o assistente.
+
+Nenhum tenant real foi consultado ou alterado nesta implementação. Nenhum pedido,
+room link, teste físico, serviço, Goomer, estado operacional do Bugan ou outro
+hotel foi modificado. Sem push, merge ou deploy. A entrega permanece local para
+revisão visual/controlada, com homologação integrada condicionada aos gates acima.
