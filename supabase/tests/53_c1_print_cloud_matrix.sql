@@ -4,7 +4,7 @@ create temp table c1_assertions(label text);
 create function pg_temp.c1_check(ok boolean,label text) returns void language plpgsql as $$begin
  if ok is distinct from true then raise exception 'C1 SQL assertion failed: %',label;end if;insert into c1_assertions values(label);
 end$$;
-select pg_temp.c1_check((select count(*)=18 from pg_tables where schemaname='fb_print_private'),'eighteen C-private tables including commissioning and outbox');
+select pg_temp.c1_check((select count(*)=19 from pg_tables where schemaname='fb_print_private') and to_regclass('fb_print_private.deployment_reviews') is not null,'nineteen C-private tables including commissioning, outbox and V4 reviews');
 do $$declare t record;r text;f record;expected text;begin
  for t in select c.oid,c.relname,c.relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='fb_print_private' and c.relkind='r' loop
   perform pg_temp.c1_check(t.relrowsecurity,'RLS '||t.relname);

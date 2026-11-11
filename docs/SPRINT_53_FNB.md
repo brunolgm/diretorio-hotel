@@ -3440,3 +3440,190 @@ Nenhum tenant real foi consultado ou alterado nesta implementação. Nenhum pedi
 room link, teste físico, serviço, Goomer, estado operacional do Bugan ou outro
 hotel foi modificado. Sem push, merge ou deploy. A entrega permanece local para
 revisão visual/controlada, com homologação integrada condicionada aos gates acima.
+
+## 2026-11-10 — Homologação consolidada Premium V4 universal
+
+**GO TÉCNICO E VISUAL local**, candidato `37add86a2d6d524ff1f4dece2a0402e590dd5efe`,
+branch `feat/printing-premium-v4-universal`, descendente do recovery `97a18be`.
+Este checkpoint atualiza o bloqueio de ambiente da entrega anterior. Não é
+autorização de publicação, ativação operacional ou comprovação física em hotel.
+
+O engine Linux do Docker Desktop estava parado, sem o named pipe
+`dockerDesktopLinuxEngine`, com a distribuição WSL `docker-desktop` parada.
+O início do Desktop restabeleceu o ambiente. Foram usados exclusivamente
+containers novos, identificados por ownership, rede interna e endpoints loopback.
+PostgreSQL **17.6** aplicou as **61 migrations**, incluindo
+`20261111003611_printing_premium_v4_universal.sql`, em bancos descartáveis novos
+por suíte. Não houve fallback para Supabase remoto.
+
+Resultados finais:
+
+| Verificação | Resultado |
+| --- | --- |
+| Matriz SQL C1: tabelas, RLS, ACL e wrappers | 299 aprovados, rollback da matriz |
+| Metadados commissioning e V4 | ambos aprovados |
+| V4: PostgreSQL, Auth, Next e Admin reais | 169 aprovados |
+| C1 completo: concorrência, retenção, HTTP e credenciais | 779 aprovados |
+| Commissioning | 156 aprovados |
+| Cadastro e cancelamento | 211 aprovados |
+| C3: Admin, CAS, permissões, polling e recuperação | 204 aprovados |
+| Componentes reais com persistência HTTP sintética | 166 aprovados |
+| Bridge nativo, sem submissão física | 286 aprovados |
+| Segurança | 780 aprovados; mesmas 3 falhas estruturais anteriores |
+| Build otimizado e TypeScript | aprovados, ambiente exclusivo do LAB |
+| Lint | zero erros; quatro avisos `img` anteriores |
+
+As três falhas anteriores são `inherits hotel brand themes and keeps platform
+isolated`, `shows only natural canonical brand labels in the sidebar` e `resolves
+the admin theme server-side from the scoped hotel only`. A baseline tinha 768
+aprovados e essas mesmas falhas. Seus testes não foram enfraquecidos. A resolução
+real de tema no AdminShell foi verificada nos cinco hotéis sintéticos e Default.
+
+Os ajustes desta homologação são de testes: resolução do Next instalado no
+worktree; inventário exato das 19 tabelas privadas, incluindo `deployment_reviews`;
+fixtures históricas por revisão, preservando a trava de teste único; seletores
+alinhados à navegação e às mensagens aprovadas; cobertura incondicional da
+conclusão e testes autenticados adicionais. A recuperação real perde somente a
+resposta de uma rota já commitada e confirma replay com os mesmos IDs/revisões,
+sem duplicar destino ou impressora. Nenhum código de aplicação, migration de
+produto ou runtime do Bridge foi alterado nesta rodada.
+
+Foram revistas as 21 capturas anteriores e produzidas 37 complementares
+autenticadas: 18 da jornada V4 e 19 da regressão Admin, incluindo foco a 320 px
+nos seis temas e recuperação parcial. A etapa de teste atual fica **Papel
+pendente**, com avanço bloqueado, mesmo quando existe homologação histórica.
+Spooler não comprova papel. A conclusão permanece explícita e separada da
+jornada de pedidos. Não foi reproduzida sobreposição do foco; nenhum ajuste
+adicional de layout foi necessário.
+
+Diferenças declaradas em relação à R2: shell e formulários canônicos reais,
+metadados reais no lugar dos ilustrativos, painel canônico de segredo no
+pareamento e confirmação operacional nativa no lugar dos modais simulados.
+Cinco áreas, seis etapas, identidade Premium V3, prazos, cópia/ocultação do código,
+foco e semântica de confirmação foram preservados. Não houve novo desenho.
+
+Relatório, manifest de arquivos/migrations, galeria e pacote de 58 capturas:
+`out/printing-premium-v4-universal/homologation/`. O checkout original manteve
+os 18 arquivos preexistentes byte a byte e o mesmo status. Os ajustes de testes
+e esta documentação permanecem locais, sem novo commit.
+
+Nenhum acesso ou alteração de dados operacionais de produção, pedido no Bugan
+real, instalação de serviço, impressão física, push, merge ou deploy. Pareamento,
+credenciais, journal/recovery, ordering, links reais de apartamentos, Goomer,
+catálogo e configurações reais dos hotéis permanecem preservados.
+
+Permanecem para procedimento presencial autorizado: instalação oficial no
+computador operacional, conferência de papel/driver/largura/acentos/data/fuso/corte,
+homologação individual da reserva e jornada real de pedidos do hotel. A perda
+de resposta de segredo de uso único exige reemissão explícita; não se recupera
+segredo de logs ou armazenamento. A decisão de publicação é posterior.
+
+## 2026-11-11 — Consolidação da release candidate Premium V4 universal
+
+Escopo do commit local de qualificação: somente esta documentação e os ajustes
+de testes da homologação anterior, incluindo o helper autenticado
+`tests/integration/printing-v4-browser.mjs`. Nenhum arquivo `out/`, evidência
+temporária, credencial, configuração local ou arquivo do checkout de cardápio
+integra esse commit. A implementação continua em `37add86`; seu ancestral
+`97a18be` permanece integral, sem nova alteração do runtime/scripts do Bridge.
+
+A comparação remota somente de leitura confirmou `origin/main` em
+`c2abc7b174808b8ce342cbefe47bdd43e8037622`, idêntica à base local. O candidato é
+descendente dessa base: recovery, implementação V4 e qualificação. Não foram
+executados merge, rebase, reset, push, criação de PR ou deploy. A verificação
+deve ser repetida imediatamente antes da futura publicação, pois a main pode
+avançar depois deste checkpoint.
+
+A restrição operacional foi esclarecida por Bruno: fixtures de pedidos e
+apartamentos são permitidas somente no banco Docker descartável; dados reais
+permanecem proibidos. A qualificação usa os scripts existentes com ownership,
+rede interna, loopback, credenciais geradas para o LAB e banco novo por suíte.
+Os resultados novos ficam separados da homologação anterior em
+`out/printing-premium-v4-universal/release-candidate/`.
+
+### Proposta de publicação e Draft PR
+
+Destino: `brunolgm/diretorio-hotel`, base `main`, head
+`feat/printing-premium-v4-universal`. Título proposto:
+`feat: consolidate universal Premium V4 printing deployment`.
+O PR deve destacar as cinco áreas, as seis etapas, papel confirmado pelo mesmo
+job/revisão, conclusão explícita, manutenção independente de ordering e
+capabilities existentes. Deve identificar separadamente o recovery herdado e
+os ajustes de testes, os resultados novos, as três falhas estruturais da
+baseline e a pendência de conferência física em cada instalação.
+
+O projeto Vercel foi identificado por consulta somente de leitura:
+`diretorio-hotel` (`prj_EJ9BEIP0qvROaycswNZqp4bZGo0R`), equipe
+`brunolgms-projects` (`team_m2Q4Y4wNy6yxFfyKdgrPwL62`), vinculado ao repositório
+correto. Não houve descriptografia, exportação ou alteração de valores de env.
+Não existem overrides específicos desta branch. A variável global
+`NEXT_PUBLIC_SUPABASE_URL` tem targets Production, Preview e Development.
+Portanto, o Preview **não deve herdar essa conexão** para testes autenticados.
+
+O inventário somente de metadados da conta Supabase mostrou apenas o projeto
+principal `diretorio-hotel` e nenhuma development branch. Não foi identificado
+backend remoto não produtivo para conectar esse Preview. Não houve SQL,
+consulta de tabelas/dados, leitura de chaves ou alteração nesse projeto. Esse
+é um bloqueio da execução remota do Preview, não uma reprovação do candidato
+local: preparar ou fornecer um backend isolado é pré-condição anterior ao push.
+
+Na futura execução autorizada, conferir e configurar exclusivamente o escopo
+Preview desta branch com URL, anon key e service-role de um backend não
+produtivo e isolado. Não reutilizar credenciais reais, dados operacionais ou o
+localhost do LAB no Preview remoto. Essa preparação precede o push, que pode
+disparar automaticamente a integração Git/Vercel. Se o backend isolado não
+estiver disponível, interromper a fase de Preview; não usar produção como
+fallback. Não alterar env de Production, domínio ou deployment produtivo.
+
+A única fase remota proposta para autorização é publicar esta branch, criar
+o Draft PR e configurar/validar seu Preview isolado. Isso não autoriza merge,
+deploy de produção, migração real, mudança de módulos/grants/ordering,
+pareamento, Goomer, cadastro de apartamentos ou impressão física no hotel.
+
+### Migrations, compatibilidade e rollback
+
+A mudança de schema da V4 é
+`20261111003611_printing_premium_v4_universal.sql`: tabela privada de revisões,
+metadados ampliados e wrappers canônicos preservados, trava de teste pendente,
+`sector`, `complete_deployment` e `end_override`. A migration não provisiona
+tenants, não concede capabilities, não ativa módulos/ordering e não altera
+configurações operacionais existentes. O recovery não acrescenta migration.
+
+O build não aplica migrations automaticamente. Inventariar migrations e
+compatibilidade do banco de destino em uma futura etapa explicitamente
+autorizada, validar o schema no backend do Preview e somente então planejar
+o rollout produtivo. A compatibilidade aqui registrada é com o código da main
+e o schema reproduzido no LAB; não é uma auditoria de dados/configuração do
+Supabase real, que não foi acessado.
+
+Rollback conservador: interromper a promoção e manter o deployment atual até
+passar no Preview. Após uma futura publicação, preferir roll-forward; se for
+necessário recuar a aplicação, usar um candidato validado que preserve
+`97a18be`, em vez de desfazer o recovery junto da V4. Manter a migration
+aditiva, os registros de auditoria e os contratos públicos; não executar
+down migration, apagar reviews, jobs, journal, vault, credenciais ou restaurar
+backup de dados por causa de rollback da UI. Não reenviar I/O ambíguo nem
+desabilitar ordering como mecanismo de rollback. A distribuição/instalação do
+Bridge e a homologação física continuam processos separados e autorizados.
+
+### Resultado da nova qualificação da release candidate
+
+A rodada de 11/11 repetiu e aprovou V4/Next/Auth/PostgreSQL **169**, C1 completo
+**779**, commissioning **156**, cadastro/cancelamento **211** e C3 **204**:
+**1.519 checks integrados**, com zero falhas novas, zero requests externos e
+somente fixtures sintéticas em bancos descartáveis novos por suíte. Componentes
+browser: **166/0**. Bridge nativo: **286/0**, sem impressão física. Foram aplicadas
+as **61 migrations** em PostgreSQL **17.6** e reexecutados os metadados C1
+**299/0**, commissioning e V4. Build otimizado e TypeScript passaram sob bloqueio
+de rede externa. Lint: **zero erros e quatro avisos preexistentes**.
+
+Segurança: **780 aprovados e as mesmas três falhas estruturais anteriores**,
+com nomes idênticos à baseline; nenhuma falha foi ocultada e nenhum teste foi
+relaxado. Não houve mudança de código de aplicação, migration de produto,
+runtime do Bridge ou arquivo de dependências durante a consolidação. O commit
+local de qualificação contém somente dez arquivos de testes/documentação e é
+identificado por `git log` e pelo relatório de publicação em
+`out/printing-premium-v4-universal/release-candidate/release-report.json`.
+
+**PREMIUM V4 UNIVERSAL — RELEASE CANDIDATE CONSOLIDADA**, com execução remota
+condicionada à aprovação e à preparação do Preview isolado descritas acima.

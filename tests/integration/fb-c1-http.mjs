@@ -1,12 +1,14 @@
 import{spawn,execFileSync}from'node:child_process';import{createWriteStream,readFileSync,readdirSync,existsSync}from'node:fs';import{resolve,join}from'node:path';import{pathToFileURL}from'node:url';import{createServer}from'node:net';import{randomUUID,createHash}from'node:crypto';import{chromium}from'playwright';
 import{rows}from'./fb-c1-fixture.mjs';
+import{createRequire}from'node:module';
+const nextEntry=createRequire(import.meta.url).resolve('next/dist/bin/next');
 export async function verifyC1Http(x){
  const{check,tenants,s,cfg,order,accept}=x;const env={...process.env};
  for(const path of readdirSync('.').filter(f=>/^\.env(?:\.|$)/.test(f)))if(existsSync(path))for(const line of readFileSync(path,'utf8').split(/\r?\n/)){const m=line.match(/^\s*(?:export\s+)?([A-Za-z_]\w*)=/);if(m)env[m[1]]='';}
  for(const k of Object.keys(env))if(/GOOGLE|AIRLABS|GOOMER|THEX|OPERA|OPENAI|RESEND|SENTRY|VERCEL|SUPABASE/i.test(k))env[k]='';
  Object.assign(env,{FB_LOCAL_LAB:'1',NEXT_PUBLIC_SUPABASE_URL:s.api,SUPABASE_URL:s.api,NEXT_PUBLIC_SUPABASE_ANON_KEY:s.anon,SUPABASE_SERVICE_ROLE_KEY:s.service,NEXT_TELEMETRY_DISABLED:'1',NODE_ENV:process.env.FB_C1_PRODUCTION==='1'?'production':'development',NODE_OPTIONS:'--import='+pathToFileURL(resolve('scripts/fb-local-network-guard.mjs')).href});
  await new Promise((resolve,reject)=>{const probe=createServer();probe.once('error',()=>reject(Error('Owned C1 application port is occupied')));probe.listen(4317,'127.0.0.1',()=>probe.close(resolve));});
- const file=join(s.dir,'c1','application.log'),log=createWriteStream(file);const child=spawn(process.execPath,['node_modules/next/dist/bin/next',env.NODE_ENV==='production'?'start':'dev','--hostname','127.0.0.1','--port','4317'],{env,windowsHide:true,stdio:['ignore','pipe','pipe']});child.stdout.pipe(log);child.stderr.pipe(log);let browser;let external=0;
+ const file=join(s.dir,'c1','application.log'),log=createWriteStream(file);const child=spawn(process.execPath,[nextEntry,env.NODE_ENV==='production'?'start':'dev','--hostname','127.0.0.1','--port','4317'],{env,windowsHide:true,stdio:['ignore','pipe','pipe']});child.stdout.pipe(log);child.stderr.pipe(log);let browser;let external=0;
  const base=s.app.replace('127.0.0.1','localhost'),endpoint=base+'/api/fb/printing/device/';const secrets=[];
  const api=async(op,body,credential,extra={})=>{const r=await fetch(endpoint+op,{method:'POST',headers:{'Content-Type':'application/json',...(credential?{Authorization:'Bearer '+credential}:{}),...extra.headers},body:typeof body==='string'?body:JSON.stringify(body),signal:AbortSignal.timeout(20000)});let data;try{data=await r.json();}catch{data=null;}return {status:r.status,data,headers:Object.fromEntries(r.headers)};};
  try{
