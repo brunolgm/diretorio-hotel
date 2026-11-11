@@ -1,5 +1,5 @@
 import {eligibleFbGraph} from './public.ts';
-import {buildPublicHotelAreaHref} from '../public-routes.ts';
+import {buildRoomServiceHref} from '../public-routes.ts';
 import type {PublicHotelPageData} from '../public-hotel-data';
 import type {DomainContext} from '../domain-context';
 import type {SupportedPublicLanguage} from '../public-language';
@@ -14,5 +14,5 @@ export function roomServiceAccess(data:PublicHotelPageData,language:SupportedPub
  if(native?.hidden)return null;
  const order=Boolean(native?.available&&native.products.some(p=>p.available)&&(native.pickup||native.room_delivery&&data.ordering?.has_room_context));
  const cta={pt:{order:'Fazer pedido',menu:'Consultar cardápio'},en:{order:'Place an order',menu:'View menu'},es:{order:'Hacer pedido',menu:'Consultar menú'}}[language];
- return {key:'roomService' as const,label:'Room Service',cta:order?cta.order:cta.menu,href:buildPublicHotelAreaHref({slug:data.hotel.slug,language,domainContext,preferSubdomainRoot,area:'cardapio'})+'#outlet-'+outlet.id};
+ return {key:'roomService' as const,label:'Room Service',cta:order?cta.order:cta.menu,href:buildRoomServiceHref({slug:data.hotel.slug,language,domainContext,preferSubdomainRoot})};
 }

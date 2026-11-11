@@ -25,6 +25,16 @@ export function buildHotelSlugHref(slug: string, language: SupportedPublicLangua
   return `/hotel/${slug}${buildLanguageQuery(language)}`;
 }
 
+export function buildRoomServiceHref({slug, language, domainContext, preferSubdomainRoot = false}: {
+  slug: string; language: SupportedPublicLanguage; domainContext?: DomainContext | null; preferSubdomainRoot?: boolean;
+}) {
+  if (domainContext?.navigationScope === 'authenticated-preview') {
+    return buildPublicHotelAreaHref({slug, language, domainContext, preferSubdomainRoot, area: 'cardapio'});
+  }
+  const path = preferSubdomainRoot && isHotelSubdomainContext(domainContext) ? '/room-service' : `/hotel/${slug}/room-service`;
+  return path + buildLanguageQuery(language);
+}
+
 export function buildHotelServiceSlugHref(
   slug: string,
   serviceId: string,

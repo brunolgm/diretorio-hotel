@@ -11,7 +11,7 @@ test('Room Service uses eligible typed outlet, UUID and canonical routes in all 
  for(let index=0;index<6;index++)for(const language of ['pt','en','es'] as const){
   const data=fbFixture(index,language),outlet=data.fb!.outlets[1];outlet.name='Nome editorial diferente';
   const access=roomServiceAccess(data,language,domain,false);
-  assert.ok(access?.href.endsWith('#outlet-'+outlet.id));assert.equal(access?.label,'Room Service');
+  assert.equal(access?.href,'/hotel/'+data.hotel.slug+'/room-service'+(language==='pt'?'':'?lang='+language));assert.equal(access?.label,'Room Service');
   data.fb=null;assert.equal(roomServiceAccess(data,language,domain,false),null);
  }
 });

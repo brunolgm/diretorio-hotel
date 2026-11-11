@@ -3627,3 +3627,37 @@ identificado por `git log` e pelo relatório de publicação em
 
 **PREMIUM V4 UNIVERSAL — RELEASE CANDIDATE CONSOLIDADA**, com execução remota
 condicionada à aprovação e à preparação do Preview isolado descritas acima.
+
+
+## SmartMenu Premium V1 — decisão canônica de 11/11/2026
+
+Fonte funcional aprovada em 25 seções, documento “LIBGUEST — NOVA DECISÃO CANÔNICA DE UX/UI — SMARTMENU PREMIUM”. Referência visual fornecida por Bruno, `libguest_smartmenu_room_service_inteligente.png`.
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Room Service possui as rotas `/hotel/[slug]/room-service` e `/room-service` no subdomínio. O atalho V4 usa a rota dedicada. A projeção seleciona o primeiro outlet Room Service publicado na ordem administrativa e resolve seus vínculos por UUID, hotel e menus. Gastronomia mantém sua apresentação e vínculos anteriores. A versão e o tema resolvidos pelo hotel delimitam a apresentação Premium do Bugan.
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Categorias seguem a ordem administrativa, com Todas, faixa horizontal, controles desktop, seletor acessível + Mais, três produtos por categoria e montagem progressiva. Filtros selecionados e buscas são limitados em lotes de doze produtos. A busca inclui nome, descrição e categoria e restaura a seleção anterior ao limpar. Cards, detalhe com adicionais, carrinho lateral/persistente, cotação, confirmação e acompanhamento utilizam os contratos da Sprint 53.
+
+[IMPLEMENTADO PARCIALMENTE] Complementos são derivados exclusivamente dos componentes de combos já configurados, disponíveis e na mesma moeda. A opção de transformar em combo exige linhas unitárias, sem personalização e correspondência inequívoca. O hóspede revisa as escolhas e confirma a substituição no Composer. Adicionais e opções comerciais cadastrados são apresentados no detalhe. Preços estimados são identificados como estimativas e a cotação autoritativa valida o envio.
+
+[APROVADO] A decisão de produto define experiência própria de Room Service, regras determinísticas e reutilização da operação existente. A aprovação visual e funcional desta implementação local será feita por Bruno a partir das evidências entregues.
+
+[PLANEJADO] Gestão independente de complementos/destaques no Admin F&B requer proposta específica de contrato. Uma relação por hotel entre item de origem e item recomendado, com prioridade e estado ativo, pode ampliar o cadastro existente. A proposta deve incluir FKs compostas por tenant, autorização `orders.configure`, CAS, RLS, leitura pública filtrada pelos vínculos do Room Service e disponibilidade, além de ativação explícita por hotel. Tabelas/RPCs dessa proposta dependem de revisão e aprovação específica antes de aplicação operacional.
+
+[NÃO CONFIRMADO] O DTO atual fornece o contexto de quarto validado como booleano. Número do apartamento, horários detalhados por item, estimativas de entrega, rankings de vendas e destaques comerciais independentes aguardam projeções oficiais adequadas. O layout mostra apenas as informações existentes. Horários editoriais do outlet são identificados como informados pelo hotel. A elegibilidade para pedir continua vindo da oferta, da cotação e da confirmação de servidor.
+
+A validação local usa tenants e pedidos sintéticos identificados, serviços descartáveis e imagens de origem já disponíveis no acervo de revisão. As evidências registram testes de interface, integração, segurança e regressão. A branch desta entrega é `feat/smartmenu-premium-room-service-v1`, baseada na publicação `0bceeea`.
+
+
+### SmartMenu Premium V1 — refinamento visual final (11/11/2026)
+
+A revisão recebeu GO visual com ajustes. O refinamento mantém a experiência dedicada aprovada e consolida os pontos abaixo.
+
+- O hero utiliza a fotografia configurada no outlet. A fixture de revisão passa a exercitar o fallback tipográfico, alinhado aos tokens do hotel, quando a imagem editorial está ausente.
+- Cards desktop usam altura intrínseca para produtos sem fotografia. A composição horizontal mobile permanece delimitada pelas regras responsivas existentes.
+- O acompanhamento dedicado apresenta status, resumo, atendimento, histórico e cancelamento em uma composição premium. Ausência de contato é explicada ao hóspede em PT/EN/ES. A consulta e a autenticação continuam no controlador existente.
+- O modal utiliza VisualViewport e atualiza altura e posição quando o teclado reduz o espaço disponível. Cabeçalho e ação de adicionar permanecem acessíveis durante a rolagem. Os testes incluem 360, 375 e 390 px com viewport reduzido. Teclado de dispositivo físico depende de revisão manual.
+- A seleção existente permanece determinística pela ordem administrativa e UUID. Testes com múltiplos outlets verificam reordenação dos arrays, tenant estrangeiro, disponibilidade e ocultação. Mudanças de disponibilidade preservam a identidade escolhida.
+
+[PLANEJADO] Caso o produto passe a exigir um outlet preferencial independente da ordem administrativa, a proposta é uma referência explícita por hotel, validada por FK composta (hotel, outlet) e exposta pela projeção pública. A configuração requer autorização no Admin, CAS e auditoria. Sua aplicação operacional depende de aprovação específica.
+
+A validação desta rodada é direcionada ao refinamento visual e às regressões essenciais de catálogo, carrinho, checkout e acompanhamento. As capturas usam fixtures locais identificadas. O resultado local e o commit de consolidação estão registrados no relatório de revisão final em out/smartmenu-premium-v1/final-review/.

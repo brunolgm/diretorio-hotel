@@ -17,6 +17,18 @@ function CategoryIcon({name}:{name:string}){
 }
 type CatalogItem={id:string;category_id:string|null;name:string;kind?:string;description?:string|null;short_description?:string|null;full_description?:string|null;image?:string|null;image_url?:string|null;dietary?:string|null;dietary_info?:string|null};
 
+function CategoryPicker({categories,selected,onSelect,label,language}:{categories:{id:string;name:string}[];selected:string;onSelect:(id:string)=>void;label:string;language:Language}) {
+ const dialog=useRef<HTMLDialogElement>(null);
+ const close={pt:'Fechar categorias',en:'Close categories',es:'Cerrar categorías'}[language];
+ return <span className="smartmenu-category-picker">
+  <button type="button" data-smartmenu-more onClick={()=>dialog.current?.showModal()}>{label}<ChevronDown aria-hidden/></button>
+  <dialog ref={dialog} aria-label={orderCopy(language).category} className="smartmenu-category-dialog">
+   <header><h3>{orderCopy(language).category}</h3><button type="button" aria-label={close} onClick={()=>dialog.current?.close()}>×</button></header>
+   <div>{categories.map(category=><button type="button" key={category.id} aria-pressed={selected===category.id} onClick={()=>{onSelect(category.id);dialog.current?.close();}}>{category.name}</button>)}</div>
+  </dialog>
+ </span>;
+}
+
 // Mount complete category blocks in small batches, never placeholders for future groups.
 function ProgressiveCategories({total,eager,active,label,children}:{total:number;eager:boolean;active:boolean;label:string;children:(limit:number)=>ReactNode}){
  const sentinel=useRef<HTMLDivElement>(null),[visible,setVisible]=useState(2);
@@ -35,8 +47,10 @@ function ProgressiveCategories({total,eager,active,label,children}:{total:number
  return <>{children(limit)}{limit<total?<div ref={sentinel} className="fb-catalog-more" data-catalog-sentinel role="status">{label}</div>:null}</>;
 }
 
-export function FbCatalog<T extends CatalogItem>({categories,items,language,renderItem,listClass='fb-catalog-products',active=true}:{categories:{id:string;name:string}[];items:T[];language:Language;renderItem:(item:T)=>ReactNode;listClass?:string;active?:boolean}){
+export function FbCatalog<T extends CatalogItem>({categories,items,language,renderItem,listClass='fb-catalog-products',active=true,compact=false}:{categories:{id:string;name:string}[];items:T[];language:Language;renderItem:(item:T)=>ReactNode;listClass?:string;active?:boolean;compact?:boolean}){
  const [category,setCategory]=useState(''),[search,setSearch]=useState('');
+ const [itemLimit,setItemLimit]=useState(12);
+ const categoryNav=useRef<HTMLElement>(null);
  const [photosOnly,setPhotosOnly]=useState(false),[dietaryOnly,setDietaryOnly]=useState(false);
  // Unsupported browsers fall back after hydration, preserving the server snapshot.
  const noObserver=useSyncExternalStore(subscribeSupport,missingObserver,serverSupport);
@@ -47,20 +61,28 @@ export function FbCatalog<T extends CatalogItem>({categories,items,language,rend
  const available=Array.from(new Map([...categories,...(unique.some(i=>!i.category_id)?[fallback]:[])].map(c=>[c.id,c])).values()).filter(c=>unique.some(i=>categoryId(i)===c.id));
  // Keep editorial order within the primary categories; one-item special menus stay in More.
  const relevant=available.filter(c=>unique.filter(i=>categoryId(i)===c.id).length>1);
- const primary=[...relevant,...available.filter(c=>!relevant.includes(c))].slice(0,6),extra=available.filter(c=>!primary.includes(c));
+ const primary=compact?available.slice(0,5):[...relevant,...available.filter(c=>!relevant.includes(c))].slice(0,6),extra=available.filter(c=>!primary.includes(c));
  const selected=available.some(c=>c.id===category)?category:'';
- const results=unique.filter(i=>(query?normalize([i.name,i.description,i.short_description,i.full_description].filter(Boolean).join(' ')).includes(query):!selected||categoryId(i)===selected)&&(!photosOnly||Boolean(i.image||i.image_url))&&(!dietaryOnly||Boolean(i.dietary||i.dietary_info)));
- const groups=available.filter(c=>results.some(i=>categoryId(i)===c.id));
- const choose=(id:string)=>setCategory(id);
+ const results=unique.filter(i=>(query?normalize([i.name,i.description,i.short_description,i.full_description,compact?available.find(c=>c.id===categoryId(i))?.name:null].filter(Boolean).join(' ')).includes(query):!selected||categoryId(i)===selected)&&(!photosOnly||Boolean(i.image||i.image_url))&&(!dietaryOnly||Boolean(i.dietary||i.dietary_info)));
+ const displayedResults=compact&&query?results.slice(0,itemLimit):results;
+ const groups=available.filter(c=>displayedResults.some(i=>categoryId(i)===c.id));
+ const choose=(id:string)=>{setCategory(id);if(compact){setSearch('');setItemLimit(12);}};
+ const categoryCopy={pt:{previous:'Categorias anteriores',next:'Próximas categorias',view:'Ver',moreItems:'Carregar mais itens'},en:{previous:'Previous categories',next:'Next categories',view:'View',moreItems:'Load more items'},es:{previous:'Categorías anteriores',next:'Categorías siguientes',view:'Ver',moreItems:'Cargar más productos'}}[language];
  const filtersCopy={pt:{filters:'Filtros',photos:'Somente com foto',dietary:'Com informação alimentar',clear:'Limpar filtros'},en:{filters:'Filters',photos:'With a photo',dietary:'With dietary information',clear:'Clear filters'},es:{filters:'Filtros',photos:'Con foto',dietary:'Con información alimentaria',clear:'Limpiar filtros'}}[language];
  return <div className="fb-catalog" data-fb-catalog>
-  <nav className="fb-catalog-filters" aria-label={order.category}>
+  {compact?<div className="smartmenu-category-controls"><button type="button" aria-label={categoryCopy.previous} onClick={()=>categoryNav.current?.scrollBy({left:-240})}>←</button><button type="button" aria-label={categoryCopy.next} onClick={()=>categoryNav.current?.scrollBy({left:240})}>→</button></div>:null}
+  <nav ref={categoryNav} className="fb-catalog-filters" aria-label={order.category}>
    {[{id:'',name:t.all},...primary,...(selected&&extra.some(c=>c.id===selected)?extra.filter(c=>c.id===selected):[])].map(c=><button type="button" key={c.id} aria-pressed={!query&&selected===c.id} onClick={()=>choose(c.id)}>{c.id?<CategoryIcon name={c.name}/>:<LayoutGrid aria-hidden/>}<span>{c.name}</span></button>)}
-   {extra.length?<details className="fb-more-categories"><summary><span>{t.more}</span><ChevronDown aria-hidden/></summary><div>{extra.map(c=><button type="button" key={c.id} aria-pressed={!query&&selected===c.id} onClick={e=>{choose(c.id);const details=e.currentTarget.closest('details');if(details){details.open=false;details.querySelector('summary')?.focus();}}}>{c.name}</button>)}</div></details>:null}
+   {extra.length?compact?<CategoryPicker categories={available} selected={selected} onSelect={choose} label={{pt:'+ Mais',en:'+ More',es:'+ Más'}[language]} language={language}/>:<details className="fb-more-categories"><summary><span>{t.more}</span><ChevronDown aria-hidden/></summary><div>{extra.map(c=><button type="button" key={c.id} aria-pressed={!query&&selected===c.id} onClick={e=>{choose(c.id);const details=e.currentTarget.closest('details');if(details){details.open=false;details.querySelector('summary')?.focus();}}}>{c.name}</button>)}</div></details>:null}
   </nav>
-  <div className="fb-catalog-tools"><label className="fb-catalog-search"><Search aria-hidden/><input aria-label={order.search} placeholder={order.search+'…'} type="search" value={search} onChange={e=>setSearch(e.target.value)}/></label><details className="fb-catalog-options"><summary><SlidersHorizontal aria-hidden/><span>{filtersCopy.filters}{photosOnly||dietaryOnly?' · '+(Number(photosOnly)+Number(dietaryOnly)):''}</span><ChevronDown aria-hidden/></summary><div><label><input type="checkbox" checked={photosOnly} onChange={e=>setPhotosOnly(e.target.checked)}/>{filtersCopy.photos}</label><label><input type="checkbox" checked={dietaryOnly} onChange={e=>setDietaryOnly(e.target.checked)}/>{filtersCopy.dietary}</label><button type="button" onClick={()=>{setPhotosOnly(false);setDietaryOnly(false);}}>{filtersCopy.clear}</button></div></details></div>
+  <div className="fb-catalog-tools"><label className="fb-catalog-search"><Search aria-hidden/><input aria-label={order.search} placeholder={order.search+'…'} type="search" value={search} onChange={e=>{setSearch(e.target.value);if(compact)setItemLimit(12);}}/></label><details className="fb-catalog-options"><summary><SlidersHorizontal aria-hidden/><span>{filtersCopy.filters}{photosOnly||dietaryOnly?' · '+(Number(photosOnly)+Number(dietaryOnly)):''}</span><ChevronDown aria-hidden/></summary><div><label><input type="checkbox" checked={photosOnly} onChange={e=>setPhotosOnly(e.target.checked)}/>{filtersCopy.photos}</label><label><input type="checkbox" checked={dietaryOnly} onChange={e=>setDietaryOnly(e.target.checked)}/>{filtersCopy.dietary}</label><button type="button" onClick={()=>{setPhotosOnly(false);setDietaryOnly(false);}}>{filtersCopy.clear}</button></div></details></div>
   {query?<p role="status">{fbCatalogCount(results.length,'item',language)}</p>:null}
   {!results.length?<p role="status">{t.none}</p>:null}
-  <ProgressiveCategories key={String(active)+':'+(query||selected||photosOnly||dietaryOnly?'filtered':'all')+':'+groups.map(c=>c.id).join(',')} total={groups.length} active={active} eager={noObserver||Boolean(query||selected||photosOnly||dietaryOnly)} label={t.loading}>{limit=>groups.slice(0,limit).map(c=><section className="fb-catalog-category" data-catalog-category={c.id} key={c.id}><h4><CategoryIcon name={c.name}/><span>{c.name}</span><small>· {fbCatalogCount(results.filter(i=>categoryId(i)===c.id).length,'item',language)}</small></h4><ul className={listClass}>{results.filter(i=>categoryId(i)===c.id).map(renderItem)}</ul></section>)}</ProgressiveCategories>
+  <ProgressiveCategories key={String(active)+':'+(query||selected||photosOnly||dietaryOnly?'filtered':'all')+':'+groups.map(c=>c.id).join(',')} total={groups.length} active={active} eager={noObserver||Boolean(query||selected||photosOnly||dietaryOnly)} label={t.loading}>{limit=>groups.slice(0,limit).map(c=>{
+   const categoryItems=displayedResults.filter(i=>categoryId(i)===c.id);
+   const visibleItems=compact?categoryItems.slice(0,query||selected?itemLimit:3):categoryItems;
+   return <section className="fb-catalog-category" data-catalog-category={c.id} key={c.id}><h4><CategoryIcon name={c.name}/><span>{c.name}</span><small>· {fbCatalogCount(categoryItems.length,'item',language)}</small></h4><ul className={listClass}>{visibleItems.map(renderItem)}</ul>{compact&&categoryItems.length>visibleItems.length?<button className="smartmenu-category-more" type="button" onClick={()=>{if(query||selected)setItemLimit(n=>n+12);else choose(c.id);}}>{query||selected?categoryCopy.moreItems:categoryCopy.view+' '+c.name}</button>:null}</section>;
+  })}</ProgressiveCategories>
+  {compact&&query&&results.length>itemLimit?<button type="button" className="smartmenu-category-more" onClick={()=>setItemLimit(n=>n+12)}>{categoryCopy.moreItems}</button>:null}
  </div>;
 }

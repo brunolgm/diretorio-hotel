@@ -1,0 +1,191 @@
+.smartmenu {
+  --smartmenu-copper: var(--hotel-accent);
+  min-height: 100dvh;
+  color: var(--hotel-text);
+  background: var(--hotel-background);
+  font-family: var(--hotel-font-family, "Segoe UI"), sans-serif;
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+}
+.smartmenu *, .smartmenu *::before, .smartmenu *::after { box-sizing: border-box; }
+.smartmenu button, .smartmenu a, .smartmenu summary { -webkit-tap-highlight-color: transparent; }
+.smartmenu :is(button, a, input, textarea, select, summary):focus-visible { outline: 3px solid var(--hotel-accent); outline-offset: 3px; }
+.smartmenu svg { width: 20px; height: 20px; flex: none; }
+.smartmenu-skip { position: fixed; left: 12px; top: 8px; transform: translateY(-180%); z-index: 100; background: var(--hotel-surface); padding: 12px; border: 2px solid var(--hotel-accent); }
+.smartmenu-skip:focus { transform: none; }
+.smartmenu-header { display: flex; align-items: center; gap: 20px; min-height: 90px; max-width: 1400px; padding: 12px 32px; margin: auto; border-bottom: 1px solid var(--hotel-border); }
+.smartmenu-brand { margin-right: auto; min-width: 0; max-width: 190px; font-size: 24px; font-weight: 650; }
+.smartmenu-brand img { width: auto; max-width: 170px; max-height: 62px; object-fit: contain; }
+.smartmenu-back, .smartmenu-cart-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 13px; }
+.smartmenu-cart-link { background: var(--hotel-surface-muted); border-radius: 12px; padding: 8px 14px; }
+.smartmenu-body { max-width: 1400px; margin: auto; padding: 24px 32px; }
+.smartmenu-hero { position: relative; overflow: hidden; border-radius: 16px; background: var(--hotel-primary); color: var(--hotel-primary-foreground); min-height: 230px; isolation: isolate; }
+.smartmenu-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.smartmenu-hero:has(> img)::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, #21170dec, #21170d8a 65%, #21170d15); }
+.smartmenu-hero:not(:has(> img)) { background: linear-gradient(120deg, var(--hotel-surface), var(--hotel-surface-muted)); color: var(--hotel-text); border: 1px solid var(--hotel-border); }
+.smartmenu-hero:not(:has(> img))::after { content: ''; position: absolute; width: 230px; height: 230px; border: 1px solid var(--hotel-accent); border-radius: 50%; right: -90px; top: -90px; opacity: .22; z-index: -1; }
+.smartmenu-hero:not(:has(> img)) .smartmenu-eyebrow { color: var(--hotel-text-muted); }
+.smartmenu-hero > div { padding: 30px; max-width: 530px; }
+.smartmenu-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .3em; margin-bottom: 10px; }
+.smartmenu h1 { font-size: clamp(26px, 3vw, 38px); line-height: 1.1; font-weight: 500; text-wrap: balance; margin: 0 0 14px; }
+.smartmenu-hero p:not(.smartmenu-eyebrow) { font-size: 13px; line-height: 1.5; max-width: 380px; }
+.smartmenu-hero ul { display: flex; flex-wrap: wrap; gap: 14px; font-size: 11px; margin-top: 18px; }
+.smartmenu-hero li { display: flex; align-items: center; gap: 6px; }
+.smartmenu-service { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; font-size: 12px; color: var(--hotel-text-muted); }
+.smartmenu-service details { max-width: 100%; white-space: pre-line; }
+.smartmenu-service summary { min-height: 36px; cursor: pointer; }
+.smartmenu[data-smartmenu-premium=true] h1, .smartmenu[data-smartmenu-premium=true] .fb-catalog-category h4 { font-family: Georgia, "Times New Roman", serif; }
+.smartmenu [data-smartmenu-ordering] { border: 0; background: transparent; }
+.smartmenu [data-smartmenu-ordering] > .fb-order-outlet-header { display: none; }
+.smartmenu .fb-order-columns { padding: 0; gap: 24px; }
+.smartmenu .fb-order-columns > section { min-width: 0; }
+.smartmenu .fb-order-cart { background: var(--hotel-surface); padding: 18px; border-radius: 16px; scroll-margin-top: 20px; }
+.smartmenu .fb-order-cart > h3 { font-size: 18px; margin-bottom: 15px; }
+.smartmenu .fb-order-cart .fb-order-primary { width: 100%; font-weight: 600; }
+.smartmenu .fb-catalog { margin-top: 0; }
+.smartmenu .fb-catalog-filters { display: flex; flex-wrap: nowrap; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; gap: 8px; padding: 4px 3px 10px; margin: 0 0 10px; scrollbar-width: thin; }
+.smartmenu .fb-catalog-filters > button { flex: none; }
+.smartmenu-category-picker { position: sticky; right: 0; z-index: 1; flex: none; background: var(--hotel-background); padding-left: 6px; }
+.smartmenu-category-dialog { margin: auto; width: min(500px, calc(100vw - 32px)); max-height: 75dvh; background: var(--hotel-surface); color: var(--hotel-text); border: 1px solid var(--hotel-border); border-radius: 16px; padding: 16px; }
+.smartmenu-category-dialog::backdrop { background: #24180d88; }
+.smartmenu-category-dialog > header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.smartmenu-category-dialog h3 { font-size: 20px; font-weight: 650; }
+.smartmenu-category-dialog > div { display: grid; gap: 8px; margin-top: 16px; }
+.smartmenu .smartmenu-category-dialog button { white-space: normal; justify-content: flex-start; text-align: left; width: 100%; }
+.smartmenu .smartmenu-category-dialog header button { width: 44px; justify-content: center; font-size: 24px; }
+.smartmenu .fb-catalog-filters :is(button, summary) { padding: 10px 16px; font-size: 12px; border-radius: 12px; box-shadow: none; }
+.smartmenu .fb-catalog-filters > button > svg { display: none; }
+.smartmenu .fb-catalog-tools { gap: 12px; margin-bottom: 18px; }
+.smartmenu .fb-catalog-search input { border-radius: 12px; box-shadow: none; font-size: 13px; }
+.smartmenu .fb-catalog-options summary { min-width: 0; border-radius: 12px; font-size: 12px; gap: 5px; }
+.smartmenu .fb-catalog-category { margin-top: 22px; }
+.smartmenu .fb-catalog-category h4 { font-size: 25px; gap: 8px; margin-bottom: 14px; }
+.smartmenu .fb-catalog-category h4 > svg { width: 21px; height: 21px; }
+.smartmenu .fb-catalog-category h4 small { font-size: 11px; }
+.smartmenu .fb-order-products { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.smartmenu .fb-order-products > .smartmenu-product { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 0; overflow: hidden; background: var(--hotel-surface); border-radius: 13px; box-shadow: var(--hotel-card-shadow); }
+.smartmenu .smartmenu-product-photo { border: 0; padding: 0; margin: 0; border-radius: 0; width: 100%; display: block; }
+.smartmenu-product-photo img { width: 100%; height: 130px; object-fit: cover; }
+.smartmenu .smartmenu-product-copy { padding: 12px; display: flex; flex-direction: column; flex: 1; }
+.smartmenu .smartmenu-product h3 { line-height: 1.25; font-size: 15px; }
+.smartmenu .smartmenu-product h3 button { padding: 0; margin: 0; min-height: 32px; font-size: inherit; text-align: left; justify-content: flex-start; border: 0; line-height: inherit; }
+.smartmenu .smartmenu-description { font-size: 12px; line-height: 1.4; margin: 4px 0 9px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.smartmenu-product-copy > strong { font-size: 17px; padding-top: 4px; margin-top: auto; }
+.smartmenu-product-copy > small { font-size: 11px; margin-bottom: 6px; }
+.smartmenu-availability { display: block; font-size: 10px; color: var(--hotel-text-muted); margin: 6px 0; }
+.smartmenu-availability[data-available=true] { color: #315126; }
+.smartmenu .smartmenu-add { border: 0; background: var(--hotel-accent); color: var(--hotel-accent-foreground); font-size: 12px; width: 100%; margin: 5px 0 0; font-weight: 600; }
+.smartmenu .smartmenu-add svg { width: 16px; height: 16px; }
+.smartmenu .smartmenu-category-more { width: 100%; justify-content: flex-start; background: transparent; border: 0; font-size: 13px; text-decoration: underline; color: var(--hotel-text); }
+.smartmenu-category-controls { display: flex; justify-content: flex-end; gap: 4px; }
+.smartmenu .smartmenu-category-controls button { min-height: 44px; min-width: 44px; margin: 0; border: 0; }
+.smartmenu .smartmenu-cart-item { display: flex; gap: 10px; padding: 14px 0; }
+.smartmenu-cart-item > img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; }
+.smartmenu-cart-item > div { flex: 1; min-width: 0; font-size: 12px; }
+.smartmenu-cart-item small { display: block; font-size: 11px; }
+.smartmenu-cart-item strong { font-size: 13px; }
+.smartmenu .smartmenu-quantity { display: flex; align-items: center; gap: 4px; }
+.smartmenu .smartmenu-quantity button { padding: 7px; min-width: 44px; min-height: 44px; margin: 0; }
+.smartmenu .smartmenu-quantity svg { width: 14px; height: 14px; }
+.smartmenu-recommendations, .smartmenu-combo { margin: 18px 0; padding: 14px; background: var(--hotel-surface-muted); border: 1px solid var(--hotel-border); border-radius: 12px; }
+.smartmenu-recommendations h4, .smartmenu-combo h4 { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 1.3; font-weight: 650; }
+.smartmenu-recommendations > p, .smartmenu-combo > p { font-size: 11px; line-height: 1.4; }
+.smartmenu-recommendations li { display: flex; align-items: center; gap: 8px; }
+.smartmenu-recommendations li img { width: 42px; height: 48px; object-fit: cover; border-radius: 8px; }
+.smartmenu-recommendations li span { flex: 1; font-size: 12px; }
+.smartmenu-recommendations li strong { display: block; font-size: 11px; margin-top: 3px; }
+.smartmenu .smartmenu-recommendations li button { border: 0; padding: 8px; margin: 0; min-width: 44px; }
+.smartmenu .smartmenu-combo button { font-size: 12px; background: var(--hotel-accent); color: var(--hotel-accent-foreground); margin-bottom: 0; }
+.smartmenu .smartmenu-total { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; font-size: 13px; }
+.smartmenu .fb-order-dialog { position: fixed; top: var(--smartmenu-dialog-center, 50%); bottom: auto; transform: translateY(-50%); margin: 0 auto; max-height: min(94dvh, var(--smartmenu-dialog-height, 94dvh)); border-radius: 18px; padding: 20px; scroll-padding-block: 70px 80px; overscroll-behavior: contain; }
+.smartmenu .fb-order-dialog .fb-order-between { position: sticky; top: -20px; z-index: 2; background: var(--hotel-surface); padding: 12px 0; border-bottom: 1px solid var(--hotel-border); }
+.smartmenu .fb-order-dialog .fb-order-between button { flex: none; }
+.smartmenu .fb-order-dialog button[type=submit] { position: sticky; bottom: 0; z-index: 1; box-shadow: 0 0 0 6px var(--hotel-surface); }
+.smartmenu-detail-photo { width: 100%; max-height: 240px; object-fit: cover; margin: 15px 0; border-radius: 12px; }
+.smartmenu .fb-order-dialog .fb-order-primary { width: 100%; }
+.smartmenu-progress { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 24px 0; }
+.smartmenu .smartmenu-progress li { display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--hotel-text-muted); }
+.smartmenu-progress li > span { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--hotel-border); }
+.smartmenu-progress li[data-confirmed=true] > span { background: var(--hotel-accent); border-color: var(--hotel-accent); }
+.smartmenu .smartmenu-progress li[aria-current=step] { color: var(--hotel-text); font-weight: 700; }
+.smartmenu .smartmenu-tracking-card { max-width: 680px; margin: 32px auto; padding: 28px; border-radius: 22px; box-shadow: var(--hotel-card-shadow); }
+.smartmenu-tracking-heading { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--hotel-border); padding-bottom: 20px; }
+.smartmenu .smartmenu-tracking-heading > svg { width: 30px; height: 30px; color: var(--hotel-accent); }
+.smartmenu .smartmenu-tracking-heading h1 { margin: 0; font: 500 27px/1.2 Georgia, serif; }
+.smartmenu .smartmenu-order-current { margin-top: 20px; padding: 18px; border: 1px solid var(--hotel-border); background: var(--hotel-surface-muted); border-radius: 14px; }
+.smartmenu .smartmenu-order-current h2 { font-size: 22px; font-weight: 600; line-height: 1.3; }
+.smartmenu-order-delivery { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 12px; }
+.smartmenu .smartmenu-tracking-card .smartmenu-progress { gap: 20px 12px; margin-block: 26px; }
+.smartmenu .smartmenu-progress li { position: relative; }
+.smartmenu-progress li > span { outline: 4px solid var(--hotel-surface); z-index: 1; }
+.smartmenu-progress li::before { content: ''; position: absolute; top: 8px; left: 18px; width: calc(100% - 4px); height: 1px; background: var(--hotel-border); }
+.smartmenu-progress li:nth-child(3n)::before { display: none; }
+.smartmenu .smartmenu-tracking-card h3 { display: flex; align-items: center; gap: 8px; font-size: 15px; margin-bottom: 12px; }
+.smartmenu-tracking-card h3 svg { color: var(--hotel-accent); }
+.smartmenu .smartmenu-tracking-summary li, .smartmenu .smartmenu-sector-status li { display: flex; align-items: start; justify-content: space-between; gap: 16px; padding: 12px 0; font-size: 13px; }
+.smartmenu-tracking-summary li > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.smartmenu-tracking-summary li p { flex-basis: 100%; color: var(--hotel-text-muted); }
+.smartmenu-tracking-summary small { color: var(--hotel-text-muted); }
+.smartmenu .smartmenu-tracking-summary .smartmenu-total { margin: 12px 0 0; border-top: 1px solid var(--hotel-border); }
+.smartmenu .smartmenu-order-history { border-top: 1px solid var(--hotel-border); padding-top: 16px; margin-top: 16px; }
+.smartmenu-order-history summary { display: flex; align-items: center; gap: 8px; cursor: pointer; min-height: 44px; }
+.smartmenu-order-history li { display: flex; gap: 16px; font-size: 13px; }
+.smartmenu-order-history time { flex: none; color: var(--hotel-text-muted); }
+.smartmenu .smartmenu-cancellation p { font-size: 13px; line-height: 1.6; }
+@media (min-width: 1024px) {
+  .smartmenu-body { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 0 24px; align-items: start; }
+  .smartmenu-hero { grid-column: 1; grid-row: 1; }
+  .smartmenu-service { grid-column: 1; grid-row: 2; }
+  .smartmenu [data-smartmenu-ordering], .smartmenu .fb-order-columns { display: contents; }
+  .smartmenu .fb-order-columns > section { grid-column: 1; grid-row: 3; }
+  .smartmenu .fb-order-products { align-items: start; }
+  .smartmenu .smartmenu-product[data-has-photo=false] .smartmenu-product-copy > strong { margin-top: 10px; }
+  .smartmenu .smartmenu-product[data-has-photo=false] .smartmenu-product-copy { flex: initial; }
+  .smartmenu .fb-order-cart { grid-column: 2; grid-row: 1 / span 3; position: sticky; top: 20px; max-height: calc(100dvh - 40px); overflow: auto; }
+}
+@media (max-width: 1023px) {
+  .smartmenu-header { padding: 10px 18px; gap: 12px; min-height: 76px; }
+  .smartmenu-header { position: sticky; top: 0; z-index: 50; background: var(--hotel-background); }
+  .smartmenu .fb-order-cart { scroll-margin-top: 90px; }
+  .smartmenu-brand { max-width: 145px; font-size: 18px; }
+  .smartmenu-brand img { max-width: 130px; max-height: 48px; }
+  .smartmenu-back span, .smartmenu-cart-link span { display: none; }
+  .smartmenu-cart-link { padding: 10px; }
+  .smartmenu-body { padding: 16px 18px; }
+  .smartmenu-hero { min-height: 170px; }
+  .smartmenu-hero > div { padding: 22px; max-width: 75%; }
+  .smartmenu-hero h1 { font-size: 26px; }
+  .smartmenu-hero p:not(.smartmenu-eyebrow), .smartmenu-hero ul { display: none; }
+  .smartmenu .fb-order-columns { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .smartmenu .fb-order-products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .smartmenu-category-controls { display: none; }
+  .smartmenu .fb-order-mobile-cart { position: fixed; left: 18px; right: 18px; bottom: calc(12px + env(safe-area-inset-bottom)); width: calc(100% - 36px); margin: 0 !important; z-index: 40; min-height: 52px; justify-content: center; font-size: 14px; font-weight: 650; box-shadow: 0 6px 25px #24180d33; }
+  .smartmenu:has(dialog[open]) .fb-order-mobile-cart, .smartmenu:has(.fb-order-cart :is(input, textarea):focus) .fb-order-mobile-cart { display: none; }
+}
+@media (max-width: 600px) {
+  .smartmenu-header { gap: 8px; padding: 8px 14px; }
+  .smartmenu-brand img { width: 118px; max-width: 100%; }
+  .smartmenu-body { padding: 12px 14px; }
+  .smartmenu-hero { min-height: 148px; }
+  .smartmenu-hero > div { padding: 20px; max-width: 86%; }
+  .smartmenu-hero h1 { font-size: 25px; }
+  .smartmenu .fb-catalog-tools { flex-wrap: wrap; }
+  .smartmenu .fb-catalog-search { flex-basis: 100%; }
+  .smartmenu .fb-catalog-options summary { min-height: 44px; }
+  .smartmenu .fb-order-products { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .smartmenu .fb-order-products > .smartmenu-product { flex-direction: row; align-items: stretch; min-height: 160px; }
+  .smartmenu .smartmenu-product-photo { flex: none; width: 106px; }
+  .smartmenu-product-photo img { width: 100%; height: 100%; min-height: 160px; }
+  .smartmenu .smartmenu-product-copy { padding: 10px 12px; min-width: 0; }
+  .smartmenu .smartmenu-product h3 { font-size: 15px; }
+  .smartmenu .smartmenu-product h3 button { min-height: 24px; }
+  .smartmenu .smartmenu-description { font-size: 12px; }
+  .smartmenu .smartmenu-add { width: auto; align-self: flex-start; padding: 8px 12px; }
+  .smartmenu .fb-catalog-category h4 { font-size: 23px; }
+  .smartmenu .fb-order-dialog { max-width: calc(100vw - 20px); max-height: min(94dvh, var(--smartmenu-dialog-height, 94dvh)); padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); }
+  .smartmenu .fb-order-dialog .fb-order-between { top: -16px; }
+  .smartmenu .smartmenu-tracking-card { margin: 16px 14px; padding: 20px; }
+  .smartmenu .smartmenu-tracking-heading h1 { font-size: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .smartmenu *, .smartmenu *::before, .smartmenu *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+}

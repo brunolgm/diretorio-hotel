@@ -3401,3 +3401,15 @@ Sem stage/commit/push/deploy, Supabase remoto ou publicação de conteúdo.
 ### Fechamento técnico local da productização 1.3.0
 
 Hotel novo sem desenvolvimento aprovado (32 verificações). TESTE físico confirmado por Bruno; pedido registrado antes do aceite (spool 5), aceite sem duplicação e aviso de cancelamento no destino original (spool 6). Três submissões físicas, zero reimpressões; serviço LAB desinstalado preservando estado. Todas as regressões integrais verdes; números, inventário e migrations em SPRINT_53_FNB.md, seção FECHAMENTO LOCAL. Sprint tecnicamente pronta para revisão/checkpoint Git, sem stage/commit/push/deploy. Bugan real não ativado; homologação operacional separada.
+
+
+## SmartMenu Premium V1 — Room Service exclusivo (11/11/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] A decisão aprovada em 25 seções cria uma apresentação dedicada de Room Service nas rotas `/hotel/[slug]/room-service` e `/room-service`, reutilizando os vínculos UUID, os componentes transacionais e os contratos da Sprint 53. A documentação detalhada está em `docs/SPRINT_53_FNB.md`, seção SmartMenu Premium V1. O Bugan utiliza seu tema V4 e a arquitetura compartilhada conserva as versões atuais dos demais hotéis.
+
+[IMPLEMENTADO PARCIALMENTE] Recomendações V1 usam relações explícitas de combos cadastrados e os adicionais existentes. [PLANEJADO] Cadastro independente de complementos/destaques no Admin depende de contrato específico e aprovação antes de aplicação operacional. [NÃO CONFIRMADO] A revisão final de Bruno e a jornada operacional do hóspede real permanecem pendentes.
+
+
+### SmartMenu V1 — fechamento visual local
+
+O refinamento final incorpora fallback tipográfico para o hero, cards desktop compactos sem foto, acompanhamento premium com mensagens de cancelamento amigáveis e modal adaptado ao viewport visual mobile. A política de seleção por ordem administrativa e UUID foi coberta por cenários de múltiplos Room Service. A referência preferencial independente da ordem permanece como proposta de configuração sujeita a aprovação. O relatório final registra as evidências e o commit local para publicação controlada posterior.
