@@ -22,7 +22,8 @@ export function SmartMenuView({pageData, language, domainContext, preferSubdomai
   const route = {slug: hotel.slug, language, domainContext, preferSubdomainRoot};
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const t = copy[language];
-  return <main className="hotel-theme-page smartmenu" style={theme.cssVars} data-hotel-theme={theme.preset} data-smartmenu data-smartmenu-premium={pageData.presentation?.experienceVersion === 'v4' && theme.preset === 'bugan'}>
+  const buganV4 = pageData.presentation?.experienceVersion === 'v4' && theme.preset === 'bugan';
+  return <main className="hotel-theme-page smartmenu" style={theme.cssVars} data-hotel-theme={theme.preset} data-smartmenu data-smartmenu-premium={buganV4}>
     <a className="smartmenu-skip" href="#smartmenu-catalog">{t.skip}</a>
     <header className="smartmenu-header">
       <a className="smartmenu-brand" href={buildPublicHotelHref(route)}>{hotel.logo_url ? <Image unoptimized src={hotel.logo_url} alt={hotel.name} width={160} height={70}/> : <span>{hotel.name}</span>}</a>
@@ -36,7 +37,7 @@ export function SmartMenuView({pageData, language, domainContext, preferSubdomai
         <div><p className="smartmenu-eyebrow">Room Service</p><h1 id="smartmenu-title">{t.title}</h1><p>{description || t.intro}</p><ul><li><ConciergeBell aria-hidden/>{t.menu}</li><li><ShieldCheck aria-hidden/>{t.delivery}</li></ul></div>
       </section>
       <div className="smartmenu-service"><p>{hasRoomContext ? t.room : t.browse}</p>{openingHours ? <details><summary>{t.hours}</summary><p>{openingHours}</p></details> : null}</div>
-      <NativeOrderingOutlet initial={initial} slug={hotel.slug} language={language} hasRoomContext={hasRoomContext} premium={pageData.presentation?.experienceVersion === 'v4'} smartMenu/>
+      <NativeOrderingOutlet initial={initial} slug={hotel.slug} language={language} hasRoomContext={hasRoomContext} premium={pageData.presentation?.experienceVersion === 'v4'} smartMenu compactReview={buganV4}/>
     </div>
   </main>;
 }

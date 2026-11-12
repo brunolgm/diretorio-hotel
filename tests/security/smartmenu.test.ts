@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 const {smartMenuFixture} = await import('../fixtures/smartmenu.ts');
 import type {SmartCartLine} from '../../lib/fb/smartmenu.ts';
 const {roomServiceProjection} = await import('../../lib/fb/smartmenu-projection.ts');
-const {smartMenuSuggestions, smartLineEstimate} = await import('../../lib/fb/smartmenu.ts');
+const {smartMenuSuggestions, smartLineEstimate, smartComboSavings} = await import('../../lib/fb/smartmenu.ts');
 const {buildRoomServiceHref} = await import('../../lib/public-routes.ts');
 import type {DomainContext} from '../../lib/domain-context.ts';
 
@@ -91,4 +91,41 @@ test('Dedicated experience uses existing transactional and room validation bound
   assert.ok(source.includes("post<Receipt>(slug,'confirm'"));
   assert.ok(source.includes('key:current.key'));
   assert.ok(!readFileSync('lib/fb/smartmenu.ts', 'utf8').includes('fetch('));
+});
+
+test('Combo savings compare eligible standalone options and withhold ambiguous or nonpositive claims', () => {
+  const {offer, first, second, combo} = smartMenuFixture();
+  const products = offer.outlets[0].products;
+  assert.equal(smartComboSavings(combo, products), null);
+  combo.amount_minor = first.amount_minor! + second.amount_minor! - 600;
+  assert.deepEqual(smartComboSavings(combo, products), {amount: 600, varies: false});
+  const alternate = {...second, id:'alt', amount_minor: second.amount_minor! + 300};
+  products.push(alternate);
+  combo.slots![1].choices.push({id:'alternate',item:alternate,extra_minor:0});
+  assert.deepEqual(smartComboSavings(combo, products), {amount: 600, varies: true});
+  combo.slots![1].choices[0].extra_minor = 100;
+  assert.deepEqual(smartComboSavings(combo, products), {amount: 500, varies: true});
+  second.amount_minor = null;
+  assert.equal(smartComboSavings(combo, products), null);
+  combo.slots![1].choices[0].item.available = false;
+  assert.deepEqual(smartComboSavings(combo, products), {amount: 900, varies: false});
+  combo.slots![1].max = 2;
+  assert.equal(smartComboSavings(combo, products), null);
+});
+
+test('Bugan hides alternatives for a fulfilled single-choice slot and keeps the combo conversion', () => {
+  const {offer, first, second, combo} = smartMenuFixture();
+  const outlet = offer.outlets[0];
+  const alternate = {...second, id:'alternate'};
+  outlet.products.push(alternate);
+  combo.slots![1].choices.push({id:'alternate-choice',item:alternate,extra_minor:0});
+  const line = (product: typeof first): SmartCartLine => ({
+    clientId:product.id, currency:product.currency,
+    intent:{kind:'item',id:product.id,menu_id:product.menu_id,quantity:1,options:[]},
+  });
+  const cart = [line(first),line(second)];
+  assert.deepEqual(smartMenuSuggestions(outlet,cart).complements.map(product=>product.id),[alternate.id]);
+  assert.deepEqual(smartMenuSuggestions(outlet,cart,true).complements,[]);
+  assert.deepEqual(smartMenuSuggestions(outlet,cart,true).combos.map(value=>value.product.id),[combo.id]);
+  assert.deepEqual(smartMenuSuggestions(outlet,[line(first)],true).complements.map(product=>product.id),[second.id,alternate.id]);
 });

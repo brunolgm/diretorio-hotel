@@ -5,9 +5,9 @@ import {createAdminClient} from '../../supabase/admin';
 import {resolveDomainContext} from '../../domain-context';
 import {parseRoomContext,ROOM_CONTEXT_COOKIE_NAME} from '../../room-context';
 import {uuid} from '../validation';
-import {deriveOrderAccessSecret,opaqueOrderSecret,orderAccessCookie,orderSecretDigest,orderSessionCookie,validOrderSecret} from './credentials.server';
+import {deriveOrderAccessSecret,opaqueOrderSecret,orderAccessCookie,orderSecretDigest,orderSessionCookie,roomQuotePrefix,roomQuoteSecret,validOrderSecret} from './credentials.server';
 import {orderRpc,OrderBoundaryError} from './rpc.server';
-import {nativeOffer,validRoomContext} from './offer.server';
+import {nativeOffer,validatedRoomLink} from './offer.server';
 import type {Language,PublicOrder,QuoteLine} from './journey';
 import {fbOrderDiagnostic} from './diagnostics.server';
 import {cancellationContact,type ContactSource} from './cancellation-contact';
@@ -44,12 +44,19 @@ export async function handleOrderHotel(request:NextRequest,slug:string,operation
    return NextResponse.json(await nativeOffer(slug,hotel.id,language(request.nextUrl.searchParams.get('lang')||undefined)),{headers:privateOrderHeaders});
   }
   if(request.method!=='POST'||!['quote','confirm','restart'].includes(operation))throw new OrderBoundaryError(404,'invalid_input');
-  const body=await orderBody(request,operation==='quote'?['outlet_id','intent']:operation==='confirm'?['outlet_id','quote_id','quote_reference','key','intent']:[]);
+  const body=await orderBody(request,operation==='quote'?['outlet_id','intent','include_room_number']:operation==='confirm'?['outlet_id','quote_id','quote_reference','key','intent']:[]);
   if(operation!=='restart'){validId(body.outlet_id);intent(body.intent,operation==='quote');}
+  if(body.include_room_number!==undefined&&body.include_room_number!==true)throw new OrderBoundaryError(400,'invalid_input');
   const hotel=await routeHotel(request,slug);
   let session=request.cookies.get('lg_fb_session')?.value;let sessionExpires:Date|undefined;
   await admit(request,slug,operation,session);
-  if(operation==='quote'&&(body.intent as Record<string,unknown>).fulfilment==='room_delivery'&&!await validRoomContext(hotel.id))throw new OrderBoundaryError(403,'forbidden');
+  const roomToken=parseRoomContext(request.cookies.get(ROOM_CONTEXT_COOKIE_NAME)?.value)?.roomToken??null;
+  let roomNumber:string|undefined;
+  if(operation==='quote'&&(body.intent as Record<string,unknown>).fulfilment==='room_delivery'){
+   const room=await validatedRoomLink(hotel.id,roomToken);
+   if(!room)throw new OrderBoundaryError(403,'forbidden');
+   if(body.include_room_number===true)roomNumber=room.room_number.trim()||undefined;
+  }
   if(operation==='restart'||!session){
    if(operation==='confirm')throw new OrderBoundaryError(410,'session_expired');
    session=opaqueOrderSecret();
@@ -63,17 +70,31 @@ export async function handleOrderHotel(request:NextRequest,slug:string,operation
   if(operation==='restart')response=NextResponse.json({ok:true},{headers:privateOrderHeaders});
   else if(operation==='quote'){
    const reference=opaqueOrderSecret();
+   const bound=roomNumber&&roomToken?{number:roomNumber,token:roomToken}:null;
+   const secret=bound?roomQuoteSecret(reference,bound.token,bound.number):reference;
    const q=await orderRpc<{quote_id:string;expires_at:string;priced:{currency:string;total_minor:number;lines:PricedLine[]}}>(client,'create_fb_order_quote',{
-    p_hotel_slug:slug,p_session_secret:session,p_outlet_id:body.outlet_id,p_intent:body.intent,p_quote_digest:orderSecretDigest(reference)});
-   response=NextResponse.json({quote_id:q.quote_id,quote_reference:reference,expires_at:q.expires_at,currency:q.priced.currency,total_minor:q.priced.total_minor,
-    available:true,lines:q.priced.lines.map(l=>quoteLine(l))},{headers:privateOrderHeaders});
+    p_hotel_slug:slug,p_session_secret:session,p_outlet_id:body.outlet_id,p_intent:body.intent,p_quote_digest:orderSecretDigest(secret)});
+   response=NextResponse.json({quote_id:q.quote_id,quote_reference:bound?roomQuotePrefix+reference:reference,expires_at:q.expires_at,currency:q.priced.currency,total_minor:q.priced.total_minor,
+    available:true,lines:q.priced.lines.map(l=>quoteLine(l)),...(roomNumber?{room_number:roomNumber}:{})},{headers:privateOrderHeaders});
   }else{
-   validId(body.quote_id);validId(body.key);if(!validOrderSecret(body.quote_reference))throw new OrderBoundaryError(400,'invalid_input');
+   validId(body.quote_id);validId(body.key);
+   const reference=body.quote_reference;
+   const bound=typeof reference==='string'&&reference.startsWith(roomQuotePrefix);
+   const nonce=bound?reference.slice(roomQuotePrefix.length):reference;
+   if(!validOrderSecret(nonce))throw new OrderBoundaryError(400,'invalid_input');
+   let secret=nonce;
+   if(bound){
+    const room=await validatedRoomLink(hotel.id,roomToken);
+    if(!room||!roomToken||(body.intent as Record<string,unknown>).fulfilment!=='room_delivery')throw new OrderBoundaryError(409,'review_required');
+    secret=roomQuoteSecret(nonce,roomToken,room.room_number.trim());
+   }
    const access=deriveOrderAccessSecret(session,slug,body.outlet_id as string,body.key);
-   const room=parseRoomContext(request.cookies.get(ROOM_CONTEXT_COOKIE_NAME)?.value);
    const receipt=await orderRpc<{order_id:string;status:string;replayed:boolean;access_expires_at:string}>(client,'confirm_fb_order_from_quote',{
-    p_hotel_slug:slug,p_session_secret:session,p_outlet_id:body.outlet_id,p_quote_id:body.quote_id,p_quote_secret:body.quote_reference,p_key:body.key,p_intent:body.intent,
-    p_room_token:room?.roomToken||null,p_access_digest:orderSecretDigest(access)});
+    p_hotel_slug:slug,p_session_secret:session,p_outlet_id:body.outlet_id,p_quote_id:body.quote_id,p_quote_secret:secret,p_key:body.key,p_intent:body.intent,
+    p_room_token:roomToken,p_access_digest:orderSecretDigest(access)}).catch(error=>{
+     if(bound&&error instanceof OrderBoundaryError&&error.code==='forbidden')throw new OrderBoundaryError(409,'review_required');
+     throw error;
+   });
    const lang=language((body.intent as Record<string,unknown>).language);
    const tracking=(resolveDomainContext(request.headers.get('host')).kind==='product-subdomain'?'':'/hotel/'+slug)+'/pedidos/'+receipt.order_id+'?lang='+lang;
    response=NextResponse.json({order_id:receipt.order_id,status:receipt.status,replayed:receipt.replayed,tracking_href:tracking},{headers:privateOrderHeaders});

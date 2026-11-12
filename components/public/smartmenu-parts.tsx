@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import {Plus, ShoppingBag, Sparkles, Layers, Minus, Trash2} from 'lucide-react';
 import {money, orderCopy, type Product, type Language, type NativeOutlet} from '@/lib/fb/orders/journey';
-import {smartMenuSuggestions, smartLineEstimate, type SmartCartLine} from '@/lib/fb/smartmenu';
+import {smartMenuSuggestions, smartLineEstimate, smartComboSavings, type SmartCartLine} from '@/lib/fb/smartmenu';
 
 export const smartMenuCopy = {
   pt: {details: 'Ver detalhes', suggestions: 'Para combinar com seu pedido', related: 'Complementos dos combos cadastrados pelo hotel', combo: 'Transformar em combo', explore: 'Ver opção de combo', replace: 'Substituir seleção por combo', availability: 'Disponível para pedir', browse: 'Consultar produto', estimate: 'Total estimado', decrease: 'Diminuir quantidade', increase: 'Aumentar quantidade'},
@@ -9,8 +9,24 @@ export const smartMenuCopy = {
   es: {details: 'Ver detalles', suggestions: 'Para combinar con tu pedido', related: 'Complementos de los combos configurados por el hotel', combo: 'Convertir en combo', explore: 'Ver opción de combo', replace: 'Sustituir selección por combo', availability: 'Disponible para pedir', browse: 'Consultar producto', estimate: 'Total estimado', decrease: 'Reducir cantidad', increase: 'Aumentar cantidad'},
 };
 
-export function SmartMenuProduct({product, language, available, disabled, onOpen}: {
-  product: Product; language: Language; available: boolean; disabled: boolean; onOpen: () => void;
+const savingsCopy = {
+  pt: {fixed: 'Economize', variable: 'Economia a partir de'},
+  en: {fixed: 'Save', variable: 'Savings from'},
+  es: {fixed: 'Ahorra', variable: 'Ahorro desde'},
+};
+
+export function SmartMenuSavings({savings, currency, language}: {
+  savings: ReturnType<typeof smartComboSavings>;
+  currency: string;
+  language: Language;
+}) {
+  if (!savings) return null;
+  const label = savingsCopy[language][savings.varies ? 'variable' : 'fixed'];
+  return <span className="smartmenu-savings" data-smartmenu-savings>{label} {money(savings.amount, currency, language)}</span>;
+}
+
+export function SmartMenuProduct({product, language, available, disabled, savings = null, onOpen}: {
+  product: Product; language: Language; available: boolean; disabled: boolean; savings?: ReturnType<typeof smartComboSavings>; onOpen: () => void;
 }) {
   const t = smartMenuCopy[language];
   return <li data-fb-order-product={product.id} className="smartmenu-product" data-has-photo={Boolean(product.image_url)}>
@@ -19,22 +35,23 @@ export function SmartMenuProduct({product, language, available, disabled, onOpen
       {product.description ? <p className="smartmenu-description">{product.description}</p> : null}
       {product.dietary ? <small>{product.dietary}</small> : null}
       <strong>{product.amount_minor === null ? orderCopy(language).unavailable : money(product.amount_minor, product.currency, language)}</strong>
+      {available ? <SmartMenuSavings savings={savings} currency={product.currency} language={language}/> : null}
       <span className="smartmenu-availability" data-available={available}>{available ? t.availability : orderCopy(language).unavailable}</span>
       <button className="smartmenu-add" type="button" disabled={disabled} onClick={onOpen}><ShoppingBag aria-hidden/>{available ? orderCopy(language).add : t.browse}</button>
     </div>
   </li>;
 }
 
-export function SmartMenuRecommendations({outlet, cart, language, disabled, onOpen}: {
-  outlet: NativeOutlet; cart: SmartCartLine[]; language: Language; disabled: boolean; onOpen: (product: Product, replace?: string[]) => void;
+export function SmartMenuRecommendations({outlet, cart, language, disabled, showSavings = false, onOpen}: {
+  outlet: NativeOutlet; cart: SmartCartLine[]; language: Language; disabled: boolean; showSavings?: boolean; onOpen: (product: Product, replace?: string[]) => void;
 }) {
-  const {complements, combos} = smartMenuSuggestions(outlet, cart);
+  const {complements, combos} = smartMenuSuggestions(outlet, cart, showSavings);
   const t = smartMenuCopy[language];
   return <>{complements.length ? <section className="smartmenu-recommendations" data-smartmenu-recommendations><h4><Sparkles aria-hidden/>{t.suggestions}</h4><p>{t.related}</p><ul>{complements.map(product => <li key={product.menu_id + product.id}>
     {product.image_url ? <Image unoptimized src={product.image_url} alt="" width={72} height={72}/> : null}
     <span>{product.name}<strong>{money(product.amount_minor!, product.currency, language)}</strong></span><button type="button" disabled={disabled} aria-label={orderCopy(language).add + ' · ' + product.name} onClick={() => onOpen(product)}><Plus aria-hidden/></button>
   </li>)}</ul></section> : null}
-    {combos.map(({product, replace}) => <section key={product.id} className="smartmenu-combo" data-smartmenu-combo><h4><Layers aria-hidden/>{t.combo}</h4><p>{product.name} · {money(product.amount_minor!, product.currency, language)}</p><button type="button" disabled={disabled} onClick={() => onOpen(product, replace)}>{t.explore}</button></section>)}
+    {combos.map(({product, replace}) => <section key={product.id} className="smartmenu-combo" data-smartmenu-combo><h4><Layers aria-hidden/>{t.combo}</h4><p>{product.name} · {money(product.amount_minor!, product.currency, language)}</p>{showSavings ? <SmartMenuSavings savings={smartComboSavings(product,outlet.products)} currency={product.currency} language={language}/> : null}<button type="button" disabled={disabled} onClick={() => onOpen(product, replace)}>{t.explore}</button></section>)}
   </>;
 }
 

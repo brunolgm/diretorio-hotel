@@ -1,10 +1,15 @@
 import 'server-only';
-import {createHash,hkdfSync,randomBytes} from 'node:crypto';
+import {createHash,createHmac,hkdfSync,randomBytes} from 'node:crypto';
 import {uuid} from '../validation.ts';
 
 export function opaqueOrderSecret():string {return randomBytes(32).toString('base64url');}
 export function validOrderSecret(value:unknown):value is string {
  return typeof value==='string'&&/^[A-Za-z0-9_-]{43}$/.test(value)&&Buffer.from(value,'base64url').length===32&&Buffer.from(value,'base64url').toString('base64url')===value;
+}
+export const roomQuotePrefix = 'room.';
+/** The database sees a normal opaque secret. The client receives only its random reference. */
+export function roomQuoteSecret(reference:string,roomToken:string,roomNumber:string) {
+ return createHmac('sha256',reference).update(JSON.stringify([roomToken,roomNumber])).digest('base64url');
 }
 export function orderSecretDigest(secret:string):string {
  if(!validOrderSecret(secret))throw new Error('orders_credential_invalid');

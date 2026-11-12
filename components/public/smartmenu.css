@@ -70,6 +70,7 @@
 .smartmenu .smartmenu-product h3 button { padding: 0; margin: 0; min-height: 32px; font-size: inherit; text-align: left; justify-content: flex-start; border: 0; line-height: inherit; }
 .smartmenu .smartmenu-description { font-size: 12px; line-height: 1.4; margin: 4px 0 9px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .smartmenu-product-copy > strong { font-size: 17px; padding-top: 4px; margin-top: auto; }
+.smartmenu-savings { display: block; color: #315126; font-size: .8125rem; font-weight: 650; margin-block: 4px; }
 .smartmenu-product-copy > small { font-size: 11px; margin-bottom: 6px; }
 .smartmenu-availability { display: block; font-size: 10px; color: var(--hotel-text-muted); margin: 6px 0; }
 .smartmenu-availability[data-available=true] { color: #315126; }
@@ -131,6 +132,35 @@
 .smartmenu-order-history li { display: flex; gap: 16px; font-size: 13px; }
 .smartmenu-order-history time { flex: none; color: var(--hotel-text-muted); }
 .smartmenu .smartmenu-cancellation p { font-size: 13px; line-height: 1.6; }
+.smartmenu [data-smartmenu-compact-review] .smartmenu-cart-delivery { color: var(--hotel-text-muted); font-size: .875rem; }
+.smartmenu .smartmenu-checkout-lines > li { padding-block: 10px; }
+.smartmenu .smartmenu-checkout-line, .smartmenu .smartmenu-checkout-facts {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 12px;
+}
+.smartmenu .smartmenu-checkout-line > strong { white-space: nowrap; }
+.smartmenu .smartmenu-checkout-line > span { min-width: 0; }
+.smartmenu .smartmenu-checkout-lines p { margin: 4px 0 0; }
+.smartmenu .smartmenu-checkout-detail { color: var(--hotel-text-muted); font-size: .8125rem; }
+.smartmenu .smartmenu-checkout-facts {
+  flex-wrap: wrap;
+  align-items: start;
+  padding: 12px;
+  margin-block: 12px 8px;
+  background: var(--hotel-surface-muted);
+  border-radius: 12px;
+}
+.smartmenu .smartmenu-checkout-facts dt { color: var(--hotel-text-muted); font-size: .8125rem; }
+.smartmenu .smartmenu-checkout-facts dd { margin: 2px 0 0; font-weight: 700; }
+
+.smartmenu .smartmenu-checkout-terms { margin-block: 0 10px; font-size: .8125rem; color: var(--hotel-text-muted); }
+.smartmenu .smartmenu-checkout-terms summary { cursor: pointer; display: list-item; align-content: center; min-height: 44px; }
+.smartmenu .smartmenu-checkout-names { display: flex; flex-wrap: wrap; gap: 0 10px; }
+.smartmenu .smartmenu-checkout-names > label { flex: 1 1 6.5em; min-width: 0; margin-block: 4px; }
+.smartmenu .smartmenu-checkout-form :is(input, textarea) { font-size: 1rem; }
+.smartmenu .smartmenu-checkout-form > button { margin-inline: 0; }
 @media (min-width: 1024px) {
   .smartmenu-body { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 0 24px; align-items: start; }
   .smartmenu-hero { grid-column: 1; grid-row: 1; }
@@ -185,6 +215,32 @@
   .smartmenu .fb-order-dialog .fb-order-between { top: -16px; }
   .smartmenu .smartmenu-tracking-card { margin: 16px 14px; padding: 20px; }
   .smartmenu .smartmenu-tracking-heading h1 { font-size: 24px; }
+}
+/* Bugan V4: bring the catalogue into the first mobile viewport. */
+@media (max-width: 600px) {
+  .smartmenu[data-smartmenu-premium=true] .smartmenu-hero { min-height: 0; }
+  .smartmenu[data-smartmenu-premium=true] .smartmenu-hero > div { padding: 14px 16px 16px; max-width: none; }
+  .smartmenu[data-smartmenu-premium=true] .smartmenu-hero:has(> img) > div { max-width: 78%; }
+  .smartmenu[data-smartmenu-premium=true] .smartmenu-hero .smartmenu-eyebrow { margin-bottom: 6px; }
+  .smartmenu[data-smartmenu-premium=true] .smartmenu-hero h1 { margin: 0; font-size: 1.5rem; }
+  .smartmenu[data-smartmenu-premium=true] .smartmenu-service { gap: 4px 12px; padding-block: 8px; }
+
+  .smartmenu[data-smartmenu-premium=true] .fb-catalog-filters { margin-bottom: 4px; padding-bottom: 6px; }
+  .smartmenu[data-smartmenu-premium=true] .smartmenu-category-picker { box-shadow: 8px 0 var(--hotel-background); }
+  .smartmenu[data-smartmenu-premium=true] .fb-catalog-tools { gap: 8px; margin-bottom: 12px; }
+  .smartmenu[data-smartmenu-premium=true] .fb-catalog-search { flex: 1 1 10rem; }
+  .smartmenu[data-smartmenu-premium=true] .fb-catalog-search input {
+    min-height: 44px;
+    padding-inline-end: 8px;
+    font-size: 1rem;
+  }
+
+  .smartmenu[data-smartmenu-premium=true] .fb-catalog-category:first-of-type { margin-top: 12px; }
+  .smartmenu[data-smartmenu-premium=true] .fb-catalog-category:first-of-type h4 { margin-bottom: 8px; }
+  .smartmenu[data-smartmenu-premium=true] .fb-catalog-category:first-of-type .fb-order-products { margin-top: 0; }
+}
+@media (max-width: 360px) {
+  .smartmenu[data-smartmenu-premium=true] .fb-catalog-search input::placeholder { font-size: .875rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .smartmenu *, .smartmenu *::before, .smartmenu *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }

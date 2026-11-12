@@ -16,9 +16,13 @@ export async function nativeOffer(slug:string,hotelId:string,language:Language):
  return {outlets,has_room_context:await validRoomContext(hotelId)};
 }
 export async function validRoomContext(hotelId:string){
- const context=parseRoomContext((await cookies()).get(ROOM_CONTEXT_COOKIE_NAME)?.value);
- if(!context?.roomToken||!isRoomToken(context.roomToken))return false;
+ return Boolean(await validatedRoomLink(hotelId));
+}
+
+export async function validatedRoomLink(hotelId:string,roomToken?:string|null){
+ const token=roomToken===undefined?parseRoomContext((await cookies()).get(ROOM_CONTEXT_COOKIE_NAME)?.value)?.roomToken:roomToken;
+ if(!token||!isRoomToken(token))return null;
  const client=createAdminClient();
- const [link,module]=await Promise.all([client.from('hotel_room_links').select('id,hotels!inner(platform_status)').eq('hotel_id',hotelId).eq('room_token',context.roomToken).eq('is_active',true).eq('hotels.platform_status','active').maybeSingle(),client.rpc('is_hotel_module_enabled',{p_hotel_id:hotelId,p_module_key:'rooms.qr'})]);
- return !link.error&&!!link.data&&!module.error&&module.data===true;
+ const [link,module]=await Promise.all([client.from('hotel_room_links').select('room_number,hotels!inner(platform_status)').eq('hotel_id',hotelId).eq('room_token',token).eq('is_active',true).eq('hotels.platform_status','active').maybeSingle(),client.rpc('is_hotel_module_enabled',{p_hotel_id:hotelId,p_module_key:'rooms.qr'})]);
+ return !link.error&&!module.error&&module.data===true?link.data:null;
 }
