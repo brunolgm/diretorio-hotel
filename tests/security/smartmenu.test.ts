@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 const {smartMenuFixture} = await import('../fixtures/smartmenu.ts');
 import type {SmartCartLine} from '../../lib/fb/smartmenu.ts';
 const {roomServiceProjection} = await import('../../lib/fb/smartmenu-projection.ts');
-const {smartMenuSuggestions, smartLineEstimate, smartComboSavings} = await import('../../lib/fb/smartmenu.ts');
+const {smartMenuSuggestions, smartLineEstimate, smartComboSavings, smartCheckoutComponents} = await import('../../lib/fb/smartmenu.ts');
 const {buildRoomServiceHref} = await import('../../lib/public-routes.ts');
 import type {DomainContext} from '../../lib/domain-context.ts';
 
@@ -128,4 +128,28 @@ test('Bugan hides alternatives for a fulfilled single-choice slot and keeps the 
   assert.deepEqual(smartMenuSuggestions(outlet,cart,true).complements,[]);
   assert.deepEqual(smartMenuSuggestions(outlet,cart,true).combos.map(value=>value.product.id),[combo.id]);
   assert.deepEqual(smartMenuSuggestions(outlet,[line(first)],true).complements.map(product=>product.id),[second.id,alternate.id]);
+});
+
+test('Checkout keeps catalogue order when the quote sorts choices by ID', () => {
+  const {offer} = smartMenuFixture();
+  const product = offer.outlets.flatMap(outlet => outlet.products).find(item => item.kind === 'combo')!;
+  const choices = product.slots!.map(slot => slot.choices[0]);
+  const intent = {kind: 'combo' as const, id: product.id, menu_id: product.menu_id, quantity: 1,
+    choices: choices.map(choice => ({id: choice.id, options: []})).reverse()};
+  const base = {id: product.id, kind: 'combo', name: product.name, currency: 'BRL',
+    quantity: 1, unit_minor: 0, total_minor: 0, extra_minor: 0, options: [], components: []};
+  // Repeated item IDs cannot distinguish separate choices with different modifiers.
+  const components = choices.map((choice, index) => ({
+    ...base, kind: 'component', id: choices[0].item.id, choice_id: choice.id,
+    options: [{id: choice.id, name: 'Option '+index, group: 'Extras', unit_minor: index, quantity: 1}],
+  })).reverse();
+  assert.ok(components.length > 1);
+  const line = {...base, components};
+  const ordered = smartCheckoutComponents(line, product, intent);
+  assert.deepEqual(ordered, [...components].reverse());
+  assert.equal(ordered[0], components.at(-1));
+  assert.equal(line.components, components);
+  const legacy = components.map(component => ({...component, choice_id: undefined}));
+  assert.equal(smartCheckoutComponents({...line, components: legacy}, product, intent), legacy);
+  assert.equal(smartCheckoutComponents(line, undefined, intent), components);
 });

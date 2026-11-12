@@ -1,4 +1,4 @@
-import type {NativeOutlet, Product, LineIntent} from './orders/journey.ts';
+import type {NativeOutlet, Product, LineIntent, QuoteLine} from './orders/journey.ts';
 
 export interface SmartCartLine {clientId: string; intent: LineIntent; currency: string}
 
@@ -55,6 +55,23 @@ export function smartComboSavings(combo: Product, products: Product[]) {
   }
   const amount = minimum - combo.amount_minor;
   return Number.isSafeInteger(amount) && amount > 0 ? {amount, varies: minimum !== maximum} : null;
+}
+
+/** The cart follows the catalogue's slot and choice order. */
+export function smartComboChoices(product: Product | undefined, intent: LineIntent) {
+  if (intent.kind !== 'combo') return [];
+  const selected = new Set(intent.choices.map(choice => choice.id));
+  return (product?.slots ?? []).flatMap(slot => slot.choices).filter(choice => selected.has(choice.id));
+}
+
+/** Reorder only a fully matched quote, preserving its priced components and options. */
+export function smartCheckoutComponents(line: QuoteLine, product: Product | undefined, intent: LineIntent) {
+  const choices = smartComboChoices(product, intent);
+  if (line.kind !== 'combo' || choices.length !== line.components.length) return line.components;
+
+  const quotedByChoice = new Map(line.components.map(component => [component.choice_id, component]));
+  const ordered = choices.map(choice => quotedByChoice.get(choice.id));
+  return ordered.every(component => component !== undefined) ? ordered : line.components;
 }
 
 /** Display estimate only. The authoritative quote continues to validate every amount. */

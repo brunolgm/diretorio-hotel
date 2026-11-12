@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import {Plus, ShoppingBag, Sparkles, Layers, Minus, Trash2} from 'lucide-react';
 import {money, orderCopy, type Product, type Language, type NativeOutlet} from '@/lib/fb/orders/journey';
-import {smartMenuSuggestions, smartLineEstimate, smartComboSavings, type SmartCartLine} from '@/lib/fb/smartmenu';
+import {smartMenuSuggestions, smartLineEstimate, smartComboSavings, smartComboChoices, type SmartCartLine} from '@/lib/fb/smartmenu';
 
 export const smartMenuCopy = {
   pt: {details: 'Ver detalhes', suggestions: 'Para combinar com seu pedido', related: 'Complementos dos combos cadastrados pelo hotel', combo: 'Transformar em combo', explore: 'Ver opção de combo', replace: 'Substituir seleção por combo', availability: 'Disponível para pedir', browse: 'Consultar produto', estimate: 'Total estimado', decrease: 'Diminuir quantidade', increase: 'Aumentar quantidade'},
@@ -66,10 +66,10 @@ export function SmartMenuCartItem({line, product, language, disabled, onQuantity
     <div><strong>{product?.name || orderCopy(language).unavailable}</strong>
       {estimate !== null ? <p>{money(estimate, line.currency, language)}</p> : null}
       {product?.groups.flatMap(group => group.options).filter(option => selectedOptions.includes(option.id)).map(option => <small key={option.id}>{option.name} · +{money(option.amount_minor, line.currency, language)}</small>)}
-      {line.intent.kind === 'combo' ? product?.slots?.flatMap(slot => slot.choices).filter(choice => line.intent.kind === 'combo' && line.intent.choices.some(selected => selected.id === choice.id)).map(choice => {
+      {smartComboChoices(product, line.intent).map(choice => {
         const selected = line.intent.kind === 'combo' ? line.intent.choices.find(selected => selected.id === choice.id) : undefined;
         return <div key={choice.id}><small>{choice.item.name}{choice.extra_minor > 0 ? ' · +' + money(choice.extra_minor, line.currency, language) : ''}</small>{choice.item.groups.flatMap(group => group.options).filter(option => selected?.options.includes(option.id)).map(option => <small key={option.id}>{option.name} · +{money(option.amount_minor, line.currency, language)}</small>)}</div>;
-      }) : null}
+      })}
       {line.intent.note ? <p>{line.intent.note}</p> : null}
       <div className="smartmenu-quantity"><button type="button" aria-label={t.decrease + ' · ' + product?.name} disabled={disabled || line.intent.quantity <= 1} onClick={() => onQuantity(line.intent.quantity - 1)}><Minus aria-hidden/></button><span>{line.intent.quantity}</span><button type="button" aria-label={t.increase + ' · ' + product?.name} disabled={disabled || line.intent.quantity >= 20} onClick={() => onQuantity(line.intent.quantity + 1)}><Plus aria-hidden/></button><button type="button" aria-label={orderCopy(language).remove + ' · ' + product?.name} disabled={disabled} onClick={onRemove}><Trash2 aria-hidden/></button></div>
     </div>

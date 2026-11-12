@@ -5,7 +5,7 @@ import {useEffect,useRef,useState,type FormEvent} from 'react';
 import {money,orderCopy,publicOrderStatus,type Basket,type ComboChoice,type Language,type LineIntent,type ModifierGroup,type NativeOutlet,type OrderIntent,type Product,type Quote,type Receipt} from '@/lib/fb/orders/journey';
 import './native-ordering.css';
 import {SmartMenuProduct, SmartMenuRecommendations, SmartMenuCartItem, SmartMenuSavings, smartMenuCopy} from './smartmenu-parts';
-import {smartComboSavings,smartLineEstimate} from '@/lib/fb/smartmenu';
+import {smartComboSavings,smartLineEstimate,smartCheckoutComponents} from '@/lib/fb/smartmenu';
 
 async function post<T>(slug:string,operation:string,body:unknown):Promise<T>{const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),15000);try{const r=await fetch('/api/fb/hotel/'+slug+'/'+operation,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',cache:'no-store',body:JSON.stringify(body),signal:controller.signal});const data=await r.json();if(!r.ok)throw new ApiError(typeof data.error==='string'?data.error:'unavailable');return data;}finally{clearTimeout(timer);}}
 class ApiError extends Error {}
@@ -117,7 +117,13 @@ export function NativeOrderingOutlet({initial,slug,language,hasRoomContext,premi
     intent:{lines:cart.map(c=>c.intent),fulfilment,language},
     ...(compactReview?{include_room_number:true}:{}),
    });
-   setQuote(q);attempt.current=null;
+   const lines = compactReview ? q.lines.map((line, index) => {
+    const intent = cart[index]?.intent;
+    if (intent?.kind !== 'combo' || intent.id !== line.id) return line;
+    const product = outlet.products.find(item => item.id === intent.id && item.menu_id === intent.menu_id);
+    return {...line, components: smartCheckoutComponents(line, product, intent)};
+   }) : q.lines;
+   setQuote({...q, lines});attempt.current=null;
   }catch(e){report(e);}finally{setBusy(false);}
  }
  async function confirm(e:FormEvent){e.preventDefault();if(!quote)return;setBusy(true);setError('');

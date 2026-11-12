@@ -13,7 +13,7 @@ export type LineIntent={kind:'item';id:string;menu_id:string;quantity:number;opt
 export interface Basket {lines:LineIntent[];fulfilment:Fulfilment;language:Language}
 export interface OrderIntent extends Basket {first_name:string;last_name:string;note?:string}
 export interface QuoteOption {id:string;name:string;group:string;unit_minor:number;quantity:number}
-export interface QuoteLine {id:string;kind:string;name:string;quantity:number;unit_minor:number;total_minor:number;currency:string;options:QuoteOption[];components:QuoteLine[];extra_minor:number}
+export interface QuoteLine {id:string;choice_id?:string;kind:string;name:string;quantity:number;unit_minor:number;total_minor:number;currency:string;options:QuoteOption[];components:QuoteLine[];extra_minor:number}
 export interface Quote {quote_id:string;quote_reference:string;expires_at:string;currency:string;total_minor:number;available:true;lines:QuoteLine[];room_number?:string}
 export interface Receipt {order_id:string;tracking_href:string;status:string;replayed:boolean}
 export interface PublicOrder {order_id:string;reference:string;status:string;revision:number;created_at:string;currency:string;total_minor:number;fulfilment:Fulfilment;groups:{label:string;status:string}[];lines:{name:string;quantity:number;total_minor:number;kind:string;options:string[]}[];history:{action:string;status:string|null;at:string}[];cancellation:{automatic:boolean;minutes:number;request_status:string|null;contact?:import('./cancellation-contact').CancellationContact|null}}
