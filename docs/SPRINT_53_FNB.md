@@ -3661,3 +3661,282 @@ A revisão recebeu GO visual com ajustes. O refinamento mantém a experiência d
 [PLANEJADO] Caso o produto passe a exigir um outlet preferencial independente da ordem administrativa, a proposta é uma referência explícita por hotel, validada por FK composta (hotel, outlet) e exposta pela projeção pública. A configuração requer autorização no Admin, CAS e auditoria. Sua aplicação operacional depende de aprovação específica.
 
 A validação desta rodada é direcionada ao refinamento visual e às regressões essenciais de catálogo, carrinho, checkout e acompanhamento. As capturas usam fixtures locais identificadas. O resultado local e o commit de consolidação estão registrados no relatório de revisão final em out/smartmenu-premium-v1/final-review/.
+
+## Pedidos Premium + KDS universal — entrega local de 12/11/2026
+
+Implementado em `feat/pedidos-premium-kds-universal`, criada de `3dd8896`
+(`feat/bugan-cardapio-homologacao`). A referência aprovada
+`745d7d05407d2b685ab083bcbf79f06715bd5518` existe em outro worktree; o
+`origin/main` local inspecionado é `c2abc7b174808b8ce342cbefe47bdd43e8037622`.
+Sem fetch, push, merge ou deploy. Worktrees e alterações preexistentes de impressão
+e cardápio preservados. O commit inclui somente esta evolução e este adendo;
+adendos locais preexistentes deste documento ficam fora do commit.
+
+### Funcionalidades e contratos
+
+- Pedidos: indicadores por estado de grupo, fila lateral, detalhe selecionado,
+  busca por código/item autorizado, setor/status/período, relógio, adicionais,
+  histórico, consulta privada explícita e cancelamento confirmado. Indicadores
+  contam pedidos com grupo no estado; não são somáveis entre estados. O retrato
+  completo só é publicado após terminar a leitura paginada B23.
+- `/kds`: página independente para TV/tablet, Monitor sem ações de atendimento,
+  Operacional autenticado e Expedição. Kanban, lista compacta e grade, tema,
+  contraste, colunas, ordem, texto e limite configuráveis. Total de grupos separado
+  do número visível; cada ticket representa um grupo canônico de setor.
+- Admin KDS: Visão geral, Telas, Exibição, Fluxo, Alertas e Segurança; telas opt-in
+  do hotel autenticado, setores autorizados, dispositivo, última conexão e acesso.
+- Pareamento de 144 bits aleatórios, dez minutos, uso único; somente hash no banco.
+  Sessão de 256 bits, cookie HttpOnly/SameSite Strict, Secure em HTTPS, até trinta
+  dias e nenhum segredo em URL. Um dispositivo por cadastro de tela; várias TVs
+  usam vários cadastros, que podem compartilhar os mesmos setores.
+- Servidor exige hotel, setores, módulos `core.directory`/`fb.menu` e capabilities
+  existentes. Administração: papel editor ou superior + `orders.configure`;
+  `orders.read` delimita os setores concedíveis. Alterações revogam o pareamento;
+  perfil/grants do configurador, setores e módulos precisam continuar ativos.
+  Tabelas privadas com RLS e sem grants diretos.
+- Ações usam `transition_current_hotel_fb_order_group_v2`, revisões/CAS e
+  modalidades existentes. Expedição não aceita nem prepara. Há confirmação,
+  trava de envio simultâneo, consulta autoritativa após resultado incerto,
+  rejeição de repetição por revisão e auditoria canônica + evento KDS.
+  Nenhum segundo motor, estado comercial novo ou alteração de trigger de impressão.
+- TV recebe grupos, código, estado, modalidade, itens e adicionais; não recebe
+  nomes, apartamento, valores ou observações privadas. Detalhes autorizados abrem
+  o painel de Pedidos filtrado pelo código, sujeito à capability original de PII.
+- Poll a cada quatro segundos, timeout de dez segundos, espera progressiva até
+  trinta segundos e recuperação online/visibilidade. Dados desatualizados bloqueiam
+  ações. Atenção/crítico começam nulos; 10/20 minutos das capturas são somente
+  configuração sintética. Som opcional depende de gesto no navegador.
+
+### Arquivos desta entrega
+
+| Área | Arquivos |
+|---|---|
+| Pedidos | `app/admin/pedidos/page.tsx`, `components/admin/fb-orders-panel.tsx`, `components/admin/fb-orders-premium.css` |
+| KDS TV | `app/kds/page.tsx`, `components/fb-kds-display.tsx`, `components/fb-kds-display.css` |
+| Admin KDS | `app/admin/kds/page.tsx`, `components/admin/fb-kds-admin.tsx`, `components/admin/fb-kds.css` |
+| Contratos/servidor | `lib/fb/kds/contracts.ts`, `lib/fb/kds/server.ts`, `app/api/admin/fb-kds/route.ts`, `app/api/fb/kds/route.ts` |
+| Navegação | `app/admin/layout.tsx`, `components/admin/fb-workspace-nav.tsx`, `lib/admin-navigation.ts`, `lib/fb/admin-workspace.ts`, `lib/fb/admin-workspace.server.ts` |
+| Banco | `supabase/migrations/20261112033049_sprint_53_kds_universal.sql`, `supabase/tests/53_kds_rollback.sql` |
+| Verificação | `tests/integration/fb-kds-postgres.mjs`, `tests/browser/fb-kds.mjs`, `tests/browser/fb-kds-fixture.tsx`, `tests/browser/fb-kds-actions-stub.ts` |
+| Documentação/build | `docs/SPRINT_53_FNB.md`, `docs/guestdesk-admin-guide.md`, `tsconfig.json` |
+
+Reuso: `FbWorkspaceHeader`, navegação/tema Admin, `OrderAccess`, `PanelPage`,
+`orderRpc`, HTTP same-origin/no-store, `nextGroupStatus`, consultas B23/PII,
+ações canônicas de cancelamento/transição, auditoria e leitura separada de impressão.
+TypeScript agora exclui `out`, assim como o lint já fazia: artefatos e cópias de
+worktrees ali não compõem o projeto. Nenhum código ativo foi excluído.
+
+### Banco, rollback e validação
+
+Migration aditiva cria schema `fb_kds_private`, tabelas `screens`/`screen_sectors`
+e RPCs explicitamente restritas a authenticated ou service_role. Não provisiona
+hotéis nem habilita ordering/KDS/printing. Nenhuma aplicação remota.
+Rollback manual protegido por `SET libguest.kds_rollback='approved'`: após exportar
+configurações, remove as RPCs e somente o schema KDS. Ensaio local preservou fatos
+e funções canônicas de Pedidos.
+
+- `tsc --noEmit`, lint direcionado de todos os TS/TSX/MJS alterados e
+  `npm run build`: aprovados, com as novas rotas presentes.
+- `fb-b23.test.ts` + `fb-admin-workspace.test.ts`: 18 testes aprovados.
+- `fb-c1.test.ts` + `fb-c3.test.ts` + `fb-b4.test.ts`: 14 testes aprovados;
+  contratos de impressão, comandos humanos e diagnósticos preservados.
+- `node tests/integration/fb-kds-postgres.mjs`: 39 verificações aprovadas em
+  PostgreSQL via PGlite 0.3.15, em memória e sintético. Executa a migration KDS
+  integral, DDL de pedidos e funções canônicas das migrations B1/B23, helpers
+  canônicos de papel/entitlement, claims sintéticas e tabelas mínimas de contexto.
+  Cobre hotel, setor, capability, módulo, códigos, revogação, RLS/grants, PII,
+  Monitor, Operacional, Expedição, CAS/repetição, modalidades e rollback.
+- `node tests/browser/fb-kds.mjs`: 30 verificações em Chrome e 16 capturas.
+  Desktop/mobile/1920×1080, filtros, cadastro, confirmação, payload CAS, Monitor
+  sem ações, offline/recuperação, teclado e nenhuma chamada externa.
+
+Runtime PGlite é efêmero em `out/kds-postgres`, sem alterar package.json/lockfile.
+Reprodução: `npm install --prefix out/kds-postgres --no-save --ignore-scripts @electric-sql/pglite@0.3.15`,
+seguido do script de integração. Relatórios em `out/kds-universal/postgres-report.json`
+e `out/kds-universal/browser/report.json`. Suíte histórica completa não repetida.
+
+### Evidências e limites
+
+Capturas em `out/kds-universal/browser/`, fora do commit:
+`orders-1440.png`, `orders-390.png`, `kds-monitor-tv.png`,
+`kds-operational.png`, `kds-multiple-sectors.png`, `kds-empty.png`,
+`kds-offline.png`, `kds-pairing.png`, `kds-compact.png`, `kds-tickets.png`,
+`admin-screens-1440.png`, `admin-screens-390.png`, `admin-settings-1440.png`,
+`admin-settings-390.png`, `admin-pairing-1440.png`, `admin-pairing-390.png`.
+São componentes de produção com transporte sintético, identificados como fixture.
+Capturas inspecionadas para tipografia/hierarquia/responsividade. Os três mockups
+citados não estavam disponíveis no anexo/checkout: comparação fiel permanece
+pendente. Nenhum novo protótipo foi criado.
+
+**Estado: implementado localmente para homologação, não publicado.** Docker
+indisponível impediu GoTrue/PostgREST/PostgreSQL nativo completos. PGlite valida
+SQL/PLpgSQL, mas não substitui Auth/SSR/HTTP integrados nem concorrência nativa.
+Homologação final precisa aplicar a migration em stack descartável com todas as
+migrations e validar login, cookie, revogação e concorrência pela API real.
+Advisors remotos não executados, sem alteração em projeto remoto.
+
+Riscos restantes: stack Supabase completa, concorrência, operação de TV real
+(som, navegador, energia) e limites de tickets conforme volume. Revogação é
+imediata no servidor e refletida no próximo poll conectado. Tela offline mantém
+o último retrato local com aviso e sem ações; não pode ser apagada remotamente
+sem rede. Observações privadas continuam somente no Admin autenticado.
+
+SmartMenu, Filipe, catálogo, QR/unidade 1466, pedido E54593FD, Bridge, impressora,
+roteamentos e Goomer não receberam operações. Nenhum pedido real criado, aceito,
+cancelado ou reimpresso. Migration em produção, push, merge e deploy dependem
+de autorização posterior.
+
+### Fechamento do release candidate — 12/11/2026
+
+**Decisão técnica: GO para o release candidate e publicação mediante autorização.**
+Os nove gates essenciais foram aprovados com PostgreSQL/Auth reais isolados.
+Este fechamento substitui a pendência anterior de integração GoTrue/PostgREST e
+concorrência; não representa publicação ou ativação em hotel real.
+
+Fonte: `b7a8793`, branch `feat/pedidos-premium-kds-universal`. Fechamento em
+`release/pedidos-premium-kds-rc`, checkout separado em
+`out/kds-release-candidate`, para entregar árvore limpa sem incluir, apagar ou
+guardar em stash as alterações anteriores de impressão/cardápio do checkout original.
+
+Comparação com as três imagens aprovadas recebidas neste fechamento, usando as
+16 capturas anteriores e sua atualização nos componentes reais:
+
+| Superfície | Diferenças relevantes corrigidas |
+|---|---|
+| Pedidos | Fila proporcionalmente mais larga, linhas compactas com ícones, valores autorizados e impressão independente, ordenação local, hierarquia dos indicadores, filtros antes dos indicadores, estado de atualização destacado e linha visual das etapas reais. |
+| KDS | Cabeçalho escuro, superfície clara, identidade por tokens do hotel, indicadores por estados/tempo, ícones e colunas operacionais, destaques por regra configurada e relógio. Novas telas começam em tema claro; telas existentes mantêm seu tema salvo, inclusive escuro. |
+| Admin KDS | Navegação com ícones, campos agrupados, cartões de modo, área de configuração e prévia do layout dentro do próprio cadastro, acesso e rodapé de salvamento destacados. Desktop/mobile preservados. |
+
+Diferenças intencionais em relação à ilustração: Monitor continua sem ações;
+somente a próxima transição real é oferecida; não há VIP, prioridade, alergia ou
+SLA inventados. A TV não recebe apartamento, nome, total financeiro ou observações
+privadas. Atenção usa exclusivamente limites configurados; a métrica de tempo
+médio ilustrativa foi substituída pela última atualização verificável. Cada grupo
+aparece uma vez, sem duplicá-lo em uma coluna de atrasados. Não foram adicionadas
+notas internas sem contrato de backend. A prévia no Admin mostra somente o layout
+e estados vazios, identificados como prévia; não é um novo protótipo ou dado real.
+
+#### Gate essencial com stack real
+
+O Docker local pôde ser iniciado. Foi criada uma stack exclusiva e descartável
+`libguest-fb-auth-f3133b51`, PostgreSQL 17, GoTrue e PostgREST reais, rede Docker
+interna, aplicação Next de produção/SSR e 61 migrations aplicadas. Dois hotéis,
+usuários, setores, telas e pedidos inteiramente sintéticos. A aplicação recebeu
+somente credenciais do LAB e executou com bloqueio de rede externa.
+
+`node tests/integration/fb-kds-release.mjs`: **37 verificações aprovadas**:
+
+1. TV não pareada: API 403 e nenhum ticket renderizado.
+2. URL e ID de tela copiados: nenhum acesso sem cookie válido.
+3. Revogação: leitura e comando 403 imediatamente; a tela limpa seus tickets.
+4. Hotel/setor: projeção da Cozinha exclui Bar e outro hotel; comandos cruzados 403.
+5. Monitor: mutação 403 mesmo com operador autenticado e capability de transição.
+6. Operacional: tela sem login e login sem capability negados; login real pelo
+   formulário e cookie SSR habilitam somente a próxima ação autorizada.
+7. Duas telas/sessões HTTP concorrentes, mesma revisão: **200 + 409**, revisão
+   incrementada uma única vez e exatamente um evento canônico `orders.accepted`.
+8. Offline: aviso explícito e ação desabilitada; reconexão recupera o estado real.
+9. Privacidade: nome/apartamento/observações ausentes da projeção; consulta privada
+   do Admin retorna 403 sem `orders.pii.read`.
+
+Também comprovados: transições não saltam preparo; Expedição não prepara nem pula
+`out_for_delivery` na entrega em apartamento; atendimento não cria/reimprime jobs;
+zero dispositivos físicos/Bridge no LAB; zero requests externos no navegador;
+zero erros de runtime. Não houve operação no pedido real E54593FD ou em produção.
+
+Verificação final: TypeScript, lint direcionado sem avisos e build aprovados.
+As suítes históricas não foram repetidas. O teste visual existente foi usado para
+atualizar as 16 capturas e aprovou suas 30 verificações de interação/responsividade.
+Relatórios em `out/kds-release/report.json`, `out/kds-release/build-final.log` e
+`out/kds-universal/browser/report.json`, relativos ao checkout RC. Captura adicional
+`out/kds-release/real-offline.png` usa o KDS real autenticado no LAB.
+
+Nenhuma migration adicional neste fechamento: permanece a migration aditiva
+`20261112033049_sprint_53_kds_universal.sql`, com o rollback já ensaiado em
+`supabase/tests/53_kds_rollback.sql`. As funções/transições existentes, o schema de
+impressão e o Bridge não foram alterados. Apenas metadados públicos de marca/tema
+foram acrescentados à resposta KDS após validação da sessão, para os tokens do hotel.
+
+#### Caminho direto de publicação
+
+1. Após autorização, revisar o diff do RC sobre `b7a8793` e a integração com o main
+   vigente, preservando as evoluções de SmartMenu/impressão que possam já estar nele.
+   O checkout original contém trabalho anterior não commitado; não incluí-lo por engano.
+2. Confirmar backup/snapshot e aplicar somente a migration KDS aditiva ainda pendente,
+   sob revisão autorizada. Se ela já constar no histórico remoto, não reaplicar.
+3. Publicar o commit RC integrado pelo fluxo usual; não modificar ordering, QR,
+   configuração de Bridge/impressoras, roteamento ou impressão automática.
+4. No hotel autorizado, conferir `core.directory`/`fb.menu`, `orders.configure` para
+   o gestor e capabilities mínimas de leitura/transição dos operadores nos setores.
+5. Cadastrar a tela piloto, selecionar setores e parear em `/kds` por código de dez
+   minutos. Começar com Monitor; Operacional exige login no mesmo navegador.
+   Configurar atenção/crítico somente com valores aprovados pelo hotel.
+6. Fazer observação assistida do fluxo existente, sem disparar pedidos ou impressões
+   de teste em produção nesta autorização. Revogar a tela para interromper acesso.
+
+Rollback: reverter o código para o checkpoint aprovado; revogar acessos KDS e,
+se necessário e autorizado, exportar configurações antes do script guardado de
+rollback. Nenhum pedido ou histórico de impressão precisa ser removido.
+
+Riscos residuais: volume real pode exigir ajustar limite/tamanho dos tickets;
+som/tela cheia dependem do navegador e do dispositivo; TVs offline mantêm o último
+retrato com aviso até reconectar; revogação no servidor é imediata, e a tela online
+reflete no próximo poll. Não houve homologação física de impressora, nem seria
+necessária para este fechamento de KDS. Cinco hotéis, SmartMenu, QR, ordering,
+Bridge 1.3.2 e histórico reais permaneceram intocados. Sem push, merge, migration
+de produção ou deploy nesta execução.
+
+### Pré-publicação consolidada — autorização e recuperação pendentes
+
+Pré-flight somente leitura em produção, após o RC `e4750d4`. A main remota foi
+confirmada pelo conector GitHub em `745d7d05407d2b685ab083bcbf79f06715bd5518`,
+também presente no deployment de produção `dpl_9nHrEZY6hDuX7UzBHUr4ACXuHmEi`,
+Vercel READY. O tracking local `origin/main` estava em `c2abc7b`; não foi usado
+como fonte definitiva. SSH local retornou `Permission denied (publickey)`;
+a consulta remota foi concluída pelo conector autenticado, sem alterar o remoto.
+
+Integração proposta preparada exclusivamente na branch local
+`release/pedidos-kds-publication`, checkout `out/kds-publication`, com pais
+`745d7d0` e `e4750d4`. A main e os checkouts anteriores permaneceram intactos.
+Somente `docs/SPRINT_53_FNB.md` apresentou conflito: preservou-se o documento
+completo da main, seguido dos adendos KDS do RC. O AdminShell vigente, SmartMenu,
+Impressão V4, Bridge e rotas públicas da main foram preservados. A atualização
+remota dessa integração poderá ser fast-forward se a main não avançar novamente.
+Build da árvore integrada aprovado; TypeScript/lint direcionados conferidos.
+Nenhuma suíte histórica repetida.
+
+Supabase confirmado: projeto `diretorio-hotel`, `micuekfznunwwofxnovw`, saudável.
+Consultas restritas a catálogo/metadados confirmaram os objetos e tipos usados
+pela migration, ausência do schema KDS e ausência de colisões das sete RPCs novas.
+A migration `20261112033049_sprint_53_kds_universal.sql` permanece idêntica à do RC:
+schema/tabelas aditivos, FKs compostas por hotel/setor, RLS, revogação de acesso
+direto, grants de funções restritos, autorização transacional e auditoria.
+Não contém provisionamento automático de telas, pareamentos, grants de operador
+ou módulos. Nenhuma mudança em pedidos ou impressão preexistentes.
+
+O histórico remoto já contém `printing_premium_v4_universal` com versão
+`20261111043434`, enquanto o arquivo da main usa `20261111003611`.
+Portanto, **não executar um db push indiscriminado**. A publicação deve aplicar
+exclusivamente a migration KDS revisada, registrando o resultado no histórico.
+Não reparar ou reaplicar migrations anteriores por conta desta diferença.
+
+Gate de recuperação: `supabase backups list --project-ref micuekfznunwwofxnovw`
+retornou `walg_enabled=true`, `pitr_enabled=false`, `backups=[]` e
+`physical_backup_data={}`. Isso não comprova um backup recuperável disponível;
+também não permite afirmar que não exista cópia por outra via. Antes de DDL em
+produção, confirmar uma cópia restaurável ou produzir e verificar backup seguro.
+Nenhum dump de dados, token ou credencial foi exposto.
+
+**Estado desta etapa: NÃO PUBLICADO.** O procedimento do usuário exige autorização
+explícita de Bruno para integração na main, migration de produção e deploy.
+Essa autorização continua pendente, assim como a comprovação de recuperação.
+Nenhum push, merge na main, DDL/DML remoto, deploy ou pareamento foi executado.
+Após ambos os gates, revalidar a main, publicar a integração, aplicar somente o
+KDS autorizado e acompanhar o deployment até READY. Executar então o smoke
+autenticado enxuto; eventual configuração de smoke deverá ficar inativa e sem
+pareamento. O primeiro pareamento da TV do Bugan continua fora desta autorização.
+
+Recuperação continua controlada: em regressão, bloquear ativação/revogar acesso
+KDS e retornar o código ao deployment READY anterior. Não remover automaticamente
+o schema KDS caso já tenha configurações ou dados. O script de rollback existente
+exige revisão, exportação e opt-in explícito antes de qualquer remoção.

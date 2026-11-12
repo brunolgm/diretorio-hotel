@@ -1,8 +1,8 @@
 import type { FbGraph, FbKind, FbRecord } from './types.ts';
 
-export type FbWorkspaceSection = 'overview' | 'outlet' | 'menu' | 'item' | 'orders' | 'printing';
+export type FbWorkspaceSection = 'overview' | 'outlet' | 'menu' | 'item' | 'orders' | 'printing' | 'kds';
 export interface FbWorkspaceLink { section: FbWorkspaceSection; href: string; label: string }
-export interface FbWorkspaceAccess { editorial: boolean; orders: boolean; printing: boolean }
+export interface FbWorkspaceAccess { editorial: boolean; orders: boolean; printing: boolean; kds?: boolean }
 
 /** Presentation links only. Callers supply the existing authoritative access results. */
 export function fbWorkspaceLinks(access: FbWorkspaceAccess): FbWorkspaceLink[] {
@@ -15,10 +15,12 @@ export function fbWorkspaceLinks(access: FbWorkspaceAccess): FbWorkspaceLink[] {
   );
   if (access.orders) links.push({ section: 'orders', href: '/admin/pedidos', label: 'Pedidos' });
   if (access.printing) links.push({ section: 'printing', href: '/admin/impressao', label: 'Impressão' });
+  if (access.kds) links.push({ section: 'kds', href: '/admin/kds', label: 'KDS' });
   return links;
 }
 
 export function fbWorkspaceSection(pathname: string, kind?: string | null, id?: string | null): FbWorkspaceSection | null {
+  if (pathname === '/admin/kds' || pathname.startsWith('/admin/kds/')) return 'kds';
   if (pathname === '/admin/pedidos' || pathname.startsWith('/admin/pedidos/')) return 'orders';
   if (pathname === '/admin/impressao' || pathname.startsWith('/admin/impressao/')) return 'printing';
   if (pathname !== '/admin/cardapio' && !pathname.startsWith('/admin/cardapio/')) return null;
