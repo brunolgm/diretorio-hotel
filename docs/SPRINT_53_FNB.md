@@ -3662,6 +3662,14 @@ A revisão recebeu GO visual com ajustes. O refinamento mantém a experiência d
 
 A validação desta rodada é direcionada ao refinamento visual e às regressões essenciais de catálogo, carrinho, checkout e acompanhamento. As capturas usam fixtures locais identificadas. O resultado local e o commit de consolidação estão registrados no relatório de revisão final em out/smartmenu-premium-v1/final-review/.
 
+### SmartMenu Bugan — rascunhos comerciais no Admin
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] A versão candidata adiciona à Gastronomia do Bugan a criação e edição de rascunhos de combos e adicionais. O Admin exige permissão de configuração de pedidos e vincula os registros ao estabelecimento Room Service resolvido pelo servidor. O rascunho fica fora da oferta pública.
+
+O vínculo com o estabelecimento é conferido na oferta, na cotação e na revalidação da confirmação. As configurações legadas sem vínculo mantêm o escopo anterior. O laboratório verifica também o Restaurante Filipe com o mesmo cardápio e pedidos nativos habilitados na fixture.
+
+[PLANEJADO] A migração, o cadastro e a ativação em produção dependem de aprovação. Esta etapa prepara rascunhos e deixa a ativação fora da interface.
+
 ## Pedidos Premium + KDS universal — entrega local de 12/11/2026
 
 Implementado em `feat/pedidos-premium-kds-universal`, criada de `3dd8896`

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireAdminAccess, hasMinimumRole } from '@/lib/auth';
 import { requireHotelModule } from '@/lib/admin-entitlements';
@@ -44,5 +45,5 @@ export default async function AdminMenuPage({ searchParams }: { searchParams?: P
     const translations = (translated.data || []) as unknown as FbTranslation[];
     for (const source of languageSources) languages[source.id] = { en: fbTranslationStatus(kind, source, translations.find(value => value.entity_id === source.id && value.language === 'en')), es: fbTranslationStatus(kind, source, translations.find(value => value.entity_id === source.id && value.language === 'es')) };
   }
-  return <main className="space-y-4"><FeedbackToast success={params.success} warning={params.warning} error={params.error}/><AdminInlineError message={params.error}/><FbCatalogueWorkspace graph={graph} services={services.data || []} kind={kind} overview={overview} row={row} creating={params.new === '1' && canManage} filters={filters} canManage={canManage} languages={languages} links={workspaceLinks} mode={mode} hotel={hotel.data}/></main>;
+  return <main className="space-y-4"><FeedbackToast success={params.success} warning={params.warning} error={params.error}/><AdminInlineError message={params.error}/>{hotel.data.slug === 'bugan-recife' && hasMinimumRole(profile.normalizedRole, 'editor') ? <Link className="inline-flex min-h-11 items-center rounded-lg border border-[var(--admin-border)] px-3 py-2" href="/admin/cardapio/comercial">Combos e adicionais do Room Service</Link> : null}<FbCatalogueWorkspace graph={graph} services={services.data || []} kind={kind} overview={overview} row={row} creating={params.new === '1' && canManage} filters={filters} canManage={canManage} languages={languages} links={workspaceLinks} mode={mode} hotel={hotel.data}/></main>;
 }
