@@ -12,6 +12,9 @@ const initial:PanelPage={access:{hotel_id:id(1),hotel:{name:'Hotel de demonstra�
 const screen:KdsScreen={id:id(2),hotel_id:id(1),name:'Cozinha principal · SINTÉTICO',location:'Área de produção',mode:args.get('mode')==='operational'?'operational':'monitor',active:true,revision:1,sector_ids:[id(10),id(11)],settings:{...DEFAULT_KDS_SETTINGS,states:['registered','accepted','preparing','ready'],attention_minutes:10,critical_minutes:20,...(args.get('layout')?{layout:args.get('layout') as 'compact'|'tickets'}:{})},device_name:'TV fixture',last_seen_at:new Date(now).toISOString(),paired:true};
 const admin:KdsAdmin={hotel_id:id(1),hotel_name:initial.access.hotel.name,screens:[screen,{...screen,id:id(3),name:'Expedição · SINTÉTICO',mode:'dispatch',paired:false,device_name:null}],sectors:[{id:id(10),name:'Cozinha sintética'},{id:id(11),name:'Bar sintético'}]};
 const snapshot:KdsSnapshot={screen,hotel_name:initial.access.hotel.name,tickets:args.get('empty')==='1'?[]:initial.orders.map(o=>({id:o.groups[0].id,order_id:o.order_id,sector_id:o.groups[0].sector_id,sector_name:o.groups[0].sector_name,status:o.status,revision:1,created_at:o.created_at,fulfilment:o.fulfilment,can_transition:screen.mode!=='monitor',lines:o.lines.map(l=>({id:l.id,name:l.name,quantity:l.quantity,options:o.options.map(op=>op.name)}))})),total:args.get('empty')==='1'?0:8,updated_at:new Date(now).toISOString()};
+snapshot.hotel={brand_code:'bugan',theme_preset:'bugan'};
+snapshot.tickets.sort((a,b)=>Date.parse(a.created_at)-Date.parse(b.created_at));
+initial.orders.sort((a,b)=>Date.parse(a.created_at)-Date.parse(b.created_at));
 // All API requests are deliberately intercepted within this fixture.
 window.fetch=async(input,options)=>{
  const path=String(input);await new Promise(resolve=>setTimeout(resolve,40));

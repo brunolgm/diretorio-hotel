@@ -29,7 +29,10 @@ export async function pairKds(body:Record<string,unknown>){
  await orderRpc(createAdminClient(),'redeem_fb_kds_pairing',{p_code:body.code,p_session_digest:digest(secret),p_device_name:body.device_name});return secret;
 }
 export async function kdsSnapshot(secret:string):Promise<KdsSnapshot>{
- const data=await orderRpc<KdsSnapshot>(createAdminClient(),'get_fb_kds_snapshot',{p_secret:secret});
+ const service=createAdminClient();
+ const data=await orderRpc<KdsSnapshot>(service,'get_fb_kds_snapshot',{p_secret:secret});
+ const {data:hotel}=await service.from('hotels').select('brand_code,theme_preset').eq('id',data.screen.hotel_id).maybeSingle();
+ if(hotel)data.hotel=hotel;
  if(data.screen.mode==='monitor')return data;
  // Login can only add actions inside this paired screen's sectors; projection stays minimal.
  try{

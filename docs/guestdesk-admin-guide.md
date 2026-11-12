@@ -39,8 +39,15 @@ reconexão ao voltar à rede. O aviso de dados desatualizados bloqueia ações; 
 offline pode continuar mostrando seu último retrato local. A revogação é imediata
 no servidor e refletida na próxima consulta da tela conectada.
 
-Esta versão ainda não foi publicada: a migration KDS precisa de revisão e aplicação
-autorizada. Evidências e limites de homologação estão no adendo KDS da Sprint 53.
+Novas telas usam tema claro; telas já configuradas mantêm seu tema salvo. A prévia
+no cadastro acompanha o layout escolhido sem mostrar comandas reais. Pedidos
+permite ordenar a fila por antiguidade ou recência; a impressão exibida continua
+sendo independente do atendimento.
+
+O release candidate passou os nove gates com PostgreSQL/Auth reais isolados,
+incluindo duas telas concorrentes. Ainda não foi publicado: a migration KDS precisa
+de revisão e aplicação autorizada. Evidências, impacto, rollback e sequência de
+publicação estão no fechamento RC da Sprint 53.
 
 ## Objetivo
 Servir como referência curta para a operação diária do painel administrativo do LibGuest.

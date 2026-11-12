@@ -3415,3 +3415,103 @@ SmartMenu, Filipe, catálogo, QR/unidade 1466, pedido E54593FD, Bridge, impresso
 roteamentos e Goomer não receberam operações. Nenhum pedido real criado, aceito,
 cancelado ou reimpresso. Migration em produção, push, merge e deploy dependem
 de autorização posterior.
+
+### Fechamento do release candidate — 12/11/2026
+
+**Decisão técnica: GO para o release candidate e publicação mediante autorização.**
+Os nove gates essenciais foram aprovados com PostgreSQL/Auth reais isolados.
+Este fechamento substitui a pendência anterior de integração GoTrue/PostgREST e
+concorrência; não representa publicação ou ativação em hotel real.
+
+Fonte: `b7a8793`, branch `feat/pedidos-premium-kds-universal`. Fechamento em
+`release/pedidos-premium-kds-rc`, checkout separado em
+`out/kds-release-candidate`, para entregar árvore limpa sem incluir, apagar ou
+guardar em stash as alterações anteriores de impressão/cardápio do checkout original.
+
+Comparação com as três imagens aprovadas recebidas neste fechamento, usando as
+16 capturas anteriores e sua atualização nos componentes reais:
+
+| Superfície | Diferenças relevantes corrigidas |
+|---|---|
+| Pedidos | Fila proporcionalmente mais larga, linhas compactas com ícones, valores autorizados e impressão independente, ordenação local, hierarquia dos indicadores, filtros antes dos indicadores, estado de atualização destacado e linha visual das etapas reais. |
+| KDS | Cabeçalho escuro, superfície clara, identidade por tokens do hotel, indicadores por estados/tempo, ícones e colunas operacionais, destaques por regra configurada e relógio. Novas telas começam em tema claro; telas existentes mantêm seu tema salvo, inclusive escuro. |
+| Admin KDS | Navegação com ícones, campos agrupados, cartões de modo, área de configuração e prévia do layout dentro do próprio cadastro, acesso e rodapé de salvamento destacados. Desktop/mobile preservados. |
+
+Diferenças intencionais em relação à ilustração: Monitor continua sem ações;
+somente a próxima transição real é oferecida; não há VIP, prioridade, alergia ou
+SLA inventados. A TV não recebe apartamento, nome, total financeiro ou observações
+privadas. Atenção usa exclusivamente limites configurados; a métrica de tempo
+médio ilustrativa foi substituída pela última atualização verificável. Cada grupo
+aparece uma vez, sem duplicá-lo em uma coluna de atrasados. Não foram adicionadas
+notas internas sem contrato de backend. A prévia no Admin mostra somente o layout
+e estados vazios, identificados como prévia; não é um novo protótipo ou dado real.
+
+#### Gate essencial com stack real
+
+O Docker local pôde ser iniciado. Foi criada uma stack exclusiva e descartável
+`libguest-fb-auth-f3133b51`, PostgreSQL 17, GoTrue e PostgREST reais, rede Docker
+interna, aplicação Next de produção/SSR e 61 migrations aplicadas. Dois hotéis,
+usuários, setores, telas e pedidos inteiramente sintéticos. A aplicação recebeu
+somente credenciais do LAB e executou com bloqueio de rede externa.
+
+`node tests/integration/fb-kds-release.mjs`: **37 verificações aprovadas**:
+
+1. TV não pareada: API 403 e nenhum ticket renderizado.
+2. URL e ID de tela copiados: nenhum acesso sem cookie válido.
+3. Revogação: leitura e comando 403 imediatamente; a tela limpa seus tickets.
+4. Hotel/setor: projeção da Cozinha exclui Bar e outro hotel; comandos cruzados 403.
+5. Monitor: mutação 403 mesmo com operador autenticado e capability de transição.
+6. Operacional: tela sem login e login sem capability negados; login real pelo
+   formulário e cookie SSR habilitam somente a próxima ação autorizada.
+7. Duas telas/sessões HTTP concorrentes, mesma revisão: **200 + 409**, revisão
+   incrementada uma única vez e exatamente um evento canônico `orders.accepted`.
+8. Offline: aviso explícito e ação desabilitada; reconexão recupera o estado real.
+9. Privacidade: nome/apartamento/observações ausentes da projeção; consulta privada
+   do Admin retorna 403 sem `orders.pii.read`.
+
+Também comprovados: transições não saltam preparo; Expedição não prepara nem pula
+`out_for_delivery` na entrega em apartamento; atendimento não cria/reimprime jobs;
+zero dispositivos físicos/Bridge no LAB; zero requests externos no navegador;
+zero erros de runtime. Não houve operação no pedido real E54593FD ou em produção.
+
+Verificação final: TypeScript, lint direcionado sem avisos e build aprovados.
+As suítes históricas não foram repetidas. O teste visual existente foi usado para
+atualizar as 16 capturas e aprovou suas 30 verificações de interação/responsividade.
+Relatórios em `out/kds-release/report.json`, `out/kds-release/build-final.log` e
+`out/kds-universal/browser/report.json`, relativos ao checkout RC. Captura adicional
+`out/kds-release/real-offline.png` usa o KDS real autenticado no LAB.
+
+Nenhuma migration adicional neste fechamento: permanece a migration aditiva
+`20261112033049_sprint_53_kds_universal.sql`, com o rollback já ensaiado em
+`supabase/tests/53_kds_rollback.sql`. As funções/transições existentes, o schema de
+impressão e o Bridge não foram alterados. Apenas metadados públicos de marca/tema
+foram acrescentados à resposta KDS após validação da sessão, para os tokens do hotel.
+
+#### Caminho direto de publicação
+
+1. Após autorização, revisar o diff do RC sobre `b7a8793` e a integração com o main
+   vigente, preservando as evoluções de SmartMenu/impressão que possam já estar nele.
+   O checkout original contém trabalho anterior não commitado; não incluí-lo por engano.
+2. Confirmar backup/snapshot e aplicar somente a migration KDS aditiva ainda pendente,
+   sob revisão autorizada. Se ela já constar no histórico remoto, não reaplicar.
+3. Publicar o commit RC integrado pelo fluxo usual; não modificar ordering, QR,
+   configuração de Bridge/impressoras, roteamento ou impressão automática.
+4. No hotel autorizado, conferir `core.directory`/`fb.menu`, `orders.configure` para
+   o gestor e capabilities mínimas de leitura/transição dos operadores nos setores.
+5. Cadastrar a tela piloto, selecionar setores e parear em `/kds` por código de dez
+   minutos. Começar com Monitor; Operacional exige login no mesmo navegador.
+   Configurar atenção/crítico somente com valores aprovados pelo hotel.
+6. Fazer observação assistida do fluxo existente, sem disparar pedidos ou impressões
+   de teste em produção nesta autorização. Revogar a tela para interromper acesso.
+
+Rollback: reverter o código para o checkpoint aprovado; revogar acessos KDS e,
+se necessário e autorizado, exportar configurações antes do script guardado de
+rollback. Nenhum pedido ou histórico de impressão precisa ser removido.
+
+Riscos residuais: volume real pode exigir ajustar limite/tamanho dos tickets;
+som/tela cheia dependem do navegador e do dispositivo; TVs offline mantêm o último
+retrato com aviso até reconectar; revogação no servidor é imediata, e a tela online
+reflete no próximo poll. Não houve homologação física de impressora, nem seria
+necessária para este fechamento de KDS. Cinco hotéis, SmartMenu, QR, ordering,
+Bridge 1.3.2 e histórico reais permaneceram intocados. Sem push, merge, migration
+de produção ou deploy nesta execução.
