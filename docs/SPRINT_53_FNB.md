@@ -3291,3 +3291,127 @@ ordering ativado no tenant. O código real usa a oferta canônica/RPC e suas reg
 de admissão/disponibilidade. Sem consulta ao Supabase remoto, mudança de dados,
 ativação ou homologação operacional nesta rodada. Evidências e seis capturas
 direcionadas em `out/fb-premium-final/`; Impressão e CSS aprovados não alterados.
+
+## Pedidos Premium + KDS universal — entrega local de 12/11/2026
+
+Implementado em `feat/pedidos-premium-kds-universal`, criada de `3dd8896`
+(`feat/bugan-cardapio-homologacao`). A referência aprovada
+`745d7d05407d2b685ab083bcbf79f06715bd5518` existe em outro worktree; o
+`origin/main` local inspecionado é `c2abc7b174808b8ce342cbefe47bdd43e8037622`.
+Sem fetch, push, merge ou deploy. Worktrees e alterações preexistentes de impressão
+e cardápio preservados. O commit inclui somente esta evolução e este adendo;
+adendos locais preexistentes deste documento ficam fora do commit.
+
+### Funcionalidades e contratos
+
+- Pedidos: indicadores por estado de grupo, fila lateral, detalhe selecionado,
+  busca por código/item autorizado, setor/status/período, relógio, adicionais,
+  histórico, consulta privada explícita e cancelamento confirmado. Indicadores
+  contam pedidos com grupo no estado; não são somáveis entre estados. O retrato
+  completo só é publicado após terminar a leitura paginada B23.
+- `/kds`: página independente para TV/tablet, Monitor sem ações de atendimento,
+  Operacional autenticado e Expedição. Kanban, lista compacta e grade, tema,
+  contraste, colunas, ordem, texto e limite configuráveis. Total de grupos separado
+  do número visível; cada ticket representa um grupo canônico de setor.
+- Admin KDS: Visão geral, Telas, Exibição, Fluxo, Alertas e Segurança; telas opt-in
+  do hotel autenticado, setores autorizados, dispositivo, última conexão e acesso.
+- Pareamento de 144 bits aleatórios, dez minutos, uso único; somente hash no banco.
+  Sessão de 256 bits, cookie HttpOnly/SameSite Strict, Secure em HTTPS, até trinta
+  dias e nenhum segredo em URL. Um dispositivo por cadastro de tela; várias TVs
+  usam vários cadastros, que podem compartilhar os mesmos setores.
+- Servidor exige hotel, setores, módulos `core.directory`/`fb.menu` e capabilities
+  existentes. Administração: papel editor ou superior + `orders.configure`;
+  `orders.read` delimita os setores concedíveis. Alterações revogam o pareamento;
+  perfil/grants do configurador, setores e módulos precisam continuar ativos.
+  Tabelas privadas com RLS e sem grants diretos.
+- Ações usam `transition_current_hotel_fb_order_group_v2`, revisões/CAS e
+  modalidades existentes. Expedição não aceita nem prepara. Há confirmação,
+  trava de envio simultâneo, consulta autoritativa após resultado incerto,
+  rejeição de repetição por revisão e auditoria canônica + evento KDS.
+  Nenhum segundo motor, estado comercial novo ou alteração de trigger de impressão.
+- TV recebe grupos, código, estado, modalidade, itens e adicionais; não recebe
+  nomes, apartamento, valores ou observações privadas. Detalhes autorizados abrem
+  o painel de Pedidos filtrado pelo código, sujeito à capability original de PII.
+- Poll a cada quatro segundos, timeout de dez segundos, espera progressiva até
+  trinta segundos e recuperação online/visibilidade. Dados desatualizados bloqueiam
+  ações. Atenção/crítico começam nulos; 10/20 minutos das capturas são somente
+  configuração sintética. Som opcional depende de gesto no navegador.
+
+### Arquivos desta entrega
+
+| Área | Arquivos |
+|---|---|
+| Pedidos | `app/admin/pedidos/page.tsx`, `components/admin/fb-orders-panel.tsx`, `components/admin/fb-orders-premium.css` |
+| KDS TV | `app/kds/page.tsx`, `components/fb-kds-display.tsx`, `components/fb-kds-display.css` |
+| Admin KDS | `app/admin/kds/page.tsx`, `components/admin/fb-kds-admin.tsx`, `components/admin/fb-kds.css` |
+| Contratos/servidor | `lib/fb/kds/contracts.ts`, `lib/fb/kds/server.ts`, `app/api/admin/fb-kds/route.ts`, `app/api/fb/kds/route.ts` |
+| Navegação | `app/admin/layout.tsx`, `components/admin/fb-workspace-nav.tsx`, `lib/admin-navigation.ts`, `lib/fb/admin-workspace.ts`, `lib/fb/admin-workspace.server.ts` |
+| Banco | `supabase/migrations/20261112033049_sprint_53_kds_universal.sql`, `supabase/tests/53_kds_rollback.sql` |
+| Verificação | `tests/integration/fb-kds-postgres.mjs`, `tests/browser/fb-kds.mjs`, `tests/browser/fb-kds-fixture.tsx`, `tests/browser/fb-kds-actions-stub.ts` |
+| Documentação/build | `docs/SPRINT_53_FNB.md`, `docs/guestdesk-admin-guide.md`, `tsconfig.json` |
+
+Reuso: `FbWorkspaceHeader`, navegação/tema Admin, `OrderAccess`, `PanelPage`,
+`orderRpc`, HTTP same-origin/no-store, `nextGroupStatus`, consultas B23/PII,
+ações canônicas de cancelamento/transição, auditoria e leitura separada de impressão.
+TypeScript agora exclui `out`, assim como o lint já fazia: artefatos e cópias de
+worktrees ali não compõem o projeto. Nenhum código ativo foi excluído.
+
+### Banco, rollback e validação
+
+Migration aditiva cria schema `fb_kds_private`, tabelas `screens`/`screen_sectors`
+e RPCs explicitamente restritas a authenticated ou service_role. Não provisiona
+hotéis nem habilita ordering/KDS/printing. Nenhuma aplicação remota.
+Rollback manual protegido por `SET libguest.kds_rollback='approved'`: após exportar
+configurações, remove as RPCs e somente o schema KDS. Ensaio local preservou fatos
+e funções canônicas de Pedidos.
+
+- `tsc --noEmit`, lint direcionado de todos os TS/TSX/MJS alterados e
+  `npm run build`: aprovados, com as novas rotas presentes.
+- `fb-b23.test.ts` + `fb-admin-workspace.test.ts`: 18 testes aprovados.
+- `fb-c1.test.ts` + `fb-c3.test.ts` + `fb-b4.test.ts`: 14 testes aprovados;
+  contratos de impressão, comandos humanos e diagnósticos preservados.
+- `node tests/integration/fb-kds-postgres.mjs`: 39 verificações aprovadas em
+  PostgreSQL via PGlite 0.3.15, em memória e sintético. Executa a migration KDS
+  integral, DDL de pedidos e funções canônicas das migrations B1/B23, helpers
+  canônicos de papel/entitlement, claims sintéticas e tabelas mínimas de contexto.
+  Cobre hotel, setor, capability, módulo, códigos, revogação, RLS/grants, PII,
+  Monitor, Operacional, Expedição, CAS/repetição, modalidades e rollback.
+- `node tests/browser/fb-kds.mjs`: 30 verificações em Chrome e 16 capturas.
+  Desktop/mobile/1920×1080, filtros, cadastro, confirmação, payload CAS, Monitor
+  sem ações, offline/recuperação, teclado e nenhuma chamada externa.
+
+Runtime PGlite é efêmero em `out/kds-postgres`, sem alterar package.json/lockfile.
+Reprodução: `npm install --prefix out/kds-postgres --no-save --ignore-scripts @electric-sql/pglite@0.3.15`,
+seguido do script de integração. Relatórios em `out/kds-universal/postgres-report.json`
+e `out/kds-universal/browser/report.json`. Suíte histórica completa não repetida.
+
+### Evidências e limites
+
+Capturas em `out/kds-universal/browser/`, fora do commit:
+`orders-1440.png`, `orders-390.png`, `kds-monitor-tv.png`,
+`kds-operational.png`, `kds-multiple-sectors.png`, `kds-empty.png`,
+`kds-offline.png`, `kds-pairing.png`, `kds-compact.png`, `kds-tickets.png`,
+`admin-screens-1440.png`, `admin-screens-390.png`, `admin-settings-1440.png`,
+`admin-settings-390.png`, `admin-pairing-1440.png`, `admin-pairing-390.png`.
+São componentes de produção com transporte sintético, identificados como fixture.
+Capturas inspecionadas para tipografia/hierarquia/responsividade. Os três mockups
+citados não estavam disponíveis no anexo/checkout: comparação fiel permanece
+pendente. Nenhum novo protótipo foi criado.
+
+**Estado: implementado localmente para homologação, não publicado.** Docker
+indisponível impediu GoTrue/PostgREST/PostgreSQL nativo completos. PGlite valida
+SQL/PLpgSQL, mas não substitui Auth/SSR/HTTP integrados nem concorrência nativa.
+Homologação final precisa aplicar a migration em stack descartável com todas as
+migrations e validar login, cookie, revogação e concorrência pela API real.
+Advisors remotos não executados, sem alteração em projeto remoto.
+
+Riscos restantes: stack Supabase completa, concorrência, operação de TV real
+(som, navegador, energia) e limites de tickets conforme volume. Revogação é
+imediata no servidor e refletida no próximo poll conectado. Tela offline mantém
+o último retrato local com aviso e sem ações; não pode ser apagada remotamente
+sem rede. Observações privadas continuam somente no Admin autenticado.
+
+SmartMenu, Filipe, catálogo, QR/unidade 1466, pedido E54593FD, Bridge, impressora,
+roteamentos e Goomer não receberam operações. Nenhum pedido real criado, aceito,
+cancelado ou reimpresso. Migration em produção, push, merge e deploy dependem
+de autorização posterior.

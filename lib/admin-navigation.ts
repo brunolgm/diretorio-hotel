@@ -75,7 +75,7 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationGroup[] = [
   },
 ] as const;
 
-export function getAdminNavigationForRole(role: AppRole, enabledModules?: ReadonlySet<ModuleKey>, operationalAccess: { orders: boolean; printing: boolean; archivedDrain?: boolean } = { orders: false, printing: false }): AdminNavigationGroup[] {
+export function getAdminNavigationForRole(role: AppRole, enabledModules?: ReadonlySet<ModuleKey>, operationalAccess: { orders: boolean; printing: boolean; kds?: boolean; archivedDrain?: boolean } = { orders: false, printing: false }): AdminNavigationGroup[] {
   const groups: AdminNavigationGroup[] = (operationalAccess.archivedDrain ? [] : ADMIN_NAVIGATION).map((group) => ({
     ...group,
     items: group.items.filter((navigationItem) =>
@@ -85,7 +85,7 @@ export function getAdminNavigationForRole(role: AppRole, enabledModules?: Readon
   })).filter((group) => group.items.length > 0);
   const parent = groups.flatMap(group => group.items).find(entry => entry.href === '/admin/cardapio');
   const operationalRole = hasMinimumRole(role, 'operador');
-  const children = fbWorkspaceLinks({ editorial: !!parent, orders: operationalRole && operationalAccess.orders, printing: operationalRole && operationalAccess.printing }).map(link => ({ ...link, icon: 'menu' as const, requiredRole: (link.section === 'orders' || link.section === 'printing' ? 'operador' : 'visualizador') as AppRole, availability: 'available' as const }));
+  const children = fbWorkspaceLinks({ editorial: !!parent, orders: operationalRole && operationalAccess.orders, printing: operationalRole && operationalAccess.printing, kds: hasMinimumRole(role,'editor') && !operationalAccess.archivedDrain && operationalAccess.kds }).map(link => ({ ...link, icon: 'menu' as const, requiredRole: (link.section==='kds'?'editor':link.section === 'orders' || link.section === 'printing' ? 'operador' : 'visualizador') as AppRole, availability: 'available' as const }));
   if (parent) parent.children = children;
   else if (children.length) {
     const group = groups.find(group => group.key === 'guest_experience');

@@ -8,16 +8,19 @@ import { printRpc } from './printing/rpc.server';
 import { PrintBoundaryError } from './printing/validation';
 import type { Commissioning } from './printing/commissioning';
 import { fbWorkspaceLinks } from './admin-workspace';
+import {readKdsAdmin} from './kds/server';
 
 export const workspaceOrderAccess = cache(currentOrderAccess);
 export const workspacePrintAccess = cache(currentPrintAccess);
+export const workspaceKdsAccess = cache(async()=>{try{return await readKdsAdmin();}catch{return null;}});
 export async function readFbWorkspaceLinks({ editorial, operationalRole, archived = false }: { editorial?: boolean; operationalRole: boolean; archived?: boolean }) {
-  const [canReadEditorial, orders, printing] = await Promise.all([
+  const [canReadEditorial, orders, printing, kds] = await Promise.all([
     archived ? false : editorial ?? hasHotelModule('fb.menu'),
     operationalRole ? workspaceOrderAccess() : null,
     operationalRole && !archived ? workspacePrintAccess() : null,
+    operationalRole && !archived ? workspaceKdsAccess() : null,
   ]);
-  return fbWorkspaceLinks({ editorial: canReadEditorial, orders: !!orders, printing: !!printing });
+  return fbWorkspaceLinks({ editorial: canReadEditorial, orders: !!orders, printing: !!printing, kds: !!kds });
 }
 
 /** Existing read-only RPC; lack of permission never implies catalog_only. */

@@ -1,5 +1,47 @@
 # LibGuest: guia rápido do admin
 
+## Pedidos Premium e KDS — implementação local de 12/11/2026
+
+Em **Gastronomia → Pedidos**, os indicadores contam pedidos com ao menos um grupo
+no estado indicado, considerando os filtros de setor, busca e período. Um pedido
+de vários setores pode participar de mais de um indicador. A fila abre um detalhe
+por vez. Busca consulta código e itens já autorizados; nomes de hóspedes e
+apartamentos não entram no índice. Dados privados e observações exigem a consulta
+explícita e a capability existente. A impressão tem estado próprio.
+
+**Gastronomia → KDS** exige papel editor ou superior, capability `orders.configure`
+e módulos `core.directory`/`fb.menu` habilitados. Cada tela pertence ao hotel do
+usuário autenticado. Cadastre nome, localização, tipo e setores que o configurador
+pode ler. As seis áreas são Visão geral, Telas, Exibição, Fluxo, Alertas e Segurança.
+
+Em Segurança, gere um código temporário. Na TV/tablet, abra `/kds`, informe o nome
+do dispositivo e digite o código de uso único em até dez minutos. A URL não contém
+credencial. O navegador recebe cookie HttpOnly com sessão de até trinta dias.
+Gerar novo código, revogar acesso ou salvar a tela invalida o dispositivo anterior.
+Revogar a capability do configurador, inativar seus setores ou desabilitar os módulos
+também impede novas consultas. Após editar, faça novo pareamento.
+
+Monitor não apresenta ações. Operacional exige que a equipe faça login no mesmo
+navegador (o botão abre outra aba) e tenha `orders.read` e `orders.transition` no
+setor. Expedição só avança pedidos prontos/em entrega. Todas as ações têm confirmação
+e revisão/CAS; se uma resposta não for confirmada, aguarde o estado atualizado antes
+de tentar novamente. “Detalhes autorizados” abre Pedidos já filtrado pelo código;
+observações privadas permanecem nessa área autenticada, fora da TV.
+
+Escolha Kanban, lista compacta ou tickets, colunas, tema, contraste, tamanho e limite
+visível. O cabeçalho informa quantos grupos do total estão na tela. Limites de atenção
+e crítico começam desativados: configure os minutos do hotel. Som é opcional e precisa
+de um clique para permissão no navegador. O tempo exibido parte do registro do pedido.
+Concluídos, quando habilitados, abrangem as últimas 24 horas.
+
+As consultas atualizam a cada quatro segundos, com espera progressiva em falhas e
+reconexão ao voltar à rede. O aviso de dados desatualizados bloqueia ações; uma TV
+offline pode continuar mostrando seu último retrato local. A revogação é imediata
+no servidor e refletida na próxima consulta da tela conectada.
+
+Esta versão ainda não foi publicada: a migration KDS precisa de revisão e aplicação
+autorizada. Evidências e limites de homologação estão no adendo KDS da Sprint 53.
+
 ## Objetivo
 Servir como referência curta para a operação diária do painel administrativo do LibGuest.
 

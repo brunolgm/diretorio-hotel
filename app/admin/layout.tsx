@@ -10,7 +10,7 @@ import { createClient } from '@/lib/supabase/server';
 import {headers} from 'next/headers';
 import {redirect} from 'next/navigation';
 import {requireOrderShell} from '@/lib/fb/orders/operations.server';
-import {workspaceOrderAccess as currentOrderAccess,workspacePrintAccess as currentPrintAccess} from '@/lib/fb/admin-workspace.server';
+import {workspaceOrderAccess as currentOrderAccess,workspacePrintAccess as currentPrintAccess,workspaceKdsAccess} from '@/lib/fb/admin-workspace.server';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -31,7 +31,8 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   const archivedDrain=orderShell&&orderAccess?.hotel_status==='archived';
   const enabledModules = archivedDrain?new Set<never>():await getCurrentHotelEntitlements();
   const printAccess=profile.normalizedRole==='visualizador'||archivedDrain?null:await currentPrintAccess();
-  const navGroups = getAdminNavigationForRole(profile.normalizedRole, enabledModules, { orders: !!orderAccess, printing: !!printAccess, archivedDrain });
+  const kdsAccess=archivedDrain||!['editor','administrador'].includes(profile.normalizedRole)?null:await workspaceKdsAccess();
+  const navGroups = getAdminNavigationForRole(profile.normalizedRole, enabledModules, { orders: !!orderAccess, printing: !!printAccess, kds: !!kdsAccess, archivedDrain });
   const supabase = await createClient();
   const { data: hotel } = archivedDrain ? {data:orderAccess.hotel} : await supabase
     .from('hotels')
