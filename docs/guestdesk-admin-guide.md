@@ -219,3 +219,10 @@ automáticos pendentes; também é possível completar e revisar os textos manua
 Uma gravação concorrente exige recarregar e conferir. Preços e regras não são
 enviados ao tradutor. Esta versão foi validada somente no laboratório local com
 provedor sintético; a aplicação e a migration ainda não foram publicadas.
+
+Atualização de publicação: o candidato foi autorizado e publicado com a migration.
+O tradutor real foi conferido no Admin com rascunho temporário inativo. Termos
+iguais aos nomes já revisados do Bugan reutilizam a tradução aprovada quando o
+par EN/ES não é ambíguo; os demais nomes usam o tradutor externo. Assim,
+**Refrigerante** mantém **Soft drink / Refresco**. Traduções revisadas pelo hotel
+continuam tendo precedência. Novos textos gerados ainda devem ser conferidos.

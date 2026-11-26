@@ -3534,3 +3534,11 @@ escolhas são preservados. Detalhes, validação e limitações em
 [NÃO CONFIRMADO] Funcionamento do provedor externo real nesta execução: os
 testes usaram somente transporte local sintético. Publicação e aplicação da
 migration em produção não foram executadas nem estão autorizadas nesta etapa.
+
+Atualização posterior: Bruno autorizou publicação e migration. O candidato
+`3a720b8` foi publicado e a migration `20261126060253` aplicada preservando fontes
+comerciais e sete traduções existentes. O Admin autenticado confirmou o tradutor
+real e a proteção da revisão manual em rascunho inativo. O teste também revelou
+interpretação incorreta de `Refrigerante`; o fluxo passa a reutilizar termos
+exatos e não ambíguos do vocabulário EN/ES já aprovado, sem sobrepor revisões
+humanas. Detalhes e fechamento na seção de publicação de `docs/SPRINT_53_FNB.md`.
