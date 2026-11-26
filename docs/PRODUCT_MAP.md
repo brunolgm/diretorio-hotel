@@ -3413,3 +3413,12 @@ Hotel novo sem desenvolvimento aprovado (32 verificações). TESTE físico confi
 ### SmartMenu V1 — fechamento visual local
 
 O refinamento final incorpora fallback tipográfico para o hero, cards desktop compactos sem foto, acompanhamento premium com mensagens de cancelamento amigáveis e modal adaptado ao viewport visual mobile. A política de seleção por ordem administrativa e UUID foi coberta por cenários de múltiplos Room Service. A referência preferencial independente da ordem permanece como proposta de configuração sujeita a aprovação. O relatório final registra as evidências e o commit local para publicação controlada posterior.
+
+### Bugan — idioma do acesso ao SmartMenu em Serviços (25/11/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] O link configurado para o SmartMenu próprio
+do Bugan passa a incluir o idioma atual (PT/EN/ES). Antes, o botão traduzido abria
+a URL fixa sem idioma e o cardápio voltava ao português. A correção preserva a URL,
+demais parâmetros, fragmento, abertura e sessão QR existentes. Restrita ao slug
+`bugan-recife` e às rotas SmartMenu nos domínios oficiais; links do Filipe,
+terceiros e outros hotéis permanecem inalterados. Sem alteração de dados ou pedidos.

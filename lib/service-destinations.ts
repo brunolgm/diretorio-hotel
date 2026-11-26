@@ -12,6 +12,24 @@ function normalizeText(value: string | null | undefined) {
   return normalized ? normalized : null;
 }
 
+function serviceExternalHref(href: string, hotelSlug: string, language: 'pt' | 'en' | 'es') {
+  // Limit the pilot fix to Bugan's own SmartMenu; other configured links stay intact.
+  if (hotelSlug !== 'bugan-recife') return href;
+  try {
+    const url = new URL(href);
+    if (url.protocol !== 'https:' || url.username || url.password || url.port) return href;
+    const ownSubdomain = ['buganrecife.libguest.digital', 'buganrecife.guestdesk.digital'].includes(url.hostname)
+      && /^\/room-service\/?$/.test(url.pathname);
+    const ownSlugRoute = ['libguest.digital', 'guestdesk.digital'].includes(url.hostname)
+      && /^\/hotel\/bugan-recife\/room-service\/?$/.test(url.pathname);
+    if (!ownSubdomain && !ownSlugRoute) return href;
+    url.searchParams.set('lang', language);
+    return url.toString();
+  } catch {
+    return href;
+  }
+}
+
 export function hasEnoughInternalServiceDetailContent(content: string | null | undefined) {
   const normalized = normalizeText(content);
   return Boolean(normalized && normalized.length >= MIN_SERVICE_DETAIL_CONTENT_LENGTH);
@@ -54,7 +72,7 @@ export function getServiceDestination(
 
     return {
       kind: 'external' as const,
-      href: externalUrl,
+      href: serviceExternalHref(externalUrl, hotelSlug, language),
       isExternal: true,
     };
   }
@@ -76,7 +94,7 @@ export function getServiceDestination(
   if (externalUrl) {
     return {
       kind: 'external' as const,
-      href: externalUrl,
+      href: serviceExternalHref(externalUrl, hotelSlug, language),
       isExternal: true,
     };
   }
