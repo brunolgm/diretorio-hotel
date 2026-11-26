@@ -9,6 +9,7 @@ export const GUEST_SERVICE_GROUPS = {
 export const GUEST_SERVICE_AREAS = ['services', 'information', 'hotel', 'dining', 'contact'] as const;
 export const GUEST_SERVICE_INTERACTIONS = ['auto', 'inline', 'detail', 'page', 'external', 'assistance', 'guide'] as const;
 export const GUEST_SERVICE_TEXT_FIELDS = ['summary', 'hours', 'location', 'conditions'] as const;
+export const GUEST_SERVICE_MAX_BYTES = 20000;
 type Language = 'pt' | 'en' | 'es';
 export type GuestServicePresentation = {
   area?: typeof GUEST_SERVICE_AREAS[number];
@@ -46,6 +47,10 @@ export function readGuestServicePresentation(form: FormData): Json {
   return parseGuestServicePresentation(raw) as Json;
 }
 
+export function guestServicePresentationFits(value: Json) {
+  return new TextEncoder().encode(JSON.stringify(value)).byteLength <= GUEST_SERVICE_MAX_BYTES;
+}
+
 export function guestServiceText(value: GuestServicePresentation, field: typeof GUEST_SERVICE_TEXT_FIELDS[number], language: Language) {
   return translatedText(value[field]?.pt || null, value[field]?.[language]);
 }
@@ -59,4 +64,25 @@ export function guestServiceGroup(section: { category: string | null; icon: stri
     : /^(lazer|leisure|ocio|bem-estar|wellness|well-being|bienestar|piscina|pool|swimming pool|academia|gym|gimnasio|fitness|spa|sauna)$/.test(category) ? 'wellness'
     : /^(conveniencia|convenience|comodidad|hospedagem|accommodation|alojamiento|lavanderia|laundry|lavadero|lavanderia|room service|servicio de habitaciones|utilidades|utilities)$/.test(category) ? 'comfort' : null;
   return group ? GUEST_SERVICE_GROUPS[group][language] : section.category || { pt: 'Outros serviços', en: 'Other services', es: 'Otros servicios' }[language];
+}
+
+/** One contract for public rendering and Admin preview. Visual choices never grant operations. */
+export function guestServiceInteraction(config: ReturnType<typeof parseGuestServicePresentation>, section: { content: string | null; service_action_type: string }, destination: { href: string; isExternal: boolean } | null, guide: boolean, conditions: string | null): 'inline' | 'detail' | 'page' {
+  if (guide || section.service_action_type === 'room_restaurant_menu') return destination ? 'page' : 'inline';
+  if (config.interaction === 'inline') return 'inline';
+  if (config.interaction === 'detail' || config.interaction === 'assistance') return 'detail';
+  if (destination && (destination.isExternal || ['page', 'external', 'guide'].includes(config.interaction || ''))) return 'page';
+  return (section.content?.length || 0) > 110 || conditions ? 'detail' : 'inline';
+}
+
+/** Recognizes only this tenant's canonical route, never another hotel's route or a provider. */
+export function isOwnRoomServiceLink(href: string | null, hotel: {slug:string;subdomain?:string|null}, root: string) {
+  if (!href) return false;
+  try {
+    const url = new URL(href, 'https://guest.invalid');
+    if (url.username || url.password || url.port || url.hash || [...url.searchParams.keys()].some(k => k !== 'lang')) return false;
+    const subdomain = hotel.subdomain;
+    if (url.hostname === 'guest.invalid' && href.startsWith('/') && !href.startsWith('//')) return url.pathname === `/hotel/${hotel.slug}/room-service` || url.pathname === '/room-service';
+    return url.protocol === 'https:' && ((subdomain && url.hostname === `${subdomain}.${root}` && /^\/room-service\/?$/.test(url.pathname)) || (url.hostname === root && url.pathname === `/hotel/${hotel.slug}/room-service`));
+  } catch { return false; }
 }

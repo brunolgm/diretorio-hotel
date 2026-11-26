@@ -19,10 +19,11 @@ function Metadata({ item }: { item: GuestServiceItem }) {
 }
 
 /** The same accessible dialog primitive powers a mobile sheet and desktop modal. */
-export function GuestServiceExplorer({ items, language, themeStyle }: { items: GuestServiceItem[]; language: SupportedPublicLanguage; themeStyle?: CSSProperties }) {
+export function GuestServiceExplorer({ items, language, themeStyle, preview = false }: { items: GuestServiceItem[]; language: SupportedPublicLanguage; themeStyle?: CSSProperties; preview?: boolean }) {
   const labels = copy[language];
   const [query, setQuery] = useState(''), [category, setCategory] = useState('all');
   const [selected, setSelected] = useState<GuestServiceItem | null>(null);
+  const [previewHref, setPreviewHref] = useState<string | null>(null);
   const historyOpen = useRef(false), trigger = useRef<HTMLElement | null>(null);
   const categories = useMemo(() => Array.from(new Set(items.map(i => i.category))), [items]);
   const visible = useMemo(() => items.filter(i => (category === 'all' || i.category === category) && normalizeGuestSearch([i.title, i.content, i.summary, i.hours, i.location, i.conditions, i.category].join(' ')).includes(normalizeGuestSearch(query))), [category, items, query]);
@@ -52,11 +53,12 @@ export function GuestServiceExplorer({ items, language, themeStyle }: { items: G
       const actionable = item.interaction !== 'inline';
       const summary = item.interaction === 'inline' ? [item.content || item.summary, item.conditions].filter(Boolean).join('\n') : item.summary || item.content?.split(/\n|(?<=[.!?])\s/)[0];
       const body = <><span className="guest-service-icon"><ServiceIcon iconName={item.icon} className="h-5 w-5" /></span><span className="guest-service-text"><strong>{item.title}</strong>{summary ? <span className="guest-service-summary">{summary}</span> : null}<Metadata item={item} /></span>{actionable ? <ChevronRight aria-hidden className="guest-service-chevron" /> : null}</>;
-      return <div key={item.id} className="guest-service-row">{item.interaction === 'page' && item.href ? <a href={item.href} target={item.isExternal ? '_blank' : undefined} rel={item.isExternal ? 'noreferrer' : undefined}>{body}</a> : item.interaction === 'detail' ? <button type="button" aria-haspopup="dialog" onClick={event => open(item, event.currentTarget)}>{body}</button> : <div>{body}</div>}</div>;
+      return <div key={item.id} className="guest-service-row" data-interaction={item.interaction}>{item.interaction === 'page' && item.href ? <a href={item.href} onClick={event => { if (preview) { event.preventDefault(); setPreviewHref(item.href); } }} target={item.isExternal ? '_blank' : undefined} rel={item.isExternal ? 'noreferrer' : undefined}>{body}</a> : item.interaction === 'detail' ? <button type="button" aria-haspopup="dialog" onClick={event => open(item, event.currentTarget)}>{body}</button> : <div>{body}</div>}{item.relatedContent?.length ? <details className="guest-service-related"><summary>{labels.details}</summary>{item.relatedContent.map((related, index) => <p key={index}>{related.content}</p>)}</details> : null}</div>;
     })}</div></section>)}</div> : <div className="guest-service-empty"><Search aria-hidden /><h2>{labels.empty}</h2><p>{labels.hint}</p><button type="button" onClick={reset}>{labels.clear}</button></div>}
+    {preview && previewHref ? <p role="status" className="mt-4 break-all text-sm">{{pt:'Destino configurado',en:'Configured destination',es:'Destino configurado'}[language]}: {previewHref}</p> : null}
     <Dialog open={Boolean(selected)} onOpenChange={value => { if (!value) close(); }}>
       <DialogContent className="guest-service-sheet" style={themeStyle} showCloseButton={false}>
-        {selected ? <><div className="guest-service-sheet-heading"><span className="guest-service-icon"><ServiceIcon iconName={selected.icon} className="h-6 w-6" /></span><DialogTitle>{selected.title}</DialogTitle><DialogClose aria-label={labels.close}><X aria-hidden /></DialogClose></div><Metadata item={selected} /><DialogDescription className="guest-service-description">{selected.content || selected.summary}</DialogDescription>{selected.isExternal && selected.href ? <a className="guest-service-sheet-cta" href={selected.href} target="_blank" rel="noreferrer">{selected.cta || labels.details}</a> : null}{selected.conditions ? <section><h3>{labels.conditions}</h3><p className="guest-service-description">{selected.conditions}</p></section> : null}</> : null}
+        {selected ? <><div className="guest-service-sheet-heading"><span className="guest-service-icon"><ServiceIcon iconName={selected.icon} className="h-6 w-6" /></span><DialogTitle>{selected.title}</DialogTitle><DialogClose aria-label={labels.close}><X aria-hidden /></DialogClose></div><Metadata item={selected} /><DialogDescription className="guest-service-description">{selected.content || selected.summary}</DialogDescription>{selected.href ? <a className="guest-service-sheet-cta" href={selected.href} onClick={event => { if (preview) { event.preventDefault(); setPreviewHref(selected.href); } }} target={selected.isExternal ? '_blank' : undefined} rel={selected.isExternal ? 'noreferrer' : undefined}>{selected.cta || labels.details}</a> : null}{selected.conditions ? <section><h3>{labels.conditions}</h3><p className="guest-service-description">{selected.conditions}</p></section> : null}</> : null}
       </DialogContent>
     </Dialog>
   </div>;

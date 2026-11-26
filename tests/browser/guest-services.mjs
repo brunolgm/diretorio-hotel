@@ -15,10 +15,10 @@ const refinement=JSON.parse(readFileSync('docs/bootstrap/bugan-public-v3-refinem
 for(const a of refinement.assets)assetMap.set('/storage/v1/object/public/hotel-assets/'+a.storagePath,a.path);
 const server=createServer((req,res)=>{
  const path=new URL(req.url,'http://127.0.0.1').pathname;
- const file=assetMap.get(path)??(path==='/fixture.js'||path==='/baseline.js'||path==='/style.css'?join(output,path.slice(1)):path.startsWith('/brand/')&&!path.includes('..')?join('public',path):null);
+ const file=assetMap.get(path)??(path==='/fixture.js'||path==='/fixture.css'||path==='/baseline.js'||path==='/style.css'?join(output,path.slice(1)):path.startsWith('/brand/')&&!path.includes('..')?join('public',path):null);
  if(file&&existsSync(file)){res.setHeader('Content-Type',file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':file.endsWith('.png')?'image/png':file.endsWith('.webp')?'image/webp':'image/svg+xml');res.end(readFileSync(file));return;}
  if(path.startsWith('/api/')){res.writeHead(403);res.end();return;}
- res.setHeader('Content-Type','text/html; charset=utf-8');res.end('<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/style.css"></head><body><div id="root"></div><script src="'+('fixture.js')+'"></script></body></html>');
+ res.setHeader('Content-Type','text/html; charset=utf-8');res.end('<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/fixture.css"></head><body><div id="root"></div><script src="'+('fixture.js')+'"></script></body></html>');
 });
 await new Promise(r=>server.listen(4207,'127.0.0.1',r));
 
@@ -33,6 +33,7 @@ try {
   await page.context().addCookies([{name:'guest_context_fixture',value:'synthetic-context-not-authorization',url:'http://127.0.0.1:4207',httpOnly:true,sameSite:'Lax'}]);
   assert.equal(await page.locator('.guest-service-row').count(),hotel===0?48:8,`${hotel}/${lang}`);
   assert.equal(await page.getByText('FOREIGN MUST NOT SHOW').count(),0);
+  const languageContrast=await page.locator('.public-area-hero .hotel-theme-language-trigger').evaluate(el=>{const s=getComputedStyle(el);const luminance=value=>{const c=value.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return c[0]*.2126+c[1]*.7152+c[2]*.0722;};const a=luminance(s.color),b=luminance(s.backgroundColor);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);});assert.ok(languageContrast>=4.5,`language contrast ${hotel}/${lang}/${width}`);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   if(width===1440)assert.ok(await page.locator('nav').evaluateAll(nodes=>nodes.filter(n=>getComputedStyle(n).position==='fixed'&&getComputedStyle(n).display!=='none').length===0));
   assert.equal(await page.locator('.guest-desktop-navigation').isVisible(),width===1440);
@@ -40,12 +41,12 @@ try {
   const roomHref=await page.locator('.guest-service-row a').filter({hasText:'Room Service'}).getAttribute('href');
   if(lang!=='pt')assert.ok(roomHref.includes('lang='+lang));
   assert.equal(roomHref,await page.evaluate(()=>window.fixtureRoomServiceHref));
-  await page.screenshot({path:join(output,`services-${hotel}-${lang}-${width}.png`),fullPage:true});
+  if(hotel===4&&lang==='pt')await page.screenshot({path:join(output,`services-${hotel}-${lang}-${width}.png`),fullPage:true});
   const input=page.getByRole('searchbox');await input.fill('zz-no-result');await page.locator('.guest-service-empty').waitFor();
   assert.equal(await page.locator('.guest-service-row').count(),0);
   await page.locator('.guest-service-empty button').click();assert.equal(await page.locator('.guest-service-row').count(),hotel===0?48:8);
   await page.locator('.guest-service-categories button').nth(1).click();assert.ok(await page.locator('.guest-service-row').count()>0);
-  await page.screenshot({path:join(output,`filter-${hotel}-${lang}-${width}.png`),fullPage:true});
+  if(hotel===4&&lang==='pt'&&width===390)await page.screenshot({path:join(output,`filter-${hotel}-${lang}-${width}.png`),fullPage:true});
   await page.locator('.guest-service-categories button').first().click();
   await input.fill(lang==='en'?'Laundry':lang==='es'?'Lavadero':'Lavanderia');
   assert.equal(await page.locator('.guest-service-row').count(),1);
@@ -54,7 +55,7 @@ try {
   await page.waitForFunction(()=>document.querySelector('[role=dialog]')?.contains(document.activeElement));
   await page.keyboard.press('Tab');await page.waitForFunction(()=>document.querySelector('[role=dialog]')?.contains(document.activeElement));
   const bounds=await page.getByRole('dialog').boundingBox();assert.ok(bounds&&bounds.y>=0&&bounds.x>=0&&bounds.x+bounds.width<=width+1);
-  await page.screenshot({path:join(output,`detail-${hotel}-${lang}-${width}.png`),fullPage:true});
+  if(hotel===4&&lang==='pt'&&width===390)await page.screenshot({path:join(output,`detail-${hotel}-${lang}-${width}.png`),fullPage:true});
   await page.keyboard.press('Escape');await page.getByRole('dialog').waitFor({state:'hidden'});assert.equal(await input.inputValue(),lang==='en'?'Laundry':lang==='es'?'Lavadero':'Lavanderia');
   await opener.click();await page.getByRole('dialog').waitFor();await page.goBack();await page.getByRole('dialog').waitFor({state:'hidden'});
   assert.equal(await page.locator('.guest-service-row').count(),1);
@@ -64,6 +65,14 @@ try {
  }
  await page.setViewportSize({width:390,height:844});await page.goto('http://127.0.0.1:4207/?hotel=4&area=informacoes');await page.locator('h1').waitFor();await page.screenshot({path:join(output,'information-mobile.png'),fullPage:true});
  await page.setViewportSize({width:1440,height:900});await page.goto('http://127.0.0.1:4207/?admin=1');await page.locator('summary').click();await page.locator('input[name=guest_summary_pt]').waitFor();assert.equal(await page.locator('input[name=guest_summary_pt]').inputValue(),'Coleta e entrega de roupas');await page.locator('input[name=guest_summary_pt]').fill('Resumo editado na prévia');await page.getByText('Resumo editado na prévia',{exact:true}).waitFor();await page.screenshot({path:join(output,'admin-service-configuration.png'),fullPage:true});
+
+ // Verify editorial survives the F&B shell even with no service links.
+ await page.goto('http://127.0.0.1:4207/?hotel=4&area=cardapio&supplement=1');await page.locator('[data-guest-dining-supplement]').waitFor();assert.ok(await page.locator('[data-guest-dining-supplement]').getByText('Restaurante Filipe',{exact:true}).isVisible());
+ for(const hotel of [0,1,2,3]){await page.setViewportSize({width:390,height:844});await page.goto(`http://127.0.0.1:4207/?hotel=${hotel}&metadata=1`);await page.locator('h1').waitFor();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:join(output,`metadata-${hotel}-mobile.png`),fullPage:true});}
+ // Preview uses the same interaction contract: inline, detail, direct page, external and assistance.
+ await page.setViewportSize({width:1440,height:900});await page.goto('http://127.0.0.1:4207/?admin=1');await page.locator('summary').click();
+ for(const mode of ['inline','detail','page','external','guide','assistance']){await page.locator('select[name=guest_interaction]').selectOption(mode);const row=page.locator('.guest-service-row');assert.equal(await row.getAttribute('data-interaction'),mode==='inline'?'inline':mode==='detail'||mode==='assistance'?'detail':'page');if(['page','external','guide'].includes(mode)){await row.locator('a').click();assert.ok((await page.getByRole('status').last().innerText()).includes('https://example.invalid/configured-channel'));assert.ok(page.url().includes('admin=1'));}}
+ await page.locator('select[name=guest_interaction]').selectOption('detail');await page.locator('input[name=title]').fill('Lavanderia revisada');await page.getByText('Lavanderia revisada',{exact:true}).waitFor();await page.screenshot({path:join(output,'admin-service-configuration.png'),fullPage:true});
+ await page.goto('http://127.0.0.1:4207/?admin=1&guidePreview=1');await page.locator('summary').first().click();await page.locator('select[name=guest_interaction]').selectOption('inline');assert.equal(await page.locator('.guest-service-row').getAttribute('data-interaction'),'page');assert.ok((await page.locator('.guest-service-row a').getAttribute('href')).includes('/servicos/'));
  assert.deepEqual(errors,[]);writeFileSync(join(output,'browser-report.json'),JSON.stringify({scope:'Local actual components, historical safe copy and synthetic tenant identities; no production authorization or orders',rows,errors},null,2));console.log(`PASS ${rows.length} browser scenarios plus information/admin captures; ${output}`);
 } finally { await browser.close();await new Promise(r=>server.close(r)); }
-

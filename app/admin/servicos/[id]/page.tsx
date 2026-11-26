@@ -1,3 +1,5 @@
+import { buildRoomServiceHref, buildPublicHotelServiceHref } from '@/lib/public-routes';
+import { MIN_SERVICE_DETAIL_CONTENT_LENGTH } from '@/lib/service-destinations';
 import { GuestServiceFields } from '@/components/admin/guest-service-fields';
 import {ServiceGuideEditor} from '@/components/admin/service-guide-editor';
 import {saveServiceGuideAction} from './guide-actions';
@@ -144,7 +146,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
               initialIcon={section.icon}
               initialCategory={section.category}
             />
-            <GuestServiceFields initial={section.guest_presentation} title={section.title} content={section.content} icon={section.icon} themePreset={hotel.theme_preset} />
+            <GuestServiceFields initial={section.guest_presentation} title={section.title} content={section.content} icon={section.icon} themePreset={hotel.theme_preset} serviceId={section.id} hotelId={hotel.id} hotelSlug={hotel.slug} hotelSubdomain={hotel.subdomain} canonicalRoomHref={buildRoomServiceHref({slug:hotel.slug,language:'pt'})} category={section.category} actionType={section.service_action_type} url={section.url} cta={section.cta} hasGuide={Boolean(guideRow?.published)} internalHref={buildPublicHotelServiceHref({slug:hotel.slug,serviceId:section.id,language:'pt'})} minDetailLength={MIN_SERVICE_DETAIL_CONTENT_LENGTH} />
 
             <AdminField label="Tipo de ação do serviço">
               <AdminSelect

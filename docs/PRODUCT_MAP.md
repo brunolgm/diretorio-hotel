@@ -1,25 +1,32 @@
 # PRODUCT MAP
 
-## Guest Experience Premium — Serviços V4 — 26/11/2026
+## Guest Experience Premium V4 — RC local — 26/11/2026
 
-Implementação local em `feat/guest-experience-premium-services`, base `a1b146f`.
-Catálogo compartilhado agrupado, linhas compactas, busca/filtros PT/EN/ES,
-sheet/modal acessível, Room Service pelo resolvedor canônico e prévia Admin.
-Home e fluxos operacionais preservados; Serviços usa grid, Room Service cloche,
-piscina ondas; dock Bugan oculto no desktop. Faixa desktop usa mídia existente.
-Admin estende o cadastro existente com apresentação opcional e migration aditiva
-**não aplicada em produção**. Metadados não autorizam pedidos ou ativam módulos.
-Classificação proposta determinística, sem escrita/exclusão de registros ou traduções.
-Snapshot histórico tem 13 serviços; o 14º acesso é sintético na fixture de deduplicação,
-sem afirmar auditoria do inventário produtivo atual. SmartMenu paralelo tem resolvedor
-com rota mais nova: integrar pelo contrato e revalidar os arquivos compartilhados.
+Branch `feat/guest-experience-premium-services-rc`, base remota `f6f593a` confirmada por
+fetch HTTPS. Checkpoint original `b148a49` preservado; cherry-pick `a135454` sem conflitos.
+Serviços agrupados/compactos, busca PT/EN/ES, sheet/modal acessível e navegação responsiva.
+Gastronomia preserva conteúdo editorial suplementar mesmo com shell F&B. Room Service
+usa o resolvedor canônico atual; deduplicação por vínculo/destino, mantendo provedores,
+QR e alternativas operacionais. SmartMenu/ordering/KDS/impressão não foram editados.
 
-TypeScript/build/lint, 12 testes direcionados, 30 cenários browser e migration local
-transacional com rollback. Evidências reais dos componentes em `out/`, não commitadas.
-Pendências: reconciliação editorial atual, homologação autenticada dos contextos reais
-e comparação com o mockup de Serviços não disponibilizado nesta execução.
-Relatório, matriz e limites: [GUEST_EXPERIENCE_PREMIUM_SERVICES.md](GUEST_EXPERIENCE_PREMIUM_SERVICES.md).
-Sem push, merge, deploy ou alterações produtivas.
+Admin compartilha contrato de interação e tem prévia e salvamento reais homologados no
+laboratório. Migration aditiva inclui a coluna e apenas seus grants de INSERT/UPDATE,
+sem alterar RLS ou grants das colunas existentes. Limite conjunto de 20 KB validado
+na action e no banco. Migration revisada testada/aplicada somente localmente; produção
+continua sem a coluna e sem essa versão na history. Aplicá-la antes de publicar formulários.
+
+Reconciliação somente leitura: Bugan 13 ativos/18 totais; Grand Mercure 37/38; Salvador
+14/15; Leme e Mercure Boutique zero nesse cadastro. Apenas Bugan está em V4; os demais
+permanecem V3, sem ativação ou mudança editorial. Inventário de 64 serviços ativos e
+destinos propostos em `docs/bootstrap/guest-service-editorial-reconciliation-20261126.json`.
+O mecanismo de 14 acessos Bugan corresponde a serviços mais entrada nativa derivada;
+não se trata de um 14º registro comprovado por fixture.
+
+Gates: 27 testes direcionados, 30 cenários browser, sete checks de Admin autenticado,
+TypeScript/lint/build e migration local. Galeria selecionada identifica snapshots e
+fixtures. GO para RC local; publicação NO-GO sem autorização, migration e revisão visual.
+Limites e evidências: [GUEST_EXPERIENCE_PREMIUM_SERVICES.md](GUEST_EXPERIENCE_PREMIUM_SERVICES.md).
+Sem push, merge na main, deploy ou alteração de conteúdo produtivo.
 
 ## Central de Voos V4 premium — 29/10/2026
 

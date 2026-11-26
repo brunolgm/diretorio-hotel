@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import type {ReactNode} from 'react';
 import type {PublicHotelPageData} from '@/lib/public-hotel-data';
 import type {DomainContext} from '@/lib/domain-context';
 import type {SupportedPublicLanguage} from '@/lib/public-language';
@@ -18,7 +19,7 @@ const copy={
 };
 
 /** Bugan's resolved V4 presentation only. Eligibility and ordering stay shared. */
-export function PublicFbPremiumShell({pageData,language,domainContext,preferSubdomainRoot}:{pageData:PublicHotelPageData;language:SupportedPublicLanguage;domainContext:DomainContext;preferSubdomainRoot:boolean}){
+export function PublicFbPremiumShell({pageData,language,domainContext,preferSubdomainRoot,children}:{pageData:PublicHotelPageData;language:SupportedPublicLanguage;domainContext:DomainContext;preferSubdomainRoot:boolean;children?:ReactNode}){
  const {hotel}=pageData,t=copy[language],theme=resolveHotelTheme(hotel.theme_preset,hotel.theme_primary_color);
  const route={slug:hotel.slug,language,domainContext,preferSubdomainRoot};
  const area=(key:Parameters<typeof buildPublicHotelAreaHref>[0]['area'])=>buildPublicHotelAreaHref({...route,area:key});
@@ -47,6 +48,6 @@ export function PublicFbPremiumShell({pageData,language,domainContext,preferSubd
    {photo||mobile?<picture>{mobile?<source media="(max-width:767px)" srcSet={mobile}/>:null}<Image unoptimized priority src={photo??mobile!} alt="" width={1600} height={600} style={{objectPosition:focalPosition(hero?.focal_x??50,20)}}/></picture>:null}
    <div className="fb-premium-hero-copy"><p>{hotel.name}</p><h1 id="fb-premium-title">{t.title}</h1><h2>{t.subtitle}</h2><p className="fb-premium-intro">{t.description}</p></div>
   </section>
-  <div className="fb-premium-body"><PublicFbContent pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} premiumLayout/></div>
+  <div className="fb-premium-body"><PublicFbContent pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} premiumLayout/>{children}</div>
  </main>;
 }

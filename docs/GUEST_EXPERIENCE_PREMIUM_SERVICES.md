@@ -1,145 +1,211 @@
-# Guest Experience Premium — Serviços V4
+# LIBGUEST V4 — Guest Experience Premium — Release Candidate local
 
-## Checkpoint e decisões de 26/11/2026
+## Estado e recuperação — 26/11/2026
 
-Branch `feat/guest-experience-premium-services`, base `a1b146f`, árvore inicialmente limpa.
-Referência `origin/main` local: `c2abc7b`. Não houve fetch/push ou integração automática.
-Worktrees paralelos identificados: SmartMenu (`745d7d0`), traduções (`bbf2abb`), RC
-(`db2810c`), laboratório comercial (`52db1ef`), impressão e KDS. Nenhum arquivo desses
-worktrees foi modificado. As implementações internas do SmartMenu e ordering permanecem intactas.
+Branch final: `feat/guest-experience-premium-services-rc`, baseada em `origin/main`
+`f6f593a`, confirmado por fetch HTTPS. A autenticação SSH falhou; nenhuma configuração
+SSH foi alterada. A main local (`96ad808`) não foi modificada.
 
-O briefing aprova agrupamento por intenção, linhas compactas, detalhe em sheet/modal,
-Room Service unificado, busca/filtros e iconografia universal. A implementação é local.
+A branch original `feat/guest-experience-premium-services` preserva o checkpoint
+`b148a49`, contendo as 26 alterações recuperadas sobre `a1b146f`. O checkpoint foi
+transferido por cherry-pick para a RC (`a135454`), sem conflitos e sem levar alterações
+operacionais antigas de impressão para a base nova. Não houve reset, stash, git clean,
+rebase ou merge na main. O SHA final é o commit de fechamento desta branch (`git log -1`).
 
-## Implementação
+O `.next` corrompido foi comprovado como diretório gerado, ignorado e sem arquivos
+rastreados ou links; somente esses artefatos foram removidos e regenerados. A segunda
+retomada encontrou BUILD_ID e manifests íntegros. Não havia processo residual de build
+identificado neste checkout. Worktrees de SmartMenu, traduções, RC, laboratório
+comercial, impressão e KDS permaneceram separados e não foram editados.
 
-Serviços V4 usa o cadastro existente e uma projeção compartilhada, sem seleção por slug.
-Grupos vazios desaparecem; categorias desconhecidas e conteúdo novo permanecem visíveis.
-Oito entradas são o resultado da fixture Bugan, nunca um limite imposto aos demais hotéis.
-Presets, fontes e variáveis de marca existentes continuam sendo a fonte de aparência.
-Hotéis sem apresentação V4 mantêm sua listagem anterior.
+## Apresentação e preservação de conteúdo
 
-A busca cobre título, categoria, conteúdo e metadados localizados, ignora acentos e oferece
-limpeza. O contador aparece durante pesquisa/filtro, com singular/plural PT/EN/ES.
-Filtros horizontais aparecem a partir de oito entradas e duas categorias. Informação
-curta permanece diretamente na linha, sem chevron. Descrições maiores e condições usam
-detalhe. Ações externas e experiências dedicadas mantêm seus destinos; guias publicados
-sempre conservam página própria, mesmo com descrição curta.
+As nove decisões aprovadas estão aplicadas à apresentação V4: arquitetura da informação,
+grupos por intenção, linhas compactas, Room Service unificado por experiência, detalhe
+em sheet/modal, busca/filtros adaptáveis, iconografia, Admin e contratos universais.
+Não existe limite de oito serviços para outros hotéis. Categorias desconhecidas ficam
+visíveis e grupos vazios não são renderizados. Sem serviços, a página usa o estado
+editorial vazio existente, sem pesquisa ou filtros inúteis.
 
-`GuestServiceExplorer` reutiliza Dialog/Base UI: sheet mobile, modal desktop, foco
-contido/restaurado, Escape, retorno do navegador, rolagem interna e safe area. O tema
-é propagado ao portal. A listagem permanece montada e preserva busca, filtro e rolagem.
-Atendimento pode mostrar um CTA único para o canal já cadastrado. Não há pedido fictício.
-O contrato atual não tem fotos próprias de cada serviço: guias e mídia editorial continuam
-em suas páginas dedicadas, sem imagens inventadas ou associação por suposição.
+Busca por título, categoria, conteúdo, resumo e metadados localizados, sem acentos;
+limpeza, resultados singulares/plurais PT/EN/ES e filtros a partir de oito entradas e
+mais de um grupo. Textos completos ficam acessíveis no detalhe ou em informação
+complementar junto ao acesso dedicado. Horário/localização cadastrados aparecem nas linhas.
+Não são inventados horários, canais, fotos ou condições ausentes.
 
-A navegação desktop interna apresenta hotel, páginas e reserva quando cadastrada;
-o seletor de idioma permanece no cabeçalho. A faixa fotográfica reaproveita a imagem
-hero já cadastrada, quando disponível, apenas no desktop. O dock Bugan não possuía
-ocultação responsiva no componente, causa da aparição em desktop; agora desaparece
-a partir de 1025px. Os docks internos V4 preservam Início / Serviços / Informações /
-Contato. Serviços usa grid, Room Service cloche e piscina ondas. A Home foi preservada,
-com ajustes somente nos ícones desses atalhos.
+Dialog/Base UI existente fornece foco contido/restaurado, Escape, retorno do navegador,
+rolagem interna, safe area, sheet mobile e modal desktop. A lista permanece montada,
+preservando busca, filtro e rolagem. Guias publicados, TV/canais legados e ações por
+apartamento conservam página dedicada. Não há solicitações digitais fictícias.
 
-## Room Service e plano editorial
+A causa do dock Bugan no desktop era a ausência de ocultação responsiva no componente.
+Ele agora desaparece a partir de 1025px. O dock interno V4 preserva Início / Serviços /
+Informações / Contato. Navegação superior, idioma e reserva cadastrada permanecem no
+desktop. Foto discreta usa a mídia hero publicada do próprio hotel ou a imagem existente;
+não há hero fotográfico mobile. Home, temas e fontes foram preservados, com ajustes
+pontuais de ícones: Serviços grid, Room Service cloche, piscina ondas. Foi corrigido o
+contraste do seletor de idioma em cabeçalhos internos claros e o espaço para nomes longos.
 
-O snapshot público histórico autorizado tem 13 registros. Um acesso nativo pode ser
-derivado do grafo F&B sem constituir outro cadastro. A fixture acrescenta um 14º acesso
-**sintético** para testar deduplicação. O inventário produtivo atual de 14 acessos citado
-no pedido não foi lido nem alterado nesta execução; sua composição exata permanece pendente.
+O risco de perda em Gastronomia foi corrigido com um slot opcional no shell F&B.
+Conteúdos editoriais gastronômicos agora aparecem mesmo sem vínculo com um outlet;
+a existência do grafo não implica equivalência editorial. O slot não altera catálogo,
+carrinho, checkout ou ordering. A informação complementar não é descartada por ter
+nome semelhante a um estabelecimento.
 
-Com destino nativo elegível, o catálogo reúne referências associadas ao outlet ou nomes
-explícitos de Room Service em uma entrada, chamando `roomServiceAccess`. Consulta pública,
-pedido autorizado e contexto de apartamento seguem os contratos existentes. Sem destino
-nativo elegível, links externos/QR do hotel são preservados. Goomer não é excluído da fonte.
-Restaurante Filipe mantém seu vínculo F&B próprio. Restaurante sem vínculo verificável
-não é ocultado por inferência quando há grafo F&B.
+## Room Service e compatibilidade SmartMenu
 
-Nesta base o resolvedor retorna `/explorar/cardapio#outlet-*`; na branch SmartMenu ele
-usa `buildRoomServiceHref` e rota própria. A nova camada consome o resolvedor sem hardcode
-dessa rota, e o teste compara seu resultado. Na integração, revisar catálogo, navegação
-e rotas compartilhadas. Nenhum contrato de ordering, KDS, bridge, impressão, Goomer,
-TheX, analytics, entitlements, permissões, turismo ou Voos foi alterado.
+O destino nativo continua vindo exclusivamente de `roomServiceAccess`, que já usa
+`buildRoomServiceHref` na base atual. Não foi criado um resolvedor operacional concorrente.
+O classificador de identidade reconhece vínculo F&B ou URL canônica do próprio tenant;
+nomes parecidos não bastam para deduplicar ou trocar um provedor.
 
-O manifesto `docs/bootstrap/guest-service-editorial-plan-20261126.json` contém IDs,
-valores esperados e destinos propostos. O gerador `scripts/guest-service-editorial-plan.mjs`
-é determinístico e não usa cliente de banco. Executar com:
+Referências ao mesmo destino/contrato são reunidas, com IDs de origem e conteúdo
+complementar preservados. Goomer, Thex e URLs distintas permanecem alternativas legítimas,
+inclusive quando há um vínculo F&B. Ações por apartamento não são consumidas por um
+acesso nativo. Links de outro hotel, querystrings operacionais e destinos com diferenças
+reais não são tratados como a mesma experiência. Áreas explícitas do Admin são respeitadas;
+o acesso nativo principal pode continuar em Serviços sem duplicar a fonte editorial.
 
-```powershell
-node --import ./scripts/bootstrap-runtime.mjs --experimental-strip-types scripts/guest-service-editorial-plan.mjs
-```
+Idioma e consulta pública versus pedido autorizado seguem o resolvedor existente.
+O teste com contexto sintético muda somente o CTA, mantendo a mesma rota canônica,
+sem tokens produtivos. SmartMenu, ordering, modificadores, combos, pedidos, KDS, bridge,
+spooler e impressão permanecem iguais à base `f6f593a`. A única extensão compartilhada
+no shell gastronômico é o slot editorial opcional. Nenhuma operação comercial foi executada.
 
-A projeção é idempotente. Antes de persistir classificação, confrontar o inventário atual,
-vínculos, timestamps e ambiguidades. Não há executor de escrita produtiva nesta entrega.
+## Reconciliação editorial somente leitura
 
-| Conteúdo histórico | Apresentação |
-| --- | --- |
-| Conheça o hotel; Acomodações | Editorial existente na Home; conteúdo completo também em Informações |
-| Wi-Fi; Segurança | Informações, essenciais e canais existentes |
-| Restaurante Filipe | Gastronomia pelo vínculo F&B; fallback editorial sem grafo |
-| Room Service | Uma entrada nativa elegível; fonte e Goomer preservados |
-| Lavanderia; Menu de travesseiros | Conforto e conveniência |
-| Piscina; Academia; Sauna; Spa dos Pés | Lazer e bem-estar |
-| Estacionamento | Mobilidade |
+`docs/bootstrap/guest-service-editorial-reconciliation-20261126.json` é o inventário
+atual reduzido: IDs, títulos, categorias, ações, hostnames, comprimentos/fingerprints e
+destinos propostos. Não contém textos completos, querystrings, credenciais ou tokens.
+`guest-service-editorial-plan-20261126.json` permanece como referência histórica,
+não como inventário produtivo atual. O gerador com `--current` usa o contrato compartilhado
+e produz a correspondência determinística; não possui cliente de banco nem executor de UPDATE.
 
-A inferência usa vínculos, ações, ícones e termos conhecidos PT/EN/ES, nunca slug.
-Metadados explícitos do Admin têm prioridade. Textos/categorias desconhecidos continuam
-acessíveis. O teste dos cinco hotéis usa identidades distintas e 40 entradas adicionais
-sintéticas no Grand Mercure, sem alegar reproduzir seu catálogo produtivo.
+| Hotel | Serviços ativos / total | Políticas | Departamentos | Turismo | Guias publicados / total | Configuração atual |
+| --- | --- | --- | --- | --- | --- | --- |
+| Bugan Recife | 13 / 18 | 2 | 3 | 7 | 0 / 4 | V4 |
+| Grand Mercure Copacabana | 37 / 38 | 5 | 3 | 23 | 0 / 1 | V3 |
+| Novotel Leme | 0 / 0 | 0 | 0 | 0 | 0 / 0 | V3 |
+| Novotel Salvador | 14 / 15 | 3 | 1 | 0 | 0 / 0 | V3 |
+| Mercure Rio Boutique | 0 / 0 | 0 | 0 | 0 | 0 / 0 | V3 |
 
-## Admin e schema
+Esses números são dos cadastros consultados, não um inventário de todos os módulos
+possíveis. Nenhum hotel foi ativado em V4 e nenhum módulo produtivo foi habilitado.
+As prévias V4 dos quatro hotéis hoje em V3 são locais e estão identificadas nas imagens.
+Grand Mercure mantém títulos e categorias de hospedagem, TV, cofre, telefonia, serviços
+do bairro, transporte e gastronomia; seus 23 itens de Turismo permanecem no domínio
+existente. Nenhum desses conteúdos foi excluído ou regravado.
 
-`GuestServiceFields` integra os formulários existentes. Nome, descrição, categoria, ícone,
-ordem, visibilidade, CTA e URL são reaproveitados. Detalhes avançados permitem área,
-agrupamento, interação e resumo/horário/local/condições PT/EN/ES. O resumo fica na linha;
-a descrição completa permanece no detalhe. A prévia reage às opções avançadas e usa o
-componente público real, sem canais operacionais. Campos opcionais usam fallback por
-campo via `translatedText`; os novos textos são editoriais manuais. O fluxo automático
-existente continua responsável por título, descrição, categoria e CTA.
+No Bugan há um Room Service ativo (`2b3b486b-3883-4d87-8406-73b1b7d4d954`) e um
+registro anterior desativado (`d3401adb-0545-47e1-b7a3-78ce36a57501`). O outlet nativo
+`3010fb52-8cde-40d2-b620-9b9796f068f0` está publicado e não possui service_links.
+Os 13 serviços ativos, somados ao acesso nativo derivado quando elegível, explicam o
+mecanismo capaz de gerar 14 acessos. A tela histórica não foi reproduzida em produção;
+a fixture sintética não é usada como prova de inventário.
 
-Migration aditiva `20261126031405_guest_service_presentation.sql`: coluna JSONB opcional
-em `hotel_sections`, objeto até 20 KB. Não modifica RLS, grants, roles, triggers ou dados.
-O parser aceita somente campos enumerados e textos limitados. Metadados não fornecem
-autorização, URL operacional ou tenant. O loader público e as traduções já preservam
-campos por spread de `select('*')`, sem outra consulta ou tradução durante a leitura.
+A classificação Bugan resulta em Room Service, Lavanderia e Travesseiros em Conforto;
+Piscina, Academia, Sauna e Spa dos Pés em Lazer/bem-estar; Estacionamento em Mobilidade.
+Conheça o hotel/Acomodações continuam no editorial e em Informações; Wi-Fi e Segurança
+em Informações; Filipe em Gastronomia. Os IDs/fontes e deep links são mantidos.
 
-A migration passou no Postgres local `supabase_db_libguest-45b-lab`, em transação,
-com JSON válido e rejeição de array/payload excessivo. Houve ROLLBACK integral: não
-ficou aplicada nem no laboratório. **Antes de publicar os formulários, disponibilizar
-a coluna pela migration no processo autorizado.** Nenhuma migration foi aplicada em produção.
+A revisão automática rejeitou uma consulta inicial ampla, sem filtro em todas as tabelas,
+por risco de exportação excessiva. A alternativa aprovada foi leitura filtrada dos cinco
+hotéis e de metadados necessários à correspondência. A comparação dos textos completos
+produtivos não foi realizada. Não houve tentativa de contornar a rejeição ou escrita produtiva.
 
-## Validação e evidências
+## Admin, traduções e migration
 
-- TypeScript, build Next.js e lint direcionado aprovados, sem erros/warnings de lint.
-- 12 testes direcionados: catálogo, cinco tenants/idiomas, isolamento, alto volume,
-  Goomer, ação QR, guia dedicado, metadados, idioma e essenciais.
-- 30 cenários browser: cinco hotéis × três idiomas × 390/1440, com busca, limpeza,
-  filtros, vazio, detalhe, Escape/retorno, foco, overflow e dock desktop.
-- Capturas adicionais de Informações e configuração Admin com prévia reativa.
-- Cookie HttpOnly sintético preservado: não representa autorização por QR real.
-- SQL e limites da migration validados no laboratório, com rollback.
-- `git diff --check` aprovado. Não foram repetidas as suites históricas completas.
+O cadastro existente continua sendo a fonte única: título, descrição, categoria, ícone,
+ordem, visibilidade, CTA e URL são reaproveitados. O painel avançado acrescenta área,
+agrupamento, interação e resumo/horário/local/condições PT/EN/ES. Não cria um cadastro
+paralelo, autorização operacional ou configuração nova de destaque na Home.
 
-Capturas reais dos componentes em `out/guest-experience-premium-services/`, fora do commit:
-`services-4-pt-390.png`, `services-4-pt-1440.png`, `detail-4-pt-390.png`,
-`filter-4-pt-390.png`, `information-mobile.png`, `admin-service-configuration.png`,
-`services-0-pt-390.png` (Grand com volume), demais hotéis/idiomas e `browser-report.json`.
-As imagens foram inspecionadas: grupos compactos, ações sem botões redundantes, detalhe
-acima do dock e dock ausente no desktop. O mockup final de Serviços não foi anexado nem
-localizado nas referências, portanto não se afirma comparação pixel a pixel.
+A prévia acompanha alterações do formulário e reutiliza o componente público e o
+contrato puro de interação. Destinos internos são fornecidos pelo builder canônico no
+servidor, preservando a fronteira server/client. Guias e experiências dedicadas não
+viram sheets; links mostram o destino sem sair da prévia e sem acionar operações.
+Atendimento usa somente o canal existente. A prévia não simula autorização de pedido.
 
-## Arquivos, integração e limites
+Novos metadados localizados são editoriais manuais, com fallback `translatedText` por
+campo. O fluxo automático existente continua responsável por título, descrição,
+categoria e CTA. Integrar os novos mapas à tradução automática exigiria expandir o
+contrato de revisão/invalidação; isso não foi feito para evitar sobrescrever traduções
+manuais ou criar outro mecanismo. A tradução manual existente foi preservada no teste real.
 
-Criados: bibliotecas `guest-service-presentation` e `guest-service-catalog`, explorador/CSS,
-campos Admin, migration, gerador/plano editorial, fixtures e testes direcionados.
-Editados: `hotel-public-area-content`, `public-area-hero`, `public-bottom-dock`,
-`public-experience-mobile-tasks`, `public-experience-overview`, `service-icon`,
-`app/globals.css`, páginas/actions de Serviços Admin, `types/database.ts` e PRODUCT_MAP.
-Reaproveitados: Dialog/Base UI, ServiceIcon/Lucide, campos Admin, seletor de idioma,
-componentes de marca, guias, rotas públicas e resolvedor de Room Service.
+Migration `20261126031405_guest_service_presentation.sql`: coluna JSONB nullable no
+cadastro existente, objeto até 20.000 bytes, constraint protegida para reexecução.
+Parsers limitam os campos/valores e as actions validam o limite conjunto antes de gravar.
+Registros antigos continuam válidos com NULL. Não há backfill, remoção ou mudança de RLS.
 
-Riscos e pendências: conferir classificação com conteúdo produtivo atual; integrar
-SmartMenu sem sobrescrever seus arquivos; aplicar migration antes dos formulários;
-homologar contextos reais e Admin autenticado; comparar o mockup aprovado quando disponível.
-Não houve pedidos, impressão, mutação produtiva, push, merge ou deploy. O commit local
-desta branch é a referência de entrega (`git log -1`); não há SHA circular neste documento.
+A validação autenticada identificou que os grants existentes são por coluna. A migration
+foi corrigida para conceder apenas INSERT/UPDATE da nova coluna a authenticated; não
+concede UPDATE de tabela ou alteração de hotel_id. RLS e as três políticas existentes
+continuam limitando papel e hotel. Sem esse grant específico, as actions falhavam.
+
+A migration revisada foi aplicada apenas no laboratório `libguest-45b-lab` para o teste
+real e reexecutada com sucesso. Limites de JSON válido, array inválido e excesso de tamanho
+foram testados em transação revertida. RLS, isolamento, login e gravação real foram
+verificados. Nenhuma migration foi aplicada ou registrada em produção; a leitura
+produtiva confirmou ausência da coluna e dessa versão na migration history.
+
+Ordem futura: revisar/aplicar a migration pelo fluxo autorizado, verificar coluna,
+constraint e grants específicos, publicar o código e realizar smoke sem pedidos.
+Em resposta ambígua, conferir schema/history antes de repetir. Para recuperação,
+manter a coluna e o conteúdo; reverter a apresentação/código compatível, sem apagar
+metadados ou executar DROP COLUMN. A inferência legada mantém leitura sem backfill.
+
+## Validação final e galeria
+
+TypeScript, lint direcionado, build completo e integridade dos manifests compõem o gate.
+27 testes direcionados cobrem catálogo/isolamento, destinos, idiomas, guias, limites,
+alternativas, áreas explícitas e contexto sintético. A matriz browser tem 30 cenários
+(cinco identidades × três idiomas × 390/1440), mais os checks de contraste do idioma,
+conteúdo suplementar no shell, seis modos da prévia e guia dedicado.
+
+Sete verificações autenticadas passaram no Supabase local e no Admin real: login por
+senha, prévia reativa, gravação pela Server Action, tradução manual preservada,
+escrita estrangeira bloqueada e metadados estrangeiros intactos, além da preservação
+de RLS/políticas na migration. Usuários e hotéis sintéticos foram removidos; o servidor
+local foi encerrado. Tradução externa ficou desabilitada, e requisições não locais foram
+bloqueadas. Não houve pedido, impressão ou pareamento. Guias publicados continuam
+cobertos pelo renderer/contrato; esse tenant de homologação não publicou guia.
+
+[Abrir a galeria visual selecionada](../out/guest-experience-premium-services/gallery.html).
+
+A galeria abaixo usa componentes reais; não são novos mockups. Arquivos em `out/`
+permanecem fora do commit. B = conteúdo histórico autorizado do Bugan com grafo,
+identidades, contexto e configuração sintéticos. M = títulos/categorias de metadados
+atuais, com descrições sintéticas e preview V4 explicitamente identificado. A = Admin
+real autenticado, exclusivamente com tenant e dados sintéticos locais.
+
+| Captura | Origem | Arquivo |
+| --- | --- | --- |
+| Bugan Serviços mobile | B | [390 px](../out/guest-experience-premium-services/services-4-pt-390.png) |
+| Bugan Serviços desktop | B | [1440 px](../out/guest-experience-premium-services/services-4-pt-1440.png) |
+| Bugan Bottom Sheet | B | [Detalhe](../out/guest-experience-premium-services/detail-4-pt-390.png) |
+| Bugan Informações | B | [Informações](../out/guest-experience-premium-services/information-mobile.png) |
+| Bugan busca/filtros | B | [Filtro](../out/guest-experience-premium-services/filter-4-pt-390.png) |
+| Grand Mercure — maior volume | M | [37 registros classificados](../out/guest-experience-premium-services/metadata-0-mobile.png) |
+| Novotel Leme — cadastro vazio preservado | M | [Leme](../out/guest-experience-premium-services/metadata-1-mobile.png) |
+| Novotel Salvador | M | [Salvador](../out/guest-experience-premium-services/metadata-2-mobile.png) |
+| Mercure Boutique — cadastro vazio preservado | M | [Mercure](../out/guest-experience-premium-services/metadata-3-mobile.png) |
+| Admin configuração/prévia | A | [Admin autenticado](../out/guest-experience-premium-services/admin-authenticated.png) |
+
+O último mockup de Serviços não estava disponível nas referências. A revisão seguiu
+as especificações textuais aprovadas e a identidade existente, sem alegar comparação
+pixel a pixel. As capturas foram inspecionadas quanto a densidade, alinhamento, foco,
+clareza dos agrupamentos, contraste e ausência do dock no desktop.
+
+## Entrega e decisão
+
+GO para RC local e homologação visual. NO-GO para publicação nesta execução: migration
+produtiva e publicação dependem de autorização posterior; antes disso, revisar o plano
+editorial e a galeria. Permanecem a comparação direta com o mockup indisponível e a
+comparação integral dos textos produtivos. Contexto de apartamento foi sintético;
+nenhum token produtivo foi utilizado e não se declara homologação operacional de pedidos.
+
+Arquivos adicionais ao checkpoint: reconciliação atual dos cinco hotéis e teste de
+Admin autenticado. Foram revisados catálogo, contrato de apresentação, explorador/CSS,
+Admin/actions, shell gastronômico, fixtures/testes, migration e documentação.
+Não houve push, merge na main, deploy ou escrita em conteúdo real. SmartMenu e demais
+fluxos protegidos permanecem sem diferenças em relação à base remota incorporada.

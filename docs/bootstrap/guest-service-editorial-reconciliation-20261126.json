@@ -1,0 +1,1317 @@
+{
+  "scope": "Metadados editoriais somente leitura dos cinco hotéis; sem textos completos, querystrings, credenciais, tokens ou escrita produtiva.",
+  "readDate": "2026-11-26",
+  "base": "f6f593a",
+  "hotels": [
+    {
+      "name": "Bugan Recife",
+      "enabled": 13,
+      "total": 18
+    },
+    {
+      "name": "Grand Mercure Rio de Janeiro Copacabana",
+      "enabled": 37,
+      "total": 38
+    },
+    {
+      "name": "Novotel Salvador",
+      "enabled": 14,
+      "total": 15
+    },
+    {
+      "name": "Novotel Rio de Janeiro Leme",
+      "enabled": 0,
+      "total": 0
+    },
+    {
+      "name": "Mercure Rio Boutique Copacabana",
+      "enabled": 0,
+      "total": 0
+    }
+  ],
+  "buganRoomService": {
+    "activeServiceId": "2b3b486b-3883-4d87-8406-73b1b7d4d954",
+    "disabledServiceId": "d3401adb-0545-47e1-b7a3-78ce36a57501",
+    "outletId": "3010fb52-8cde-40d2-b620-9b9796f068f0",
+    "serviceLinks": [],
+    "explanation": "13 serviços ativos + acesso nativo derivado do grafo elegível podem produzir 14 entradas. A origem no código foi confirmada; a observação histórica de 14 entradas não foi reproduzida em sessão produtiva. O registro antigo está desativado. Nenhuma fixture é usada como inventário real."
+  },
+  "moduleInventory": [
+    {
+      "name": "Bugan Recife",
+      "configured_experience": "v4",
+      "policies": 2,
+      "departments": 3,
+      "tourism": 7,
+      "published_guides": 0,
+      "all_guides": 4
+    },
+    {
+      "name": "Grand Mercure Rio de Janeiro Copacabana",
+      "configured_experience": "v3",
+      "policies": 5,
+      "departments": 3,
+      "tourism": 23,
+      "published_guides": 0,
+      "all_guides": 1
+    },
+    {
+      "name": "Mercure Rio Boutique Copacabana",
+      "configured_experience": "v3",
+      "policies": 0,
+      "departments": 0,
+      "tourism": 0,
+      "published_guides": 0,
+      "all_guides": 0
+    },
+    {
+      "name": "Novotel Rio de Janeiro Leme",
+      "configured_experience": "v3",
+      "policies": 0,
+      "departments": 0,
+      "tourism": 0,
+      "published_guides": 0,
+      "all_guides": 0
+    },
+    {
+      "name": "Novotel Salvador",
+      "configured_experience": "v3",
+      "policies": 3,
+      "departments": 1,
+      "tourism": 0,
+      "published_guides": 0,
+      "all_guides": 0
+    }
+  ],
+  "schemaVerification": {
+    "rls_enabled": true,
+    "policies": 3,
+    "guest_column_present": false,
+    "guest_migration_applied": false,
+    "environment": "production-read-only"
+  },
+  "records": [
+    {
+      "hotel": "Bugan Recife",
+      "id": "2b3b486b-3883-4d87-8406-73b1b7d4d954",
+      "title": "Room Service",
+      "category": "Room service",
+      "icon": "BellRing",
+      "service_action_type": "external_url",
+      "sort_order": 0,
+      "updated_at": "2026-11-26 01:47:35.565679+00",
+      "content_length": 241,
+      "content_fingerprint": "6c7b0224c096630186f516c94f87423b",
+      "url_host": "buganrecife.libguest.digital",
+      "smartmenu_link": true,
+      "proposed": {
+        "area": "services",
+        "group": "Conforto e conveniência",
+        "interaction": "canonical-room-service"
+      }
+    },
+    {
+      "hotel": "Bugan Recife",
+      "id": "820f3174-a704-44a0-a181-7de5f6415952",
+      "title": "Conheça o hotel",
+      "category": "Hotel",
+      "icon": "Hotel",
+      "service_action_type": "standard",
+      "sort_order": 0,
+      "updated_at": "2026-10-28 16:44:28.07639+00",
+      "content_length": 275,
+      "content_fingerprint": "8ffee5ca82ba587b6b6fce4124a02983",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "hotel",
+        "group": "Hotel",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Bugan Recife",
+      "id": "fdfc4bb7-6324-4704-af41-3396b9dff5da",
+      "title": "Acesso ao Wi-Fi",
+      "category": "Wi-Fi",
+      "icon": "Wifi",
+      "service_action_type": "standard",
+      "sort_order": 1,
+      "updated_at": "2026-10-28 16:44:28.07639+00",
+      "content_length": 235,
+      "content_fingerprint": "7e612b1fde621745ecb6518e420c097e",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "information",
+        "group": "Wi-Fi",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Bugan Recife",
+      "id": "c0d9e423-fd45-4e35-a9c5-8dfa5ac01234",
+      "title": "Restaurante Filipe",
+      "category": "Restaurante",
+      "icon": "UtensilsCrossed",
+      "service_action_type": "standard",
+      "sort_order": 2,
+      "updated_at": "2026-10-28 16:44:28.07639+00",
+      "content_length": 191,
+      "content_fingerprint": "1d39c81b6c50c64ac949cecb875a41eb",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "dining",
+        "group": "Restaurante",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Bugan Recife",
+      "id": "63b00aab-b324-4b8a-a0b0-7f23391285db",
+      "title": "Lavanderia",
+      "category": "Lavanderia",
+      "icon": "Shirt",
+      "service_action_type": "standard",
+      "sort_order": 4,
+      "updated_at": "2026-10-28 16:44:28.07639+00",
+      "content_length": 305,
+      "content_fingerprint": "b9ac1b979b3d7341ddd2ef84215c9d46",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Conforto e conveniência",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Bugan Recife",
+      "id": "9a33644f-6c2e-4f00-8fc7-3b9d3132ec7b",
+      "title": "Piscina",
+      "category": "Piscina",
+      "icon": "Droplets",
+      "service_action_type": "standard",
+      "sort_order": 5,
+      "updated_at": "2026-10-28 16:44:28.07639+00",
+      "content_length": 49,
+      "content_fingerprint": "15fb756826454a70ba24ad377e0b2323",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "inline"
+      }
+    },
+    {
+      "hotel": "Bugan Recife",
+      "id": "58fe0683-ba13-40c4-9562-7511b58b153b",
+      "title": "Academia",
+      "category": "Academia",
+      "icon": "Dumbbell",
+      "service_action_type": "standard",
+      "sort_order": 6,
+      "updated_at": "2026-10-28 16:44:28.07639+00",
+      "content_length": 81,
+      "content_fingerprint": "8202d4bf31aa867603d07038dc08dd23",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "inline"
+      }
+    },
+    {
+      "hotel": "Bugan Recife",
+      "id": "8e721e68-3b93-40d0-8533-33087c210d16",
+      "title": "Sauna",
+      "category": "Bem-estar",
+      "icon": "Sparkles",
+      "service_action_type": "standard",
+      "sort_order": 7,
+      "updated_at": "2026-10-28 16:44:28.07639+00",
+      "content_length": 50,
+      "content_fingerprint": "38b9d1286639d2592f96278c0fc16772",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "inline"
+      }
+    },
+    {
+      "hotel": "Bugan Recife",
+      "id": "60bee825-5d1b-4935-8653-89a7790a9b5c",
+      "title": "Menu de travesseiros",
+      "category": "Hospedagem",
+      "icon": "BedDouble",
+      "service_action_type": "standard",
+      "sort_order": 8,
+      "updated_at": "2026-10-28 16:44:28.07639+00",
+      "content_length": 135,
+      "content_fingerprint": "3963eaa99690ca2fb23e298a44f517be",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Conforto e conveniência",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Bugan Recife",
+      "id": "4ad57306-7850-4bd6-bbba-845ca0f3cfeb",
+      "title": "Spa dos Pés",
+      "category": "Spa",
+      "icon": "Heart",
+      "service_action_type": "standard",
+      "sort_order": 9,
+      "updated_at": "2026-10-28 16:44:28.07639+00",
+      "content_length": 127,
+      "content_fingerprint": "19f6b194e8159b93b479dd16f8146f22",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Bugan Recife",
+      "id": "a3c38c6e-cd53-4b86-a328-32522e5dd6b6",
+      "title": "Estacionamento",
+      "category": "Estacionamento",
+      "icon": "Building2",
+      "service_action_type": "standard",
+      "sort_order": 10,
+      "updated_at": "2026-10-28 16:44:28.07639+00",
+      "content_length": 105,
+      "content_fingerprint": "fc549cb3be3ef94cc5e0910ad8b82d7e",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Mobilidade",
+        "interaction": "inline"
+      }
+    },
+    {
+      "hotel": "Bugan Recife",
+      "id": "a9c578fe-c335-4a43-969a-5c3b45e4d52b",
+      "title": "Acomodações",
+      "category": "Hospedagem",
+      "icon": "BedDouble",
+      "service_action_type": "standard",
+      "sort_order": 11,
+      "updated_at": "2026-10-28 16:44:28.07639+00",
+      "content_length": 312,
+      "content_fingerprint": "27e203c09fe5a8c2de278c4048a2b21b",
+      "url_host": "atlantica.letsbook.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "hotel",
+        "group": "Conforto e conveniência",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Bugan Recife",
+      "id": "2df21215-0bca-48e7-bf85-1c67f5474326",
+      "title": "Segurança",
+      "category": "Atendimento",
+      "icon": "ShieldCheck",
+      "service_action_type": "standard",
+      "sort_order": 12,
+      "updated_at": "2026-10-28 16:44:28.07639+00",
+      "content_length": 125,
+      "content_fingerprint": "710cda813c3dc43cb3da03e44950a430",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "information",
+        "group": "Atendimento",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "a2b09393-11f8-42da-a45e-2b509a6373e2",
+      "title": "Como acessar o Wi-Fi",
+      "category": "Essenciais",
+      "icon": "Wifi",
+      "service_action_type": "standard",
+      "sort_order": 10,
+      "updated_at": "2026-11-12 05:47:29.035894+00",
+      "content_length": 261,
+      "content_fingerprint": "7cf4bd093c674bafeb3d4724cee63832",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "information",
+        "group": "Essenciais",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "cf69b06e-5bdb-4a13-818b-34a568cf7972",
+      "title": "Café da manhã",
+      "category": "Gastronomia",
+      "icon": "Coffee",
+      "service_action_type": "standard",
+      "sort_order": 20,
+      "updated_at": "2026-11-12 05:48:46.480447+00",
+      "content_length": 372,
+      "content_fingerprint": "c9a5b3187d1477908deebc0782e25a46",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "information",
+        "group": "Gastronomia",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "624faaeb-93eb-4f2d-b64c-02e9dc9ac22f",
+      "title": "Como usar o telefone do apartamento",
+      "category": "Essenciais",
+      "icon": "Phone",
+      "service_action_type": "standard",
+      "sort_order": 30,
+      "updated_at": "2026-11-12 05:49:23.543716+00",
+      "content_length": 255,
+      "content_fingerprint": "9f1b2170e24bf9f87db0cbe462b0a761",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "information",
+        "group": "Essenciais",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "418873e1-f0c2-440c-8578-9b760ec61c41",
+      "title": "Restaurantes, bares e horários",
+      "category": "Gastronomia",
+      "icon": "UtensilsCrossed",
+      "service_action_type": "standard",
+      "sort_order": 40,
+      "updated_at": "2026-11-12 05:49:59.170465+00",
+      "content_length": 406,
+      "content_fingerprint": "0f320e9fa1a5d6d615bbba19b2c8d3bd",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "dining",
+        "group": "Gastronomia",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "3ebcdfd8-665e-4c81-ae53-e59559947c69",
+      "title": "Limpeza do quarto e troca de enxoval",
+      "category": "No apartamento",
+      "icon": "BedDouble",
+      "service_action_type": "standard",
+      "sort_order": 50,
+      "updated_at": "2026-11-12 05:50:25.539604+00",
+      "content_length": 427,
+      "content_fingerprint": "cbff94ae0338b7539595c7c449b27207",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "No apartamento",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "e02a4f56-0cad-45e5-8aaf-30a27d41e1f6",
+      "title": "Minibar e cortesias",
+      "category": "No apartamento",
+      "icon": "ShoppingBag",
+      "service_action_type": "standard",
+      "sort_order": 60,
+      "updated_at": "2026-11-12 05:50:50.084888+00",
+      "content_length": 434,
+      "content_fingerprint": "eb5ae815d2c0a77897a08926d356f50e",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "No apartamento",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "8b8510c4-f3ae-40e6-903f-e3207a6678ac",
+      "title": "Serviço de praia e retirada de toalhas",
+      "category": "Lazer e bem-estar",
+      "icon": "Heart",
+      "service_action_type": "standard",
+      "sort_order": 70,
+      "updated_at": "2026-11-12 05:51:26.613724+00",
+      "content_length": 414,
+      "content_fingerprint": "b25f685e47f6473aec259bb66a65ecf8",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "71ee080e-aae4-4f73-86a9-3af1b68d93be",
+      "title": "Piscina",
+      "category": "Lazer e bem-estar",
+      "icon": "Droplets",
+      "service_action_type": "standard",
+      "sort_order": 80,
+      "updated_at": "2026-11-12 05:51:39.783846+00",
+      "content_length": 69,
+      "content_fingerprint": "db7a0b2ba6e99cb607ba5a7c00a63240",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "inline"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "bbff3ad3-96ae-4cf5-bee1-27d859c43652",
+      "title": "Academia",
+      "category": "Lazer e bem-estar",
+      "icon": "Dumbbell",
+      "service_action_type": "standard",
+      "sort_order": 90,
+      "updated_at": "2026-11-12 05:51:53.675651+00",
+      "content_length": 276,
+      "content_fingerprint": "6bdf6e5cd01076a2d51783f7e1133e92",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "6b4fb163-344e-4100-8a82-c2c5b63983da",
+      "title": "Sauna",
+      "category": "Lazer e bem-estar",
+      "icon": "Droplets",
+      "service_action_type": "standard",
+      "sort_order": 100,
+      "updated_at": "2026-11-12 05:52:13.607184+00",
+      "content_length": 243,
+      "content_fingerprint": "3035f7a9e3007499d84de22351aa6fae",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "1e27d7d1-b782-4c0b-92f4-285afc4f1955",
+      "title": "Empréstimo de itens",
+      "category": "Serviços da estadia",
+      "icon": "Package",
+      "service_action_type": "standard",
+      "sort_order": 110,
+      "updated_at": "2026-11-12 05:52:35.52115+00",
+      "content_length": 244,
+      "content_fingerprint": "5255e9d6a97a440f9b675c2955a78532",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços da estadia",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "3106e5b7-4751-4449-94c2-65085d0acf0d",
+      "title": "Lavanderia e passadoria",
+      "category": "Serviços da estadia",
+      "icon": "Shirt",
+      "service_action_type": "standard",
+      "sort_order": 120,
+      "updated_at": "2026-11-12 05:52:48.425478+00",
+      "content_length": 476,
+      "content_fingerprint": "b21812f089c8230005c6921b91b7e2eb",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços da estadia",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "330340d3-46c9-4eb9-9ce8-eb6a288bd2e7",
+      "title": "Como usar o cofre",
+      "category": "No apartamento",
+      "icon": "ShieldCheck",
+      "service_action_type": "standard",
+      "sort_order": 130,
+      "updated_at": "2026-11-12 05:53:01.077443+00",
+      "content_length": 307,
+      "content_fingerprint": "483c706b4ea7ae821d97fb6f4182a5cd",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "information",
+        "group": "No apartamento",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "d7c9bb29-01cb-4ba1-bed9-a3e8c7919db1",
+      "title": "Canais de TV",
+      "category": "No apartamento",
+      "icon": "Info",
+      "service_action_type": "standard",
+      "sort_order": 140,
+      "updated_at": "2026-11-12 05:53:13.408055+00",
+      "content_length": 725,
+      "content_fingerprint": "1006a8a5732da7fb46396dc9c30547f3",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "information",
+        "group": "No apartamento",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "5fdbf601-3f95-4dde-8ead-096ffca34320",
+      "title": "Consumo consciente na hospedagem",
+      "category": "Serviços da estadia",
+      "icon": "Hotel",
+      "service_action_type": "standard",
+      "sort_order": 150,
+      "updated_at": "2026-11-12 05:53:24.92466+00",
+      "content_length": 343,
+      "content_fingerprint": "e2927c86e28b5774b5c36df400efc7b5",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços da estadia",
+        "interaction": "detail"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "0d44d933-c03e-42c4-afd9-b0cfeef553e6",
+      "title": "Estapar Estacionamento",
+      "category": "Transporte e estacionamento",
+      "icon": "Info",
+      "service_action_type": "external_url",
+      "sort_order": 202,
+      "updated_at": "2026-11-12 06:16:37.296828+00",
+      "content_length": 45,
+      "content_fingerprint": "3877eedae0d5d26604c82d226bf8d72b",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Transporte e estacionamento",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "c90226cc-8e79-4543-b845-ab2eb28e63fd",
+      "title": "Estacionamento Rio2 Parking",
+      "category": "Transporte e estacionamento",
+      "icon": "Info",
+      "service_action_type": "external_url",
+      "sort_order": 204,
+      "updated_at": "2026-11-12 06:17:35.154627+00",
+      "content_length": 50,
+      "content_fingerprint": "2e4e3b6ae9d0d33f39f29eb7b97eafd6",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Transporte e estacionamento",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "15d532e9-96ba-4f77-bf8c-cd66dd5ce00a",
+      "title": "Correios",
+      "category": "Serviços do bairro",
+      "icon": "ShoppingBag",
+      "service_action_type": "external_url",
+      "sort_order": 206,
+      "updated_at": "2026-11-12 06:18:12.674258+00",
+      "content_length": 43,
+      "content_fingerprint": "57b27507ddef8d581c45870481979ebb",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços do bairro",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "6428b042-e089-4489-b915-0691c97b1179",
+      "title": "Farmácia Rio Farma",
+      "category": "Serviços do bairro",
+      "icon": "ShoppingBag",
+      "service_action_type": "external_url",
+      "sort_order": 208,
+      "updated_at": "2026-11-12 06:18:28.428278+00",
+      "content_length": 38,
+      "content_fingerprint": "e4e07031043a59e794c84f7490e5ea3a",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços do bairro",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "025f3540-df39-402d-983e-02016d97877e",
+      "title": "Farmácia DrogaRaia",
+      "category": "Serviços do bairro",
+      "icon": "ShoppingBag",
+      "service_action_type": "external_url",
+      "sort_order": 210,
+      "updated_at": "2026-11-12 06:19:16.288463+00",
+      "content_length": 38,
+      "content_fingerprint": "e2da0531e15b88128d4f81b61e31d68a",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços do bairro",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "cc7f4535-0419-40bd-b12e-4d555caeb0f4",
+      "title": "Lavanderia Sá Ferreira",
+      "category": "Serviços do bairro",
+      "icon": "Shirt",
+      "service_action_type": "external_url",
+      "sort_order": 212,
+      "updated_at": "2026-11-12 06:19:16.093343+00",
+      "content_length": 42,
+      "content_fingerprint": "1b5fe45e92f5132520ff26ade235c8b3",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços do bairro",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "f988f0a2-32ae-44a3-830a-37e94254110a",
+      "title": "Lavanderia Mordomia",
+      "category": "Serviços do bairro",
+      "icon": "Shirt",
+      "service_action_type": "external_url",
+      "sort_order": 214,
+      "updated_at": "2026-11-12 06:19:16.439279+00",
+      "content_length": 39,
+      "content_fingerprint": "ee1365fbe545cc6ac61d18b2fe6ed72b",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços do bairro",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "6813f60d-48de-4d4c-9e50-939f7b67de4f",
+      "title": "Sapataria",
+      "category": "Serviços do bairro",
+      "icon": "ShoppingBag",
+      "service_action_type": "external_url",
+      "sort_order": 216,
+      "updated_at": "2026-11-12 06:19:16.35154+00",
+      "content_length": 47,
+      "content_fingerprint": "529d5e01d849d1b9c361c30a6a6161c4",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços do bairro",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "5a3f085a-4445-4fd3-9ec1-332544a6fa9d",
+      "title": "Estação de Van Paineiras",
+      "category": "Transporte e estacionamento",
+      "icon": "Info",
+      "service_action_type": "external_url",
+      "sort_order": 218,
+      "updated_at": "2026-11-12 06:19:34.829295+00",
+      "content_length": 56,
+      "content_fingerprint": "aa4ec7c85839965d6c1f76a75ce37c95",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Transporte e estacionamento",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "996b57b0-e1de-4ecb-81c2-2c33fe04af09",
+      "title": "Santos Dumont (SDU)",
+      "category": "Transporte e estacionamento",
+      "icon": "Info",
+      "service_action_type": "external_url",
+      "sort_order": 220,
+      "updated_at": "2026-11-12 06:19:34.05596+00",
+      "content_length": 43,
+      "content_fingerprint": "52db631f6cbb432227c7bb60cb81d904",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Transporte e estacionamento",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "2ae8f99a-7177-4676-be2c-9b8115d79317",
+      "title": "Galeão / Tom Jobim",
+      "category": "Transporte e estacionamento",
+      "icon": "Info",
+      "service_action_type": "external_url",
+      "sort_order": 222,
+      "updated_at": "2026-11-12 06:19:34.008952+00",
+      "content_length": 46,
+      "content_fingerprint": "7509475635f4dbc5a6323c386291ab8c",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Transporte e estacionamento",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "851123b1-2a5c-488f-927e-2a5149b65e4a",
+      "title": "Rodoviária Novo Rio",
+      "category": "Transporte e estacionamento",
+      "icon": "Info",
+      "service_action_type": "external_url",
+      "sort_order": 224,
+      "updated_at": "2026-11-12 06:19:34.747229+00",
+      "content_length": 46,
+      "content_fingerprint": "bcce5f2ff25e1cb06d301466e7c06c38",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Transporte e estacionamento",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "896f9ae9-0e35-4c50-814f-37dcced975cb",
+      "title": "Aeroporto de Jacarepaguá",
+      "category": "Transporte e estacionamento",
+      "icon": "Info",
+      "service_action_type": "external_url",
+      "sort_order": 226,
+      "updated_at": "2026-11-12 06:19:54.209291+00",
+      "content_length": 51,
+      "content_fingerprint": "52851a30db41e0bffbbff519b850db9a",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Transporte e estacionamento",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "7d6224b4-bb3c-4244-9ef9-faee88e911dc",
+      "title": "DG Câmbio",
+      "category": "Serviços do bairro",
+      "icon": "ShoppingBag",
+      "service_action_type": "external_url",
+      "sort_order": 228,
+      "updated_at": "2026-11-12 06:19:54.213705+00",
+      "content_length": 37,
+      "content_fingerprint": "e1a47bdaac70fc3056885abae80f7d0b",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços do bairro",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "83108f7e-1111-4eb7-b02a-c967507a66a7",
+      "title": "Western Union",
+      "category": "Serviços do bairro",
+      "icon": "ShoppingBag",
+      "service_action_type": "external_url",
+      "sort_order": 230,
+      "updated_at": "2026-11-12 06:19:53.801735+00",
+      "content_length": 42,
+      "content_fingerprint": "5ddd240a0daa56d625c0ec91d8f50d9e",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços do bairro",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "674f6da5-abca-4879-a91d-7ba7efb6a896",
+      "title": "Banco do Brasil",
+      "category": "Serviços do bairro",
+      "icon": "ShoppingBag",
+      "service_action_type": "external_url",
+      "sort_order": 232,
+      "updated_at": "2026-11-12 06:19:54.470054+00",
+      "content_length": 42,
+      "content_fingerprint": "1d7691a8b9044ea25798c0afa2a0cbd3",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços do bairro",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "a3c39ff2-f2e9-4035-935e-95a7f3b51aa8",
+      "title": "Caixa Econômica",
+      "category": "Serviços do bairro",
+      "icon": "ShoppingBag",
+      "service_action_type": "external_url",
+      "sort_order": 234,
+      "updated_at": "2026-11-12 06:20:08.076417+00",
+      "content_length": 42,
+      "content_fingerprint": "ef4e0cfe0e9288b4f98add910bdf7af7",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços do bairro",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "2c187800-debc-4f0b-8a01-aac508a21f6b",
+      "title": "Caixa Eletrônico (Saque Internacional)",
+      "category": "Serviços do bairro",
+      "icon": "ShoppingBag",
+      "service_action_type": "external_url",
+      "sort_order": 236,
+      "updated_at": "2026-11-12 06:20:08.530005+00",
+      "content_length": 62,
+      "content_fingerprint": "1085c8b2fecc8a58c8ac106a5143812a",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços do bairro",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "5253bf40-677d-47b3-a1bf-b41f71776418",
+      "title": "Itaú",
+      "category": "Serviços do bairro",
+      "icon": "ShoppingBag",
+      "service_action_type": "external_url",
+      "sort_order": 238,
+      "updated_at": "2026-11-12 06:20:07.29708+00",
+      "content_length": 37,
+      "content_fingerprint": "61a02a287ad56f137878114898fdcd9b",
+      "url_host": "www.google.com.br",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Serviços do bairro",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "2a093119-7671-4a4e-ba0b-e272d640a2c0",
+      "title": "Bike Itaú · Estação e funcionamento",
+      "category": "Transporte e estacionamento",
+      "icon": "Info",
+      "service_action_type": "standard",
+      "sort_order": 240,
+      "updated_at": "2026-11-12 06:20:07.300821+00",
+      "content_length": 267,
+      "content_fingerprint": "5fa67d3fe6ad6909b18ffcb33551932d",
+      "url_host": "www.google.com",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Transporte e estacionamento",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "eb4e7838-3b61-4a35-b76d-1bae8bd8a3e7",
+      "title": "Bike Itaú · Planos e acesso",
+      "category": "Transporte e estacionamento",
+      "icon": "Info",
+      "service_action_type": "external_url",
+      "sort_order": 241,
+      "updated_at": "2026-11-12 06:20:22.726447+00",
+      "content_length": 80,
+      "content_fingerprint": "e633a9900b1bd615d57e4e4e285d6b59",
+      "url_host": "tembici-qrcode-production.web.app",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Transporte e estacionamento",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Grand Mercure Rio de Janeiro Copacabana",
+      "id": "a4cbec08-0743-402c-98c6-fb61b1b95c39",
+      "title": "Metrô",
+      "category": "Transporte e estacionamento",
+      "icon": "Info",
+      "service_action_type": "standard",
+      "sort_order": 242,
+      "updated_at": "2026-11-12 06:20:23.058825+00",
+      "content_length": 789,
+      "content_fingerprint": "35fe56c1d700121b240867a616361a03",
+      "url_host": "www.google.com",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Transporte e estacionamento",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "0a70db5c-66ac-41ac-bcb2-6b38b35aec34",
+      "title": "Pet Friendly",
+      "category": "Hospedagem",
+      "icon": "BedDouble",
+      "service_action_type": "standard",
+      "sort_order": 0,
+      "updated_at": "2026-04-30 06:22:42.123406+00",
+      "content_length": 81,
+      "content_fingerprint": "2182c161b626ac72a5adcb71278aba04",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Conforto e conveniência",
+        "interaction": "inline"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "246e66c6-aac6-4587-9462-23da15d467bf",
+      "title": "Siga-nos no Instagram!",
+      "category": null,
+      "icon": "Globe",
+      "service_action_type": "standard",
+      "sort_order": 0,
+      "updated_at": "2026-04-30 06:53:30.590265+00",
+      "content_length": null,
+      "content_fingerprint": "d41d8cd98f00b204e9800998ecf8427e",
+      "url_host": "www.instagram.com",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Outros serviços",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "279bb7fb-9499-472d-b0f6-151665a92ad3",
+      "title": "Menu Frigobar",
+      "category": "Conveniência",
+      "icon": "ShoppingBag",
+      "service_action_type": "standard",
+      "sort_order": 0,
+      "updated_at": "2026-04-30 06:52:48.055579+00",
+      "content_length": null,
+      "content_fingerprint": "d41d8cd98f00b204e9800998ecf8427e",
+      "url_host": "docs.google.com",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Conforto e conveniência",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "28481f69-8cfd-402e-ae33-58323bde6456",
+      "title": "Piscina",
+      "category": "Piscina",
+      "icon": "Droplets",
+      "service_action_type": "standard",
+      "sort_order": 0,
+      "updated_at": "2026-04-30 06:29:34.779465+00",
+      "content_length": 51,
+      "content_fingerprint": "36300fbcddd4a024afb9c85a05c9ccdb",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "inline"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "3a38275e-941e-457e-b0bd-011ee3fc488b",
+      "title": "Diretório Canais - Novotel",
+      "category": "Hospedagem",
+      "icon": "Info",
+      "service_action_type": "standard",
+      "sort_order": 0,
+      "updated_at": "2026-04-30 06:46:56.570511+00",
+      "content_length": 38,
+      "content_fingerprint": "00d47ebbb495c2be9fd6729669e436ee",
+      "url_host": "drive.google.com",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "information",
+        "group": "Conforto e conveniência",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "3c0854ce-e643-4185-a3fa-1f27e85174da",
+      "title": "Academia",
+      "category": "Academia",
+      "icon": "Dumbbell",
+      "service_action_type": "standard",
+      "sort_order": 0,
+      "updated_at": "2026-04-30 06:28:13.630967+00",
+      "content_length": 52,
+      "content_fingerprint": "18355b2e62ab583c5552ba2ef1dbcc3a",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "inline"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "42a5490e-a7d6-4c75-b5c7-12c48eca0796",
+      "title": "Ramais",
+      "category": null,
+      "icon": "ConciergeBell",
+      "service_action_type": "standard",
+      "sort_order": 0,
+      "updated_at": "2026-04-30 06:26:35.859908+00",
+      "content_length": 60,
+      "content_fingerprint": "90f82a1c96cfb3e49f5465a8d1af2197",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "contact",
+        "group": "Outros serviços",
+        "interaction": "inline"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "4495952e-7282-45e4-91cd-64b5183aaf2c",
+      "title": "Carta de vinhos",
+      "category": "Restaurante",
+      "icon": "UtensilsCrossed",
+      "service_action_type": "standard",
+      "sort_order": 0,
+      "updated_at": "2026-04-30 06:39:25.457909+00",
+      "content_length": 42,
+      "content_fingerprint": "88755d082fefd0762fd17246a7eebd2f",
+      "url_host": "drive.google.com",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "dining",
+        "group": "Restaurante",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "74e5a5a0-e5db-46d3-8c9b-0a979f20bdf6",
+      "title": "Room Service",
+      "category": "Room service",
+      "icon": "BellRing",
+      "service_action_type": "room_restaurant_menu",
+      "sort_order": 0,
+      "updated_at": "2026-04-30 06:59:08.037817+00",
+      "content_length": 87,
+      "content_fingerprint": "b4dd40abf920bb9529a7d4cc25a3c369",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Conforto e conveniência",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "76822d7f-8a70-4a93-abad-a53a2d1efe19",
+      "title": "Programa de Fidelidade - All",
+      "category": "Utilidades",
+      "icon": "Package",
+      "service_action_type": "standard",
+      "sort_order": 0,
+      "updated_at": "2026-04-30 06:48:35.146318+00",
+      "content_length": 41,
+      "content_fingerprint": "681326cca9421241660be344d83d6f83",
+      "url_host": "login.accor.com",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Conforto e conveniência",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "fcaa5d5a-6142-49a9-9c66-ec5da34bea54",
+      "title": "Mapa - Regiões próximas do hotel",
+      "category": "Mobilidade",
+      "icon": "Info",
+      "service_action_type": "standard",
+      "sort_order": 0,
+      "updated_at": "2026-04-30 06:51:39.801628+00",
+      "content_length": 17,
+      "content_fingerprint": "e7efd218292196339852e2ee2b96b746",
+      "url_host": "drive.google.com",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Mobilidade",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "08472e5d-e0ea-4c16-97e8-76091710b961",
+      "title": "Estacionamento",
+      "category": "Estrutura",
+      "icon": "Hotel",
+      "service_action_type": "standard",
+      "sort_order": 1,
+      "updated_at": "2026-04-30 06:19:56.465639+00",
+      "content_length": 54,
+      "content_fingerprint": "986d4f6cf97623d4904c6de554043a02",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Estrutura",
+        "interaction": "inline"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "eaff4dd6-d1fe-4e36-848e-9193a9811b39",
+      "title": "SPA - Aline Araujo",
+      "category": "Saúde",
+      "icon": "Droplets",
+      "service_action_type": "standard",
+      "sort_order": 3,
+      "updated_at": "2026-04-30 06:43:54.563855+00",
+      "content_length": 39,
+      "content_fingerprint": "3d6ce77fadc56dd2b6fa4551ec8829d7",
+      "url_host": "drive.google.com",
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Saúde",
+        "interaction": "page"
+      }
+    },
+    {
+      "hotel": "Novotel Salvador",
+      "id": "3256e92e-105b-40cf-814a-fb85b3a54785",
+      "title": "Sala de Passadoria",
+      "category": "Hospedagem",
+      "icon": "Shirt",
+      "service_action_type": "standard",
+      "sort_order": 4,
+      "updated_at": "2026-04-30 05:44:12.201961+00",
+      "content_length": 80,
+      "content_fingerprint": "546685dcfc87ffcd1bf0e5728e6130fc",
+      "url_host": null,
+      "smartmenu_link": false,
+      "proposed": {
+        "area": "services",
+        "group": "Conforto e conveniência",
+        "interaction": "inline"
+      }
+    }
+  ],
+  "limitations": [
+    "Sem exportação dos textos completos após rejeição automática de uma consulta ampla; comparação editorial por título, categoria, ação, hostname, comprimento e fingerprint.",
+    "Zero serviços nesses dois hotéis não significa ausência em outros módulos; não foram ativados módulos nem criados serviços.",
+    "Fotos, guias, políticas, turismo e canais existentes não foram migrados nem alterados.",
+    "Classificação proposta será gerada pelo contrato compartilhado; não executar UPDATE de conteúdo real."
+  ]
+}

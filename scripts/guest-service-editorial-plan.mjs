@@ -1,7 +1,18 @@
 // Read-only, deterministic proposal. Never connects to a database or applies changes.
 import { readFileSync } from 'node:fs';
+import { guestServiceArea, isLegacyTvGuide } from '../lib/guest-service-catalog.ts';
+import { guestServiceGroup } from '../lib/guest-service-presentation.ts';
 import { getGuestServiceCatalog } from '../lib/guest-service-catalog.ts';
 import { guestServicesFixture } from '../tests/fixtures/guest-services.ts';
+if (process.argv.includes('--current')) {
+  const file = 'docs/bootstrap/guest-service-editorial-reconciliation-20261126.json';
+  const current = JSON.parse(readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
+  current.records = current.records.map(row => {
+    const section = {title:row.title,icon:row.icon,category:row.category};
+    return {...row, proposed:{area:guestServiceArea(section, isLegacyTvGuide(row.title)),group:guestServiceGroup(section,'pt'),interaction:row.smartmenu_link ? 'canonical-room-service' : isLegacyTvGuide(row.title) || row.url_host || row.service_action_type==='room_restaurant_menu' ? 'page' : row.content_length>110 ? 'detail' : 'inline'}};
+  });
+  console.log(JSON.stringify(current,null,2));
+} else {
 const snapshot = JSON.parse(readFileSync('tests/browser/fixtures/bugan-v4-public-copy.json', 'utf8'));
 const data = guestServicesFixture();
 const domain = { kind: 'localhost', hostname: 'localhost', productRootDomain: 'libguest.digital', shouldUseSlugFallback: true };
@@ -21,3 +32,5 @@ console.log(JSON.stringify({
     'Novos conteúdos ou divergências de updated_at exigem nova revisão; nenhum executor de escrita é fornecido.',
   ],
 }, null, 2));
+
+}

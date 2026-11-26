@@ -71,3 +71,18 @@
  [data-guest-header-photo]::before { content:""; position:absolute; pointer-events:none; inset:0 0 0 60%; background-image:linear-gradient(to right,var(--hotel-surface),transparent),var(--guest-header-photo); background-size:cover; background-position:center; opacity:.5; }
  [data-guest-header-photo]>* { position:relative; }
 }
+
+.guest-service-row>.guest-service-related { display:block; padding:0 16px 14px 68px; font-size:.875rem; line-height:1.6; }
+.guest-service-related summary { cursor:pointer; min-height:44px; padding-block:10px; color:var(--hotel-primary); }
+.guest-service-related p { white-space:pre-line; margin-block:8px; }
+
+/* Internal headers sit on a light surface even when the brand Home uses a dark hero. */
+[data-public-internal-v4] .public-area-hero .hotel-theme-language-trigger { color:var(--hotel-text); background:var(--hotel-surface); border-color:var(--hotel-border); box-shadow:none; }
+[data-public-internal-v4] .public-area-hero .hotel-theme-language-trigger svg { color:inherit; }
+[data-public-internal-v4] .hotel-theme-language-menu { background:var(--hotel-surface); border-color:var(--hotel-border); color:var(--hotel-text); }
+[data-public-internal-v4] .hotel-theme-language-menu>div:first-child,[data-public-internal-v4] .hotel-theme-language-menu a { color:var(--hotel-text); }
+[data-public-internal-v4] .hotel-theme-language-menu a[aria-current=page] { background:var(--hotel-active-bg); }
+@media(max-width:767px) {
+ [data-public-internal-v4][data-public-area=servicos] .public-area-hero>div:nth-child(2) { max-width:140px; }
+ [data-public-internal-v4][data-public-area=servicos] .public-area-hero>div:nth-child(2)>p { width:140px; font-size:.8125rem; line-height:1.3; }
+}

@@ -1,6 +1,6 @@
 'use server';
 
-import { readGuestServicePresentation } from '@/lib/guest-service-presentation';
+import { guestServicePresentationFits, readGuestServicePresentation } from '@/lib/guest-service-presentation';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
@@ -52,10 +52,13 @@ export async function updateSectionAction(id: string, formData: FormData) {
     redirect(`/admin/servicos/${id}?error=Informe%20uma%20URL%20fixa%20para%20o%20servi%C3%A7o`);
   }
 
+  const guestPresentation = formData.has('guest_presentation_present') ? readGuestServicePresentation(formData) : undefined;
+  if (guestPresentation && !guestServicePresentationFits(guestPresentation)) redirect('/admin/servicos?error=' + encodeURIComponent('Os textos da apresentação ultrapassam o limite conjunto de 20 KB. Reduza os textos e tente novamente.'));
+
   const payload: Database['public']['Tables']['hotel_sections']['Update'] = {
     title,
     icon,
-    ...(formData.has('guest_presentation_present') ? { guest_presentation: readGuestServicePresentation(formData) } : {}),
+    ...(guestPresentation === undefined ? {} : { guest_presentation: guestPresentation }),
     content: readNullableString(formData, 'content'),
     cta: readNullableString(formData, 'cta'),
     url,
