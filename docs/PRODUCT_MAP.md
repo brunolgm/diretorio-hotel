@@ -3613,7 +3613,14 @@ Ajustes pontuais conservam categorias elegíveis no detalhe, corrigem ícone de
 estacionamento, agrupamento de bem-estar, contexto da busca e Wi-Fi duplicado.
 Integração preserva o SmartMenu vigente em `5c1647a`. TypeScript, lint e build
 passaram, além de 23 testes direcionados e 23 checks autenticados afetados.
-A publicação Vercel e o smoke serão registrados no relatório final desta entrega.
+PUBLICADO: deployment inicial `dpl_7cvfmnKxN8PiNVGyerZCgyDWBVro` READY,
+associado a `libguest.digital`, com Admin autenticado, configurações e idiomas
+conferidos sem gravações. O smoke confirmou Home, oito serviços, Room Service
+canônico único, sheet, busca, Informações, PT/EN/ES e os outros quatro hotéis em V3.
+O conteúdo real exigiu reduzir dois espaçamentos mobile de 12 para 10 px para
+preservar a dobra aprovada em 844 px; sem alterar tipografia ou cadastros.
+O relatório final e as capturas reais ficam em
+`out/guest-experience-premium-production/evidence/`; o backup privado fica separado.
 Atualização posterior: Bruno autorizou publicação e migration. O candidato
 `3a720b8` foi publicado e a migration `20261126060253` aplicada preservando fontes
 comerciais e sete traduções existentes. O Admin autenticado confirmou o tradutor

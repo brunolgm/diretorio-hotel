@@ -352,3 +352,45 @@ Densidade revalidada: 7/8 em 390×900 e 390×844. Verificações dirigidas finai
 lint direcionado e build sobre a integração vigente. Sem repetir as suítes históricas.
 O relatório de publicação registra SHA, deployment, backup, migrations, preservação
 dos cinco hotéis e evidências reais. O backup privado nunca acompanha a galeria.
+
+
+### Publicação efetiva e conferência real
+
+A main integrada foi publicada com SHA
+`213ab3bef3f104b254d3d9353c2b35cd957d366b`, deployment inicial
+`dpl_7cvfmnKxN8PiNVGyerZCgyDWBVro`, READY e com `libguest.digital` associado.
+As duas migrations autorizadas estão no histórico canônico produtivo, na ordem
+aprovada. Nenhum dado editorial foi escrito pela publicação.
+
+O Admin autenticado de produção abriu cadastro, edição, prévia e idiomas; as
+traduções existentes permanecem como legado protegido, com confirmação individual.
+Nenhum botão de salvar, retraduzir ou backfill foi acionado em produção. A validação
+com Google em uma edição real continua como verificação operacional posterior.
+
+O smoke público sem escrita confirmou os oito serviços reais, Room Service único
+com destino `/room-service`, sheet com todas as categorias de travesseiros, busca,
+Informações com Wi-Fi único e contexto correto, desktop e PT/EN/ES. Os quatro
+outros hotéis responderam com suas identidades e V3. O ajuste de espaçamento
+mobile de 12 para 10 px conserva a densidade com o conteúdo real, que ocupa mais
+linhas que a fixture aprovada. TypeScript/lint da integração e build foram aprovados;
+para o CSS final foram repetidos somente densidade e build. A medição produtiva
+final e o deployment definitivo estão no relatório entregue com as capturas.
+
+Backup privado: roles, schema, dados (131 blocos COPY) e histórico, hashes SHA-256,
+ACL restrita ao usuário e SYSTEM, instruções de restauração em projeto compatível.
+É backup lógico; não houve ensaio de restauração com dados reais. Binários Storage,
+configurações da plataforma e chaves externas não fazem parte do dump e não foram
+tocados pela release. Recuperação inicial da aplicação usa deployment anterior
+compatível, preservando colunas e traduções. Sem DROP/rollback destrutivo.
+
+O advisor mantém o alerta anterior da view `public.public_hotels`. O aviso sobre
+`save_current_hotel_service_translation` é avaliado: execução é intencional somente
+por authenticated, com usuário ativo, papel, módulos, tenant derivado do perfil,
+fontes/revisões conferidas e escrita limitada. Anon não executa e não recebeu novos
+grants. Políticas/RLS anteriores idênticos. As demais recomendações preexistentes
+não foram tratadas fora do escopo. Referência de remediação da view:
+https://supabase.com/docs/guides/database/database-linter?lint=0010_security_definer_view
+
+O SHA final, deployment final READY, smoke estrito, inventário de imagens e estado
+Git ficam em `out/guest-experience-premium-production/evidence/Relatorio-final-da-publicacao.md`.
+O backup bruto não é distribuído nem incluído em galeria/ZIP.

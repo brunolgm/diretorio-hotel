@@ -138,3 +138,13 @@ existente, inclusive as migrations paralelas do SmartMenu. Backup lógico privad
 inclui roles, schema, dados e histórico, com hashes e instruções de recuperação.
 Não há tradução retroativa em massa nem edição de registros reais para teste.
 O relatório de publicação registra a aplicação efetiva, o deployment e o smoke.
+
+
+As duas migrations foram efetivamente aplicadas ao projeto produtivo
+`micuekfznunwwofxnovw`. Constraints válidas, triggers habilitados, execução do RPC
+apenas autenticada e ausência de UPDATE direto nas novas colunas foram conferidos.
+Hashes dos cinco hotéis e políticas/RLS idênticos antes/depois. Admin publicado
+conferido em sessão autenticada existente; sem escrever ou traduzir conteúdo real.
+O alerta security definer do RPC é esperado e limitado pelas verificações de
+usuário ativo, tenant, papel, módulos, allowlist e versões no próprio contrato.
+A view preexistente `public.public_hotels` continua documentada separadamente.

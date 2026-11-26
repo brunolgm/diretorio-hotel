@@ -70,6 +70,7 @@
  [data-public-internal-v4][data-public-area=servicos] [data-public-internal-body] { max-width:1200px; }
 }
 @media(max-width:767px) {
+ .guest-service-groups { gap:10px; margin-top:10px; }
  .guest-service-summary-secondary { display:none; }
  [data-public-internal-v4][data-public-area]:is([data-public-area=servicos],[data-public-area=informacoes]) .public-area-hero { padding:0; background:transparent; border:0; border-radius:0; }
  [data-public-internal-v4]:is([data-public-area=servicos],[data-public-area=informacoes]) .public-area-hero>div:nth-child(2) { position:absolute; left:50%; top:16px; margin:0; transform:translateX(-50%); max-width:140px; pointer-events:none; }
