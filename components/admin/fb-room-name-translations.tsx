@@ -19,6 +19,7 @@ function TranslationCard({row}:{row:RoomNameEditorRow}) {
       <h2 className="font-semibold">{title}</h2><p className="text-sm text-[var(--admin-muted)]">{description?'Descrição original do cadastro':row.kind==='category'?'Título original em português':'Nome original em português'}</p>
       {description?<p className="max-h-32 overflow-y-auto whitespace-pre-wrap text-sm">{row.source_name}</p>:null}</div>
     {row.stale&&!saved?<p role="status" className="text-sm">O texto original mudou. Revise as duas traduções antes de salvar.</p>:null}
+    {['combo','combo_slot','modifier_group','modifier_option'].includes(row.kind)?<p className="text-xs text-[var(--admin-muted)]">{row.origin==='automatic'&&!saved?'Tradução automática · revise antes de usar.':row.revision>0||saved?'Traduções revisadas protegidas.':'Confira as traduções antes de salvar.'} Ao salvar aqui, as duas traduções ficam protegidas da geração automática, inclusive campos vazios.</p>:null}
     <form action={submit} className="space-y-3">
       <input type="hidden" name="kind" value={row.kind}/><input type="hidden" name="id" value={row.id}/>
       <input type="hidden" name="source_name" value={row.source_name}/><input type="hidden" name="revision" value={state.revision??row.revision}/>

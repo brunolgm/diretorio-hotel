@@ -198,3 +198,24 @@ naquele idioma. Alterações simultâneas ou mudanças no texto original exigem
 recarregar e revisar antes de salvar. Os textos já revisados são carregados como
 valores iniciais; o que for salvo pelo hotel passa a ter precedência. O português
 do cadastro compartilhado com o Filipe, os preços e as regras não são alterados.
+
+### Tradução automática comercial — candidato local, não publicado (26/11/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Nos rascunhos de **Combos e adicionais** do
+Room Service do Bugan, salvar nomes em português gera inglês e espanhol para o
+combo, seus grupos de escolhas, grupos de adicionais e opções. Requer o recurso
+de idiomas já habilitado. O salvamento não ativa o rascunho.
+
+Textos identificados como **Tradução automática** podem ser ajustados em **Editar
+traduções do Room Service**. Salvar nessa área protege as duas traduções contra
+novas gerações automáticas, inclusive um campo vazio deixado para usar português.
+Os textos revisados anteriores também são protegidos. Se o português mudar,
+uma tradução revisada é mantida para revisão; o hóspede não recebe o texto antigo
+como se estivesse atualizado. Nomes automáticos acompanham mudanças em português.
+
+Se o tradutor falhar, o rascunho em português continua salvo e o Admin informa
+traduções pendentes. Reabrir e salvar o rascunho tenta completar os idiomas
+automáticos pendentes; também é possível completar e revisar os textos manualmente.
+Uma gravação concorrente exige recarregar e conferir. Preços e regras não são
+enviados ao tradutor. Esta versão foi validada somente no laboratório local com
+provedor sintético; a aplicação e a migration ainda não foram publicadas.
