@@ -5,7 +5,9 @@ import {
   communicationEligible,
   publicCommunicationUrl,
   communicationExcerpt,
+  eligibleAnnouncementRows,
 } from "../../lib/public-communications.ts";
+import { publicNoticeKey, dismissedNoticeKeys } from "../../lib/public-notice-view.ts";
 import type {
   PublicHotelAnnouncement,
   PublicHotelPromotionalBanner,
@@ -114,6 +116,25 @@ test("critical alerts precede maintenance without hiding other eligible notices"
  const second = { ...alert, id: "second-critical" };
  const model = publicCommunications("hotel-a", [maintenance, alert, second], [], now);
  assert.deepEqual(model.alerts.map(r => r.id), ["critical", "second-critical", "maintenance"]);
+});
+
+test("V4 directory and bell count only eligible rows across four categories", () => {
+  const categories = ["alerta", "manutencao", "informativo", "promocao"];
+  const fixtures = categories.map((category, i) => ({ ...row, id: `${i}`, category }));
+  const excluded = [
+    { ...row, id: "foreign", hotel_id: "hotel-b" },
+    { ...row, id: "inactive", is_active: false },
+    { ...row, id: "future", starts_at: "2026-11-01T00:00:00Z" },
+    { ...row, id: "expired", ends_at: "2026-10-01T00:00:00Z" },
+    { ...row, id: "blank", title: " ", body: " " },
+  ];
+  const all = [...fixtures, ...excluded] as PublicHotelAnnouncement[];
+  assert.deepEqual(eligibleAnnouncementRows("hotel-a", all, true, now).map(x => x.category), categories);
+  assert.equal(eligibleAnnouncementRows("hotel-a", all, false, now).length, 0);
+  assert.equal(eligibleAnnouncementRows("hotel-a", [], true, now).length, 0);
+  const dismissed = dismissedNoticeKeys(JSON.stringify([publicNoticeKey(fixtures[0])]));
+  assert.ok(dismissed.includes(publicNoticeKey(fixtures[0])));
+  assert.equal(eligibleAnnouncementRows("hotel-a", all, true, now).length, 4);
 });
 
 test("Home excerpt preserves full source, avoids duplicate title and bounds Unicode summaries",()=>{const body="Operational notice ".repeat(100);assert.equal(communicationExcerpt("Same","Same"),null);assert.equal(communicationExcerpt("Title",null),null);const excerpt=communicationExcerpt("Title",body)!;assert.ok(Array.from(excerpt).length<=160);assert.ok(excerpt.endsWith("…"));assert.equal(body.length,1900);assert.equal(communicationExcerpt("Title","\nShort   body\n"),"Short body");});

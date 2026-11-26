@@ -22,6 +22,7 @@ import { PublicExperienceOverview } from '@/components/public/public-experience-
 import type { ExperienceMedia } from '@/lib/public-experience-media';
 import type { PublicTourismItem } from '@/lib/tourism/public';
 import { LanguageSwitcher } from '@/components/public/language-switcher';
+import { PublicCommunicationAccess } from '@/components/public/public-communication-access';
 import { GrandMercurePublicHome } from '@/components/public/grand-mercure/grand-mercure-public-home';
 import { MercurePublicHome } from '@/components/public/mercure/mercure-public-home';
 import { NovotelPublicHome } from '@/components/public/novotel/novotel-public-home';
@@ -458,11 +459,11 @@ export function HotelPublicPageContent({
                 </div>
 
                 <div className="shrink-0">
-                  <LanguageSwitcher
+                  {version==='v4'?<PublicCommunicationAccess data={communicationData} language={language} href={buildPublicHotelAreaHref({slug:hotel.slug,area:'comunicados',language,domainContext,preferSubdomainRoot:useSubdomainRoot})} basePath={domainContext.navigationScope === 'authenticated-preview' ? '/preview' : useSubdomainRoot ? '/' : undefined} compact={false}/>:<LanguageSwitcher
                     slug={hotel.slug}
                     currentLanguage={language}
                     basePath={domainContext.navigationScope === 'authenticated-preview' ? '/preview' : useSubdomainRoot ? '/' : undefined}
-                  />
+                  />}
                 </div>
               </div>
 

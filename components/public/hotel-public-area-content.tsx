@@ -7,7 +7,7 @@ import {PublicFbPremiumShell} from './public-fb-premium-shell';
 import {PublicStayInformation} from './public-stay-information';
 import {InternalAccommodation} from './public-internal-editorial';
 import {PublicAnnouncementDirectory} from './public-announcement-directory';
-import {communicationEligible} from '@/lib/public-communications';
+import {communicationEligible,eligibleAnnouncementRows} from '@/lib/public-communications';
 import {RoomGuideLinks} from './room-guide-links';
 import {publishedContactPhones} from '@/lib/contact-phones';
 import {getPublicEssentials} from '@/lib/public-essentials';
@@ -174,11 +174,11 @@ export function HotelPublicAreaContent({
   preferSubdomainRoot: boolean;
 }) {
   const { hotel, sections, departments, policies } = pageData;
-  const announcements=pageData.announcements.filter(row=>communicationEligible(row,pageData.hotel.id));
+  const isV4=pageData.presentation?.experienceVersion==='v4';
+  const announcements=isV4 ? eligibleAnnouncementRows(pageData.hotel.id,pageData.announcements,pageData.layout.some(block=>block.blockKey==='announcements'&&block.isEnabled)) : pageData.announcements.filter(row=>communicationEligible(row,pageData.hotel.id));
   const copy = getPublicCopy(language);
   const areaCopy = getAreaCopy(language);
   const essentials=getPublicEssentials(pageData,language);
-  const isV4=pageData.presentation?.experienceVersion==='v4';
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const isBugan = theme.preset === 'bugan';
   const guestCatalog = isV4 ? getGuestServiceCatalog(pageData, language, domainContext, preferSubdomainRoot) : [];
@@ -255,11 +255,11 @@ export function HotelPublicAreaContent({
   return (
     <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isBugan ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-10'}`} style={theme.cssVars} data-public-internal-v4={pageData.presentation?.experienceVersion==='v4'?'':undefined} data-public-area={area} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
       <PublicAnalytics hotelSlug={hotel.slug} language={language} />
-      {isV4 ? <div className="guest-desktop-navigation"><PublicExperienceHeader hotel={hotel} language={language} basePath={basePath} homeHref={homeHref} links={desktopLinks} activeHref={buildAreaHref(area)} reserve={reserve} reserveLabel={copy.bookNow} menuLabel={copy.navigationLabel} navigationLabel={copy.navigationLabel} style={theme.cssVars} /></div> : null}
+      {isV4 ? <div className="guest-desktop-navigation"><PublicExperienceHeader hotel={hotel} language={language} basePath={basePath} homeHref={homeHref} links={desktopLinks} activeHref={buildAreaHref(area)} reserve={reserve} reserveLabel={copy.bookNow} menuLabel={copy.navigationLabel} navigationLabel={copy.navigationLabel} style={theme.cssVars} communicationData={pageData} announcementsHref={buildAreaHref('comunicados')} /></div> : null}
       {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
       <div data-public-internal-body className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
         {isBugan || isV4 ? (
-          <PublicAreaHero desktopImageUrl={isV4 && area === 'servicos' ? servicePhoto : null} hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={areaCopy.back} title={areaMeta.title} description={areaMeta.description} icon={AreaIcon} />
+          <PublicAreaHero desktopImageUrl={isV4 && area === 'servicos' ? servicePhoto : null} hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={areaCopy.back} title={areaMeta.title} description={areaMeta.description} icon={AreaIcon} communicationData={isV4?pageData:undefined} announcementsHref={buildAreaHref('comunicados')} />
         ) : isNovotel ? (
           <NovotelAreaHero
             hotel={hotel}
@@ -357,9 +357,9 @@ export function HotelPublicAreaContent({
           ) : null}
           {area === 'cardapio' ? pageData.trackingOrderId ? <OrderTracking slug={hotel.slug} id={pageData.trackingOrderId} language={language}/> : pageData.fb ? <PublicFbContent pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/> : roomMenuSection ? <ServiceList sections={[roomMenuSection]} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.noMenu} /> : null}
           {area === 'turismo' ? tourismSections.length ? <ServiceList sections={tourismSections} pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} openLabel={areaCopy.open} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
-          {area === 'informacoes'&&isV4?<><InternalAccommodation data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>{sections.length?<nav id="hotel-service-access" className="public-internal-service-access"><a href={buildAreaHref('servicos')}>{copy.navigationServices}<ChevronRight aria-hidden/></a></nav>:null}</>:null}
+          {area === 'informacoes'&&isV4?<><InternalAccommodation data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>{pageData.layout.some(block=>block.blockKey==='announcements'&&block.isEnabled)?<a className="public-information-communications" href={buildAreaHref('comunicados')}><BellRing aria-hidden/><span><strong>{areaCopy.announcementsTitle}</strong><small>{areaCopy.announcementsDescription}</small></span>{announcements.length?<span className="public-information-communications-count">{announcements.length}</span>:null}<ChevronRight aria-hidden/></a>:null}{sections.length?<nav id="hotel-service-access" className="public-internal-service-access"><a href={buildAreaHref('servicos')}>{copy.navigationServices}<ChevronRight aria-hidden/></a></nav>:null}</>:null}
           {area === 'informacoes'?<RoomGuideLinks data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
-          {area === 'comunicados' ? announcements.length ? isV4?<PublicAnnouncementDirectory hotelId={hotel.id} rows={announcements} language={language}/>:<div className="grid gap-4 md:grid-cols-2">{announcements.map((announcement) => <article key={announcement.id} id={`announcement-${announcement.id}`} className="hotel-public-content-card rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><BellRing className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{announcement.title}</h2><p className="mt-2 whitespace-pre-line text-sm leading-6 text-[color:var(--hotel-text-muted)]">{announcement.body}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
+          {area === 'comunicados' ? isV4?<PublicAnnouncementDirectory hotelId={hotel.id} rows={announcements} language={language}/>:announcements.length ? <div className="grid gap-4 md:grid-cols-2">{announcements.map((announcement) => <article key={announcement.id} id={`announcement-${announcement.id}`} className="hotel-public-content-card rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><BellRing className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{announcement.title}</h2><p className="mt-2 whitespace-pre-line text-sm leading-6 text-[color:var(--hotel-text-muted)]">{announcement.body}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
           {isV4 && supplemental.length ? <div className="mt-6"><GuestServiceExplorer context={area==='informacoes'?'information':'services'} items={supplemental} language={language} themeStyle={theme.cssVars} /></div> : null}
           {area === 'servicos' && isV4 ? guestServices.length ? <GuestServiceExplorer items={guestServices} language={language} themeStyle={theme.cssVars} /> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
           {area === 'servicos' && !isV4 ? sections.length ? isBrandExperience ? (

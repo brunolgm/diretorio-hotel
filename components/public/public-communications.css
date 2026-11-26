@@ -82,6 +82,26 @@
 
 [data-hotel-theme="bugan"] .v4-attention {background:#fce8df;border-color:#f3ded5}
 
+/* One permanent V4 access adjacent to the language control, with no unread semantics. */
+.public-communication-actions {display:flex;align-items:center;gap:6px;flex:none;min-width:0}
+.public-communication-bell {position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border:1px solid var(--hotel-border);border-radius:50%;background:var(--hotel-surface);color:var(--hotel-text);text-decoration:none;box-shadow:0 4px 16px -12px var(--hotel-primary)}
+.public-communication-bell svg {width:19px;height:19px;stroke-width:1.8}
+.public-communication-bell:hover {background:var(--hotel-active-bg)}
+.public-communication-bell:focus-visible {outline:2px solid var(--hotel-accent);outline-offset:2px}
+.public-communication-count {position:absolute;top:-5px;right:-6px;display:grid;place-items:center;min-width:19px;height:19px;padding:0 4px;border-radius:20px;border:2px solid var(--hotel-surface);background:var(--hotel-accent);color:var(--hotel-accent-foreground,#fff);font-size:10px;font-weight:700;line-height:1}
+.v3-header .v3-desktop-nav {min-width:0}
+.v3-header .public-communication-actions {margin-left:0}
+@media(min-width:768px) and (max-width:1399px){
+ .public-experience-v3[data-public-experience="v4"] .v3-header .v3-desktop-nav,
+ .public-experience-v3[data-public-experience="v4"] .v3-header .v3-reserve {display:none}
+ .public-experience-v3[data-public-experience="v4"] .v3-header .v3-menu-trigger {display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
+}
+@media(min-width:1025px) and (max-width:1199px){
+ .guest-desktop-navigation .v3-header .v3-desktop-nav,.guest-desktop-navigation .v3-header .v3-reserve {display:none}
+ .guest-desktop-navigation .v3-header .v3-menu-trigger {display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
+}
+@media(max-width:767px){.v3-header .public-communication-actions {gap:2px}.v3-header .v3-brand {min-width:0;flex-shrink:1}.v3-header .public-communication-bell {min-width:44px}}
+
 /* Bugan Home only: compact mobile notice, with intrinsic height for enlarged text. */
 @media(max-width:767px){
  [data-hotel-theme="bugan"] .v4-attention {padding-inline:12px;border-block:0}
