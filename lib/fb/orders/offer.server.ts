@@ -9,14 +9,16 @@ import {localizeBuganRoomOutlets} from '../bugan-room-localization';
 import {loadBuganRoomNames} from '../room-name-translations.server';
 import type {Language,NativeOffer,NativeOutlet,Product} from './journey';
 import type {RoomNameRow} from '../room-name-translations';
+import {loadBuganRoomServiceHours} from '../room-service-hours.server';
+import scope from '../bugan-room-names.json' with {type:'json'};
 
 export async function nativeOffer(slug:string,hotelId:string,language:Language,namesPromise?:Promise<RoomNameRow[]>):Promise<NativeOffer>{
  const client=createAdminClient();
- const [raw,names]=await Promise.all([orderRpc<{outlets:NativeOutlet[]}> (client,'get_fb_order_offer',{p_hotel_slug:slug,p_language:language}),namesPromise??loadBuganRoomNames(slug,hotelId,language)]);
+ const [raw,names,hours]=await Promise.all([orderRpc<{outlets:NativeOutlet[]}> (client,'get_fb_order_offer',{p_hotel_slug:slug,p_language:language}),namesPromise??loadBuganRoomNames(slug,hotelId,language),loadBuganRoomServiceHours(slug,hotelId)]);
  // A path is resolved against ownership; arbitrary catalogue URLs cannot enter the client DTO.
  function product(p:Product&{image_path?:string|null}):Product{return {...p,image_url:p.kind==='item'?fbImageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL,p.image_path||null,hotelId,'item',p.id):null,slots:p.slots?.map(s=>({...s,choices:s.choices.map(c=>({...c,item:product(c.item)}))}))};}
  const outlets=(raw?.outlets||[]).map(o=>({...o,image_url:fbImageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL,(o as NativeOutlet&{image_path?:string}).image_path||null,hotelId,'outlet',o.id),products:o.products.map(product)}));
- return {outlets:localizeBuganRoomOutlets(slug,hotelId,language,outlets,names),has_room_context:await validRoomContext(hotelId)};
+ return {outlets:localizeBuganRoomOutlets(slug,hotelId,language,outlets,names).map(outlet=>hours&&outlet.id===scope.outletId?{...outlet,service_hours:hours}:outlet),has_room_context:await validRoomContext(hotelId)};
 }
 export async function validRoomContext(hotelId:string){
  return Boolean(await validatedRoomLink(hotelId));

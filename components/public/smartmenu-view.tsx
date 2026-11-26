@@ -36,7 +36,7 @@ export function SmartMenuView({pageData, language, domainContext, preferSubdomai
         {image ? <Image unoptimized priority src={image} alt="" width={1400} height={500}/> : null}
         <div><p className="smartmenu-eyebrow">Room Service</p><h1 id="smartmenu-title">{t.title}</h1><p>{description || t.intro}</p><ul><li><ConciergeBell aria-hidden/>{t.menu}</li><li><ShieldCheck aria-hidden/>{t.delivery}</li></ul></div>
       </section>
-      <div className="smartmenu-service"><p>{hasRoomContext ? t.room : t.browse}</p>{openingHours ? <details><summary>{t.hours}</summary><p>{openingHours}</p></details> : null}</div>
+      <div className="smartmenu-service"><p>{hasRoomContext ? t.room : t.browse}</p>{openingHours&&!initial.service_hours ? <details><summary>{t.hours}</summary><p>{openingHours}</p></details> : null}</div>
       <NativeOrderingOutlet initial={initial} slug={hotel.slug} language={language} hasRoomContext={hasRoomContext} premium={pageData.presentation?.experienceVersion === 'v4'} smartMenu compactReview={buganV4}/>
     </div>
   </main>;

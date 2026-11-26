@@ -3497,3 +3497,20 @@ dos combos; categorias também recebem o valor salvo na renderização inicial.
 Não altera preços, escolhas, disponibilidade, cotação, checkout ou impressão.
 Rollback da aplicação mantém os registros privados e as RPCs de nomes anteriores;
 não apagar traduções nem reverter dados comerciais para retornar a interface.
+
+### Bugan — horário e aviso de reabertura do SmartMenu (26/11/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] O SmartMenu mostra o atendimento diário
+08h–23h e, fora da janela, o aviso de reabertura em PT/EN/ES. A apresentação lê
+os sete intervalos do calendário operacional e o fuso do hotel por uma RPC
+exclusiva de serviço. O horário do celular não decide a mensagem. A atualização
+usa a leitura de oferta já existente a cada 30 segundos, ao voltar à aba ou
+recuperar conexão, sem novos temporizadores no componente.
+
+A projeção só produz mensagem diária quando as sete janelas são equivalentes;
+fechamentos manuais e exceções são considerados ao calcular a próxima abertura.
+Quando a reabertura não é conhecida, não promete um horário. Erro na leitura
+omite a informação complementar e mantém o calendário e bloqueios operacionais.
+A integração é exclusiva do hotel/outlet Room Service do Bugan; Filipe e outros
+hotéis não recebem esse bloco. Não altera QR, preços, combos, adicionais,
+calendário configurado, cotação, confirmação ou impressão.
