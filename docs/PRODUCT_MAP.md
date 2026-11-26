@@ -3641,3 +3641,31 @@ conferidos. 178 verificações com CSS otimizado, Chrome Android/WebKit, sete la
 cinco serviços e textos curtos/longos. TypeScript/lint/build aprovados. Sem banco,
 configurações, migrações, push ou deploy. Densidade preservada. Aguardar autorização
 específica de publicação. Detalhes: `docs/GUEST_EXPERIENCE_PREMIUM_SERVICES.md`.
+
+### Central de Comunicados Premium V4 — candidata à homologação (26/11/2026)
+
+[IMPLEMENTADO, MAS NÃO VALIDADO EM PRODUÇÃO] O cabeçalho público V4 passa a ter
+sino ao lado do seletor de idioma nas Homes de Bugan, Novotel, Grand Mercure,
+Mercure e no tema genérico, além do cabeçalho compartilhado das páginas internas.
+O acesso aparece apenas quando o bloco `announcements` está habilitado no layout
+público; o RPC desse layout aplica o entitlement `content.announcements`.
+O contador representa comunicados ativos elegíveis do hotel, incluindo os que
+foram dispensados na faixa da Home. Não significa mensagens não lidas. Sem
+comunicados, o sino continua disponível, sem contador; com módulo desabilitado,
+o sino e o acesso contextual de Informações não aparecem.
+
+A rota existente de Comunicados agrupa alertas importantes, manutenções,
+informativos e promoções/novidades; omite grupos sem conteúdo e apresenta estado
+vazio quando nenhum comunicado vigente está elegível. O acesso compacto na página
+Informações usa a mesma rota, sem novo cadastro. Links existentes preservam idioma
+e o cookie de contexto de apartamento; não foram criadas entradas no dock mobile.
+Home, banners independentes, dispensar aviso, traduções, V3 e integrações de
+Room Service permanecem nos fluxos anteriores. A integração administrativa de
+Promoções e Banners continua [PLANEJADO].
+
+Validação local: fixtures isoladas das quatro categorias, datas futura/expirada,
+inativo, outro hotel, conteúdo vazio e módulo desabilitado; testes de elegibilidade
+e dispensar aviso; TypeScript, lint direcionado e build. Capturas locais em Chrome
+para desktop, mobile, estado vazio e 320 px. Não houve escrita no Supabase,
+publicação ou merge. A homologação com dados reais e os hotéis V3 permanece
+[NÃO CONFIRMADO] até revisão em ambiente de preview.
