@@ -7,6 +7,7 @@ export type RoomNameRow = {
   hotel_id:string; outlet_id:string; kind:RoomNameKind; id:string; source_name:string;
   context_name:string; parent_id:string|null; saved_source_name:string|null;
   name_en:string|null; name_es:string|null; revision:number;
+  origin?:'reviewed'|'automatic';
   fallback_en?:string|null; fallback_es?:string|null;
 };
 export type RoomNameEditorRow = RoomNameRow & {stale:boolean};

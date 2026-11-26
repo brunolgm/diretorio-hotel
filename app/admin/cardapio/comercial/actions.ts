@@ -3,11 +3,14 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
-import { requireHotelModule } from '@/lib/admin-entitlements';
+import { hasHotelModule, requireHotelModule } from '@/lib/admin-entitlements';
 import { orderRpc, OrderBoundaryError } from '@/lib/fb/orders/rpc.server';
 import type { CommercialActionState } from '@/lib/fb/room-commercial';
 import { isUuid } from '@/lib/security/identifiers';
 import { createClient } from '@/lib/supabase/server';
+import { translateFbFields } from '@/lib/services/translation-service';
+import { syncRoomCommercialTranslations } from '@/lib/fb/room-commercial-translations';
+import type { RoomNameRow } from '@/lib/fb/room-name-translations';
 
 const path = '/admin/cardapio/comercial';
 
@@ -29,8 +32,10 @@ export async function saveRoomCommercialDraft(_: CommercialActionState, form: Fo
   } catch {
     return { error: 'Revise os campos do rascunho.' };
   }
+  const client = await createClient();
+  let savedId: string;
   try {
-    await orderRpc<string>(await createClient(), 'save_current_bugan_room_commercial_draft', {
+    savedId = await orderRpc<string>(client, 'save_current_bugan_room_commercial_draft', {
       p_kind: kind, p_id: id, p_revision: revision, p_draft: draft,
     });
   } catch (error) {
@@ -41,6 +46,18 @@ export async function saveRoomCommercialDraft(_: CommercialActionState, form: Fo
     }
     return { error: 'Não foi possível salvar o rascunho. Confira a lista antes de tentar novamente.' };
   }
+  // The Portuguese draft has already committed. Never invite a duplicate retry if translation fails.
+  let translationStatus = 'pending';
+  try {
+    const result = await syncRoomCommercialTranslations({
+      languagesEnabled: () => hasHotelModule('content.languages'),
+      load: () => orderRpc<RoomNameRow[]>(client, 'get_current_bugan_room_commercial_translation_targets', {p_kind:kind,p_id:savedId}),
+      translate: translateFbFields,
+      save: args => orderRpc<boolean>(client, 'save_current_bugan_room_automatic_translation', args),
+    });
+    translationStatus = result.disabled ? 'disabled' : result.pending ? 'pending' : 'complete';
+  } catch { /* Keep the saved draft and expose the pending state. */ }
   revalidatePath(path);
-  redirect(path + '?salvo=1');
+  revalidatePath(path + '/traducoes');
+  redirect(path + '?salvo=1&traducoes=' + translationStatus);
 }

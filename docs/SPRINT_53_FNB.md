@@ -3948,3 +3948,69 @@ Recuperação continua controlada: em regressão, bloquear ativação/revogar ac
 KDS e retornar o código ao deployment READY anterior. Não remover automaticamente
 o schema KDS caso já tenha configurações ou dados. O script de rollback existente
 exige revisão, exportação e opt-in explícito antes de qualquer remoção.
+
+### Tradução automática comercial — candidato isolado (26/11/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO — VALIDADO LOCALMENTE, NÃO PUBLICADO]
+Base `e36e4d8a3be21376f7c5ea7c7aff5580b25b41e2`, branch local
+`feat/commercial-auto-translation-lab-20261126`, worktree
+`C:/Users/bruno/libguest-room-service-language`. O checkout original não recebeu
+alterações. Este adendo não reabre nem substitui a homologação operacional anterior.
+
+Decisão anterior: nomes comerciais EN/ES editados manualmente, com valores
+iniciais revisados. Evolução autorizada: ao salvar um rascunho em português,
+gerar automaticamente os nomes ainda automáticos/ausentes em ambos os idiomas.
+A revisão humana conserva precedência. Não há tradução automática de regras,
+preços ou campos comerciais. Produtos e descrições mantêm seu fluxo existente.
+
+A migration `20261126060253_room_commercial_auto_translations.sql` adiciona
+`origin` à tabela privada: registros existentes recebem `reviewed`; a geração
+recebe `automatic`. A edição manual protege a linha inteira, inclusive campos
+vazios deliberados. O leitor e o gravador automático exigem usuário autenticado,
+hotel/outlet válidos, perfil editor e permissão comercial; a gravação exige
+`content.languages`. Não aceitam hotel/outlet arbitrários nem campos comerciais.
+RLS forçada e proibição de acesso direto permanecem. O gravador usa fonte atual,
+lock de leitura e CAS de revisão; não sobrescreve linhas revisadas, mesmo com a
+revisão atual. Uma tradução automática com fonte alterada não reaproveita um
+idioma antigo quando o provedor falha nesse idioma.
+
+O formulário comercial mantém IDs dos componentes e adicionais. A RPC valida
+pertencimento/duplicação e retém os IDs enviados; clientes anteriores sem IDs
+mantêm associação por posição. `id:null` cria uma opção nova. Somente filhos
+removidos são excluídos; escolhas e vínculo de menu continuam sendo reconstruídos
+pelo contrato anterior. Permanecem os limites e regras existentes, revisão do
+pai, validação BRL e impedimento de editar ofertas ativas por esse formulário.
+
+O servidor salva o rascunho uma vez e depois traduz seus nomes, agrupados em até
+duas chamadas ao serviço Google já utilizado. Os valores iniciais revisados do
+recurso editorial também são protegidos. Nomes revisados cuja fonte mudou ficam
+pendentes de revisão; o público mantém a proteção já existente contra fonte
+desatualizada. Falhas do provedor ou conflitos não fazem o Admin informar que o
+rascunho falhou: o português permanece salvo com aviso de pendência. A tela de
+traduções identifica textos automáticos e explica a proteção após salvar.
+
+Validação: banco descartável com 67 migrations, Auth/PostgREST reais e seis
+hotéis sintéticos; quatro combos, três grupos e quatro adicionais de referência
+foram recriados exclusivamente ali. 32 verificações de integração passaram,
+incluindo 20 nomes persistidos EN/ES, lotes, recarga, revisão/renomeação,
+reordenação, campos vazios, corrida com edição humana, falha parcial/total,
+escopo, permissões e RLS. Snapshot de todas as fontes comerciais idêntico antes
+e depois da sincronização de tradução. Os testes de localização também cobrem
+nomes automáticos no catálogo e nas linhas de checkout sem alterar valores.
+
+No navegador, componentes reais do Admin e server actions reais foram usados
+com adaptadores locais de sessão, navegação e cache. Conta sintética autenticada
+e RPCs reais verificaram salvar em PT, recarregar EN/ES, revisar e salvar de novo
+sem perder o texto humano, grupo/adicional e aviso de tradutor indisponível.
+Não é homologação de login/cookies do Next em produção. O transporte Google foi
+exercitado contra servidor HTTP sintético local, sem chave real nem acesso ao
+provedor externo; qualidade linguística externa permanece [NÃO CONFIRMADO].
+
+TypeScript, lint direcionado e build otimizado isolado aprovados. Evidências:
+`out/commercial-auto-translation-20261126/`, com relatórios e quatro capturas.
+Zero pedidos/cotações/impressões; nenhum acesso a filas, Bridge ou Spooler.
+Sem alteração de produção, módulos reais, ativação, commit, push, merge ou deploy.
+A migration existe somente no candidato e foi executada no banco descartável.
+Uma eventual publicação exige autorização própria e migration antes da aplicação.
+Rollback de interface preserva tabela, textos e RPCs compatíveis; não remover
+traduções revisadas nem configurações comerciais para retornar à versão anterior.

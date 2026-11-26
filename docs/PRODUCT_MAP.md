@@ -3578,3 +3578,22 @@ de aplicação produtiva autorizada. Sem alteração de RLS/grants amplos ou mó
 densidade 7/8 preservada. Relatório: `docs/SERVICE_EDITORIAL_TRANSLATIONS.md` e
 `docs/GUEST_EXPERIENCE_PREMIUM_SERVICES.md`. GO técnico local; publicação continua pendente.
 
+### Bugan — tradução automática dos rascunhos comerciais (26/11/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO — VALIDADO LOCALMENTE, NÃO PUBLICADO]
+Salvar um rascunho comercial em português passa a gerar EN/ES para combos,
+componentes de escolha, grupos de adicionais e opções usando o serviço de
+tradução existente, em dois lotes por rascunho. A autorização anterior de edição
+manual continua válida: traduções revisadas, campos vazios deliberados e valores
+iniciais aprovados têm proteção. Os IDs dos componentes e adicionais sobrevivem
+a edições e reordenações; nomes revisados cujo português mudou exigem revisão.
+
+Falhas parciais não desfazem o rascunho em português. A geração grava somente
+textos privados, com conferência de fonte/revisão e escopo do Room Service do
+Bugan. Filipe e demais hotéis continuam fora deste fluxo. Preços, limites e
+escolhas são preservados. Detalhes, validação e limitações em
+`docs/SPRINT_53_FNB.md`, seção Tradução automática comercial.
+
+[NÃO CONFIRMADO] Funcionamento do provedor externo real nesta execução: os
+testes usaram somente transporte local sintético. Publicação e aplicação da
+migration em produção não foram executadas nem estão autorizadas nesta etapa.

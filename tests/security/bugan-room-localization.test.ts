@@ -77,9 +77,9 @@ function override(kind:RoomNameRow['kind'],id:string,source_name:string,extra:Pa
     saved_source_name:source_name,name_en:'Edited English',name_es:'Español editado',revision:1,...extra};
 }
 
-test('Admin overrides reach products, combos, groups, extras and quote components with identical business fields',()=>{
+for (const origin of ['reviewed','automatic'] as const) test(`${origin} Admin overrides reach products, combos, groups, extras and quote components with identical business fields`,()=>{
   const rows=[override('item',burgerId,item.name),override('combo',comboId,combo.name),override('combo_slot',combo.slots![0].id,'Hambúrguer'),
-    override('modifier_group',groupId,'Adicionais'),override('modifier_option',baconId,'Bacon',{parent_id:groupId})];
+    override('modifier_group',groupId,'Adicionais'),override('modifier_option',baconId,'Bacon',{parent_id:groupId})].map(row=>({...row,origin}));
   for(const language of ['en','es'] as const){
     const result=localizeBuganRoomOutlets(dictionary.slug,dictionary.hotelId,language,[outlet],rows)[0];
     const expected=language==='en'?'Edited English':'Español editado';

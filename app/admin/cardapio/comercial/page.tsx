@@ -6,11 +6,12 @@ import type { RoomCommercial } from '@/lib/fb/room-commercial';
 import { createClient } from '@/lib/supabase/server';
 import { AdminPageHero } from '@/components/admin/ui';
 import { FbRoomCommercial } from '@/components/admin/fb-room-commercial';
+import { commercialTranslationFeedback } from '@/lib/fb/room-commercial-translations';
 
 const path = '/admin/cardapio/comercial';
 
 export default async function RoomCommercialPage({ searchParams }: {
-  searchParams: Promise<{ tipo?: string; editar?: string; salvo?: string }>;
+  searchParams: Promise<{ tipo?: string; editar?: string; salvo?: string; traducoes?: string }>;
 }) {
   await requireAdminAccess('editor');
   const params = await searchParams;
@@ -31,7 +32,7 @@ export default async function RoomCommercialPage({ searchParams }: {
     <AdminPageHero eyebrow="Bugan Recife · Room Service" title="Combos e adicionais"
       description="Prepare rascunhos comerciais exclusivos do Room Service. Salvar aqui não ativa a oferta para o hóspede."/>
     <Link className="inline-flex min-h-11 items-center rounded-lg border border-[var(--admin-border)] px-4 py-2 underline" href={path+'/traducoes'}>Editar traduções do Room Service</Link>
-    {params.salvo === '1' ? <p role="status">Rascunho salvo para revisão.</p> : null}
+    {params.salvo === '1' ? <p role="status">{commercialTranslationFeedback(params.traducoes)}</p> : null}
     <FbRoomCommercial key={kind + ':' + (draft?.id ?? 'novo')} data={data} kind={kind} draft={draft}/>
   </main>;
 }

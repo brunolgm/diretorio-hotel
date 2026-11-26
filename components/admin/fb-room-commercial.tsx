@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useActionState, useState } from 'react';
 import { saveRoomCommercialDraft } from '@/app/admin/cardapio/comercial/actions';
 import { money } from '@/lib/fb/orders/journey';
-import type { ComboDraft, CommercialItem, ModifierDraft, RoomCommercial } from '@/lib/fb/room-commercial';
+import type { ComboDraft, CommercialItem, CommercialSlot, ModifierDraft, RoomCommercial } from '@/lib/fb/room-commercial';
 import { AdminSurface } from './ui';
 
 const path = '/admin/cardapio/comercial';
@@ -25,20 +25,21 @@ function DraftEditor({ data, kind, draft }: Omit<Props,'kind'> & {kind: Kind}) {
   const [name, setName] = useState(draft?.name ?? (kind === 'group' ? 'Adicionais' : ''));
   const [menu, setMenu] = useState(combo?.menu_id ?? data.menus[0]?.id ?? '');
   const [price, setPrice] = useState(combo ? toPrice(combo.amount_minor) : '');
-  const [slots, setSlots] = useState(combo?.slots ?? [{ name: '', choices: [''] }, { name: '', choices: [''] }]);
+  const [slots, setSlots] = useState<CommercialSlot[]>(combo?.slots ?? [{ name: '', choices: [''] }, { name: '', choices: [''] }]);
   const [item, setItem] = useState(group?.item_id ?? '');
   const [maximum, setMaximum] = useState(group?.max_selected ?? 1);
-  const [options, setOptions] = useState(group?.options.map(value => ({
-    name: value.name, price: toPrice(value.amount_minor),
+  const [options, setOptions] = useState<{id?:string|null;name:string;price:string}[]>(group?.options.map(value => ({
+    id: value.id, name: value.name, price: toPrice(value.amount_minor),
   })) ?? [{ name: '', price: '' }]);
   const [state, submit, pending] = useActionState(saveRoomCommercialDraft, {});
   const menuItems = data.items.filter(item => item.menu_id === menu);
   const payload = kind === 'combo'
-    ? { name, menu_id: menu, amount_minor: toMinor(price), slots }
-    : { name, item_id: item, max_selected: maximum, options: options.map(value => ({ name:value.name, amount_minor:toMinor(value.price) })) };
+    ? { name, menu_id: menu, amount_minor: toMinor(price), slots:slots.map(slot=>({...slot,id:slot.id??null})) }
+    : { name, item_id: item, max_selected: maximum, options: options.map(value => ({ id:value.id??null,name:value.name, amount_minor:toMinor(value.price) })) };
 
   return <AdminSurface>
     <h2 className="mb-4 text-xl font-semibold">{draft ? 'Editar rascunho' : kind === 'combo' ? 'Novo combo' : 'Novo grupo de adicionais'}</h2>
+    <p className="mb-4 text-sm text-[var(--admin-muted)]">Ao salvar em português, os nomes são traduzidos para inglês e espanhol quando o recurso de idiomas está habilitado. Traduções revisadas são preservadas. Confira os novos textos na área de traduções.</p>
     <form action={submit} className="space-y-4">
       <input type="hidden" name="kind" value={kind}/>
       <input type="hidden" name="id" value={draft?.id ?? ''}/>
@@ -106,7 +107,7 @@ function DraftEditor({ data, kind, draft }: Omit<Props,'kind'> & {kind: Kind}) {
       </>}
       {state.error?<p role="alert" className="text-red-700">{state.error}</p>:null}
       <div className="flex flex-wrap gap-2">
-        <button type="submit" disabled={pending} className={primary}>{pending ? 'Salvando…' : 'Salvar rascunho'}</button>
+        <button type="submit" disabled={pending} className={primary}>{pending ? 'Salvando e traduzindo…' : 'Salvar rascunho'}</button>
         <Link href={path} className={secondary}>Cancelar</Link>
       </div>
     </form>
