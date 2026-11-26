@@ -329,3 +329,26 @@ Admin autenticado. Foram revisados catálogo, contrato de apresentação, explor
 Admin/actions, shell gastronômico, fixtures/testes, migration e documentação.
 Não houve push, merge na main, deploy ou escrita em conteúdo real. SmartMenu e demais
 fluxos protegidos permanecem sem diferenças em relação à base remota incorporada.
+
+
+## Fechamento de publicação autorizado — 26/11/2026
+
+As decisões anteriores de não publicar descrevem o estado histórico da RC.
+Bruno autorizou a integração, as duas migrations e a publicação definitiva.
+A integração preserva os commits atuais do SmartMenu, incluindo tradução comercial,
+descrições, categorias e horários. Nenhum contrato operacional foi refeito.
+
+Conferência editorial final: a prévia compacta não corta listas de acomodações na
+primeira vírgula; travesseiros e Spa dos Pés exibem orientação neutra e conservam
+todas as categorias no detalhe. Horários e localização continuam no conteúdo real.
+Estacionamento usa ícone universal; Spa dos Pés em Saúde aparece em bem-estar,
+respeitando qualquer agrupamento explícito. Fidelidade continua em conveniência.
+Informações usa busca contextual, evita duplicar instruções de Wi-Fi idênticas e
+mantém itens com links ou metadados adicionais. O campo de busca tem um único
+controle próprio de limpar. Não houve alteração em massa dos cadastros.
+
+Densidade revalidada: 7/8 em 390×900 e 390×844. Verificações dirigidas finais:
+16 cenários de catálogo, sete de tradução, 23 autenticados afetados, TypeScript,
+lint direcionado e build sobre a integração vigente. Sem repetir as suítes históricas.
+O relatório de publicação registra SHA, deployment, backup, migrations, preservação
+dos cinco hotéis e evidências reais. O backup privado nunca acompanha a galeria.

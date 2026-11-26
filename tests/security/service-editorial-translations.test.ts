@@ -10,6 +10,15 @@ function compile(path:string,imports:Record<string,unknown>,globals:Record<strin
  const compiledModule={exports:{}};runInNewContext(ts.transpileModule(readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{module:compiledModule,exports:compiledModule.exports,AbortSignal,URLSearchParams,...globals,require:(name:string)=>{if(!(name in imports))throw Error('Unexpected import '+name);return imports[name];}});return compiledModule.exports;
 }
 const source={id:'own-service',hotel_id:'own',updated_at:'2026-11-26T01:00:00Z',title:'Lavanderia',content:'Orientações',category:'Conveniência',cta:'Consultar',guest_presentation:{summary:{pt:'Coleta de roupas'},hours:{pt:'Até 14h'},location:{pt:'Piso L'},conditions:{pt:'Consulte a recepção'}}};
+test('reviewing one field protects only that value and keeps other automatic fields eligible',()=>{
+ const row:fields.ServiceTranslationRow={language:'en',title:'Laundry',guest_fields:{summary:'Collection',hours:'Until 14h'},editorial_state:{title:{origin:'auto',status:'current'},summary:{origin:'auto',status:'current'},hours:{origin:'auto',status:'stale'}}};
+ const changes=fields.serviceManualReviewChanges(source,row,'en',{title:'Laundry',summary:'Reviewed collection',hours:'Until 14h'});
+ assert.deepEqual(changes,{summary:'Reviewed collection'});
+ row.editorial_state={...row.editorial_state as object,summary:{origin:'manual',status:'current'}};
+ assert.ok(fields.eligibleServiceTranslationFields(source,row,'en').includes('hours'));
+ assert.ok(!fields.eligibleServiceTranslationFields(source,row,'en').includes('summary'));
+ assert.deepEqual(fields.serviceManualReviewChanges(source,row,'en',{summary:'Collection'},['summary']),{summary:'Collection'});
+});
 type Row=fields.ServiceTranslationRow;
 function harness(rows:Row[]=[],fail=false,stale=false){
  const calls:{language:string;fields:Record<string,string|null>}[]=[],writes:Record<string,unknown>[]=[],filters:unknown[]=[];

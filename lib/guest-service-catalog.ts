@@ -5,7 +5,7 @@ import { buildPublicHotelServiceHref } from './public-routes.ts';
 import { getServiceDestination } from './service-destinations.ts';
 import { eligibleFbGraph } from './fb/public.ts';
 import { roomServiceAccess } from './fb/room-service-access.ts';
-import { guestServiceGroup, guestServiceInteraction, isOwnRoomServiceLink, guestServiceText, normalizeGuestSearch, parseGuestServicePresentation } from './guest-service-presentation.ts';
+import { guestServiceGroup, guestServiceIcon, guestServiceInteraction, isOwnRoomServiceLink, guestServiceText, normalizeGuestSearch, parseGuestServicePresentation } from './guest-service-presentation.ts';
 
 export type GuestServiceItem = {
   id: string; title: string; content: string | null; summary: string | null;
@@ -65,7 +65,7 @@ export function getGuestServiceCatalog(data: PublicHotelPageData, language: Supp
     const interaction = guestServiceInteraction(config, section, destination, Boolean(guide) || isOwnRoomServiceLink(section.url, data.hotel, domainContext.productRootDomain), conditions);
     const item: GuestServiceItem = { id: section.id, title: canonicalRoom ? native!.label : section.title,
       content: section.content, summary: canonicalRoom ? summary || native!.cta : summary, hours, location, conditions,
-      category: guestServiceGroup(isRoom ? { ...section, category: 'Room service' } : section, language), icon: isRoom ? 'ConciergeBell' : section.icon,
+      category: guestServiceGroup(isRoom ? { ...section, category: 'Room service' } : section, language), icon: isRoom ? 'ConciergeBell' : guestServiceIcon(section),
       href: canonicalRoom ? native!.href : interaction === 'detail' && !destination?.isExternal && config.interaction !== 'assistance' ? null : destination?.href || null,
       isExternal: canonicalRoom ? false : destination?.isExternal || false,
       cta: canonicalRoom ? native!.cta : section.cta,

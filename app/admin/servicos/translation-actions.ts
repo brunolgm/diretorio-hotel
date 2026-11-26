@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/server';
 import { isUuid } from '@/lib/security/identifiers';
 import { readTrimmedString } from '@/lib/form-utils';
 import { syncSectionTranslations, buildFeedbackRedirect } from '@/lib/services/translation-admin';
-import { SERVICE_EDITORIAL_FIELDS, eligibleServiceTranslationFields, serviceEditorialFields } from '@/lib/services/service-editorial-fields';
+import { SERVICE_EDITORIAL_FIELDS, eligibleServiceTranslationFields, serviceManualReviewChanges } from '@/lib/services/service-editorial-fields';
 
 async function context(form:FormData){
   await requireAdminAccess('operador');await requireHotelModule('content.services');await requireHotelModule('content.languages');
@@ -19,8 +19,12 @@ async function context(form:FormData){
   return {hotel,supabase,id,language:language as 'en'|'es',source};
 }
 export async function reviewServiceTranslationAction(form:FormData){
-  const {supabase,id,language,source}=await context(form),fields=serviceEditorialFields(source);
-  const changes=Object.fromEntries(SERVICE_EDITORIAL_FIELDS.filter(field=>fields[field]).map(field=>[field,readTrimmedString(form,field)||null]));
+  const {supabase,id,language,source}=await context(form);
+  const {data:row,error:readError}=await supabase.from('hotel_section_translations').select('*').eq('section_id',id).eq('language',language).maybeSingle();
+  if(readError||source.updated_at!==readTrimmedString(form,'source_version')||(row?.updated_at||null)!==(readTrimmedString(form,'translation_version')||null))redirect(buildFeedbackRedirect('/admin/servicos/'+id,{warning:'O conteúdo ou a tradução mudou. Recarregue antes de salvar sua revisão.'}));
+  const submitted=Object.fromEntries(SERVICE_EDITORIAL_FIELDS.filter(field=>form.has(field)).map(field=>[field,readTrimmedString(form,field)||null]));
+  const changes=serviceManualReviewChanges(source,row||undefined,language,submitted,SERVICE_EDITORIAL_FIELDS.filter(field=>form.get('review_'+field)==='1'));
+  if(!Object.keys(changes).length)redirect(buildFeedbackRedirect('/admin/servicos/'+id,{warning:'Nenhum texto foi alterado. Para confirmar um texto sem modificá-lo, marque a revisão desse campo.'}));
   const {data,error}=await supabase.rpc('save_current_hotel_service_translation',{p_section_id:id,p_language:language,p_expected_source_version:readTrimmedString(form,'source_version'),p_expected_translation_version:readTrimmedString(form,'translation_version')||null,p_fields:changes,p_origin:'manual',p_replace_manual:false});
   revalidatePath('/admin/servicos');revalidatePath('/admin/servicos/'+id);revalidatePath('/','layout');
   redirect(buildFeedbackRedirect('/admin/servicos/'+id,error?{error:'Não foi possível salvar a revisão. Verifique os limites dos campos.'}:!data?{warning:'O conteúdo ou a tradução mudou. Recarregue antes de salvar sua revisão.'}:{success:`Revisão ${language.toUpperCase()} salva.`}));

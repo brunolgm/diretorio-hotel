@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { ChevronRight, Clock3, Info, MapPin, Search, X } from 'lucide-react';
 import { ServiceIcon } from '@/components/service-icon';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
-import { normalizeGuestSearch } from '@/lib/guest-service-presentation';
+import { guestServicePreviewText, normalizeGuestSearch } from '@/lib/guest-service-presentation';
 import type { GuestServiceItem } from '@/lib/guest-service-catalog';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
@@ -19,8 +19,9 @@ function Metadata({ item }: { item: GuestServiceItem }) {
 }
 
 /** The same accessible dialog primitive powers a mobile sheet and desktop modal. */
-export function GuestServiceExplorer({ items, language, themeStyle, preview = false }: { items: GuestServiceItem[]; language: SupportedPublicLanguage; themeStyle?: CSSProperties; preview?: boolean }) {
-  const labels = copy[language];
+export function GuestServiceExplorer({ items, language, themeStyle, preview = false, context = 'services' }: { items: GuestServiceItem[]; language: SupportedPublicLanguage; themeStyle?: CSSProperties; preview?: boolean;context?:'services'|'information' }) {
+  const informationCopy={pt:{search:'Buscar informações',one:'informação encontrada',many:'informações encontradas',empty:'Nenhuma informação encontrada'},en:{search:'Search information',one:'information item found',many:'information items found',empty:'No information found'},es:{search:'Buscar información',one:'información encontrada',many:'informaciones encontradas',empty:'No se encontró información'}};
+  const labels = {...copy[language],...(context==='information'?informationCopy[language]:{})};
   const [query, setQuery] = useState(''), [category, setCategory] = useState('all');
   const [selected, setSelected] = useState<GuestServiceItem | null>(null);
   const [previewHref, setPreviewHref] = useState<string | null>(null);
@@ -52,7 +53,7 @@ export function GuestServiceExplorer({ items, language, themeStyle, preview = fa
     {groups.length ? <div className="guest-service-groups">{groups.map(group => <section key={group.name} className="guest-service-group"><h2>{group.name}</h2><div className="guest-service-surface">{group.items.map(item => {
       const actionable = item.interaction !== 'inline';
       const hasDetail = item.interaction === 'detail' || Boolean(item.relatedContent?.length);
-      const summary = !hasDetail ? [item.content || item.summary, item.conditions].filter(Boolean).join('\n') : item.summary || item.content?.split(/\n|(?<=[.!?])\s/)[0]?.split(/,\s/)[0];
+      const summary = !hasDetail ? [item.content || item.summary, item.conditions].filter(Boolean).join('\n') : guestServicePreviewText(item.content,item.summary,language);
       const body = <><span className="guest-service-icon"><ServiceIcon iconName={item.icon} className="h-5 w-5" /></span><span className="guest-service-text"><strong>{item.title}</strong>{summary ? <span className={`guest-service-summary${hasDetail && (item.hours || item.location) ? ' guest-service-summary-secondary' : ''}`}>{summary}</span> : null}<Metadata item={item} /></span>{actionable ? <ChevronRight aria-hidden className="guest-service-chevron" /> : null}</>;
       return <div key={item.id} className="guest-service-row" data-interaction={item.interaction}>{item.interaction === 'page' && item.href ? <a href={item.href} onClick={event => { if (preview) { event.preventDefault(); setPreviewHref(item.href); } }} target={item.isExternal ? '_blank' : undefined} rel={item.isExternal ? 'noreferrer' : undefined}>{body}</a> : item.interaction === 'detail' ? <button type="button" aria-haspopup="dialog" onClick={event => open(item, event.currentTarget)}>{body}</button> : <div>{body}</div>}{item.relatedContent?.length ? <button className="guest-service-related" type="button" aria-haspopup="dialog" aria-label={`${labels.about} ${item.title}`} onClick={event => open({ ...item, content: Array.from(new Set(item.relatedContent!.map(related => related.content).filter(content => content !== item.conditions))).join('\n\n'), relatedContent: undefined }, event.currentTarget)}><Info aria-hidden /></button> : null}</div>;
     })}</div></section>)}</div> : <div className="guest-service-empty"><Search aria-hidden /><h2>{labels.empty}</h2><p>{labels.hint}</p><button type="button" onClick={reset}>{labels.clear}</button></div>}

@@ -10,6 +10,7 @@ import {
   Hotel,
   Info,
   Package,
+  ParkingCircle,
   Phone,
   ShieldCheck,
   ShoppingBag,
@@ -26,6 +27,7 @@ interface ServiceIconProps {
 }
 
 export function ServiceIcon({ iconName, className }: ServiceIconProps) {
+  if(iconName==='ParkingCircle')return <ParkingCircle className={className}/>;
   switch (resolveServiceIconName(iconName)) {
     case 'ConciergeBell':
       return <ConciergeBell className={className} />;

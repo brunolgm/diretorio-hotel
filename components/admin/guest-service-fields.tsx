@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from 'react';
 import { GuestServiceExplorer } from '@/components/public/guest-service-explorer';
 import { resolveHotelTheme } from '@/lib/hotel-theme';
-import { guestServiceInteraction, isOwnRoomServiceLink, guestServiceGroup, guestServiceText, readGuestServicePresentation } from '@/lib/guest-service-presentation';
+import { guestServiceIcon, guestServiceInteraction, isOwnRoomServiceLink, guestServiceGroup, guestServiceText, readGuestServicePresentation } from '@/lib/guest-service-presentation';
 import type { GuestServiceItem } from '@/lib/guest-service-catalog';
 import type { PublicHotelSection } from '@/lib/public-hotel-data';
 import { ServiceGuidedFields } from './service-guided-fields';
@@ -41,7 +41,7 @@ export function GuestServiceFields({ initial, title = 'Nome do serviço', conten
   const destination = roomPage && canonicalRoomHref ? {href:canonicalRoomHref,isExternal:false} : guide || preview.actionType === 'room_restaurant_menu' ? internalHref ? {href:internalHref,isExternal:false} : null : preview.url ? {href:preview.url,isExternal:true} : internalHref && (preview.content?.trim().length || 0) >= minDetailLength ? {href:internalHref,isExternal:false} : null;
   const conditions = guestServiceText(preview.config,'conditions','pt');
   const interaction = guestServiceInteraction(preview.config,previewSection,destination,guide || roomPage,conditions);
-  const previewItems: GuestServiceItem[] = [{id:serviceId,title:preview.title,content:preview.content,summary:guestServiceText(preview.config,'summary','pt'),hours:guestServiceText(preview.config,'hours','pt'),location:guestServiceText(preview.config,'location','pt'),conditions,icon:preview.icon,category:guestServiceGroup(previewSection,'pt'),area:preview.config.area || 'services',href:interaction==='detail'&&!destination?.isExternal&&preview.config.interaction!=='assistance'?null:destination?.href || null,isExternal:destination?.isExternal || false,cta:preview.cta,interaction}];
+  const previewItems: GuestServiceItem[] = [{id:serviceId,title:preview.title,content:preview.content,summary:guestServiceText(preview.config,'summary','pt'),hours:guestServiceText(preview.config,'hours','pt'),location:guestServiceText(preview.config,'location','pt'),conditions,icon:guestServiceIcon(previewSection),category:guestServiceGroup(previewSection,'pt'),area:preview.config.area || 'services',href:interaction==='detail'&&!destination?.isExternal&&preview.config.interaction!=='assistance'?null:destination?.href || null,isExternal:destination?.isExternal || false,cta:preview.cta,interaction}];
   return <div ref={container} onChange={refresh} className="col-span-full space-y-5">
     <input type="hidden" name="guest_presentation_present" value="1" />
     <section className="rounded-2xl border border-slate-200 p-5"><h2 className="text-lg font-semibold">1. Informações básicas</h2><AdminHelpText>Preencha em português. Inglês e espanhol são gerados ao salvar, sem preencher três vezes.</AdminHelpText><div className="mt-5 grid gap-4 md:grid-cols-2">

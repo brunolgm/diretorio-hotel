@@ -2,6 +2,7 @@
 .guest-service-search { display:flex; align-items:center; gap:12px; padding:0 14px; border:1px solid var(--hotel-border); border-radius:14px; background:var(--hotel-surface); }
 .guest-service-search>svg { width:20px; flex-shrink:0; color:var(--hotel-text-muted); }
 .guest-service-search input { width:100%; min-width:0; min-height:46px; border:0; background:transparent; outline:none; font-size:1rem; }
+.guest-service-search input::-webkit-search-cancel-button { -webkit-appearance:none; appearance:none; }
 .guest-service-search:focus-within { outline:2px solid var(--hotel-primary); outline-offset:2px; }
 .guest-service-search button { min-width:44px; min-height:44px; display:grid; place-items:center; }
 .guest-service-search button svg { width:18px; }

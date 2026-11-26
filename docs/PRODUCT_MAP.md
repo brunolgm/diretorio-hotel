@@ -3597,3 +3597,20 @@ escolhas são preservados. Detalhes, validação e limitações em
 [NÃO CONFIRMADO] Funcionamento do provedor externo real nesta execução: os
 testes usaram somente transporte local sintético. Publicação e aplicação da
 migration em produção não foram executadas nem estão autorizadas nesta etapa.
+
+
+### Guest Experience Premium — publicação autorizada (26/11/2026)
+
+As migrations `20261126031405` e `20261126053504` foram aplicadas em produção,
+nessa ordem, após backup lógico privado de schema, dados, roles e histórico.
+Objetos, constraints, triggers e grants específicos conferidos; RLS e políticas
+anteriores permanecem idênticos. Hashes dos conteúdos, traduções, identidade,
+configurações e módulos dos cinco hotéis não mudaram. Bugan permanece V4; Grand,
+Leme, Salvador e Mercure permanecem V3. Sem lote retroativo ou mudança operacional.
+
+A revisão manual protege somente campos alterados ou confirmados individualmente.
+Ajustes pontuais conservam categorias elegíveis no detalhe, corrigem ícone de
+estacionamento, agrupamento de bem-estar, contexto da busca e Wi-Fi duplicado.
+Integração preserva o SmartMenu vigente em `3a720b8`. TypeScript, lint e build
+passaram, além de 23 testes direcionados e 23 checks autenticados afetados.
+A publicação Vercel e o smoke serão registrados no relatório final desta entrega.

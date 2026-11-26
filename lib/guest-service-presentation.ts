@@ -21,6 +21,18 @@ export function normalizeGuestSearch(value: string | null | undefined) {
   return (value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 }
 
+export function guestServicePreviewText(content:string|null,summary:string|null,language:Language){
+  if(summary?.trim())return summary;
+  const first=content?.split(/\n|(?<=[.!?])\s/)[0]||null;
+  // A shortened enumeration must never imply that only its first accommodation is eligible.
+  if(first&&/categor|su[ií]tes?|suites?/i.test(first)&&first.includes(','))return {pt:'Consulte as categorias elegíveis',en:'See eligible room categories',es:'Consulte las categorías elegibles'}[language];
+  return first;
+}
+
+export function guestServiceIcon(section:{title:string;icon:string|null}){
+  return /\b(estacionamento|parking|aparcamiento)\b/.test(normalizeGuestSearch(section.title))?'ParkingCircle':section.icon;
+}
+
 /** Allowlisted presentation only. Never accepts a destination, token or operational capability. */
 export function parseGuestServicePresentation(value: unknown): GuestServicePresentation {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
@@ -61,6 +73,7 @@ export function guestServiceGroup(section: { title?: string; category: string | 
   if (config.group && config.group !== 'original') return GUEST_SERVICE_GROUPS[config.group][language];
   if (config.group === 'original') return section.category || { pt: 'Outros serviços', en: 'Other services', es: 'Otros servicios' }[language];
   const category = normalizeGuestSearch(section.category);
+  if(category==='saude'&&/^spa(?:\s|-|$)/.test(normalizeGuestSearch(section.title)))return GUEST_SERVICE_GROUPS.wellness[language];
   if (category === 'estrutura' && /^(estacionamento|parking|aparcamiento)$/.test(normalizeGuestSearch(section.title))) return GUEST_SERVICE_GROUPS.mobility[language];
   const group = /^(mobilidade|mobility|movilidad|estacionamento|parking|aparcamiento|transfer|transporte|transport|transporte e estacionamento)$/.test(category) ? 'mobility'
     : /^(lazer|lazer e bem-estar|leisure|ocio|bem-estar|wellness|well-being|bienestar|piscina|pool|swimming pool|academia|gym|gimnasio|fitness|spa|sauna)$/.test(category) ? 'wellness'

@@ -2,7 +2,7 @@ import '../../scripts/bootstrap-runtime.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getGuestServiceCatalog, guestServiceArea } from '../../lib/guest-service-catalog.ts';
-import { guestServiceGroup, guestServicePresentationFits, guestServiceInteraction, parseGuestServicePresentation, readGuestServicePresentation } from '../../lib/guest-service-presentation.ts';
+import { guestServiceGroup, guestServiceIcon, guestServicePreviewText, guestServicePresentationFits, guestServiceInteraction, parseGuestServicePresentation, readGuestServicePresentation } from '../../lib/guest-service-presentation.ts';
 import { guestServicesFixture } from '../fixtures/guest-services.ts';
 import { roomServiceAccess } from '../../lib/fb/room-service-access.ts';
 import type { DomainContext } from '../../lib/domain-context';
@@ -16,8 +16,19 @@ test('existing stay and parking groups localize consistently without swallowing 
   assert.equal(guestServiceGroup({category:'No apartamento',icon:null,guest_presentation:{group:'original'}},'pt'),'No apartamento');
   assert.equal(guestServiceGroup({title:'Estacionamento',category:'Estrutura',icon:'Hotel'},'pt'),'Mobilidade');
   assert.equal(guestServiceGroup({title:'Programa de Fidelidade - All',category:'Utilidades',icon:'Package'},'pt'),'Conforto e conveniência');
+  assert.equal(guestServiceGroup({title:'Spa dos Pés',category:'Saúde',icon:'Heart'},'pt'),'Lazer e bem-estar');
+  assert.equal(guestServiceGroup({title:'Spa dos Pés',category:'Saúde',icon:'Heart',guest_presentation:{group:'original'}},'pt'),'Saúde');
   assert.equal(guestServiceArea({title:'Siga-nos no Instagram!',icon:'Globe',guest_presentation:null}),'contact');
   assert.equal(guestServiceArea({title:'Conheça o hotel',icon:'Hotel',guest_presentation:null}),'hotel');
+});
+test('compact eligibility never limits the full list to its first accommodation', () => {
+  const pillow='Disponível nas categorias Luxo, Executive, Family, Business e Royal, conforme as condições do hotel. Consulte a recepção.';
+  const spa='Disponível nas suítes Executive, Business e Royal, conforme informação operacional do hotel.';
+  for(const content of [pillow,spa]) assert.equal(guestServicePreviewText(content,null,'pt'),'Consulte as categorias elegíveis');
+  assert.equal(guestServicePreviewText(pillow,'Resumo editorial aprovado','pt'),'Resumo editorial aprovado');
+  assert.equal(guestServicePreviewText('Piscina no Piso L, disponível das 06:00 às 23:00.',null,'pt'),'Piscina no Piso L, disponível das 06:00 às 23:00.');
+  assert.equal(guestServiceIcon({title:'Estacionamento',icon:'Building2'}),'ParkingCircle');
+  assert.equal(guestServiceIcon({title:'Conheça o hotel',icon:'Building2'}),'Building2');
 });
 test('five tenant identities, three languages: eight service entries, preserved records and native canonical destination', () => {
   for (let i = 0; i < 5; i++) for (const lang of ['pt', 'en', 'es'] as const) {

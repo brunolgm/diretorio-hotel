@@ -120,3 +120,21 @@ ou alterar permissões de outros módulos. Os novos contratos passaram nos check
 
 Referências de plataforma consultadas: [funções e privilégios Supabase](https://supabase.com/docs/guides/database/functions),
 [Cloud Translation](https://docs.cloud.google.com/translate/docs/translate-text).
+
+
+## Fechamento autorizado de produção — 26/11/2026
+
+A revisão manual agora envia somente os campos cujo texto foi alterado ou cuja
+confirmação individual foi marcada. Salvar um resumo EN não converte horário,
+localização e demais campos automáticos em manuais. Uma confirmação explícita por
+campo permite revisar a fonte alterada sem modificar uma tradução já correta.
+A proteção concorrente compara as versões da fonte e da tradução antes da gravação
+e novamente no RPC. O caso foi confirmado em sete testes de tradução e nas 23
+verificações autenticadas afetadas, repetidas apenas por esta correção real.
+
+A publicação foi expressamente autorizada. O fechamento usa somente as migrations
+`20261126031405` e `20261126053504`, nessa ordem, preservando o histórico produtivo
+existente, inclusive as migrations paralelas do SmartMenu. Backup lógico privado
+inclui roles, schema, dados e histórico, com hashes e instruções de recuperação.
+Não há tradução retroativa em massa nem edição de registros reais para teste.
+O relatório de publicação registra a aplicação efetiva, o deployment e o smoke.

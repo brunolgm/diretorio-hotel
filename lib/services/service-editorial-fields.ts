@@ -35,6 +35,13 @@ export function eligibleServiceTranslationFields(source:ServiceEditorialSource,r
     return values[field]&&(!manual||replaceManual)&&(force||!value||state.status==='stale'||state.status==='failed');
   });
 }
+/** Reviewing one value must not turn the rest of the language into manual content. */
+export function serviceManualReviewChanges(source:ServiceEditorialSource,row:ServiceTranslationRow|undefined,language:string,submitted:Partial<Record<ServiceEditorialField,string|null>>,confirmed:readonly string[]=[]){
+  const values=serviceEditorialFields(source);
+  return Object.fromEntries(SERVICE_EDITORIAL_FIELDS.filter(field=>values[field]&&Object.hasOwn(submitted,field)&&
+    ((submitted[field]?.trim()||null)!==serviceTranslationValue(source,row,field,language)||confirmed.includes(field)))
+    .map(field=>[field,submitted[field]?.trim()||null]));
+}
 export function localizeServiceEditorial<T extends ServiceEditorialSource>(source:T,row:ServiceTranslationRow|undefined,language:string):T {
   if(language==='pt') return source;
   const result={...source},guest=parseGuestServicePresentation(source.guest_presentation);
