@@ -2,17 +2,19 @@ import Image from 'next/image';
 import type { CSSProperties, ElementType } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { LanguageSwitcher } from './language-switcher';
-import type { PublicHotel } from '@/lib/public-hotel-data';
+import { PublicCommunicationAccess } from './public-communication-access';
+import type { PublicHotel, PublicHotelPageData } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
-export function PublicAreaHero({ hotel, language, languageBasePath, homeHref, backLabel, title, description, icon: Icon, desktopImageUrl }: {
+export function PublicAreaHero({ hotel, language, languageBasePath, homeHref, backLabel, title, description, icon: Icon, desktopImageUrl, communicationData, announcementsHref }: {
   hotel: PublicHotel; language: SupportedPublicLanguage; languageBasePath: string;
   homeHref: string; backLabel: string; title: string; description: string; icon: ElementType; desktopImageUrl?: string | null;
+  communicationData?: PublicHotelPageData; announcementsHref?: string;
 }) {
   return <header style={desktopImageUrl ? { '--guest-header-photo': `url(${JSON.stringify(desktopImageUrl)})` } as CSSProperties : undefined} data-guest-header-photo={desktopImageUrl ? true : undefined} className="public-area-hero rounded-[20px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 text-[color:var(--hotel-text)] md:p-8">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <a href={homeHref} className="inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)]"><ArrowLeft className="h-4 w-4" aria-hidden="true" />{backLabel}</a>
-      <LanguageSwitcher compact slug={hotel.slug} currentLanguage={language} basePath={languageBasePath} />
+      {communicationData && announcementsHref ? <PublicCommunicationAccess data={communicationData} language={language} href={announcementsHref} basePath={languageBasePath} /> : <LanguageSwitcher compact slug={hotel.slug} currentLanguage={language} basePath={languageBasePath} />}
     </div>
     <div className="mt-6 flex items-center gap-3">{hotel.logo_url ? <Image src={hotel.logo_url} alt={hotel.name} width={128} height={64} unoptimized className="h-auto max-h-16 min-h-[23px] w-32 object-contain" /> : <p className="text-sm font-semibold">{hotel.name}</p>}</div>
     <Icon className="mt-6 h-7 w-7 text-[color:var(--hotel-accent)]" aria-hidden="true" />
