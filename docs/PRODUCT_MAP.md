@@ -3611,6 +3611,13 @@ Leme, Salvador e Mercure permanecem V3. Sem lote retroativo ou mudança operacio
 A revisão manual protege somente campos alterados ou confirmados individualmente.
 Ajustes pontuais conservam categorias elegíveis no detalhe, corrigem ícone de
 estacionamento, agrupamento de bem-estar, contexto da busca e Wi-Fi duplicado.
-Integração preserva o SmartMenu vigente em `3a720b8`. TypeScript, lint e build
+Integração preserva o SmartMenu vigente em `5c1647a`. TypeScript, lint e build
 passaram, além de 23 testes direcionados e 23 checks autenticados afetados.
 A publicação Vercel e o smoke serão registrados no relatório final desta entrega.
+Atualização posterior: Bruno autorizou publicação e migration. O candidato
+`3a720b8` foi publicado e a migration `20261126060253` aplicada preservando fontes
+comerciais e sete traduções existentes. O Admin autenticado confirmou o tradutor
+real e a proteção da revisão manual em rascunho inativo. O teste também revelou
+interpretação incorreta de `Refrigerante`; o fluxo passa a reutilizar termos
+exatos e não ambíguos do vocabulário EN/ES já aprovado, sem sobrepor revisões
+humanas. Detalhes e fechamento na seção de publicação de `docs/SPRINT_53_FNB.md`.

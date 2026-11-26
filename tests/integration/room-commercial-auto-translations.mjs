@@ -22,7 +22,7 @@ const snapshot=()=>rows("select jsonb_build_object('combos',(select jsonb_agg(to
 const offers=[['Bugan Burguer + Refri',6500,[['Hambúrguer','Bugan Burguer'],['Refrigerante','Coca-Cola','Coca-Cola Zero']]],['Margherita + Soda',5200,[['Pizza','Pizza margherita'],['Bebida','Soda Artesanal']]],['Trio Regional',7200,[['Prato','Cuscuz de carne de sol'],['Sobremesa','Cartola'],['Bebida','Água de Coco']]],['Café + Pudim',3500,[['Café','Café Espresso'],['Sobremesa','Pudim de leite']]]];
 const prices={'Bugan Burguer':6000,'Coca-Cola':1100,'Coca-Cola Zero':1100,'Pizza margherita':4400,'Soda Artesanal':1300,'Cuscuz de carne de sol':3900,'Cartola':2900,'Água de Coco':1000,'Café Espresso':1300,'Pudim de leite':2600};
 const items={};for(const [name,amount]of Object.entries(prices))items[name]=await saved(t,'item',{name,category_id:t.category.id,is_published:true,price_amount_minor:amount,currency:'BRL'});
-const roots=[];for(const [name,amount_minor,slots]of offers)roots.push(['combo',await draft('combo',{name,menu_id:t.menu.id,amount_minor,slots:slots.map(([name,...options])=>({name,choices:options.map(name=>items[name].id)}))})]);
+const roots=[];for(const [name,amount_minor,slots]of offers)roots.push(['combo',await draft('combo',{name:'Rascunho sintético '+name,menu_id:t.menu.id,amount_minor,slots:slots.map(([name,...options])=>({name,choices:options.map(name=>items[name].id)}))})]);
 for(const [name,max,options]of [['Bugan Burguer',2,[['Muçarela',500],['Bacon',600]]],['Pizza margherita',1,[['Muçarela extra',800]]],['Pudim de leite',1,[['Uma bola de sorvete',800]]]])roots.push(['group',await draft('group',{name:'Adicionais',item_id:items[name].id,max_selected:max,options:options.map(([name,amount_minor])=>({name,amount_minor}))})]);
 const requests=[];let providerMode='ok';
 const provider=createServer(async(req,res)=>{let raw='';for await(const chunk of req)raw+=chunk;const payload=JSON.parse(raw);requests.push(payload);res.setHeader('Content-Type','application/json');if(providerMode==='down'||providerMode===payload.target){res.writeHead(503);res.end('{}');return;}res.end(JSON.stringify({data:{translations:payload.q.map(text=>({translatedText:(payload.target==='en'?'EN · ':'ES · ')+text}))}}));});
@@ -33,7 +33,9 @@ const sync=(kind,id)=>syncRoomCommercialTranslations({languagesEnabled:async()=>
 try {
  const before=snapshot();for(const [kind,id]of roots){const r=await sync(kind,id);check(r.generated>0&&!r.pending,'Portuguese save generates EN/ES for '+kind+' '+id);}
  assert.deepEqual(snapshot(),before);check(true,'all source records, prices and rules byte-identical after translation-only sync');
- check(requests.length===14&&requests.every(r=>r.source==='pt'&&r.format==='text'&&r.q.every(v=>typeof v==='string')),'two real local HTTP batches per root; labels only');
+ check(requests.filter(r=>r.q.some(text=>text.startsWith('Rascunho sintético '))).length===8&&requests.length<=14
+  &&requests.every(r=>r.source==='pt'&&r.format==='text'&&r.q.every(v=>typeof v==='string'&&!['Refrigerante','Adicionais'].includes(v))),
+  'two real local HTTP batches per unknown combo name; approved terminology reused for choices and extras');
  let all=(await Promise.all(roots.map(([k,id])=>targets(k,id)))).flat();check(all.length===20&&all.every(r=>r.origin==='automatic'&&r.name_en&&r.name_es),'20 labels persisted and reloaded through authenticated RPC');
  const count=requests.length;for(const [kind,id]of roots)await sync(kind,id);check(requests.length===count,'unchanged complete translations do not call provider again');
  const comboId=roots[0][1],groupId=roots[4][1];let combo=(await read()).combos.find(c=>c.id===comboId),group=(await read()).groups.find(g=>g.id===groupId);

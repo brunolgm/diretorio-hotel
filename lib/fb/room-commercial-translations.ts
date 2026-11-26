@@ -8,6 +8,15 @@ export type CommercialTranslationSave = {
 };
 const kinds = new Set(['combo','combo_slot','modifier_group','modifier_option']);
 const reviewedDefaults:Record<string,{source:string}> = dictionary.names;
+// Exact, unambiguous terminology already reviewed for this menu takes precedence
+// over generic machine interpretations (e.g. Refrigerante is a soft drink).
+const terminology = new Map<string,{en:string;es:string}|null>();
+for(const entry of Object.values(dictionary.names)) {
+  const existing=terminology.get(entry.source);
+  terminology.set(entry.source,existing===undefined?{en:entry.en,es:entry.es}
+    :existing&&existing.en===entry.en&&existing.es===entry.es?existing:null);
+}
+const termFor=(row:RoomNameRow)=>terminology.get(row.source_name);
 const safeText = (value:unknown):string|null => typeof value==='string'&&value.trim().length>0
   &&value.trim().length<=160&&!/[\u0000-\u001f\u007f]/.test(value)?value.trim():null;
 
@@ -27,20 +36,21 @@ export async function syncRoomCommercialTranslations(io:{
       result.preserved++;
       if(!current&&row.revision>0) result.pending++;
       if(row.revision===0&&reviewedDefaults[row.id]?.source!==row.source_name) result.pending++;
-    } else if(current&&row.name_en&&row.name_es) result.preserved++;
+    } else if(current&&row.name_en&&row.name_es&&(!termFor(row)
+      ||row.name_en===termFor(row)?.en&&row.name_es===termFor(row)?.es)) result.preserved++;
     else candidates.push(row);
   }
   if(!candidates.length) return result;
   const translated=await Promise.all((['en','es'] as const).map(async language=>{
     const fields=Object.fromEntries(candidates.flatMap((row,index)=>
-      row.saved_source_name===row.source_name&&safeText(row['name_'+language as 'name_en'|'name_es'])?[]:[['label'+index,row.source_name]]));
+      termFor(row)?.[language]||row.saved_source_name===row.source_name&&safeText(row['name_'+language as 'name_en'|'name_es'])?[]:[['label'+index,row.source_name]]));
     if(!Object.keys(fields).length) return null;
     try {return await io.translate(fields,language);} catch {return null;}
   }));
   await Promise.all(candidates.map(async(row,index)=>{
     const current=row.saved_source_name===row.source_name;
-    const en=(current?safeText(row.name_en):null)??safeText(translated[0]?.['label'+index]);
-    const es=(current?safeText(row.name_es):null)??safeText(translated[1]?.['label'+index]);
+    const en=termFor(row)?.en??(current?safeText(row.name_en):null)??safeText(translated[0]?.['label'+index]);
+    const es=termFor(row)?.es??(current?safeText(row.name_es):null)??safeText(translated[1]?.['label'+index]);
     if(!en&&!es) {result.pending++;return;}
     try {
       const saved=await io.save({p_kind:row.kind,p_id:row.id,p_source_name:row.source_name,

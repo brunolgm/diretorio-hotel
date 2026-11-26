@@ -4014,3 +4014,28 @@ A migration existe somente no candidato e foi executada no banco descartável.
 Uma eventual publicação exige autorização própria e migration antes da aplicação.
 Rollback de interface preserva tabela, textos e RPCs compatíveis; não remover
 traduções revisadas nem configurações comerciais para retornar à versão anterior.
+
+#### Publicação autorizada e vocabulário revisado (26/11/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] A autorização posterior de Bruno permitiu
+aplicar a migration e publicar o candidato `3a720b8`. Deployment
+`dpl_EweevwK7A7XUYriK5SbgY3K3KdwT` READY. A migration foi registrada com a versão
+canônica `20261126060253`; apenas o registro recém-criado por esta aplicação foi
+alinhado, sem reparar migrations anteriores. Snapshot das fontes comerciais
+permaneceu igual e as sete traduções salvas mantiveram todos os valores e revisões,
+recebendo somente `origin=reviewed`.
+
+O Admin autenticado executou o tradutor real ao salvar um combo temporário e
+inativo em português, persistindo os nomes EN/ES. Uma revisão manual desse
+rascunho sobreviveu ao salvamento seguinte. O provedor interpretou o nome isolado
+`Refrigerante` como `Refrigerator`/`Refrigerador`. Essa divergência motivou uma
+correção pontual: para nomes exatamente iguais a termos do recurso já revisado,
+reutilizar o par EN/ES aprovado quando não houver ambiguidade. Nomes novos seguem
+para o serviço externo. Linhas salvas manualmente continuam protegidas, inclusive
+campos vazios. Uma linha automática pode adotar o termo aprovado ao salvar de novo.
+Não altera o recurso revisado, o português, preços, escolhas ou regras.
+
+Regressão acrescenta o caso real `Refrigerante → Soft drink / Refresco`, incluindo
+a proteção de um texto humano diferente. O histórico local e a prova inicial do
+provedor permanecem nas evidências; a validação final e remoção dos rascunhos de
+homologação são registradas no relatório de publicação no mesmo diretório.

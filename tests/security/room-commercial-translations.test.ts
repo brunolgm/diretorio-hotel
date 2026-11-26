@@ -12,7 +12,7 @@ function fixture(rows:RoomNameRow[]) {
   save:async(args:unknown)=>{saved.push(args);return true;}}};
 }
 test('batches only commercial Portuguese names into two provider requests',async()=>{
- const f=fixture([row(),row({kind:'combo_slot',id:'slot',source_name:'Bebida'}),row({kind:'modifier_group',id:'group'}),row({kind:'modifier_option',id:'option'}),row({kind:'item',id:'product'})]);
+ const f=fixture([row(),row({kind:'combo_slot',id:'slot',source_name:'Bebida especial de fixture'}),row({kind:'modifier_group',id:'group'}),row({kind:'modifier_option',id:'option'}),row({kind:'item',id:'product'})]);
  assert.deepEqual(await syncRoomCommercialTranslations(f.io),{generated:4,preserved:0,pending:0,disabled:false});
  assert.equal(f.calls.length,2);assert.equal(Object.keys(f.calls[0].fields).length,4);
  assert.deepEqual(Object.keys(f.calls[0].fields),['label0','label1','label2','label3']);
@@ -48,4 +48,16 @@ test('language entitlement stops provider and storage; stale CAS remains pending
  assert.equal(f.calls.length,0);assert.equal(f.saved.length,0);
  assert.equal((await syncRoomCommercialTranslations({...f.io,save:async()=>false})).pending,1);
  assert.match(commercialTranslationFeedback('pending'),/Rascunho salvo/);
+});
+test('approved terminology prevents refrigerator mistranslation for new automatic choices',async()=>{
+ const f=fixture([row({kind:'combo_slot',source_name:'Refrigerante'})]);
+ assert.equal((await syncRoomCommercialTranslations(f.io)).generated,1);
+ assert.equal(f.calls.length,0);
+ assert.deepEqual(f.saved,[{p_kind:'combo_slot',p_id:'synthetic',p_source_name:'Refrigerante',p_revision:0,p_name_en:'Soft drink',p_name_es:'Refresco'}]);
+ const old=fixture([row({kind:'combo_slot',source_name:'Refrigerante',saved_source_name:'Refrigerante',revision:1,origin:'automatic',name_en:'Refrigerator',name_es:'Refrigerador'})]);
+ assert.equal((await syncRoomCommercialTranslations(old.io)).generated,1);
+ assert.equal((old.saved[0] as {p_name_en:string}).p_name_en,'Soft drink');
+ const reviewed=fixture([row({kind:'combo_slot',source_name:'Refrigerante',saved_source_name:'Refrigerante',revision:1,origin:'reviewed',name_en:'Reviewed drink',name_es:null})]);
+ assert.equal((await syncRoomCommercialTranslations(reviewed.io)).preserved,1);
+ assert.equal(reviewed.saved.length,0);
 });
