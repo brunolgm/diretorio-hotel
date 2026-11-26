@@ -30,6 +30,7 @@ export default async function RoomCommercialPage({ searchParams }: {
     <Link className="underline" href="/admin/cardapio">Voltar a Gastronomia</Link>
     <AdminPageHero eyebrow="Bugan Recife · Room Service" title="Combos e adicionais"
       description="Prepare rascunhos comerciais exclusivos do Room Service. Salvar aqui não ativa a oferta para o hóspede."/>
+    <Link className="inline-flex min-h-11 items-center rounded-lg border border-[var(--admin-border)] px-4 py-2 underline" href={path+'/traducoes'}>Editar traduções do Room Service</Link>
     {params.salvo === '1' ? <p role="status">Rascunho salvo para revisão.</p> : null}
     <FbRoomCommercial key={kind + ':' + (draft?.id ?? 'novo')} data={data} kind={kind} draft={draft}/>
   </main>;

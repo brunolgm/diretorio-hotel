@@ -3435,3 +3435,25 @@ preservados. Sem migration ou alteração de cadastro. Nomes novos ou renomeados
 mantêm fallback no nome atual até a revisão do recurso editorial. A edição dessas
 traduções pelo Admin permanece [PLANEJADO]; não há campos EN/ES para os adicionais
 e combos no cadastro comercial atual.
+
+### Bugan — edição de nomes EN/ES no Admin (25/11/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] A nova área em Gastronomia → Combos e
+adicionais → Editar traduções do Room Service permite buscar e editar produtos,
+combos, grupos de escolhas, grupos de adicionais e adicionais. O português e o
+contexto do registro são exibidos para referência; somente EN/ES são gravados.
+Substitui a limitação anterior de nomes editáveis apenas no recurso editorial:
+as traduções revisadas continuam como valores iniciais, e as edições do hotel
+têm precedência na oferta, no carrinho e na resposta de cotação do hóspede.
+
+Migration aditiva `20261126025236_bugan_room_name_translations`: tabela privada
+com RLS forçada, leitura de serviço e gravação auditada por RPC, editor com
+permissão comercial e vínculo do hotel autenticado ao Room Service do Bugan.
+Sem escrita direta do navegador e sem parâmetros para preços, regras ou hotel.
+Conflitos de revisão e alterações do nome em português exigem nova revisão;
+campos vazios fazem fallback no português. Cardápio compartilhado do Filipe,
+demais hotéis, snapshots de preço, confirmação e impressão preservados.
+
+Rollback da aplicação mantém o recurso editorial anterior; preservar as edições
+na tabela privada para recuperação. Não remover dados nem reverter configurações
+comerciais por causa de rollback de interface.

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import dictionary from '../../lib/fb/bugan-room-names.json' with {type: 'json'};
 import {localizeBuganRoomOutlets, localizeBuganRoomQuoteLines} from '../../lib/fb/bugan-room-localization.ts';
 import type {NativeOutlet, Product, QuoteLine} from '../../lib/fb/orders/journey';
+import {parseRoomNameForm,roomNameEditorRows,type RoomNameRow} from '../../lib/fb/room-name-translations.ts';
 
 const burgerId = 'da434a67-b1bd-4aa6-8756-79baefa620b9';
 const drinkId = 'a2e8a8fd-2ca2-4479-8b56-e9decf584bca';
@@ -69,4 +70,47 @@ test('unknown or renamed products never receive a stale name or a translation fr
   const checkout=localizeBuganRoomQuoteLines(dictionary.slug,dictionary.hotelId,dictionary.outletId,'es',quote);
   assert.equal(checkout[0].name,'Novo combo no Admin');
   assert.equal(checkout[0].options[0].name,'Novo adicional'); assert.equal(checkout[0].options[0].group,'Novo grupo');
+});
+
+function override(kind:RoomNameRow['kind'],id:string,source_name:string,extra:Partial<RoomNameRow>={}):RoomNameRow {
+  return {hotel_id:dictionary.hotelId,outlet_id:dictionary.outletId,kind,id,source_name,context_name:'Room Service',parent_id:null,
+    saved_source_name:source_name,name_en:'Edited English',name_es:'Español editado',revision:1,...extra};
+}
+
+test('Admin overrides reach products, combos, groups, extras and quote components with identical business fields',()=>{
+  const rows=[override('item',burgerId,item.name),override('combo',comboId,combo.name),override('combo_slot',combo.slots![0].id,'Hambúrguer'),
+    override('modifier_group',groupId,'Adicionais'),override('modifier_option',baconId,'Bacon',{parent_id:groupId})];
+  for(const language of ['en','es'] as const){
+    const result=localizeBuganRoomOutlets(dictionary.slug,dictionary.hotelId,language,[outlet],rows)[0];
+    const expected=language==='en'?'Edited English':'Español editado';
+    assert.equal(result.products[0].name,expected);assert.equal(result.products[2].name,expected);
+    assert.equal(result.products[2].slots![0].name,expected);assert.equal(result.products[0].groups[0].name,expected);
+    assert.equal(result.products[0].groups[0].options[1].name,expected);
+    assert.deepEqual(withoutLabels(result),withoutLabels(outlet));
+    const quote=localizeBuganRoomQuoteLines(dictionary.slug,dictionary.hotelId,dictionary.outletId,language,[line],rows)[0];
+    assert.equal(quote.name,expected);assert.equal(quote.components[0].name,expected);
+    assert.equal(quote.components[0].options[0].name,expected);assert.equal(quote.components[0].options[0].group,expected);
+    assert.deepEqual(withoutLabels(quote),withoutLabels(line));
+  }
+});
+
+test('blank overrides deliberately use Portuguese; foreign scope and stale overrides cannot replace current names',()=>{
+  const empty=override('item',burgerId,item.name,{name_en:null,name_es:null});
+  assert.equal(localizeBuganRoomOutlets(dictionary.slug,dictionary.hotelId,'en',[outlet],[empty])[0].products[0].name,item.name);
+  for(const row of [{...empty,hotel_id:'foreign'},{...empty,outlet_id:'foreign'},{...empty,saved_source_name:'older name'}])
+    assert.equal(localizeBuganRoomOutlets(dictionary.slug,dictionary.hotelId,'en',[outlet],[row])[0].products[0].name,'Bugan Burger');
+  const editor=roomNameEditorRows([{...empty,source_name:'Renamed Portuguese',name_en:'Old English'}])[0];
+  assert.equal(editor.stale,true);assert.equal(editor.name_en,'Old English');
+  assert.equal(roomNameEditorRows([{...empty,revision:0,name_en:null}])[0].name_en,'Bugan Burger');
+  const globallyTranslated=[{...outlet,products:[{...item,name:'Global English'}]}];
+  assert.equal(localizeBuganRoomOutlets(dictionary.slug,dictionary.hotelId,'en',globallyTranslated,[override('item',burgerId,item.name)])[0].products[0].name,'Edited English');
+  assert.equal(localizeBuganRoomOutlets(dictionary.slug,dictionary.hotelId,'en',globallyTranslated,[empty])[0].products[0].name,item.name);
+});
+
+test('translation form accepts only bounded names and concurrency identity, never prices, rules or tenant selection',()=>{
+  const make=()=>{const form=new FormData();for(const [key,value]of Object.entries({kind:'item',id:burgerId,source_name:item.name,revision:'0',name_en:' Burger ',name_es:''}))form.set(key,value);return form;};
+  assert.deepEqual(parseRoomNameForm(make()),{p_kind:'item',p_id:burgerId,p_source_name:item.name,p_revision:0,p_name_en:'Burger',p_name_es:''});
+  for(const key of ['price','amount_minor','max_selected','active','hotel_id','outlet_id']){const form=make();form.set(key,'1');assert.throws(()=>parseRoomNameForm(form));}
+  for(const [key,value]of [['revision',''],['revision','-1'],['kind','unknown'],['id','bad'],['name_en','x'.repeat(161)],['name_es','line\nbreak']]){const form=make();form.set(key,value);assert.throws(()=>parseRoomNameForm(form));}
+  const duplicate=make();duplicate.append('name_en','second');assert.throws(()=>parseRoomNameForm(duplicate));
 });

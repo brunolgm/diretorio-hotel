@@ -12,6 +12,7 @@ import type {Language,PublicOrder,QuoteLine} from './journey';
 import {fbOrderDiagnostic} from './diagnostics.server';
 import {cancellationContact,type ContactSource} from './cancellation-contact';
 import {localizeBuganRoomQuoteLines} from '../bugan-room-localization';
+import {loadBuganRoomNames} from '../room-name-translations.server';
 
 import {privateOrderHeaders,orderBody,redactedOrderError} from './http-request';
 export {privateOrderHeaders,orderBody} from './http-request';
@@ -75,8 +76,10 @@ export async function handleOrderHotel(request:NextRequest,slug:string,operation
    const secret=bound?roomQuoteSecret(reference,bound.token,bound.number):reference;
    const q=await orderRpc<{quote_id:string;expires_at:string;priced:{currency:string;total_minor:number;lines:PricedLine[]}}>(client,'create_fb_order_quote',{
     p_hotel_slug:slug,p_session_secret:session,p_outlet_id:body.outlet_id,p_intent:body.intent,p_quote_digest:orderSecretDigest(secret)});
+   const quoteLanguage=language((body.intent as Record<string,unknown>).language);
+   const names=await loadBuganRoomNames(slug,hotel.id,quoteLanguage);
    response=NextResponse.json({quote_id:q.quote_id,quote_reference:bound?roomQuotePrefix+reference:reference,expires_at:q.expires_at,currency:q.priced.currency,total_minor:q.priced.total_minor,
-    available:true,lines:localizeBuganRoomQuoteLines(slug,hotel.id,body.outlet_id as string,language((body.intent as Record<string,unknown>).language),q.priced.lines.map(l=>quoteLine(l))),...(roomNumber?{room_number:roomNumber}:{})},{headers:privateOrderHeaders});
+    available:true,lines:localizeBuganRoomQuoteLines(slug,hotel.id,body.outlet_id as string,quoteLanguage,q.priced.lines.map(l=>quoteLine(l)),names),...(roomNumber?{room_number:roomNumber}:{})},{headers:privateOrderHeaders});
   }else{
    validId(body.quote_id);validId(body.key);
    const reference=body.quote_reference;

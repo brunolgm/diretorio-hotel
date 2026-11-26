@@ -169,3 +169,19 @@ O dashboard mostra uma checklist baseada nos dados do hotel autenticado. Ela ori
 - quando o cardápio por apartamento não abrir, revisar `service_action_type`, status do apartamento, token ativo e `restaurant_menu_url`
 - olhar primeiro o toast exibido na tela e depois os logs do servidor/preview com contexto de módulo, ação, operação, `hotelId` e `targetId`
 - nunca expor em log: senhas, tokens, secrets, payloads completos ou dados privados desnecessários
+
+## Traduções do Room Service do Bugan
+
+Em **Gastronomia → Combos e adicionais → Editar traduções do Room Service**, use a
+busca ou o filtro de tipo para localizar um produto, combo, grupo ou adicional.
+Confira o nome original e o contexto em português, ajuste **Nome em inglês** e
+**Nome em espanhol** e selecione **Salvar traduções** no próprio registro.
+Os textos salvos passam a aparecer no cardápio, carrinho e checkout do Room
+Service; nomes operacionais, preços, limites e opções permanecem preservados.
+Um campo vazio usa o nome em português naquele idioma.
+
+Se outra pessoa salvar o mesmo registro ou alterar seu nome em português,
+recarregue a página e revise antes de gravar. A tela sinaliza traduções cujo nome
+original mudou. O acesso exige perfil editor ou administrador com a permissão
+comercial já utilizada no Room Service do Bugan. Esta área não edita o Filipe nem
+conteúdo de outro hotel.
