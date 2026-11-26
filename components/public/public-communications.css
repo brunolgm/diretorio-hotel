@@ -100,7 +100,7 @@
  .guest-desktop-navigation .v3-header .v3-desktop-nav,.guest-desktop-navigation .v3-header .v3-reserve {display:none}
  .guest-desktop-navigation .v3-header .v3-menu-trigger {display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
 }
-@media(max-width:767px){.v3-header .public-communication-actions {gap:2px}.v3-header .v3-brand {min-width:0;flex-shrink:1}.v3-header .public-communication-bell {min-width:44px}}
+@media(max-width:767px){.v3-header .public-communication-actions {gap:2px}.v3-header .v3-brand {min-width:0;flex-shrink:1}.public-communication-bell {min-width:44px;min-height:44px;border:0;border-radius:12px;background:transparent;box-shadow:none;color:var(--hotel-header-text,var(--hotel-text))}.public-communication-bell svg {width:17px;height:17px;stroke-width:1.75}.public-communication-count {top:2px;right:1px;min-width:16px;height:16px;padding:0 3px;border:1px solid var(--hotel-border);background:var(--hotel-active-bg);color:var(--hotel-text);font-size:9px;font-weight:600}}
 
 /* Bugan Home only: compact mobile notice, with intrinsic height for enlarged text. */
 @media(max-width:767px){
