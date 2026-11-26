@@ -1,13 +1,24 @@
 import '../../scripts/bootstrap-runtime.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getGuestServiceCatalog } from '../../lib/guest-service-catalog.ts';
-import { guestServicePresentationFits, guestServiceInteraction, parseGuestServicePresentation, readGuestServicePresentation } from '../../lib/guest-service-presentation.ts';
+import { getGuestServiceCatalog, guestServiceArea } from '../../lib/guest-service-catalog.ts';
+import { guestServiceGroup, guestServicePresentationFits, guestServiceInteraction, parseGuestServicePresentation, readGuestServicePresentation } from '../../lib/guest-service-presentation.ts';
 import { guestServicesFixture } from '../fixtures/guest-services.ts';
 import { roomServiceAccess } from '../../lib/fb/room-service-access.ts';
 import type { DomainContext } from '../../lib/domain-context';
 
 const domain = { kind: 'localhost', hostname: 'localhost', productRootDomain: 'libguest.digital', shouldUseSlugFallback: true } as DomainContext;
+test('existing stay and parking groups localize consistently without swallowing neighborhood categories or explicit configuration', () => {
+  assert.equal(guestServiceGroup({category:'Transporte e estacionamento',icon:null},'en'),'Getting around');
+  assert.equal(guestServiceGroup({category:'Serviços da estadia',icon:null},'en'),'Comfort and convenience');
+  assert.equal(guestServiceGroup({category:'Lazer e bem-estar',icon:null},'es'),'Ocio y bienestar');
+  assert.equal(guestServiceGroup({category:'Serviços do bairro',icon:null},'pt'),'Serviços do bairro');
+  assert.equal(guestServiceGroup({category:'No apartamento',icon:null,guest_presentation:{group:'original'}},'pt'),'No apartamento');
+  assert.equal(guestServiceGroup({title:'Estacionamento',category:'Estrutura',icon:'Hotel'},'pt'),'Mobilidade');
+  assert.equal(guestServiceGroup({title:'Programa de Fidelidade - All',category:'Utilidades',icon:'Package'},'pt'),'Conforto e conveniência');
+  assert.equal(guestServiceArea({title:'Siga-nos no Instagram!',icon:'Globe',guest_presentation:null}),'contact');
+  assert.equal(guestServiceArea({title:'Conheça o hotel',icon:'Hotel',guest_presentation:null}),'hotel');
+});
 test('five tenant identities, three languages: eight service entries, preserved records and native canonical destination', () => {
   for (let i = 0; i < 5; i++) for (const lang of ['pt', 'en', 'es'] as const) {
     const data = guestServicesFixture(i, lang), before = JSON.stringify(data);

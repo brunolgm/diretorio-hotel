@@ -8,7 +8,10 @@ export function guestServicesFixture(index = 4, language: 'pt' | 'en' | 'es' = '
   data.layout.push({ blockKey: 'quick_info', isEnabled: true, position: 4 });
   data.layout = data.layout.map(b => b.blockKey === 'contact' ? { ...b, isEnabled: true } : b);
   data.layout = data.layout.map(b => b.blockKey === 'quick_info' ? { ...b, isEnabled: true } : b);
-  data.hotel.wifi_name = 'Synthetic guest network';
+  data.hotel.wifi_name = 'Bugan by Atlantica';
+  data.hotel.breakfast_hours = 'Seg–Sex 06:00–10:00; sábados, domingos e feriados 06:00–10:30';
+  // Configured test URL demonstrates the real conditional reservation control, without navigation.
+  data.hotel.booking_url = 'https://example.invalid/reservation-fixture';
   data.hotel.checkin_time = '14:00'; data.hotel.checkout_time = '12:00';
   data.hotel.logo_url = index === 4 ? '/assets/logo.png' : null;
   data.hotel.hero_image_url = index === 4 ? '/assets/hero.webp' : null;
@@ -19,6 +22,9 @@ export function guestServicesFixture(index = 4, language: 'pt' | 'en' | 'es' = '
   data.sections.push({ ...data.sections[3], id: 'native-access', title: 'Room Service — Pedidos', url: data.sections[3].url, service_action_type: 'external_url' });
   const laundry = data.sections[4];
   laundry.guest_presentation = { summary: { pt: 'Coleta e entrega de roupas', en: 'Laundry collection and delivery', es: 'Recogida y entrega de ropa' }, hours: { pt: 'Coleta até 14h', en: 'Collection until 14:00', es: 'Recogida hasta las 14:00' }, interaction: 'detail' };
+  // Metadata is copied from the existing published copy, not an invented operating rule.
+  const gym = data.sections[6];
+  gym.guest_presentation = { interaction: 'detail', summary: {pt:'Próxima à piscina',en:'Near the pool',es:'Cerca de la piscina'}, hours: {pt:'06:00–23:00'}, location: {pt:'Piso L'} };
   if (volume) for (let i = 0; i < 40; i++) data.sections.push({ ...laundry, id: `extra-${index}-${i}`, title: `${FB_IDENTITIES[index].name} · ${i + 1}`, content: 'Additional synthetic local information for this tenant.', category: i % 2 ? 'Transportes do bairro' : 'Experiências locais', guest_presentation: { group: 'original' } });
   return data;
 }

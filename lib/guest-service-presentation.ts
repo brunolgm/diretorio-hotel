@@ -55,14 +55,15 @@ export function guestServiceText(value: GuestServicePresentation, field: typeof 
   return translatedText(value[field]?.pt || null, value[field]?.[language]);
 }
 
-export function guestServiceGroup(section: { category: string | null; icon: string | null; guest_presentation?: Json | null }, language: Language) {
+export function guestServiceGroup(section: { title?: string; category: string | null; icon: string | null; guest_presentation?: Json | null }, language: Language) {
   const config = parseGuestServicePresentation(section.guest_presentation);
   if (config.group && config.group !== 'original') return GUEST_SERVICE_GROUPS[config.group][language];
   if (config.group === 'original') return section.category || { pt: 'Outros serviços', en: 'Other services', es: 'Otros servicios' }[language];
   const category = normalizeGuestSearch(section.category);
-  const group = /^(mobilidade|mobility|movilidad|estacionamento|parking|aparcamiento|transfer|transporte|transport)$/.test(category) ? 'mobility'
-    : /^(lazer|leisure|ocio|bem-estar|wellness|well-being|bienestar|piscina|pool|swimming pool|academia|gym|gimnasio|fitness|spa|sauna)$/.test(category) ? 'wellness'
-    : /^(conveniencia|convenience|comodidad|hospedagem|accommodation|alojamiento|lavanderia|laundry|lavadero|lavanderia|room service|servicio de habitaciones|utilidades|utilities)$/.test(category) ? 'comfort' : null;
+  if (category === 'estrutura' && /^(estacionamento|parking|aparcamiento)$/.test(normalizeGuestSearch(section.title))) return GUEST_SERVICE_GROUPS.mobility[language];
+  const group = /^(mobilidade|mobility|movilidad|estacionamento|parking|aparcamiento|transfer|transporte|transport|transporte e estacionamento)$/.test(category) ? 'mobility'
+    : /^(lazer|lazer e bem-estar|leisure|ocio|bem-estar|wellness|well-being|bienestar|piscina|pool|swimming pool|academia|gym|gimnasio|fitness|spa|sauna)$/.test(category) ? 'wellness'
+    : /^(conveniencia|convenience|comodidad|hospedagem|servicos da estadia|no apartamento|accommodation|alojamiento|lavanderia|laundry|lavadero|room service|servicio de habitaciones|utilidades|utilities)$/.test(category) ? 'comfort' : null;
   return group ? GUEST_SERVICE_GROUPS[group][language] : section.category || { pt: 'Outros serviços', en: 'Other services', es: 'Otros servicios' }[language];
 }
 

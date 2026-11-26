@@ -28,7 +28,7 @@ export function guestServiceArea(section: Pick<PublicHotelPageData['sections'][n
   if (section.icon === 'Wifi' || section.icon === 'Coffee' || /^(seguranca|security|seguridad|como usar o cofre|como usar o telefone do apartamento)$/.test(title)) return 'information';
   if (/^(conheca o hotel|about the hotel|discover the hotel|get to know the hotel|conozca el hotel|acomodacoes|accommodations|accommodation|alojamiento)$/.test(title)) return 'hotel';
   if (section.icon === 'UtensilsCrossed') return 'dining';
-  if (title === 'ramais') return 'contact';
+  if (title === 'ramais' || /^(siga-nos no instagram!?|follow us on instagram!?|siguenos en instagram!?)$/.test(title)) return 'contact';
   return 'services';
 }
 

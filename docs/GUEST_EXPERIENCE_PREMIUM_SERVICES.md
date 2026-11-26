@@ -1,4 +1,64 @@
-# LIBGUEST V4 — Guest Experience Premium — Release Candidate local
+# LIBGUEST V4 — Guest Experience Premium — Release Candidate visual final
+
+## Refinamento visual final — 26/11/2026
+
+Evolução local sobre `e047cf75cd4f2ab54c879407ac38ffe724a995b4`, na mesma branch RC.
+A medição automatizada da primeira dobra mostra **7 de 8 serviços completos** no
+Bugan em **390 × 900** e **390 × 844**, acima do dock e sem cortar textos essenciais.
+Na fixture final, cinco linhas têm 64–65 px; Piscina e Sauna crescem para cerca de
+80–81 px, e Estacionamento para 100 px, mantendo o conteúdo inline integral.
+O oitavo serviço permanece na rolagem. A meta não foi obtida com alturas fixas,
+fontes menores ou limite de itens. Títulos usam 16 px; resumos, 14 px.
+
+Cabeçalho, busca e intervalos foram compactados. Filtros ficam disponíveis acima
+de 12 serviços e mais de um grupo; a busca continua disponível nos catálogos pequenos.
+Os agrupamentos ganharam hierarquia e marcação com a cor semântica do hotel.
+Horário/localização substituem resumos redundantes na linha mobile quando cadastrados;
+o texto completo continua no detalhe. A lista não aplica line-clamp.
+
+Room Service conserva uma única entrada principal com o destino canônico existente.
+O botão secundário de informação abre o texto editorial complementar completo em
+sheet/modal, sem um bloco vertical adicional e sem botão aninhado dentro do link.
+O sheet tem indicador de gaveta, tipografia do tema inclusive no portal, metadados
+destacados, orientações em parágrafos e condições em seção própria quando cadastradas.
+As informações do ramal permanecem exatamente no texto autorizado; não foi criado
+um canal ou atendimento fictício.
+
+O desktop reutiliza o componente extraído do cabeçalho da Home, preservando seu
+markup e apresentação na Home. Logo, idioma, reserva configurada e navegação dos
+módulos disponíveis aparecem no interior; a página ativa é identificada. A fixture
+antiga também omitia reserva por ter `booking_url=null`; a nova usa URL de teste
+explicitamente identificada, sem navegar nela. A fotografia usa o asset existente.
+
+Informações agrupa Wi-Fi, café e horários em uma superfície, mantém check-in/out
+lado a lado e preserva instruções completas, conteúdo suplementar, guias, apartamento
+e políticas quando presentes. Na captura, a rede vem do conteúdo histórico autorizado;
+horários de café e check-in/out são configuração local representativa, não comprovação
+do cadastro produtivo. Não foram feitas alterações produtivas.
+
+Grand Mercure conserva todos os 37 registros de origem no catálogo: 31 em Serviços,
+cinco em Informações e um em Gastronomia, sem impor oito serviços. Foram harmonizados os grupos de
+estadia/apartamento, lazer e transporte/estacionamento, mantendo serviços do bairro
+e configurações explícitas. Fidelidade permanece em Conforto; informação institucional
+identificada permanece em Hotel; chamada social vai para Contato; estacionamento
+legado em Estrutura passa a Mobilidade na projeção. Nenhum registro foi reescrito.
+Novotel Salvador e o preset atual do Leme permanecem preservados em prévias locais;
+os hotéis em V3 não foram ativados em V4.
+
+Validações desta etapa: TypeScript, lint direcionado, build e 28 testes direcionados;
+30 cenários browser (cinco identidades × três idiomas × duas larguras), mais medição
+de dobra, conteúdo complementar, metadados do sheet, Informações e prévia Admin.
+As sete verificações autenticadas anteriores continuam como evidência técnica da RC
+de origem e não foram executadas novamente. A galeria distingue essa captura histórica
+do Admin autenticado da prévia visual atual. Não houve nova migration ou mudança de
+permissões, entitlements, SmartMenu, Ordering, KDS, Bridge, impressão ou provedores.
+
+As imagens de primeira dobra mantêm a viewport real. As imagens de listagem completa
+expandem somente a região de captura e colocam o dock no fim para documentar todo
+o conteúdo rolável; não são usadas para medir densidade. Títulos/categorias de Grand
+e Novotel vêm da reconciliação autorizada; descrições continuam sintéticas e identificadas.
+O SHA completo final é registrado no relatório de entrega e no `release-report.json`
+do ZIP após a criação do commit, evitando referência circular no próprio commit.
 
 ## Estado e recuperação — 26/11/2026
 
@@ -28,7 +88,7 @@ visíveis e grupos vazios não são renderizados. Sem serviços, a página usa o
 editorial vazio existente, sem pesquisa ou filtros inúteis.
 
 Busca por título, categoria, conteúdo, resumo e metadados localizados, sem acentos;
-limpeza, resultados singulares/plurais PT/EN/ES e filtros a partir de oito entradas e
+limpeza, resultados singulares/plurais PT/EN/ES e filtros acima de doze entradas e
 mais de um grupo. Textos completos ficam acessíveis no detalhe ou em informação
 complementar junto ao acesso dedicado. Horário/localização cadastrados aparecem nas linhas.
 Não são inventados horários, canais, fotos ou condições ausentes.
@@ -157,7 +217,7 @@ metadados ou executar DROP COLUMN. A inferência legada mantém leitura sem back
 ## Validação final e galeria
 
 TypeScript, lint direcionado, build completo e integridade dos manifests compõem o gate.
-27 testes direcionados cobrem catálogo/isolamento, destinos, idiomas, guias, limites,
+28 testes direcionados cobrem catálogo/isolamento, destinos, idiomas, guias, limites,
 alternativas, áreas explícitas e contexto sintético. A matriz browser tem 30 cenários
 (cinco identidades × três idiomas × 390/1440), mais os checks de contraste do idioma,
 conteúdo suplementar no shell, seis modos da prévia e guia dedicado.
@@ -184,7 +244,15 @@ real autenticado, exclusivamente com tenant e dados sintéticos locais.
 | Bugan Serviços desktop | B | [1440 px](../out/guest-experience-premium-services/services-4-pt-1440.png) |
 | Bugan Bottom Sheet | B | [Detalhe](../out/guest-experience-premium-services/detail-4-pt-390.png) |
 | Bugan Informações | B | [Informações](../out/guest-experience-premium-services/information-mobile.png) |
-| Bugan busca/filtros | B | [Filtro](../out/guest-experience-premium-services/filter-4-pt-390.png) |
+| Bugan busca | B | [Busca](../out/guest-experience-premium-services/filter-4-pt-390.png) |
+| Bugan Serviços 390 × 844 | B | [Primeira dobra](../out/guest-experience-premium-services/services-4-pt-390-844.png) |
+| Bugan Serviços completos | B | [Rolagem completa](../out/guest-experience-premium-services/services-complete-mobile.png) |
+| Sheet com horário e localização | B | [Academia](../out/guest-experience-premium-services/detail-hours-location-mobile.png) |
+| Informações completas | B | [Rolagem completa](../out/guest-experience-premium-services/information-complete-mobile.png) |
+| Grand Mercure listagem completa | M | [Rolagem completa](../out/guest-experience-premium-services/grand-services-complete-mobile.png) |
+| Grand Mercure filtro Mobilidade | M | [Filtro](../out/guest-experience-premium-services/grand-filter-mobile.png) |
+| Novotel Salvador listagem completa | M | [Tema preservado](../out/guest-experience-premium-services/novotel-services-complete-mobile.png) |
+| Admin prévia visual atual | B | [Prévia local](../out/guest-experience-premium-services/admin-service-configuration.png) |
 | Grand Mercure — maior volume | M | [37 registros classificados](../out/guest-experience-premium-services/metadata-0-mobile.png) |
 | Novotel Leme — cadastro vazio preservado | M | [Leme](../out/guest-experience-premium-services/metadata-1-mobile.png) |
 | Novotel Salvador | M | [Salvador](../out/guest-experience-premium-services/metadata-2-mobile.png) |

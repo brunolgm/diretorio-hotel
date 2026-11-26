@@ -3502,3 +3502,19 @@ Preços, moeda, disponibilidade, regras, escolhas, cotação, confirmação e sn
 operacionais permanecem nos contratos existentes. Sem migration ou escrita nos
 cadastros compartilhados. A edição no Admin desta etapa continua restrita a nomes;
 descrições e categorias são mantidas no recurso editorial revisado.
+
+### Guest Experience Premium — RC visual final (26/11/2026)
+
+[IMPLEMENTADO E VALIDADO LOCALMENTE] Refinamento sobre a RC `e047cf75`: Serviços
+mostra sete dos oito itens completos do Bugan em 390 × 900 e 390 × 844. Linhas têm
+crescimento natural, filtros aparecem acima de 12 itens, e Room Service mantém link
+canônico direto com informação complementar em acesso secundário acessível.
+Sheet usa tipografia e metadados do tema; Informações agrupa essenciais e mantém
+horários lado a lado. Desktop reutiliza o cabeçalho da Home com módulos disponíveis,
+idioma, logo, estado ativo e reserva configurada. Grand conserva seu volume e grupos;
+prévia Novotel preserva a identidade. Sem ativação V4, migration ou alteração produtiva.
+TypeScript, lint, build, 28 testes direcionados e 30 cenários browser compõem o gate;
+as sete verificações autenticadas da RC anterior foram reaproveitadas.
+Relatório: `docs/GUEST_EXPERIENCE_PREMIUM_SERVICES.md`. Galeria e ZIP em
+`out/guest-experience-premium-services/`, ignorados pelo Git. Publicação aguarda
+homologação visual e autorização; SmartMenu e contratos operacionais preservados.

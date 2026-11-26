@@ -429,7 +429,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "No apartamento",
+        "group": "Conforto e conveniência",
         "interaction": "detail"
       }
     },
@@ -448,7 +448,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "No apartamento",
+        "group": "Conforto e conveniência",
         "interaction": "detail"
       }
     },
@@ -543,7 +543,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Serviços da estadia",
+        "group": "Conforto e conveniência",
         "interaction": "detail"
       }
     },
@@ -562,7 +562,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Serviços da estadia",
+        "group": "Conforto e conveniência",
         "interaction": "detail"
       }
     },
@@ -581,7 +581,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "information",
-        "group": "No apartamento",
+        "group": "Conforto e conveniência",
         "interaction": "detail"
       }
     },
@@ -600,7 +600,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "information",
-        "group": "No apartamento",
+        "group": "Conforto e conveniência",
         "interaction": "page"
       }
     },
@@ -619,7 +619,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Serviços da estadia",
+        "group": "Conforto e conveniência",
         "interaction": "detail"
       }
     },
@@ -638,7 +638,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Transporte e estacionamento",
+        "group": "Mobilidade",
         "interaction": "page"
       }
     },
@@ -657,7 +657,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Transporte e estacionamento",
+        "group": "Mobilidade",
         "interaction": "page"
       }
     },
@@ -790,7 +790,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Transporte e estacionamento",
+        "group": "Mobilidade",
         "interaction": "page"
       }
     },
@@ -809,7 +809,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Transporte e estacionamento",
+        "group": "Mobilidade",
         "interaction": "page"
       }
     },
@@ -828,7 +828,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Transporte e estacionamento",
+        "group": "Mobilidade",
         "interaction": "page"
       }
     },
@@ -847,7 +847,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Transporte e estacionamento",
+        "group": "Mobilidade",
         "interaction": "page"
       }
     },
@@ -866,7 +866,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Transporte e estacionamento",
+        "group": "Mobilidade",
         "interaction": "page"
       }
     },
@@ -999,7 +999,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Transporte e estacionamento",
+        "group": "Mobilidade",
         "interaction": "page"
       }
     },
@@ -1018,7 +1018,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Transporte e estacionamento",
+        "group": "Mobilidade",
         "interaction": "page"
       }
     },
@@ -1037,7 +1037,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Transporte e estacionamento",
+        "group": "Mobilidade",
         "interaction": "page"
       }
     },
@@ -1074,7 +1074,7 @@
       "url_host": "www.instagram.com",
       "smartmenu_link": false,
       "proposed": {
-        "area": "services",
+        "area": "contact",
         "group": "Outros serviços",
         "interaction": "page"
       }
@@ -1265,7 +1265,7 @@
       "smartmenu_link": false,
       "proposed": {
         "area": "services",
-        "group": "Estrutura",
+        "group": "Mobilidade",
         "interaction": "inline"
       }
     },

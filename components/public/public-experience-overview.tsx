@@ -11,10 +11,9 @@ import Image from 'next/image';
 import { editorialText } from '@/lib/public-presentation';
 import { MapPin, BedDouble, Waves, Dumbbell } from 'lucide-react';
 import { ArrowUpRight, Grid2X2, Building2, ChevronRight, ConciergeBell, MapPinned, MessageCircle, Plane, Utensils } from 'lucide-react';
-import { LanguageSwitcher } from './language-switcher';
+import { PublicExperienceHeader } from './public-experience-header';
 import { PublicAnalytics } from './public-analytics';
 import { PromotionalBannerCarousel } from './promotional-banner-carousel';
-import { PublicExperienceMenu } from './public-experience-menu';
 import { TourismImage } from '@/components/tourism-image';
 import { ServiceIcon } from '@/components/service-icon';
 import type { DomainContext } from '@/lib/domain-context';
@@ -82,13 +81,7 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
   const curated = pageData.tourismHomeAvailable ? (presentation?.tourism.cards ?? []).map(card=>({card,href:tourismEditorialHref(card,pageData.tourismPreview??[],hotel.id,route)})).filter(row=>row.href) : [];
   const tourism = pageData.tourismHomeAvailable ? (pageData.tourismPreview ?? []).filter(row => row.hotel_id === hotel.id && row.is_published).slice(0,3) : [];
   const hasAlerts=version==='v4'&&enabled('announcements')&&publicCommunications(hotel.id,announcements,[]).alerts.length>0;
-  const header=(<header className="v3-header">
-        <PublicExperienceMenu title={hotel.name} label={t.menu} links={reserve ? [...links, { href: reserve, label: t.reserve }] : links} style={theme.cssVars} />
-        <a href={homeHref} className="v3-brand" aria-label={hotel.name}>{hotel.logo_url ? <><Image src={hotel.logo_url} alt={hotel.name} width={220} height={66} unoptimized /><small>{hotel.city}</small></> : <><span>{hotel.name}</span>{hotel.city ? <small>{hotel.city}</small> : null}</>}</a>
-        <nav className="v3-desktop-nav" aria-label={copy.navigationLabel}>{links.map(link => <a key={link.href} href={link.href}>{link.label}</a>)}</nav>
-        <LanguageSwitcher compact slug={hotel.slug} currentLanguage={language} basePath={domainContext.navigationScope === 'authenticated-preview' ? '/preview' : preferSubdomainRoot ? '/' : undefined} />
-        {reserve ? <a className="v3-reserve" href={reserve} target="_blank" rel="noopener noreferrer">{t.reserve}</a> : null}
-      </header>);
+  const header=<PublicExperienceHeader hotel={hotel} language={language} homeHref={homeHref} links={links} reserve={reserve} reserveLabel={t.reserve} menuLabel={t.menu} navigationLabel={copy.navigationLabel} style={theme.cssVars} basePath={domainContext.navigationScope === 'authenticated-preview' ? '/preview' : preferSubdomainRoot ? '/' : undefined} />;
   return <main className="hotel-theme-page public-experience-v3 min-h-dvh" style={theme.cssVars} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle} data-public-experience={version==='v4'?version:undefined}>
     <PublicAnalytics hotelSlug={hotel.slug} language={language} />
     {hasAlerts?<><div className="v4-header-strip">{header}</div><PublicCommunications data={pageData} language={language} announcementsHref={areaHref('comunicados')} mode="attention"/></>:null}

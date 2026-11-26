@@ -1,4 +1,5 @@
-import { experienceMediaUrl } from '@/lib/public-experience-media';
+import { experienceHttpsUrl, experienceMediaUrl } from '@/lib/public-experience-media';
+import { PublicExperienceHeader } from './public-experience-header';
 import { GuestServiceExplorer } from './guest-service-explorer';
 import { getGuestServiceCatalog } from '@/lib/guest-service-catalog';
 import {PublicFbContent} from './public-fb-content';
@@ -54,6 +55,7 @@ import type { SupportedPublicLanguage } from '@/lib/public-language';
 import {
   buildPublicHotelAreaHref,
   buildPublicHotelHref,
+  buildPublicHotelFlightCenterHref,
   type PublicHotelAreaKey,
 } from '@/lib/public-routes';
 import { getServiceDestination } from '@/lib/service-destinations';
@@ -199,6 +201,17 @@ export function HotelPublicAreaContent({
     { key: 'information' as const, href: buildAreaHref('informacoes'), label: copy.navigationInformation },
     { key: 'contact' as const, href: buildAreaHref('contato'), label: copy.navigationContact },
   ];
+  const enabled = (key: string) => pageData.layout.some(block => block.blockKey === key && block.isEnabled);
+  const reserve = experienceHttpsUrl(hotel.booking_url);
+  const desktopLinks = [
+    navigationItems[0],
+    ...(enabled('quick_info') ? [navigationItems[3]] : []),
+    ...(enabled('services') && sections.length ? [navigationItems[1]] : []),
+    ...((pageData.fb ? enabled('services') && pageData.fb.outlets.length : pageData.experienceMedia?.some(media => media.hotel_id === hotel.id && media.is_published && media.slot === 'restaurant') || sections.some(section => section.service_action_type === 'room_restaurant_menu')) ? [{ ...navigationItems[2], label: {pt:'Gastronomia',en:'Dining',es:'Gastronomía'}[language] }] : []),
+    ...(pageData.tourismHomeAvailable ? [{ href: buildAreaHref('turismo'), label: {pt:'Turismo',en:'Tourism',es:'Turismo'}[language] }] : []),
+    ...(pageData.flightHomeCard ? [{ href: buildPublicHotelFlightCenterHref({ slug: hotel.slug, language, domainContext, preferSubdomainRoot }), label: {pt:'Voos',en:'Flights',es:'Vuelos'}[language] }] : []),
+    ...(enabled('contact') && (hotel.whatsapp_number || experienceHttpsUrl(hotel.website_url) || reserve || departments.length) ? [navigationItems[4]] : []),
+  ];
   const activeItem: NovotelNavigationKey = area === 'servicos' ? 'services' : area === 'cardapio' ? 'menu' : area === 'informacoes' ? 'information' : area === 'contato' ? 'contact' : 'home';
   const areaMeta = {
     informacoes: { title: areaCopy.informationTitle, description: areaCopy.informationDescription, icon: Info },
@@ -242,7 +255,7 @@ export function HotelPublicAreaContent({
   return (
     <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isBugan ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-10'}`} style={theme.cssVars} data-public-internal-v4={pageData.presentation?.experienceVersion==='v4'?'':undefined} data-public-area={area} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
       <PublicAnalytics hotelSlug={hotel.slug} language={language} />
-      {isV4 ? <nav className="guest-desktop-navigation" aria-label={copy.navigationLabel}><a className="guest-desktop-brand" href={homeHref}>{hotel.name}</a><div>{navigationItems.map(item => <a key={item.key} href={item.href} aria-current={activeItem === item.key ? 'page' : undefined}>{item.label}</a>)}{hotel.booking_url ? <a className="guest-desktop-booking" href={hotel.booking_url} target="_blank" rel="noreferrer" data-analytics-event="booking_click" data-analytics-target-url={hotel.booking_url}>{copy.bookNow}</a> : null}</div></nav> : null}
+      {isV4 ? <div className="guest-desktop-navigation"><PublicExperienceHeader hotel={hotel} language={language} basePath={basePath} homeHref={homeHref} links={desktopLinks} activeHref={buildAreaHref(area)} reserve={reserve} reserveLabel={copy.bookNow} menuLabel={copy.navigationLabel} navigationLabel={copy.navigationLabel} style={theme.cssVars} /></div> : null}
       {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
       <div data-public-internal-body className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
         {isBugan || isV4 ? (
