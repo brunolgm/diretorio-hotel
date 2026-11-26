@@ -7,7 +7,8 @@ export interface ModifierGroup {id:string;name:string;selection:'single'|'multi'
 export interface ComboChoice {id:string;extra_minor:number;item:Product}
 export interface ComboSlot {id:string;name:string;min:number;max:number;multiplicity:number;choices:ComboChoice[]}
 export interface Product {id:string;kind:'item'|'combo';menu_id:string;category_id:string|null;name:string;description?:string|null;image_url?:string|null;allergens?:string|null;dietary?:string|null;amount_minor:number|null;currency:string;available:boolean;groups:ModifierGroup[];slots?:ComboSlot[]}
-export interface NativeOutlet {id:string;name:string;description:string|null;image_url?:string|null;available:boolean;hidden:boolean;pickup:boolean;room_delivery:boolean;menus:{id:string;name:string;categories:{id:string;name:string}[]}[];products:Product[]}
+export interface RoomServiceHours {timezone:string;start_minute:number;end_minute:number;outside_regular_hours:boolean;reopens_at:string|null}
+export interface NativeOutlet {id:string;name:string;description:string|null;image_url?:string|null;available:boolean;hidden:boolean;pickup:boolean;room_delivery:boolean;service_hours?:RoomServiceHours;menus:{id:string;name:string;categories:{id:string;name:string}[]}[];products:Product[]}
 export interface NativeOffer {outlets:NativeOutlet[];has_room_context:boolean}
 export type LineIntent={kind:'item';id:string;menu_id:string;quantity:number;options:string[];note?:string}|{kind:'combo';id:string;menu_id:string;quantity:number;choices:{id:string;options:string[]}[];note?:string};
 export interface Basket {lines:LineIntent[];fulfilment:Fulfilment;language:Language}

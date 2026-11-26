@@ -36,7 +36,7 @@ export function localizeBuganRoomOutlets(slug: string, hotelId: string, language
     };
   }
   return localizeBuganRoomEditorial(slug, hotelId, language,
-    outlets.map(outlet => outlet.id === dictionary.outletId ? {...outlet, products: outlet.products.map(product)} : outlet));
+    outlets.map(outlet => outlet.id === dictionary.outletId ? {...outlet, products: outlet.products.map(product)} : outlet),rows);
 }
 
 /** Translate the guest quote response after pricing; the persisted quote and confirmation are untouched. */
