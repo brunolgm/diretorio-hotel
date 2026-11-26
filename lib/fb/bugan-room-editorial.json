@@ -1,0 +1,829 @@
+{
+  "slug": "bugan-recife",
+  "hotelId": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+  "outletId": "3010fb52-8cde-40d2-b620-9b9796f068f0",
+  "descriptions": {
+    "74ea4b61-d74a-40e4-b129-d7668aa6bbda": {
+      "source": "Batatas fritas com bacon.",
+      "en": "French fries with bacon.",
+      "es": "Papas fritas con bacon."
+    },
+    "6bd097b4-6b00-40ba-8b2c-42e1f3750751": {
+      "source": "Queijo coalho preparado na chapa.",
+      "en": "Griddled coalho cheese.",
+      "es": "Queso coalho a la plancha."
+    },
+    "88fce826-e669-4088-9286-fc05cc216921": {
+      "source": "Camarões empanados e crocantes.",
+      "en": "Crispy breaded shrimp.",
+      "es": "Camarones empanados y crujientes."
+    },
+    "bddccb22-7a1c-48bb-a271-8b5e807ae082": {
+      "source": "Filé mignon servido com fritas.",
+      "en": "Beef tenderloin served with French fries.",
+      "es": "Filete de ternera servido con papas fritas."
+    },
+    "14a27b81-510f-4080-ba72-5533225f4d76": {
+      "source": "Agulhinha frita crocante, servida com molho tártaro.",
+      "en": "Crispy fried needlefish served with tartar sauce.",
+      "es": "Agujitas de pescado fritas y crujientes, servidas con salsa tártara."
+    },
+    "00cc90f8-4715-47ad-bd55-5b816417ca87": {
+      "source": "Iscas de peixe servidas com molho tártaro.",
+      "en": "Fish strips served with tartar sauce.",
+      "es": "Tiras de pescado servidas con salsa tártara."
+    },
+    "05777260-b74b-45f1-b855-0391ddad3987": {
+      "source": "Carne de sol acebolada, servida com macaxeira frita.",
+      "en": "Carne de sol with onions, served with fried cassava.",
+      "es": "Carne de sol con cebolla, servida con yuca frita."
+    },
+    "491ea958-d016-4edf-a3c8-01c17e5849ca": {
+      "source": "Bruschetas de manjericão com tomate e queijo.",
+      "en": "Basil bruschetta with tomato and cheese.",
+      "es": "Bruschettas de albahaca con tomate y queso."
+    },
+    "5968ce74-b2d4-4586-9d08-2988961bbf1a": {
+      "source": "Seleção de frios com torradas.",
+      "en": "A selection of cold cuts served with toast.",
+      "es": "Selección de fiambres con tostadas."
+    },
+    "8b908bb7-1040-477d-bf49-4f6acad809bb": {
+      "source": "Bolinhos de queijo provolone com calda de goiabada.",
+      "en": "Provolone cheese fritters with guava sauce.",
+      "es": "Croquetas de queso provolone con salsa de guayaba."
+    },
+    "843e0066-e98d-4537-a10d-7098b1bc2f25": {
+      "source": "Mix de folhas com cubos de manga, palmito, tomate cereja, pepino e gergelim regados em uma redução de laranja com gengibre",
+      "en": "Mixed leaves with diced mango, hearts of palm, cherry tomatoes, cucumber and sesame, dressed with an orange and ginger reduction.",
+      "es": "Mezcla de hojas con cubos de mango, palmito, tomates cherry, pepino y sésamo, aliñada con una reducción de naranja y jengibre."
+    },
+    "09815cb8-14b5-47da-afd4-08f3e44151ce": {
+      "source": "Mix de folhas nobres regado ao molho balsâmico com lascas de salmão grelhado, tomate cereja, pepino japonês e queijo branco",
+      "en": "Mixed salad leaves with balsamic dressing, flakes of grilled salmon, cherry tomatoes, Japanese cucumber and white cheese.",
+      "es": "Mezcla de hojas con aderezo balsámico, lascas de salmón a la parrilla, tomates cherry, pepino japonés y queso blanco."
+    },
+    "2043ed0a-41c3-47db-9755-db43ab83fc1d": {
+      "source": "Mix de folhas nobres com camarões salteados no azeite de erva com pimentões coloridos, palmito, molho de mostarda com mel",
+      "en": "Mixed leaves with shrimp sautéed in herb-infused olive oil, colourful peppers and hearts of palm, with honey mustard dressing.",
+      "es": "Mezcla de hojas con camarones salteados en aceite de oliva con hierbas, pimientos de colores y palmito, con aderezo de mostaza y miel."
+    },
+    "b4c7652f-a397-4cae-b19e-6e09bce8a53c": {
+      "source": "Mix de folhas, frango, molho caesar, parmesão, bacon crocante e croutons",
+      "en": "Mixed leaves, chicken, Caesar dressing, Parmesan, crispy bacon and croutons.",
+      "es": "Mezcla de hojas, pollo, salsa César, parmesano, bacon crujiente y crutones."
+    },
+    "e1759d3b-656a-4b12-b07a-084d832ef47d": {
+      "source": "Massa fina, molho de tomate, queijo muçarela, calabresa, azeitona, cebola e orégano",
+      "en": "Thin crust, tomato sauce, mozzarella, calabresa sausage, olives, onion and oregano.",
+      "es": "Masa fina, salsa de tomate, mozzarella, salchicha calabresa, aceitunas, cebolla y orégano."
+    },
+    "ba2655a3-426b-41a5-9274-5221ec7494ad": {
+      "source": "Massa fina, molho de tomate, queijo muçarela, manjericão fresco e orégano",
+      "en": "Thin crust, tomato sauce, mozzarella, fresh basil and oregano.",
+      "es": "Masa fina, salsa de tomate, mozzarella, albahaca fresca y orégano."
+    },
+    "cde99f29-6dce-40bb-b277-7490844c92c7": {
+      "source": "Massa fina, molho de tomate, muçarela, frangodesfiado, catupiry e orégano",
+      "en": "Thin crust, tomato sauce, mozzarella, shredded chicken, Catupiry cheese and oregano.",
+      "es": "Masa fina, salsa de tomate, mozzarella, pollo desmenuzado, queso Catupiry y orégano."
+    },
+    "da434a67-b1bd-4aa6-8756-79baefa620b9": {
+      "source": "Hambúrguer artesanal de 180 g no brioche, com cebola caramelizada, alface e tomate. Acompanha batatas.",
+      "en": "A 180 g handcrafted beef burger in a brioche bun, with caramelised onion, lettuce and tomato. Served with fries.",
+      "es": "Hamburguesa artesanal de 180 g en pan brioche, con cebolla caramelizada, lechuga y tomate. Acompañada de papas fritas."
+    },
+    "8b26bf18-6555-4917-9c38-e4cf59738995": {
+      "source": "Filé mignon grelhado na baguete, com alface, tomate e queijo do reino. Acompanha fritas.",
+      "en": "Grilled beef tenderloin in a baguette, with lettuce, tomato and queijo do reino cheese. Served with fries.",
+      "es": "Filete de ternera a la parrilla en baguette, con lechuga, tomate y queso do reino. Acompañado de papas fritas."
+    },
+    "38f86998-9f22-45a5-beb7-055edcd06593": {
+      "source": "Delicioso pão Marieta com presunto e queijo muçarela acompanhado de batatas fritas",
+      "en": "Marieta bread with ham and mozzarella, served with French fries.",
+      "es": "Pan Marieta con jamón y mozzarella, acompañado de papas fritas."
+    },
+    "fac08907-f236-4ff0-bfc1-a17f5904a001": {
+      "source": "Deliciosa canja de galinha com legumes e arroz. Acompanha torradas",
+      "en": "Chicken soup with vegetables and rice. Served with toast.",
+      "es": "Sopa de pollo con verduras y arroz. Acompañada de tostadas."
+    },
+    "5bf6dc41-f649-4a2b-98ff-abc77f7adc45": {
+      "source": "Delicioso creme de legumes .Acompanha torradas",
+      "en": "Cream of vegetable soup. Served with toast.",
+      "es": "Crema de verduras. Acompañada de tostadas."
+    },
+    "5abef810-0fc6-46e9-9f74-898c7d5a98fa": {
+      "source": "Delicioso creme de macaxeira com carne seca com cubos de queijo coalho. Acompanha torradas",
+      "en": "Cream of cassava soup with dried beef and cubes of coalho cheese. Served with toast.",
+      "es": "Crema de yuca con carne seca y cubos de queso coalho. Acompañada de tostadas."
+    },
+    "70200377-6715-4691-8d5b-13fb584b2ea6": {
+      "source": "Espaguette envolvido com carne moída ao molho pomodoro",
+      "en": "Spaghetti with ground beef in pomodoro sauce.",
+      "es": "Espaguetis con carne molida en salsa pomodoro."
+    },
+    "6106d72c-f254-42ee-b8c3-c7ac1dc748e4": {
+      "source": "Mix de frutos do mar salteados no azeite e envolvidos no molho pomodoro e azeitonas pretas (Camarão, Lula, Polvo e Mexilhão) Mix of seafood sautéed in olive oil and involved in tomato sauce and black olives ( shrimp, squid,Octopus and mussels",
+      "en": "A mix of shrimp, squid, octopus and mussels sautéed in olive oil, with pomodoro sauce and black olives.",
+      "es": "Mezcla de camarones, calamares, pulpo y mejillones salteados en aceite de oliva, con salsa pomodoro y aceitunas negras."
+    },
+    "df0957f2-301b-4ae6-8acc-55fb426438ea": {
+      "source": "Cuscuz stuffed with dried beef in cream and gratinated regional cheese",
+      "en": "Couscous filled with creamy carne de sol and topped with a regional cheese gratin.",
+      "es": "Cuscús relleno de carne de sol cremosa y cubierto con queso regional gratinado."
+    },
+    "6d2e70d8-a5d6-4466-bf2d-864a4d7572b0": {
+      "source": "Shrimp Couscous with Three Cheese Sauce",
+      "en": "Shrimp couscous with a three-cheese sauce.",
+      "es": "Cuscús de camarones con salsa de tres quesos."
+    },
+    "75e7d6ce-5d83-4216-9168-6269e1d78d20": {
+      "source": "Acompanhado de arroz branco e batata frita",
+      "en": "Served with white rice and French fries.",
+      "es": "Acompañado de arroz blanco y papas fritas."
+    },
+    "1997ac25-a97b-49a4-9eb3-d193d42a84c7": {
+      "source": "Grilled Chicken Supreme with Vegetables",
+      "en": "Grilled chicken supreme with vegetables.",
+      "es": "Suprema de pollo a la parrilla con verduras."
+    },
+    "03c4c578-b3b2-42b3-a229-ef0fc1b22a87": {
+      "source": "Acompanhado com batata rústica, arroz cremoso com queijo e alho poró",
+      "en": "Served with rustic potatoes and creamy rice with cheese and leek.",
+      "es": "Acompañado de papas rústicas y arroz cremoso con queso y puerro."
+    },
+    "455fde66-e437-4d6c-8823-93696467bf17": {
+      "source": "Acompanha mousseline de batata",
+      "en": "Served with potato mousseline.",
+      "es": "Acompañado de muselina de papa."
+    },
+    "d4d3893d-1d09-4177-aa6e-ceff0d440354": {
+      "source": "Acompanha feijão verde, arroz, molho vinagre e batata rústica",
+      "en": "Served with fresh cowpeas, rice, vinaigrette sauce and rustic potatoes.",
+      "es": "Acompañado de frijoles frescos, arroz, salsa vinagreta y papas rústicas."
+    },
+    "17e3ee86-a737-49d0-8668-15249b0cbcdb": {
+      "source": "Cubos de mignon refogados com fricassê de cogumelos e arroz arbório",
+      "en": "Sautéed beef tenderloin cubes with mushroom fricassee and Arborio rice.",
+      "es": "Cubos de filete de ternera salteados con fricasé de champiñones y arroz arborio."
+    },
+    "db73453e-d58a-4458-8a6d-ac0f4096f4f4": {
+      "source": "Acompanha vinagrete de feijão verde, arroz branco e cebola grelhada",
+      "en": "Served with fresh cowpea vinaigrette, white rice and grilled onion.",
+      "es": "Acompañada de vinagreta de frijoles frescos, arroz blanco y cebolla a la parrilla."
+    },
+    "b08e5579-bc6d-4762-aa0a-58ddeadccd99": {
+      "source": "Carne de sol na chapa com queijo coalho e cebolas glaceadas na manteiga, acompanhada de baião de dois e macaxeira frita",
+      "en": "Griddled carne de sol with coalho cheese and onions glazed in butter, served with baião de dois rice and beans and fried cassava.",
+      "es": "Carne de sol a la plancha con queso coalho y cebollas glaseadas en mantequilla, acompañada de baião de dois (arroz con frijoles) y yuca frita."
+    },
+    "567df586-7bf5-4727-a474-4cae3012f778": {
+      "source": "Camarão em crosta de tapioca com arroz cremoso de queijo coalho, acompanhado de melaço de cana de açúcar",
+      "en": "Tapioca-crusted shrimp with creamy coalho cheese rice, served with sugarcane molasses.",
+      "es": "Camarones en costra de tapioca con arroz cremoso de queso coalho, acompañados de melaza de caña de azúcar."
+    },
+    "f3b221ec-a3a3-45ea-aebe-cc1a1dec176f": {
+      "source": "Filé de pescada grelhada ao molho belle meuniére acompanhado de purê de batata e arroz de brócolis",
+      "en": "Grilled fish fillet in belle meunière sauce, served with mashed potatoes and broccoli rice.",
+      "es": "Filete de pescado a la parrilla con salsa belle meunière, acompañado de puré de papa y arroz con brócoli."
+    },
+    "d7acf69d-a235-4b82-a7af-934ec3c567e2": {
+      "source": "Salmão em crosta de gergelim com molho teriyaki acompanhado de purê de banana da terra",
+      "en": "Sesame-crusted salmon with teriyaki sauce, served with mashed plantain.",
+      "es": "Salmón en costra de sésamo con salsa teriyaki, acompañado de puré de plátano macho."
+    },
+    "fb62c8d8-a9fb-4f7d-a1bf-c34a78d199ef": {
+      "source": "Bacalhau confitado no azeite acompanhado de batatas salteadas, azeitonas pretas, brócolis e tomate cereja",
+      "en": "Cod confit in olive oil, served with sautéed potatoes, black olives, broccoli and cherry tomatoes.",
+      "es": "Bacalao confitado en aceite de oliva, acompañado de papas salteadas, aceitunas negras, brócoli y tomates cherry."
+    },
+    "771e4319-5c2e-411a-a5dc-ff6dd08d502b": {
+      "source": "Shrimp Risoto",
+      "en": "Shrimp risotto.",
+      "es": "Risotto de camarones."
+    },
+    "c3202abf-8bb6-4f0f-a2c8-a0d580f9ac04": {
+      "source": "Vegetables risoto",
+      "en": "Vegetable risotto.",
+      "es": "Risotto de verduras."
+    },
+    "27eab9b9-aefd-4e0b-b82c-eefafae19858": {
+      "source": "Shitake, funghi e cogumelo Paris Mushroom risoto",
+      "en": "Risotto with shiitake, funghi and button mushrooms.",
+      "es": "Risotto con shiitake, funghi y champiñones."
+    },
+    "e70ce197-09e1-4f04-a062-1a9ba2904afa": {
+      "source": "Vegetables spaghetti in pesto sauce",
+      "en": "Vegetable spaghetti with pesto sauce.",
+      "es": "Espaguetis de verduras con salsa pesto."
+    },
+    "6c0ba447-bf34-4b41-9050-76e3ab017c89": {
+      "source": "Acompanha arroz branco e farofa de dendê",
+      "en": "Served with white rice and dendê palm-oil farofa.",
+      "es": "Acompañada de arroz blanco y farofa con aceite de dendê."
+    },
+    "cc6608cc-d21d-4e15-ac43-f1de33491abc": {
+      "source": "Cubos de carne grelhada com arroz branco e batata frita",
+      "en": "Grilled beef cubes with white rice and French fries.",
+      "es": "Cubos de carne a la parrilla con arroz blanco y papas fritas."
+    },
+    "42739cbd-e61f-4869-87ef-3ca2e52fd332": {
+      "source": "Peixe grelhado com arroz branco e purê de batata",
+      "en": "Grilled fish with white rice and mashed potatoes.",
+      "es": "Pescado a la parrilla con arroz blanco y puré de papa."
+    },
+    "2dd3f912-55be-401a-8c2f-24f9ba2260eb": {
+      "source": "Cubos de frango, arroz branco e batata frita ou purê de batata",
+      "en": "Chicken cubes, white rice and French fries or mashed potatoes.",
+      "es": "Cubos de pollo, arroz blanco y papas fritas o puré de papa."
+    },
+    "f46790e9-b6cf-4528-94e2-b5fc402de0e4": {
+      "source": "Espaguete envolvido no molho pomodoro ou queijo ou bolonhesa",
+      "en": "Spaghetti with pomodoro, cheese or Bolognese sauce.",
+      "es": "Espaguetis con salsa pomodoro, de queso o boloñesa."
+    },
+    "5e9e9361-9b43-4389-8b7d-c81401024a1b": {
+      "source": "Bananas fritas na manteiga, com queijo manteiga coberto com açúcar e canela Bananas fried in butter, with regional cheese with sugar and cinnamon",
+      "en": "Bananas fried in butter, with regional queijo manteiga cheese, topped with sugar and cinnamon.",
+      "es": "Bananas fritas en mantequilla, con queso manteiga regional, cubiertas con azúcar y canela."
+    },
+    "922684f3-2c91-402a-8b7c-d51af0539c0b": {
+      "source": "Milk pudding",
+      "en": "Milk flan.",
+      "es": "Flan de leche."
+    },
+    "d5a97a04-5e0b-4d5e-ba81-91d11f455cb7": {
+      "source": "Base de biscoito crocante recheado com mousse de limão Lemon mousse pie",
+      "en": "A crisp biscuit base filled with lemon mousse.",
+      "es": "Base crujiente de galleta rellena de mousse de limón."
+    },
+    "11561eb2-aa49-4dae-9ce3-0099511dff4f": {
+      "source": "Guava Cheesecake with chestnut praline",
+      "en": "Guava cheesecake with nut praline.",
+      "es": "Tarta de queso con guayaba y praliné de frutos secos."
+    },
+    "b52f3564-a1d8-4ae5-afd0-d4105ef262d8": {
+      "source": "Camadas de biscoito champagne embebidas no café e conhaque, intercaladas com o creme mascarpone e polvilhado com cacau em pó",
+      "en": "Layers of ladyfinger biscuits soaked in coffee and brandy, alternating with mascarpone cream and dusted with cocoa powder.",
+      "es": "Capas de bizcochos de soletilla mojados en café y brandy, intercaladas con crema de mascarpone y espolvoreadas con cacao en polvo."
+    },
+    "3dbdd4ae-a997-4421-b6bd-ec17a3576355": {
+      "source": "Petit gateau with ice cream",
+      "en": "Petit gâteau with ice cream.",
+      "es": "Petit gâteau con helado."
+    },
+    "fe1d3a33-e0ba-48b4-b663-b155a0a5cdd1": {
+      "source": "Fruit Mosaic",
+      "en": "Fruit mosaic.",
+      "es": "Mosaico de frutas."
+    },
+    "ad68918a-9bc8-4b48-b1dd-145c95e267b5": {
+      "source": "Ice cream",
+      "en": "Ice cream.",
+      "es": "Helado."
+    },
+    "6c639cb8-5401-4e63-b385-ebb0924d88f2": {
+      "source": "Mineral Water",
+      "en": "Still mineral water.",
+      "es": "Agua mineral sin gas."
+    },
+    "c4f05e74-cca3-4962-8213-fd581dce00fa": {
+      "source": "Sparkling Water",
+      "en": "Sparkling water.",
+      "es": "Agua con gas."
+    },
+    "ac49a3ff-40b9-49c0-b6fd-e9bf72bcceda": {
+      "source": "Coconut Water 200 ML",
+      "en": "Coconut water, 200 ml.",
+      "es": "Agua de coco, 200 ml."
+    },
+    "9f698831-8e30-460c-822c-eb1577d6d424": {
+      "source": "Coca Cola",
+      "en": "Coca-Cola.",
+      "es": "Coca-Cola."
+    },
+    "a2e8a8fd-2ca2-4479-8b56-e9decf584bca": {
+      "source": "Coca Cola Zero",
+      "en": "Coca-Cola Zero.",
+      "es": "Coca-Cola Zero."
+    },
+    "06517339-9005-47c1-bfac-7a3657693830": {
+      "source": "Guarana Antarctica - 350ml",
+      "en": "Guaraná Antarctica, 350 ml.",
+      "es": "Guaraná Antarctica, 350 ml."
+    },
+    "5d4440b8-968d-4a73-8374-fffd1a9f9505": {
+      "source": "Guarana Antarctica Diet - 350ml",
+      "en": "Guaraná Antarctica Diet, 350 ml.",
+      "es": "Guaraná Antarctica Diet, 350 ml."
+    },
+    "34daa475-9853-4205-9f89-f3d17e400f5c": {
+      "source": "Soda Lemonade 350 ml",
+      "en": "Lemonade soft drink, 350 ml.",
+      "es": "Refresco de limonada, 350 ml."
+    },
+    "4abef2d8-2672-493d-9f14-99362606d13b": {
+      "source": "Tonic Can 350ml",
+      "en": "Tonic water in a can, 350 ml.",
+      "es": "Agua tónica en lata, 350 ml."
+    },
+    "30515b60-7ead-4135-b82d-efac9452d682": {
+      "source": "H2OH refrigerant 500ml",
+      "en": "H2OH soft drink, 500 ml.",
+      "es": "Refresco H2OH, 500 ml."
+    },
+    "8fd39845-4a52-414a-9391-526c08eb30ab": {
+      "source": "Red Bull Energy Drink",
+      "en": "Red Bull energy drink.",
+      "es": "Bebida energética Red Bull."
+    },
+    "dba3d2c3-1c3a-4060-afd2-9dc3637e1db9": {
+      "source": "Glass of orange juice",
+      "en": "A glass of orange juice.",
+      "es": "Vaso de jugo de naranja."
+    },
+    "fb28a1a2-56ee-4d18-b627-b68210c355b0": {
+      "source": "Glass of juice",
+      "en": "A glass of fruit juice.",
+      "es": "Vaso de jugo de frutas."
+    },
+    "4d572174-db15-4e3e-be73-8c502eea633a": {
+      "source": "Lemon juice with sparkling water",
+      "en": "Lemon juice with sparkling water.",
+      "es": "Jugo de limón con agua con gas."
+    },
+    "dd0d38f4-a7ba-44c7-b98e-6c1f016890fb": {
+      "source": "Sparkling water and syrup",
+      "en": "Sparkling water and syrup.",
+      "es": "Agua con gas y sirope."
+    },
+    "ab3d9dcc-40d8-45ba-8a2a-7e37d78c232b": {
+      "source": "Coffee",
+      "en": "Coffee.",
+      "es": "Café."
+    },
+    "753191ed-a866-483f-adf9-2c553c18e050": {
+      "source": "Double Express Coffee",
+      "en": "Double espresso.",
+      "es": "Café expreso doble."
+    },
+    "3ff9cc54-5286-410b-ac74-e7f6102d6855": {
+      "source": "Coffee with Milk",
+      "en": "Coffee with milk.",
+      "es": "Café con leche."
+    },
+    "b9be1b26-94d6-4810-a252-50eb3189f715": {
+      "source": "Hot chocolate",
+      "en": "Hot chocolate.",
+      "es": "Chocolate caliente."
+    },
+    "c2e68b97-3dd3-4557-8895-72306d15d459": {
+      "source": "Cappuccino",
+      "en": "Cappuccino.",
+      "es": "Capuchino."
+    },
+    "02e15502-c69d-42a5-82fb-586106546abf": {
+      "source": "Imported Tea",
+      "en": "Imported tea.",
+      "es": "Té importado."
+    },
+    "ebc979d5-81cc-4e6f-910e-7fb7e2f2697d": {
+      "source": "Dois itens quentes, pão francês, croissant, pão de queijo, bolo, iogurte de frutas, presunto, peito de peru, muçarela, queijo coalho e frutas fatiadas. Inclui manteiga, requeijão, café, leite e suco de laranja. Serve 1 pessoa.",
+      "en": "Two hot items, a French bread roll, croissant, pão de queijo, cake, fruit yoghurt, ham, turkey breast, mozzarella, coalho cheese and sliced fruit. Includes butter, requeijão creamy cheese spread, coffee, milk and orange juice. Serves 1 person.",
+      "es": "Dos opciones calientes, pan francés, croissant, pão de queijo, pastel, yogur de frutas, jamón, pechuga de pavo, mozzarella, queso coalho y frutas en rodajas. Incluye mantequilla, requeijão (queso cremoso para untar), café, leche y jugo de naranja. Para 1 persona."
+    },
+    "4c275084-62df-422a-933d-3a0a75b15f27": {
+      "source": "Cachaça regional, frutas e açúcar | Regional cachaça, fruits and sugar",
+      "en": "Regional cachaça, fruit and sugar.",
+      "es": "Cachaça regional, frutas y azúcar."
+    },
+    "ecbd1442-6919-4262-9271-17a7f624e7af": {
+      "source": "Cachaça premium, frutas e açúcar | Premium cachaça, fruits and sugar",
+      "en": "Premium cachaça, fruit and sugar.",
+      "es": "Cachaça premium, frutas y azúcar."
+    },
+    "8d3d0791-cde5-4ed9-8001-81a5c881e5a0": {
+      "source": "Vodka nacional, frutas e açúcar | National vodka with tropical fruit and sugar",
+      "en": "Brazilian vodka, fruit and sugar.",
+      "es": "Vodka brasileño, frutas y azúcar."
+    },
+    "ff0110cf-a039-493b-9831-d65e7c84f96f": {
+      "source": "Caipiroska importada, frutas e açúcar / Imported vodka with tropical fruit and sugar",
+      "en": "Imported vodka, fruit and sugar.",
+      "es": "Vodka importado, frutas y azúcar."
+    },
+    "32338d5d-aa44-4fd9-a9f2-7af64eb4042b": {
+      "source": "Gin Tanqueray, água tônica e limão siciliano | Gin Tanqueray, tonica water and lemon.",
+      "en": "Tanqueray gin, tonic water and lemon.",
+      "es": "Gin Tanqueray, agua tónica y limón."
+    },
+    "9b839b21-9ed4-40a2-8ca3-b229d24d74e7": {
+      "source": "Gin Tanqueray, red bull e laranja | Gin Tanqueray with red bull",
+      "en": "Tanqueray gin, Red Bull and orange.",
+      "es": "Gin Tanqueray, Red Bull y naranja."
+    },
+    "c0c9eb0f-bcda-47c4-a13e-f45c6e5036e1": {
+      "source": "Run carta blanca, hortelã, suco de limão, água com gás Run carta blanca, mint, lemon juice and sparkling Orange",
+      "en": "White rum, mint, lime juice and sparkling water.",
+      "es": "Ron blanco, menta, jugo de limón y agua con gas."
+    },
+    "806263f8-507f-46c1-8f8a-ac1a785cef80": {
+      "source": "Gin importado, Campari, Martini Rosso e laranja Imported gin, Campari, red vermout and Orange",
+      "en": "Imported gin, Campari, Martini Rosso and orange.",
+      "es": "Gin importado, Campari, Martini Rosso y naranja."
+    },
+    "65eabf49-2451-4601-adb8-91e4aa97b158": {
+      "source": "Aperol, espumante, água com gás, laranja e gelo",
+      "en": "Aperol, sparkling wine, sparkling water, orange and ice.",
+      "es": "Aperol, vino espumoso, agua con gas, naranja y hielo."
+    },
+    "e07df2df-b875-4bf2-bd79-35d075ba1db8": {
+      "source": "Stella Artois Long Neck Beer",
+      "en": "Stella Artois long-neck beer.",
+      "es": "Cerveza Stella Artois en botella long neck."
+    },
+    "2aef7dbc-3ebf-4467-98b7-626bedd9ef44": {
+      "source": "Heineken Long Neck Beer",
+      "en": "Heineken long-neck beer.",
+      "es": "Cerveza Heineken en botella long neck."
+    },
+    "55a7433d-3df1-4f84-9e05-52e1d4a1560f": {
+      "source": "Ekaut Larger Beer",
+      "en": "Ekaut Larger beer.",
+      "es": "Cerveza Ekaut Larger."
+    },
+    "42511319-4487-445c-89d8-df7a671029f7": {
+      "source": "Ekaut Ipa Beer",
+      "en": "Ekaut IPA beer.",
+      "es": "Cerveza Ekaut IPA."
+    },
+    "37b83d36-acda-463c-b01a-9385e56c8329": {
+      "source": "REGIONAL CACHAÇA",
+      "en": "Regional cachaça.",
+      "es": "Cachaça regional."
+    },
+    "90ec4489-036b-458a-9d5c-7afb05711942": {
+      "source": "PREMIUM CACHAÇA",
+      "en": "Premium cachaça.",
+      "es": "Cachaça premium."
+    },
+    "7f889f68-d49c-497e-839d-701019eab0da": {
+      "source": "SILVER TEQUILA",
+      "en": "Silver tequila.",
+      "es": "Tequila plata."
+    },
+    "a16852ec-abde-44e7-80e7-39b99d1c110c": {
+      "source": "GOLD TEQUILA",
+      "en": "Gold tequila.",
+      "es": "Tequila oro."
+    },
+    "a69ef6a3-ffca-4b13-a7a2-48d481f32907": {
+      "source": "IMPORTED GIN",
+      "en": "Imported gin.",
+      "es": "Gin importado."
+    },
+    "9d654e33-4070-41e9-9bee-19491e396a29": {
+      "source": "NATIONAL VODKA",
+      "en": "Brazilian vodka.",
+      "es": "Vodka brasileño."
+    },
+    "20780343-0881-41ac-b1a6-8ef670a2012e": {
+      "source": "IMPORTED VODKA",
+      "en": "Imported vodka.",
+      "es": "Vodka importado."
+    },
+    "0c397cd0-6e89-4a9c-a3c6-3c669a6ccc16": {
+      "source": "Imported Cognac",
+      "en": "Imported cognac.",
+      "es": "Coñac importado."
+    },
+    "cfb8f418-2eb3-418b-b2de-3fa838d01e06": {
+      "source": "Whiskey Chivas Regal 12 years old - Dosage",
+      "en": "A measure of Chivas Regal 12-year-old whisky.",
+      "es": "Una medida de whisky Chivas Regal de 12 años."
+    },
+    "1583f7fa-8094-423c-ab8d-d40f42207934": {
+      "source": "Whiskey Grand Old Parr 12 years old - Dosage",
+      "en": "A measure of Grand Old Parr 12-year-old whisky.",
+      "es": "Una medida de whisky Grand Old Parr de 12 años."
+    },
+    "f8a4e1ad-2572-429b-bcd8-1e2419427323": {
+      "source": "Jack Daniels Whiskey - Dose",
+      "en": "A measure of Jack Daniel’s whiskey.",
+      "es": "Una medida de whiskey Jack Daniel’s."
+    },
+    "da2778a9-aa8e-41ed-b8c3-d98ba5aad2b2": {
+      "source": "Red Label Whiskey - Dose",
+      "en": "A measure of Red Label whisky.",
+      "es": "Una medida de whisky Red Label."
+    },
+    "4d880f47-1413-4293-8e83-f922e8e69269": {
+      "source": "Whiskey Black Label shot",
+      "en": "A measure of Black Label whisky.",
+      "es": "Una medida de whisky Black Label."
+    },
+    "a9953ed0-2179-49a0-ad93-d9236c8b1ad3": {
+      "source": "Cointreau liqueur shot",
+      "en": "A measure of Cointreau liqueur.",
+      "es": "Una medida de licor Cointreau."
+    },
+    "dc2a2240-763b-4870-9ac2-9e19977905cf": {
+      "source": "Frangelico liqueur shot",
+      "en": "A measure of Frangelico liqueur.",
+      "es": "Una medida de licor Frangelico."
+    },
+    "ae8de0d4-7c40-4d0c-b22a-6879f174347c": {
+      "source": "Amarula Liqueur - Dose",
+      "en": "A measure of Amarula liqueur.",
+      "es": "Una medida de licor Amarula."
+    },
+    "98531503-9268-41dc-bd69-5d6a643bb67f": {
+      "source": "Vale Central",
+      "en": "Central Valley.",
+      "es": "Valle Central."
+    },
+    "89bd6f03-f48a-4c04-9f38-f00e15ffc95c": {
+      "source": "Serra Gaúcha",
+      "en": "Serra Gaúcha.",
+      "es": "Serra Gaúcha."
+    },
+    "78ea1338-9d08-4791-a5e4-827abb5c66e1": {
+      "source": "Mendonza",
+      "en": "Mendoza.",
+      "es": "Mendoza."
+    },
+    "10ea4139-d8a6-4f2f-9014-962834176d51": {
+      "source": "Mendonza",
+      "en": "Mendoza.",
+      "es": "Mendoza."
+    },
+    "a0eab883-b9b7-430d-ac4a-bcae846b47b8": {
+      "source": "Valle de Casablanca",
+      "en": "Casablanca Valley.",
+      "es": "Valle de Casablanca."
+    },
+    "37b59009-6584-4b56-8b86-964c129e8a51": {
+      "source": "Vale Central",
+      "en": "Central Valley.",
+      "es": "Valle Central."
+    },
+    "27134fda-4466-4eac-8ef5-a88346d4d0ba": {
+      "source": "Garda",
+      "en": "Garda.",
+      "es": "Garda."
+    },
+    "4ff52dd1-72e3-421d-8db7-16130d240e64": {
+      "source": "Minho",
+      "en": "Minho.",
+      "es": "Minho."
+    },
+    "e91fa401-b9a5-45db-a2a0-ea3aafe44ec7": {
+      "source": "Alentejo",
+      "en": "Alentejo.",
+      "es": "Alentejo."
+    },
+    "e2301277-dbbe-4cc8-8972-8f71b28a6faf": {
+      "source": "Morande Pionero Reserve Pinot Noir Wine",
+      "en": "Morandé Pionero Reserva Pinot Noir wine.",
+      "es": "Vino Morandé Pionero Reserva Pinot Noir."
+    },
+    "86f56458-6ba5-4e33-9a1e-ae144977bb60": {
+      "source": "Setúbal",
+      "en": "Setúbal.",
+      "es": "Setúbal."
+    },
+    "9b2c61a4-e7f1-4641-9661-5f99a9cffc02": {
+      "source": "Vale Central",
+      "en": "Central Valley.",
+      "es": "Valle Central."
+    },
+    "364c5f9b-4c7e-4e37-bf76-a87a358be7ad": {
+      "source": "Serra Gaúcha",
+      "en": "Serra Gaúcha.",
+      "es": "Serra Gaúcha."
+    },
+    "2121016b-c63b-40a8-a5a9-c9e626a410a1": {
+      "source": "Campanha Central",
+      "en": "Campanha Central.",
+      "es": "Campanha Central."
+    },
+    "06f032b0-ac07-4d9c-9032-536e8cd8ea00": {
+      "source": "Mendonza",
+      "en": "Mendoza.",
+      "es": "Mendoza."
+    },
+    "ec08b20d-452f-4e44-b973-9dfbb9927ab7": {
+      "source": "Mendonza",
+      "en": "Mendoza.",
+      "es": "Mendoza."
+    },
+    "f11833f2-fddf-440e-991f-08632563c2ec": {
+      "source": "San Juan",
+      "en": "San Juan.",
+      "es": "San Juan."
+    },
+    "d616257f-23de-443f-a646-bd30ef2d07c9": {
+      "source": "Valle Central",
+      "en": "Central Valley.",
+      "es": "Valle Central."
+    },
+    "2d0a4854-aeaf-4ca9-830c-2fdc470be138": {
+      "source": "Valle Central",
+      "en": "Central Valley.",
+      "es": "Valle Central."
+    },
+    "0781c71c-7aac-44e5-91a7-7b6fd66a2831": {
+      "source": "Valdepeñas",
+      "en": "Valdepeñas.",
+      "es": "Valdepeñas."
+    },
+    "e95e6ec1-c625-45bb-ab9a-51084cf28af6": {
+      "source": "Vin de France",
+      "en": "Vin de France.",
+      "es": "Vin de France."
+    },
+    "468fe4cd-ee14-4be6-9878-5e213e3c8355": {
+      "source": "Puglia",
+      "en": "Puglia.",
+      "es": "Puglia."
+    },
+    "a8e664c1-37e5-4729-a462-260ce3f9f5b8": {
+      "source": "Toscana",
+      "en": "Tuscany.",
+      "es": "Toscana."
+    },
+    "e0504260-aa5a-44c9-94f6-ca806cd701cc": {
+      "source": "Alentejo",
+      "en": "Alentejo.",
+      "es": "Alentejo."
+    },
+    "e302a231-3258-4150-bb35-4ec17934f160": {
+      "source": "Setúbal",
+      "en": "Setúbal.",
+      "es": "Setúbal."
+    },
+    "72a60764-405c-4a7d-87bb-ccdeaef4d406": {
+      "source": "Lisboa",
+      "en": "Lisbon.",
+      "es": "Lisboa."
+    },
+    "a1ff313d-c10b-4341-8e57-d20288607a80": {
+      "source": "Lisboa",
+      "en": "Lisbon.",
+      "es": "Lisboa."
+    },
+    "aa405ed7-993d-499e-9327-20ca4f34e09a": {
+      "source": "Vale Central",
+      "en": "Central Valley.",
+      "es": "Valle Central."
+    },
+    "8601c7e6-16ec-4a8e-9868-8ca4f27f1a44": {
+      "source": "Vale Central",
+      "en": "Central Valley.",
+      "es": "Valle Central."
+    },
+    "0466b02d-b0e2-40de-bdc3-4956ae256d5b": {
+      "source": "Serra Gaúcha",
+      "en": "Serra Gaúcha.",
+      "es": "Serra Gaúcha."
+    },
+    "a075c4b7-46cc-4c07-8088-d559edeb71f4": {
+      "source": "Serra Gaúcha",
+      "en": "Serra Gaúcha.",
+      "es": "Serra Gaúcha."
+    },
+    "3d3c80b9-ce0a-4296-af0b-051d47092659": {
+      "source": "Vale do São Francisco",
+      "en": "São Francisco Valley.",
+      "es": "Valle del São Francisco."
+    },
+    "4c33d566-43e0-413f-a091-cd3db8e4881d": {
+      "source": "Vale do São Francisco",
+      "en": "São Francisco Valley.",
+      "es": "Valle del São Francisco."
+    },
+    "fd79571e-9b03-4600-a629-05417330dc3b": {
+      "source": "Penedes",
+      "en": "Penedès.",
+      "es": "Penedès."
+    },
+    "2f5a02af-bf8d-4bc4-b8d3-309076d6ad30": {
+      "source": "Penedes",
+      "en": "Penedès.",
+      "es": "Penedès."
+    }
+  },
+  "categories": {
+    "69a752e9-7cba-447f-8b21-25bce217f505": {
+      "source": "Entradas",
+      "en": "Starters",
+      "es": "Entradas"
+    },
+    "402dcdf8-95b9-42ed-b88c-73aa3daef97e": {
+      "source": "Saladas",
+      "en": "Salads",
+      "es": "Ensaladas"
+    },
+    "9bfbb19e-00cc-47e1-9c98-bb17758659b7": {
+      "source": "Pizzas",
+      "en": "Pizzas",
+      "es": "Pizzas"
+    },
+    "0d49ac95-c74d-4be4-9c32-1e4af312bc3f": {
+      "source": "Sanduíches",
+      "en": "Sandwiches",
+      "es": "Sándwiches"
+    },
+    "2a62abb0-5cd9-436c-9559-544556359970": {
+      "source": "Sopas e caldos",
+      "en": "Soups and broths",
+      "es": "Sopas y caldos"
+    },
+    "fead01ca-6274-49a2-a1ea-9a249ceec244": {
+      "source": "Massas",
+      "en": "Pasta",
+      "es": "Pastas"
+    },
+    "5ddebc11-1ea5-44c3-ac74-99fcf2b33178": {
+      "source": "Menu regional",
+      "en": "Regional dishes",
+      "es": "Platos regionales"
+    },
+    "ab044ee5-1111-4f66-89fd-585b50ff7d04": {
+      "source": "Aves",
+      "en": "Poultry",
+      "es": "Aves"
+    },
+    "81774b89-232a-4201-8852-92b9b0199177": {
+      "source": "Carnes",
+      "en": "Meat",
+      "es": "Carnes"
+    },
+    "061a8f31-b2d2-42cf-afb1-71e1c231c68a": {
+      "source": "Frutos do mar",
+      "en": "Seafood",
+      "es": "Pescados y mariscos"
+    },
+    "93364557-f688-4136-8d90-b9a43b12c9d5": {
+      "source": "Veganos",
+      "en": "Vegan dishes",
+      "es": "Platos veganos"
+    },
+    "2ed7b305-6624-466e-b68c-506513030054": {
+      "source": "Menu infantil",
+      "en": "Kids’ menu",
+      "es": "Menú infantil"
+    },
+    "ad17a80c-4853-4652-8b40-cfc012d795a4": {
+      "source": "Sobremesas",
+      "en": "Desserts",
+      "es": "Postres"
+    },
+    "e1dbe5c6-ad69-49a8-baa3-2b8168b3c766": {
+      "source": "Bebidas sem álcool",
+      "en": "Non-alcoholic drinks",
+      "es": "Bebidas sin alcohol"
+    },
+    "2eb9fac3-bac6-4a12-a547-3b36ea50fb93": {
+      "source": "Cafés e chás",
+      "en": "Coffee and tea",
+      "es": "Cafés y tés"
+    },
+    "5238d2ab-088f-4f37-9182-eb833d52f3a2": {
+      "source": "Coquetéis",
+      "en": "Cocktails",
+      "es": "Cócteles"
+    },
+    "50eaf7ca-0ae8-4408-b211-1750204e6924": {
+      "source": "Cervejas",
+      "en": "Beers",
+      "es": "Cervezas"
+    },
+    "955697b4-f4e2-49fd-846e-8ffb4d342af9": {
+      "source": "Destilados",
+      "en": "Spirits",
+      "es": "Destilados"
+    },
+    "cc2e2b07-9d1b-48ee-a5b6-55ca21c79ef9": {
+      "source": "Whiskies",
+      "en": "Whiskies",
+      "es": "Whiskies"
+    },
+    "85250a14-28fd-4518-8dbc-f34d576670c2": {
+      "source": "Licores",
+      "en": "Liqueurs",
+      "es": "Licores"
+    },
+    "e5baeeee-9344-403f-b089-c2ee6a2dc32c": {
+      "source": "Vinhos",
+      "en": "Wines",
+      "es": "Vinos"
+    },
+    "74e684b4-612e-4505-998c-d951d3a3bc9b": {
+      "source": "Espumantes",
+      "en": "Sparkling wines",
+      "es": "Vinos espumosos"
+    }
+  }
+}

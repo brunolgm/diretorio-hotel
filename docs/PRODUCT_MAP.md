@@ -3457,3 +3457,20 @@ demais hotéis, snapshots de preço, confirmação e impressão preservados.
 Rollback da aplicação mantém o recurso editorial anterior; preservar as edições
 na tabela privada para recuperação. Não remover dados nem reverter configurações
 comerciais por causa de rollback de interface.
+
+### Bugan — descrições e categorias do Room Service em EN/ES (26/11/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Recurso editorial com as descrições dos 142
+produtos e os títulos das 22 categorias cadastradas. A categoria virtual Combos
+continua usando a tradução da interface. Cada tradução exige o UUID e o texto
+original correspondente; uma descrição ou categoria alterada no cadastro mantém
+o novo texto até revisão, sem reutilizar tradução antiga.
+
+Aplicação restrita ao hotel e outlet Room Service do Bugan, tanto no catálogo
+inicial quanto nas atualizações da oferta e nos componentes dos combos. Não
+altera os nomes revisados nem as edições de nomes do Admin. Preserva português,
+Filipe, outros hotéis, ingredientes, acompanhamentos, medidas e marcas da fonte.
+Preços, moeda, disponibilidade, regras, escolhas, cotação, confirmação e snapshots
+operacionais permanecem nos contratos existentes. Sem migration ou escrita nos
+cadastros compartilhados. A edição no Admin desta etapa continua restrita a nomes;
+descrições e categorias são mantidas no recurso editorial revisado.

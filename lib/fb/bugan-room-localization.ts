@@ -1,6 +1,7 @@
 import dictionary from './bugan-room-names.json' with {type: 'json'};
 import type {Language, NativeOutlet, Product, QuoteLine} from './orders/journey';
 import type {RoomNameKind,RoomNameRow} from './room-name-translations';
+import {localizeBuganRoomEditorial} from './bugan-room-editorial.ts';
 
 type NameTranslation = {source: string; en: string; es: string; groupId?: string};
 const names: Record<string, NameTranslation> = dictionary.names;
@@ -34,7 +35,8 @@ export function localizeBuganRoomOutlets(slug: string, hotelId: string, language
         choices: slot.choices.map(choice => ({...choice, item: product(choice.item)}))}))} : {}),
     };
   }
-  return outlets.map(outlet => outlet.id === dictionary.outletId ? {...outlet, products: outlet.products.map(product)} : outlet);
+  return localizeBuganRoomEditorial(slug, hotelId, language,
+    outlets.map(outlet => outlet.id === dictionary.outletId ? {...outlet, products: outlet.products.map(product)} : outlet));
 }
 
 /** Translate the guest quote response after pricing; the persisted quote and confirmation are untouched. */

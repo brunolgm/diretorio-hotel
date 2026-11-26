@@ -6,6 +6,7 @@ import {roomServiceProjection} from '@/lib/fb/smartmenu-projection';
 import {nativeOffer} from '@/lib/fb/orders/offer.server';
 import {fbImageUrl} from '@/lib/fb/media';
 import {SmartMenuView} from './smartmenu-view';
+import {localizeBuganRoomEditorial} from '@/lib/fb/bugan-room-editorial';
 
 export async function SmartMenuPage({pageData, language, domainContext, preferSubdomainRoot = false}: {
   pageData: PublicHotelPageData; language: Language; domainContext: DomainContext; preferSubdomainRoot?: boolean;
@@ -18,7 +19,8 @@ export async function SmartMenuPage({pageData, language, domainContext, preferSu
   const {hotel} = pageData;
   const {outlet, hasRoomContext} = projection;
   const image = fbImageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL, outlet.main_image_path, hotel.id, 'outlet', outlet.id);
-  const initial = {...projection.native, image_url: image, products: projection.native.products.map(product => ({
+  const editorial = localizeBuganRoomEditorial(hotel.slug, hotel.id, language, [projection.native])[0];
+  const initial = {...editorial, image_url: image, products: editorial.products.map(product => ({
     ...product, image_url: product.image_url ?? fbImageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL, pageData.fb?.items.find(item => item.id === product.id && item.hotel_id === hotel.id)?.main_image_path ?? null, hotel.id, 'item', product.id),
   }))};
   return <SmartMenuView pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot} initial={initial} hasRoomContext={hasRoomContext} image={image} description={outlet.short_description} openingHours={outlet.opening_hours}/>;
