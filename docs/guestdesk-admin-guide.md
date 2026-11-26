@@ -185,3 +185,16 @@ recarregue a página e revise antes de gravar. A tela sinaliza traduções cujo 
 original mudou. O acesso exige perfil editor ou administrador com a permissão
 comercial já utilizada no Room Service do Bugan. Esta área não edita o Filipe nem
 conteúdo de outro hotel.
+
+Para editar os textos editoriais, selecione **Descrições de produtos** ou
+**Títulos de categorias** em **Tipo de conteúdo**. A descrição mostra o nome do
+produto e o texto original para conferência, com caixas maiores para inglês e
+espanhol. A categoria mostra seu título e o cardápio de origem. Salve cada
+registro em **Salvar traduções**; a edição vale somente para o Room Service.
+
+Descrições aceitam até 10.000 caracteres e quebras de linha; títulos de categorias
+aceitam até 160 caracteres, em uma linha. Um campo vazio mantém o texto original
+naquele idioma. Alterações simultâneas ou mudanças no texto original exigem
+recarregar e revisar antes de salvar. Os textos já revisados são carregados como
+valores iniciais; o que for salvo pelo hotel passa a ter precedência. O português
+do cadastro compartilhado com o Filipe, os preços e as regras não são alterados.

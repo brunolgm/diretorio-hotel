@@ -3473,4 +3473,27 @@ Filipe, outros hotéis, ingredientes, acompanhamentos, medidas e marcas da fonte
 Preços, moeda, disponibilidade, regras, escolhas, cotação, confirmação e snapshots
 operacionais permanecem nos contratos existentes. Sem migration ou escrita nos
 cadastros compartilhados. A edição no Admin desta etapa continua restrita a nomes;
-descrições e categorias são mantidas no recurso editorial revisado.
+descrições e categorias são mantidas no recurso editorial revisado. Essa limitação
+de edição é substituída pela etapa abaixo, preservando o recurso como valor inicial.
+
+### Bugan — edição de descrições e categorias EN/ES no Admin (26/11/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] A área de traduções do Room Service inclui
+os tipos **Descrições de produtos** e **Títulos de categorias**, com busca e os
+textos revisados como valores iniciais. Descrições usam caixas de texto EN/ES de
+até 10.000 caracteres; títulos mantêm o limite de 160. Somente os textos salvos
+nessa área privada têm precedência no Room Service. O cadastro compartilhado com
+o Filipe e os textos originais permanecem preservados.
+
+A extensão da tabela privada reutiliza RLS forçada, autorização por hotel,
+estabelecimento, perfil editor e permissão comercial. Novas RPCs preservam o
+contrato das RPCs antigas de nomes. Gravação auditada, revisão concorrente e
+conferência do texto original também se aplicam aos novos tipos. Um campo vazio
+mantém o texto original nesse idioma. A descrição de referência é a mesma da
+oferta operacional (`short_description`, com fallback em `full_description`).
+
+As edições aparecem no catálogo e nos detalhes dos produtos, incluindo os itens
+dos combos; categorias também recebem o valor salvo na renderização inicial.
+Não altera preços, escolhas, disponibilidade, cotação, checkout ou impressão.
+Rollback da aplicação mantém os registros privados e as RPCs de nomes anteriores;
+não apagar traduções nem reverter dados comerciais para retornar a interface.
