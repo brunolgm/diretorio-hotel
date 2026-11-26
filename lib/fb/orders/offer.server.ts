@@ -5,6 +5,7 @@ import {fbImageUrl} from '../media';
 import {ROOM_CONTEXT_COOKIE_NAME,parseRoomContext} from '../../room-context';
 import {isRoomToken} from '../../security/identifiers';
 import {orderRpc} from './rpc.server';
+import {localizeBuganRoomOutlets} from '../bugan-room-localization';
 import type {Language,NativeOffer,NativeOutlet,Product} from './journey';
 
 export async function nativeOffer(slug:string,hotelId:string,language:Language):Promise<NativeOffer>{
@@ -13,7 +14,7 @@ export async function nativeOffer(slug:string,hotelId:string,language:Language):
  // A path is resolved against ownership; arbitrary catalogue URLs cannot enter the client DTO.
  function product(p:Product&{image_path?:string|null}):Product{return {...p,image_url:p.kind==='item'?fbImageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL,p.image_path||null,hotelId,'item',p.id):null,slots:p.slots?.map(s=>({...s,choices:s.choices.map(c=>({...c,item:product(c.item)}))}))};}
  const outlets=(raw?.outlets||[]).map(o=>({...o,image_url:fbImageUrl(process.env.NEXT_PUBLIC_SUPABASE_URL,(o as NativeOutlet&{image_path?:string}).image_path||null,hotelId,'outlet',o.id),products:o.products.map(product)}));
- return {outlets,has_room_context:await validRoomContext(hotelId)};
+ return {outlets:localizeBuganRoomOutlets(slug,hotelId,language,outlets),has_room_context:await validRoomContext(hotelId)};
 }
 export async function validRoomContext(hotelId:string){
  return Boolean(await validatedRoomLink(hotelId));

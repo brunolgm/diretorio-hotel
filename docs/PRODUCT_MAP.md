@@ -3422,3 +3422,16 @@ a URL fixa sem idioma e o cardápio voltava ao português. A correção preserva
 demais parâmetros, fragmento, abertura e sessão QR existentes. Restrita ao slug
 `bugan-recife` e às rotas SmartMenu nos domínios oficiais; links do Filipe,
 terceiros e outros hotéis permanecem inalterados. Sem alteração de dados ou pedidos.
+
+### Bugan — nomes do Room Service em EN/ES (25/11/2026)
+
+[IMPLEMENTADO E CONFIRMADO NO CÓDIGO] Recurso editorial de nomes por UUID e nome
+original para os 142 produtos, quatro combos, nove grupos de escolhas, três grupos
+de adicionais e quatro adicionais revisados. Aplicado somente às respostas de
+oferta e cotação para o hóspede do Room Service do Bugan; o cardápio-base é
+compartilhado com o Filipe e permanece intacto. PT, descrições, preços, moedas,
+limites, opções, disponibilidade, IDs, QR, confirmação e snapshots operacionais
+preservados. Sem migration ou alteração de cadastro. Nomes novos ou renomeados
+mantêm fallback no nome atual até a revisão do recurso editorial. A edição dessas
+traduções pelo Admin permanece [PLANEJADO]; não há campos EN/ES para os adicionais
+e combos no cadastro comercial atual.

@@ -1,0 +1,822 @@
+{
+  "hotelId": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+  "slug": "bugan-recife",
+  "outletId": "3010fb52-8cde-40d2-b620-9b9796f068f0",
+  "reviewedOn": "2026-11-25",
+  "names": {
+    "74ea4b61-d74a-40e4-b129-d7668aa6bbda": {
+      "source": "Batata Frita com Bacon",
+      "en": "French fries with bacon",
+      "es": "Papas fritas con bacon"
+    },
+    "6bd097b4-6b00-40ba-8b2c-42e1f3750751": {
+      "source": "Queijo coalho na Chapa",
+      "en": "Grilled coalho cheese",
+      "es": "Queso coalho a la plancha"
+    },
+    "88fce826-e669-4088-9286-fc05cc216921": {
+      "source": "Camarão crocante (12 unidades)",
+      "en": "Crispy shrimp (12 pieces)",
+      "es": "Camarones crujientes (12 unidades)"
+    },
+    "bddccb22-7a1c-48bb-a271-8b5e807ae082": {
+      "source": "Filé Mignon com Fritas",
+      "en": "Filet mignon with fries",
+      "es": "Filete mignon con papas fritas"
+    },
+    "14a27b81-510f-4080-ba72-5533225f4d76": {
+      "source": "Agulhinha frita crocante",
+      "en": "Crispy fried agulhinha fish",
+      "es": "Pescado agulhinha frito y crujiente"
+    },
+    "00cc90f8-4715-47ad-bd55-5b816417ca87": {
+      "source": "Isca de Peixe ao Molho Tártaro",
+      "en": "Fish strips with tartar sauce",
+      "es": "Tiras de pescado con salsa tártara"
+    },
+    "05777260-b74b-45f1-b855-0391ddad3987": {
+      "source": "Carne de sol Acebolada com Macaxeira Frita",
+      "en": "Carne de sol with onions and fried cassava",
+      "es": "Carne de sol encebollada con yuca frita"
+    },
+    "491ea958-d016-4edf-a3c8-01c17e5849ca": {
+      "source": "Bruscheta Basílica (4 unidades)",
+      "en": "Basílica bruschetta (4 pieces)",
+      "es": "Bruschetta Basílica (4 unidades)"
+    },
+    "5968ce74-b2d4-4586-9d08-2988961bbf1a": {
+      "source": "Mix de Frios com Torradas",
+      "en": "Cold cuts platter with toast",
+      "es": "Tabla de fiambres con tostadas"
+    },
+    "8b908bb7-1040-477d-bf49-4f6acad809bb": {
+      "source": "Bolinho de Queijo Provolone (8 unidades)",
+      "en": "Provolone cheese bites (8 pieces)",
+      "es": "Bocaditos de queso provolone (8 unidades)"
+    },
+    "843e0066-e98d-4537-a10d-7098b1bc2f25": {
+      "source": "Salada Tropical",
+      "en": "Tropical salad",
+      "es": "Ensalada tropical"
+    },
+    "09815cb8-14b5-47da-afd4-08f3e44151ce": {
+      "source": "Salada de Folhas com Lascas de Salmão",
+      "en": "Leaf salad with salmon flakes",
+      "es": "Ensalada de hojas verdes con lascas de salmón"
+    },
+    "2043ed0a-41c3-47db-9755-db43ab83fc1d": {
+      "source": "Salada de Camarão",
+      "en": "Shrimp salad",
+      "es": "Ensalada de camarones"
+    },
+    "b4c7652f-a397-4cae-b19e-6e09bce8a53c": {
+      "source": "Salada Caesar",
+      "en": "Caesar salad",
+      "es": "Ensalada César"
+    },
+    "e1759d3b-656a-4b12-b07a-084d832ef47d": {
+      "source": "Pizza Calabresa",
+      "en": "Calabresa sausage pizza",
+      "es": "Pizza de salchicha calabresa"
+    },
+    "ba2655a3-426b-41a5-9274-5221ec7494ad": {
+      "source": "Pizza margherita",
+      "en": "Margherita pizza",
+      "es": "Pizza margarita"
+    },
+    "cde99f29-6dce-40bb-b277-7490844c92c7": {
+      "source": "Pizza de Frango com Catupiry",
+      "en": "Chicken and Catupiry cheese pizza",
+      "es": "Pizza de pollo con queso Catupiry"
+    },
+    "da434a67-b1bd-4aa6-8756-79baefa620b9": {
+      "source": "Bugan Burguer",
+      "en": "Bugan Burger",
+      "es": "Hamburguesa Bugan"
+    },
+    "8b26bf18-6555-4917-9c38-e4cf59738995": {
+      "source": "Sanduíche de filé mignon",
+      "en": "Filet mignon sandwich",
+      "es": "Sándwich de filete mignon"
+    },
+    "38f86998-9f22-45a5-beb7-055edcd06593": {
+      "source": "Misto Quente",
+      "en": "Toasted ham and cheese sandwich",
+      "es": "Sándwich caliente de jamón y queso"
+    },
+    "fac08907-f236-4ff0-bfc1-a17f5904a001": {
+      "source": "Canja Brasileira",
+      "en": "Brazilian chicken soup",
+      "es": "Sopa brasileña de pollo"
+    },
+    "5bf6dc41-f649-4a2b-98ff-abc77f7adc45": {
+      "source": "Creme de Legumes",
+      "en": "Creamy vegetable soup",
+      "es": "Crema de verduras"
+    },
+    "5abef810-0fc6-46e9-9f74-898c7d5a98fa": {
+      "source": "Creme de Macaxeira",
+      "en": "Creamy cassava soup",
+      "es": "Crema de yuca"
+    },
+    "70200377-6715-4691-8d5b-13fb584b2ea6": {
+      "source": "Espaguete à Bolonhesa",
+      "en": "Spaghetti Bolognese",
+      "es": "Espaguetis a la boloñesa"
+    },
+    "6106d72c-f254-42ee-b8c3-c7ac1dc748e4": {
+      "source": "Fettuccine Al Mare",
+      "en": "Seafood fettuccine",
+      "es": "Fettuccine de mariscos"
+    },
+    "df0957f2-301b-4ae6-8acc-55fb426438ea": {
+      "source": "Cuscuz de carne de sol com queijo coalho gratinado",
+      "en": "Corn couscous with carne de sol and gratiné coalho cheese",
+      "es": "Cuscús de maíz con carne de sol y queso coalho gratinado"
+    },
+    "6d2e70d8-a5d6-4466-bf2d-864a4d7572b0": {
+      "source": "Cuscuz de camarão ao molho de três queijos",
+      "en": "Corn couscous with shrimp in three-cheese sauce",
+      "es": "Cuscús de maíz con camarones en salsa de tres quesos"
+    },
+    "75e7d6ce-5d83-4216-9168-6269e1d78d20": {
+      "source": "Filé de frango à parmegiana",
+      "en": "Chicken parmigiana",
+      "es": "Filete de pollo a la parmesana"
+    },
+    "1997ac25-a97b-49a4-9eb3-d193d42a84c7": {
+      "source": "Supremo de Frango Grill com Legumes Grelhados",
+      "en": "Grilled chicken supreme with grilled vegetables",
+      "es": "Suprema de pollo a la parrilla con verduras asadas"
+    },
+    "03c4c578-b3b2-42b3-a229-ef0fc1b22a87": {
+      "source": "Filé mignon ao molho rôti",
+      "en": "Filet mignon with rôti sauce",
+      "es": "Filete mignon con salsa rôti"
+    },
+    "455fde66-e437-4d6c-8823-93696467bf17": {
+      "source": "Medalhão de Mignon ao Chimichurri",
+      "en": "Filet mignon medallion with chimichurri",
+      "es": "Medallón de filete mignon con chimichurri"
+    },
+    "d4d3893d-1d09-4177-aa6e-ceff0d440354": {
+      "source": "Bife de Mignon Acebolado com Bacon",
+      "en": "Filet mignon steak with onions and bacon",
+      "es": "Bistec de filete mignon encebollado con bacon"
+    },
+    "17e3ee86-a737-49d0-8668-15249b0cbcdb": {
+      "source": "Risoto de Mignon",
+      "en": "Filet mignon risotto",
+      "es": "Risotto de filete mignon"
+    },
+    "db73453e-d58a-4458-8a6d-ac0f4096f4f4": {
+      "source": "Picanha Argentina Grill",
+      "en": "Grilled Argentine picanha",
+      "es": "Picaña argentina a la parrilla"
+    },
+    "b08e5579-bc6d-4762-aa0a-58ddeadccd99": {
+      "source": "Carne de Sol",
+      "en": "Carne de sol (Brazilian cured beef)",
+      "es": "Carne de sol (carne de res curada brasileña)"
+    },
+    "567df586-7bf5-4727-a474-4cae3012f778": {
+      "source": "Camarão Nordestino",
+      "en": "Northeastern-style shrimp",
+      "es": "Camarones al estilo del nordeste brasileño"
+    },
+    "f3b221ec-a3a3-45ea-aebe-cc1a1dec176f": {
+      "source": "Filé de peixe à belle meunière",
+      "en": "Fish fillet belle meunière",
+      "es": "Filete de pescado a la belle meunière"
+    },
+    "d7acf69d-a235-4b82-a7af-934ec3c567e2": {
+      "source": "Salmão teriyaki",
+      "en": "Teriyaki salmon",
+      "es": "Salmón teriyaki"
+    },
+    "fb62c8d8-a9fb-4f7d-a1bf-c34a78d199ef": {
+      "source": "Bacalhau à Moda do Chef",
+      "en": "Chef's-style cod",
+      "es": "Bacalao al estilo del chef"
+    },
+    "771e4319-5c2e-411a-a5dc-ff6dd08d502b": {
+      "source": "Risoto de Camarão",
+      "en": "Shrimp risotto",
+      "es": "Risotto de camarones"
+    },
+    "c3202abf-8bb6-4f0f-a2c8-a0d580f9ac04": {
+      "source": "Risoto de Vegetais",
+      "en": "Vegetable risotto",
+      "es": "Risotto de verduras"
+    },
+    "27eab9b9-aefd-4e0b-b82c-eefafae19858": {
+      "source": "Risoto de Cogumelos",
+      "en": "Mushroom risotto",
+      "es": "Risotto de setas"
+    },
+    "e70ce197-09e1-4f04-a062-1a9ba2904afa": {
+      "source": "Espaguete de Vegetais ao Molho Pesto",
+      "en": "Vegetable spaghetti with pesto sauce",
+      "es": "Espaguetis de verduras con salsa pesto"
+    },
+    "6c0ba447-bf34-4b41-9050-76e3ab017c89": {
+      "source": "Moqueca de Banana",
+      "en": "Banana moqueca",
+      "es": "Moqueca de plátano"
+    },
+    "cc6608cc-d21d-4e15-ac43-f1de33491abc": {
+      "source": "Buganzinho de Carne",
+      "en": "Buganzinho beef (children's menu)",
+      "es": "Buganzinho de carne (menú infantil)"
+    },
+    "42739cbd-e61f-4869-87ef-3ca2e52fd332": {
+      "source": "Buganzinho de Peixe",
+      "en": "Buganzinho fish (children's menu)",
+      "es": "Buganzinho de pescado (menú infantil)"
+    },
+    "2dd3f912-55be-401a-8c2f-24f9ba2260eb": {
+      "source": "Buganzinho de Frango",
+      "en": "Buganzinho chicken (children's menu)",
+      "es": "Buganzinho de pollo (menú infantil)"
+    },
+    "f46790e9-b6cf-4528-94e2-b5fc402de0e4": {
+      "source": "Buganzinho Massa",
+      "en": "Buganzinho pasta (children's menu)",
+      "es": "Buganzinho de pasta (menú infantil)"
+    },
+    "5e9e9361-9b43-4389-8b7d-c81401024a1b": {
+      "source": "Cartola",
+      "en": "Cartola (regional dessert)",
+      "es": "Cartola (postre regional)"
+    },
+    "922684f3-2c91-402a-8b7c-d51af0539c0b": {
+      "source": "Pudim de leite",
+      "en": "Milk flan",
+      "es": "Flan de leche"
+    },
+    "d5a97a04-5e0b-4d5e-ba81-91d11f455cb7": {
+      "source": "Torta Mousse de Limão",
+      "en": "Lemon mousse tart",
+      "es": "Tarta de mousse de limón"
+    },
+    "11561eb2-aa49-4dae-9ce3-0099511dff4f": {
+      "source": "Cheesecake de goiabada com praliné de castanhas",
+      "en": "Guava cheesecake with nut praline",
+      "es": "Tarta de queso con guayaba y praliné de frutos secos"
+    },
+    "b52f3564-a1d8-4ae5-afd0-d4105ef262d8": {
+      "source": "Tiramisú",
+      "en": "Tiramisu",
+      "es": "Tiramisú"
+    },
+    "3dbdd4ae-a997-4421-b6bd-ec17a3576355": {
+      "source": "Petit gâteau com sorvete",
+      "en": "Chocolate fondant with ice cream",
+      "es": "Petit gâteau con helado"
+    },
+    "fe1d3a33-e0ba-48b4-b663-b155a0a5cdd1": {
+      "source": "Mosaico de Frutas",
+      "en": "Fruit mosaic",
+      "es": "Mosaico de frutas"
+    },
+    "ad68918a-9bc8-4b48-b1dd-145c95e267b5": {
+      "source": "Sorvete (3 bolas)",
+      "en": "Ice cream (3 scoops)",
+      "es": "Helado (3 bolas)"
+    },
+    "6c639cb8-5401-4e63-b385-ebb0924d88f2": {
+      "source": "Água Mineral sem Gás",
+      "en": "Still mineral water",
+      "es": "Agua mineral sin gas"
+    },
+    "c4f05e74-cca3-4962-8213-fd581dce00fa": {
+      "source": "Água Mineral com Gás",
+      "en": "Sparkling mineral water",
+      "es": "Agua mineral con gas"
+    },
+    "ac49a3ff-40b9-49c0-b6fd-e9bf72bcceda": {
+      "source": "Água de Coco 200 ml",
+      "en": "Coconut water 200 ml",
+      "es": "Agua de coco 200 ml"
+    },
+    "9f698831-8e30-460c-822c-eb1577d6d424": {
+      "source": "Coca-Cola em lata 350 ml",
+      "en": "Coca-Cola 350 ml can",
+      "es": "Coca-Cola en lata de 350 ml"
+    },
+    "a2e8a8fd-2ca2-4479-8b56-e9decf584bca": {
+      "source": "Coca-Cola Zero em lata 350 ml",
+      "en": "Coca-Cola Zero 350 ml can",
+      "es": "Coca-Cola Zero en lata de 350 ml"
+    },
+    "06517339-9005-47c1-bfac-7a3657693830": {
+      "source": "Guaraná Antártica – 350 ml",
+      "en": "Guaraná Antártica 350 ml",
+      "es": "Guaraná Antártica 350 ml"
+    },
+    "5d4440b8-968d-4a73-8374-fffd1a9f9505": {
+      "source": "Guaraná Antártica Diet 350 ml",
+      "en": "Guaraná Antártica Diet 350 ml",
+      "es": "Guaraná Antártica Diet 350 ml"
+    },
+    "34daa475-9853-4205-9f89-f3d17e400f5c": {
+      "source": "Refrigerante Soda Limonada 350 ml",
+      "en": "Lemon-lime soda 350 ml",
+      "es": "Refresco de lima-limón 350 ml"
+    },
+    "4abef2d8-2672-493d-9f14-99362606d13b": {
+      "source": "Tônica em lata 350 ml",
+      "en": "Tonic water 350 ml can",
+      "es": "Agua tónica en lata de 350 ml"
+    },
+    "30515b60-7ead-4135-b82d-efac9452d682": {
+      "source": "Refrigerante H2OH 500 ml",
+      "en": "H2OH soft drink 500 ml",
+      "es": "Refresco H2OH 500 ml"
+    },
+    "8fd39845-4a52-414a-9391-526c08eb30ab": {
+      "source": "Energético Red Bull",
+      "en": "Red Bull energy drink",
+      "es": "Bebida energética Red Bull"
+    },
+    "dba3d2c3-1c3a-4060-afd2-9dc3637e1db9": {
+      "source": "Suco de Laranja (copo)",
+      "en": "Orange juice (glass)",
+      "es": "Jugo de naranja (vaso)"
+    },
+    "fb28a1a2-56ee-4d18-b627-b68210c355b0": {
+      "source": "Suco de Polpa (copo)",
+      "en": "Fruit pulp juice (glass)",
+      "es": "Jugo de pulpa de fruta (vaso)"
+    },
+    "4d572174-db15-4e3e-be73-8c502eea633a": {
+      "source": "Limonada Suíça",
+      "en": "Swiss-style limeade",
+      "es": "Limonada suiza"
+    },
+    "dd0d38f4-a7ba-44c7-b98e-6c1f016890fb": {
+      "source": "Soda Artesanal",
+      "en": "Craft soda",
+      "es": "Refresco artesanal"
+    },
+    "ab3d9dcc-40d8-45ba-8a2a-7e37d78c232b": {
+      "source": "Café Espresso",
+      "en": "Espresso",
+      "es": "Café expreso"
+    },
+    "753191ed-a866-483f-adf9-2c553c18e050": {
+      "source": "Café espresso duplo",
+      "en": "Double espresso",
+      "es": "Café expreso doble"
+    },
+    "3ff9cc54-5286-410b-ac74-e7f6102d6855": {
+      "source": "Café espresso com Leite",
+      "en": "Espresso with milk",
+      "es": "Café expreso con leche"
+    },
+    "b9be1b26-94d6-4810-a252-50eb3189f715": {
+      "source": "Chocolate Quente grande",
+      "en": "Large hot chocolate",
+      "es": "Chocolate caliente grande"
+    },
+    "c2e68b97-3dd3-4557-8895-72306d15d459": {
+      "source": "Cappuccino",
+      "en": "Cappuccino",
+      "es": "Capuchino"
+    },
+    "02e15502-c69d-42a5-82fb-586106546abf": {
+      "source": "Chá Importado",
+      "en": "Imported tea",
+      "es": "Té importado"
+    },
+    "ebc979d5-81cc-4e6f-910e-7fb7e2f2697d": {
+      "source": "Café da manhã no apartamento",
+      "en": "In-room breakfast",
+      "es": "Desayuno en la habitación"
+    },
+    "4c275084-62df-422a-933d-3a0a75b15f27": {
+      "source": "Caipirinha nacional",
+      "en": "Caipirinha (Brazilian spirits)",
+      "es": "Caipirinha nacional"
+    },
+    "ecbd1442-6919-4262-9271-17a7f624e7af": {
+      "source": "Caipirinha premium",
+      "en": "Premium caipirinha",
+      "es": "Caipirinha premium"
+    },
+    "8d3d0791-cde5-4ed9-8001-81a5c881e5a0": {
+      "source": "Caipiroska Nacional",
+      "en": "Caipiroska with local vodka",
+      "es": "Caipiroska con vodka nacional"
+    },
+    "ff0110cf-a039-493b-9831-d65e7c84f96f": {
+      "source": "Caipiroska Importada",
+      "en": "Caipiroska with imported vodka",
+      "es": "Caipiroska con vodka importado"
+    },
+    "32338d5d-aa44-4fd9-a9f2-7af64eb4042b": {
+      "source": "Gin Tônica",
+      "en": "Gin and tonic",
+      "es": "Gin-tonic"
+    },
+    "9b839b21-9ed4-40a2-8ca3-b229d24d74e7": {
+      "source": "Gin Tropical",
+      "en": "Tropical gin",
+      "es": "Gin tropical"
+    },
+    "c0c9eb0f-bcda-47c4-a13e-f45c6e5036e1": {
+      "source": "Mojito",
+      "en": "Mojito",
+      "es": "Mojito"
+    },
+    "806263f8-507f-46c1-8f8a-ac1a785cef80": {
+      "source": "Negroni",
+      "en": "Negroni",
+      "es": "Negroni"
+    },
+    "65eabf49-2451-4601-adb8-91e4aa97b158": {
+      "source": "Aperol",
+      "en": "Aperol",
+      "es": "Aperol"
+    },
+    "e07df2df-b875-4bf2-bd79-35d075ba1db8": {
+      "source": "Cerveja Stella Artois Long Neck 350 ml",
+      "en": "Stella Artois beer 350 ml longneck",
+      "es": "Cerveza Stella Artois Long Neck 350 ml"
+    },
+    "2aef7dbc-3ebf-4467-98b7-626bedd9ef44": {
+      "source": "Cerveja Heineken Long Neck 350 ml",
+      "en": "Heineken beer 350 ml longneck",
+      "es": "Cerveza Heineken Long Neck 350 ml"
+    },
+    "55a7433d-3df1-4f84-9e05-52e1d4a1560f": {
+      "source": "Cerveja Artesanal Ekaut Larger 600 ml",
+      "en": "Ekaut Larger craft beer 600 ml",
+      "es": "Cerveza artesanal Ekaut Larger 600 ml"
+    },
+    "42511319-4487-445c-89d8-df7a671029f7": {
+      "source": "Cerveja Artesanal Ekaut Ipa 600 ml",
+      "en": "Ekaut IPA craft beer 600 ml",
+      "es": "Cerveza artesanal Ekaut IPA 600 ml"
+    },
+    "37b83d36-acda-463c-b01a-9385e56c8329": {
+      "source": "Aguardente Pitú",
+      "en": "Pitú sugarcane spirit",
+      "es": "Aguardiente Pitú"
+    },
+    "90ec4489-036b-458a-9d5c-7afb05711942": {
+      "source": "Cachaça Premium",
+      "en": "Premium cachaça",
+      "es": "Cachaça premium"
+    },
+    "7f889f68-d49c-497e-839d-701019eab0da": {
+      "source": "Tequila Prata",
+      "en": "Silver tequila",
+      "es": "Tequila plata"
+    },
+    "a16852ec-abde-44e7-80e7-39b99d1c110c": {
+      "source": "Tequila Ouro",
+      "en": "Gold tequila",
+      "es": "Tequila oro"
+    },
+    "a69ef6a3-ffca-4b13-a7a2-48d481f32907": {
+      "source": "Gin Importado",
+      "en": "Imported gin",
+      "es": "Gin importado"
+    },
+    "9d654e33-4070-41e9-9bee-19491e396a29": {
+      "source": "Vodka Nacional",
+      "en": "Local vodka",
+      "es": "Vodka nacional"
+    },
+    "20780343-0881-41ac-b1a6-8ef670a2012e": {
+      "source": "Vodka Importada",
+      "en": "Imported vodka",
+      "es": "Vodka importado"
+    },
+    "0c397cd0-6e89-4a9c-a3c6-3c669a6ccc16": {
+      "source": "Conhaque Importado",
+      "en": "Imported brandy",
+      "es": "Coñac importado"
+    },
+    "cfb8f418-2eb3-418b-b2de-3fa838d01e06": {
+      "source": "Whisky Chivas Regal 12 anos – Dose",
+      "en": "Chivas Regal 12-year whisky — measure",
+      "es": "Whisky Chivas Regal 12 años — trago"
+    },
+    "1583f7fa-8094-423c-ab8d-d40f42207934": {
+      "source": "Whisky Grand Old Parr 12 anos – Dose",
+      "en": "Grand Old Parr 12-year whisky — measure",
+      "es": "Whisky Grand Old Parr 12 años — trago"
+    },
+    "f8a4e1ad-2572-429b-bcd8-1e2419427323": {
+      "source": "Whisky Jack Daniels – Dose",
+      "en": "Jack Daniels whisky — measure",
+      "es": "Whisky Jack Daniels — trago"
+    },
+    "da2778a9-aa8e-41ed-b8c3-d98ba5aad2b2": {
+      "source": "Whisky Red Label – Dose",
+      "en": "Red Label whisky — measure",
+      "es": "Whisky Red Label — trago"
+    },
+    "4d880f47-1413-4293-8e83-f922e8e69269": {
+      "source": "Whisky Black Label – Dose",
+      "en": "Black Label whisky — measure",
+      "es": "Whisky Black Label — trago"
+    },
+    "a9953ed0-2179-49a0-ad93-d9236c8b1ad3": {
+      "source": "Licor Cointreau – Dose",
+      "en": "Cointreau liqueur — measure",
+      "es": "Licor Cointreau — trago"
+    },
+    "dc2a2240-763b-4870-9ac2-9e19977905cf": {
+      "source": "Licor Frangelico – Dose",
+      "en": "Frangelico liqueur — measure",
+      "es": "Licor Frangelico — trago"
+    },
+    "ae8de0d4-7c40-4d0c-b22a-6879f174347c": {
+      "source": "Licor Amarula – Dose",
+      "en": "Amarula liqueur — measure",
+      "es": "Licor Amarula — trago"
+    },
+    "98531503-9268-41dc-bd69-5d6a643bb67f": {
+      "source": "Vinho branco BUGAN Santa Loreto 750 ml",
+      "en": "BUGAN Santa Loreto white wine 750 ml",
+      "es": "Vino blanco BUGAN Santa Loreto 750 ml"
+    },
+    "89bd6f03-f48a-4c04-9f38-f00e15ffc95c": {
+      "source": "Kaipú Chardonnay 750 ml",
+      "en": "Kaipú Chardonnay 750 ml",
+      "es": "Kaipú Chardonnay 750 ml"
+    },
+    "78ea1338-9d08-4791-a5e4-827abb5c66e1": {
+      "source": "Callia Chardonnay",
+      "en": "Callia Chardonnay",
+      "es": "Callia Chardonnay"
+    },
+    "10ea4139-d8a6-4f2f-9014-962834176d51": {
+      "source": "Vinho branco Cordero Piel Lobo 750 ml",
+      "en": "Cordero Piel Lobo white wine 750 ml",
+      "es": "Vino blanco Cordero Piel Lobo 750 ml"
+    },
+    "a0eab883-b9b7-430d-ac4a-bcae846b47b8": {
+      "source": "Vinho branco Tarapacá Sauvignon Blanc 750 ml",
+      "en": "Tarapacá Sauvignon Blanc white wine 750 ml",
+      "es": "Vino blanco Tarapacá Sauvignon Blanc 750 ml"
+    },
+    "37b59009-6584-4b56-8b86-964c129e8a51": {
+      "source": "Ventisqueiro Clásico Chardonnay",
+      "en": "Ventisqueiro Clásico Chardonnay",
+      "es": "Ventisqueiro Clásico Chardonnay"
+    },
+    "27134fda-4466-4eac-8ef5-a88346d4d0ba": {
+      "source": "Vinho branco Freixenet Pinot Grigio (Vegano) 750 ml",
+      "en": "Freixenet Pinot Grigio white wine (vegan) 750 ml",
+      "es": "Vino blanco Freixenet Pinot Grigio (vegano) 750 ml"
+    },
+    "4ff52dd1-72e3-421d-8db7-16130d240e64": {
+      "source": "Vinho Verde Esporão Bico Amarelo 750 ml",
+      "en": "Esporão Bico Amarelo Vinho Verde 750 ml",
+      "es": "Vinho Verde Esporão Bico Amarelo 750 ml"
+    },
+    "e91fa401-b9a5-45db-a2a0-ea3aafe44ec7": {
+      "source": "Esporão Pé branco",
+      "en": "Esporão Pé white wine",
+      "es": "Vino blanco Esporão Pé"
+    },
+    "e2301277-dbbe-4cc8-8972-8f71b28a6faf": {
+      "source": "Vinho Morandé Pionero Reserva 750 ml",
+      "en": "Morandé Pionero Reserva wine 750 ml",
+      "es": "Vino Morandé Pionero Reserva 750 ml"
+    },
+    "86f56458-6ba5-4e33-9a1e-ae144977bb60": {
+      "source": "Vinho Rosé JP Azeitão 750 ml",
+      "en": "JP Azeitão rosé wine 750 ml",
+      "es": "Vino rosado JP Azeitão 750 ml"
+    },
+    "9b2c61a4-e7f1-4641-9661-5f99a9cffc02": {
+      "source": "Vinho tinto BUGAN Santa Loreto 750 ml",
+      "en": "BUGAN Santa Loreto red wine 750 ml",
+      "es": "Vino tinto BUGAN Santa Loreto 750 ml"
+    },
+    "364c5f9b-4c7e-4e37-bf76-a87a358be7ad": {
+      "source": "Kaipú Cabernet Sauvignon 750 ml",
+      "en": "Kaipú Cabernet Sauvignon 750 ml",
+      "es": "Kaipú Cabernet Sauvignon 750 ml"
+    },
+    "2121016b-c63b-40a8-a5a9-c9e626a410a1": {
+      "source": "Vinho tinto Alta Vista Vive Cabernet Sauvignon 750 ml",
+      "en": "Alta Vista Vive Cabernet Sauvignon red wine 750 ml",
+      "es": "Vino tinto Alta Vista Vive Cabernet Sauvignon 750 ml"
+    },
+    "06f032b0-ac07-4d9c-9032-536e8cd8ea00": {
+      "source": "Vinho tinto Monte Lindo Malbec 750 ml",
+      "en": "Monte Lindo Malbec red wine 750 ml",
+      "es": "Vino tinto Monte Lindo Malbec 750 ml"
+    },
+    "ec08b20d-452f-4e44-b973-9dfbb9927ab7": {
+      "source": "Vinho tinto Cordero Piel Lobo 750 ml",
+      "en": "Cordero Piel Lobo red wine 750 ml",
+      "es": "Vino tinto Cordero Piel Lobo 750 ml"
+    },
+    "f11833f2-fddf-440e-991f-08632563c2ec": {
+      "source": "Callia Malbec",
+      "en": "Callia Malbec",
+      "es": "Callia Malbec"
+    },
+    "d616257f-23de-443f-a646-bd30ef2d07c9": {
+      "source": "Ventisqueiro Clásico Carménère",
+      "en": "Ventisqueiro Clásico Carménère",
+      "es": "Ventisqueiro Clásico Carménère"
+    },
+    "2d0a4854-aeaf-4ca9-830c-2fdc470be138": {
+      "source": "Vinho tinto León de Tarapaca Cabernet Sauvignon 750 ml",
+      "en": "León de Tarapaca Cabernet Sauvignon red wine 750 ml",
+      "es": "Vino tinto León de Tarapaca Cabernet Sauvignon 750 ml"
+    },
+    "0781c71c-7aac-44e5-91a7-7b6fd66a2831": {
+      "source": "Félix Diego Almagro Cabernet Sauvignon",
+      "en": "Félix Diego Almagro Cabernet Sauvignon",
+      "es": "Félix Diego Almagro Cabernet Sauvignon"
+    },
+    "e95e6ec1-c625-45bb-ab9a-51084cf28af6": {
+      "source": "Ted The Mule",
+      "en": "Ted The Mule",
+      "es": "Ted The Mule"
+    },
+    "468fe4cd-ee14-4be6-9878-5e213e3c8355": {
+      "source": "Vinho tinto La Casine Primitivo 750 ml",
+      "en": "La Casine Primitivo red wine 750 ml",
+      "es": "Vino tinto La Casine Primitivo 750 ml"
+    },
+    "a8e664c1-37e5-4729-a462-260ce3f9f5b8": {
+      "source": "Vinho tinto Chianti Ruffino 750 ml",
+      "en": "Chianti Ruffino red wine 750 ml",
+      "es": "Vino tinto Chianti Ruffino 750 ml"
+    },
+    "e0504260-aa5a-44c9-94f6-ca806cd701cc": {
+      "source": "Vinho tinto Esporão Pé 750 ml",
+      "en": "Esporão Pé red wine 750 ml",
+      "es": "Vino tinto Esporão Pé 750 ml"
+    },
+    "e302a231-3258-4150-bb35-4ec17934f160": {
+      "source": "Vinho tinto Bacalhoa JP Azeitão 750 ml",
+      "en": "Bacalhoa JP Azeitão red wine 750 ml",
+      "es": "Vino tinto Bacalhoa JP Azeitão 750 ml"
+    },
+    "72a60764-405c-4a7d-87bb-ccdeaef4d406": {
+      "source": "Vinho branco Quinta de Bons Ventos 375 ml",
+      "en": "Quinta de Bons Ventos white wine 375 ml",
+      "es": "Vino blanco Quinta de Bons Ventos 375 ml"
+    },
+    "a1ff313d-c10b-4341-8e57-d20288607a80": {
+      "source": "Vinho tinto Quinta de Bons Ventos 375 ml",
+      "en": "Quinta de Bons Ventos red wine 375 ml",
+      "es": "Vino tinto Quinta de Bons Ventos 375 ml"
+    },
+    "aa405ed7-993d-499e-9327-20ca4f34e09a": {
+      "source": "Vinho Branco Importado Sauvignon Blanc 187 ml",
+      "en": "Imported Sauvignon Blanc white wine 187 ml",
+      "es": "Vino blanco importado Sauvignon Blanc 187 ml"
+    },
+    "8601c7e6-16ec-4a8e-9868-8ca4f27f1a44": {
+      "source": "Vinho Tinto Importado Cabernet Sauvignon 187 ml",
+      "en": "Imported Cabernet Sauvignon red wine 187 ml",
+      "es": "Vino tinto importado Cabernet Sauvignon 187 ml"
+    },
+    "0466b02d-b0e2-40de-bdc3-4956ae256d5b": {
+      "source": "Espumante Chandon Brut Rose 750 ml",
+      "en": "Chandon Brut Rosé sparkling wine 750 ml",
+      "es": "Vino espumoso Chandon Brut Rosé 750 ml"
+    },
+    "a075c4b7-46cc-4c07-8088-d559edeb71f4": {
+      "source": "Espumante Chandon Reserve Brut 750 ml",
+      "en": "Chandon Reserve Brut sparkling wine 750 ml",
+      "es": "Vino espumoso Chandon Reserve Brut 750 ml"
+    },
+    "3d3c80b9-ce0a-4296-af0b-051d47092659": {
+      "source": "Espumante Rio Sol Brut 750 ml",
+      "en": "Rio Sol Brut sparkling wine 750 ml",
+      "es": "Vino espumoso Rio Sol Brut 750 ml"
+    },
+    "4c33d566-43e0-413f-a091-cd3db8e4881d": {
+      "source": "Espumante Rio Sol Demi Sec 750 ml",
+      "en": "Rio Sol Demi Sec sparkling wine 750 ml",
+      "es": "Vino espumoso Rio Sol Demi Sec 750 ml"
+    },
+    "fd79571e-9b03-4600-a629-05417330dc3b": {
+      "source": "Espumante Freixenet Cordon Negro Brut 750 ml",
+      "en": "Freixenet Cordon Negro Brut sparkling wine 750 ml",
+      "es": "Vino espumoso Freixenet Cordon Negro Brut 750 ml"
+    },
+    "2f5a02af-bf8d-4bc4-b8d3-309076d6ad30": {
+      "source": "Espumante Cordoniu Demi – Sec",
+      "en": "Cordoniu Demi-Sec sparkling wine",
+      "es": "Vino espumoso Cordoniu Demi-Sec"
+    },
+    "17aa1694-ab07-4406-bcde-2931d6800672": {
+      "source": "Bugan Burguer + Refri",
+      "en": "Bugan Burger & Soft Drink",
+      "es": "Hamburguesa Bugan + Refresco"
+    },
+    "28cabe93-99d5-42b8-a570-27cbc36389a2": {
+      "source": "Margherita + Soda",
+      "en": "Margherita & Craft Soda",
+      "es": "Pizza Margarita + Refresco Artesanal"
+    },
+    "dd099b15-589f-4d61-9258-f1b72516bc84": {
+      "source": "Trio Regional",
+      "en": "Regional Trio",
+      "es": "Trío Regional"
+    },
+    "93524fb9-2d86-426a-b458-079488ef563a": {
+      "source": "Café + Pudim",
+      "en": "Espresso & Milk Flan",
+      "es": "Café Expreso + Flan de Leche"
+    },
+    "61a0f4c0-4a44-48bb-b120-9c65d610b4b5": {
+      "source": "Hambúrguer",
+      "en": "Burger",
+      "es": "Hamburguesa"
+    },
+    "a7d69128-6bca-43f6-8426-a8b1c0f623d3": {
+      "source": "Refrigerante",
+      "en": "Soft drink",
+      "es": "Refresco"
+    },
+    "be8d68bf-a94d-47f7-a78e-49ef39e95b6f": {
+      "source": "Pizza",
+      "en": "Pizza",
+      "es": "Pizza"
+    },
+    "d56e5829-073b-4256-a03c-1923969b964f": {
+      "source": "Bebida",
+      "en": "Drink",
+      "es": "Bebida"
+    },
+    "b0ed6134-125e-4846-9465-32cdd35f5ad1": {
+      "source": "Prato",
+      "en": "Main course",
+      "es": "Plato principal"
+    },
+    "a0a01938-feac-420d-a0a5-12dcfe3f5103": {
+      "source": "Sobremesa",
+      "en": "Dessert",
+      "es": "Postre"
+    },
+    "c7351252-a441-43ef-a86f-e902817560d2": {
+      "source": "Bebida",
+      "en": "Drink",
+      "es": "Bebida"
+    },
+    "55626ef5-2280-457c-bcae-a1af786cd695": {
+      "source": "Café",
+      "en": "Coffee",
+      "es": "Café"
+    },
+    "3ab4041a-67b0-43a4-8937-7ceb9e178a61": {
+      "source": "Sobremesa",
+      "en": "Dessert",
+      "es": "Postre"
+    },
+    "3155e1f0-e6fe-4b4a-af76-ae7a2c6e2d2c": {
+      "source": "Adicionais",
+      "en": "Extras",
+      "es": "Adicionales"
+    },
+    "a9f52743-6e17-4996-acb5-a6a16f965a33": {
+      "source": "Adicionais",
+      "en": "Extras",
+      "es": "Adicionales"
+    },
+    "328403be-ae00-4150-802c-f621b58472d2": {
+      "source": "Adicionais",
+      "en": "Extras",
+      "es": "Adicionales"
+    },
+    "48a8175d-3d63-4601-89bd-2dbff02e2b9d": {
+      "source": "Muçarela",
+      "en": "Mozzarella",
+      "es": "Mozzarella",
+      "groupId": "3155e1f0-e6fe-4b4a-af76-ae7a2c6e2d2c"
+    },
+    "eaa44130-d3f0-4a8b-a652-6af62d7b40c8": {
+      "source": "Bacon",
+      "en": "Bacon",
+      "es": "Bacon",
+      "groupId": "3155e1f0-e6fe-4b4a-af76-ae7a2c6e2d2c"
+    },
+    "35e81feb-7a94-492e-98db-6488ef91a664": {
+      "source": "Muçarela extra",
+      "en": "Extra mozzarella",
+      "es": "Mozzarella extra",
+      "groupId": "a9f52743-6e17-4996-acb5-a6a16f965a33"
+    },
+    "91582471-3516-4600-a3fe-8acfa33b9cfa": {
+      "source": "1 bola de sorvete",
+      "en": "1 scoop of ice cream",
+      "es": "1 bola de helado",
+      "groupId": "328403be-ae00-4150-802c-f621b58472d2"
+    }
+  }
+}
