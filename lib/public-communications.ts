@@ -21,15 +21,26 @@ export function communicationEligible(
     (end === null || (Number.isFinite(end) && end >= now))
   );
 }
+/** The public directory and its badge use the same canonical, tenant-scoped rows. */
+export function eligibleAnnouncementRows(
+  hotelId: string,
+  announcements: PublicHotelAnnouncement[],
+  enabled: boolean,
+  now = Date.now(),
+) {
+  return enabled ? announcements.filter(row =>
+    communicationEligible(row, hotelId, now) &&
+    Boolean(row.title?.trim() || row.body?.trim()) &&
+    ["alerta", "manutencao", "informativo", "promocao"].includes(row.category),
+  ) : [];
+}
 export function publicCommunications(
   hotelId: string,
   announcements: PublicHotelAnnouncement[],
   banners: PublicHotelPromotionalBanner[],
   now = Date.now(),
 ) {
-  const rows = announcements.filter((row) =>
-    communicationEligible(row, hotelId, now) && Boolean(row.title?.trim() || row.body?.trim()),
-  );
+  const rows = eligibleAnnouncementRows(hotelId, announcements, true, now);
   return {
     // Critical alerts precede maintenance; keep the canonical order within each category.
     alerts: [
