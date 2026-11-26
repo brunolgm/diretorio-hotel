@@ -27,11 +27,13 @@
 .guest-service-metadata { display:flex; flex-wrap:wrap; gap:4px 12px; color:var(--hotel-text-muted); font-size:.8125rem; }
 .guest-service-metadata>span { display:inline-flex; align-items:center; gap:5px; }
 .guest-service-metadata svg { width:14px; height:14px; flex-shrink:0; }
-.guest-service-sheet[data-slot=dialog-content] { font-family:var(--hotel-font-family,ui-sans-serif,system-ui,sans-serif); color:var(--hotel-text); background:var(--hotel-surface); width:100%; max-width:100%; max-height:88dvh; overflow-y:auto; overscroll-behavior:contain; left:0; top:auto; bottom:0; transform:none; translate:none; border-radius:24px 24px 0 0; padding:12px 20px max(24px,env(safe-area-inset-bottom)); gap:16px; }
+/* Positioning and motion belong to this responsive layout, never the centered Dialog defaults. */
+.guest-service-sheet[data-slot=dialog-content] { position:fixed; inset:auto 0 0; box-sizing:border-box; font-family:var(--hotel-font-family,ui-sans-serif,system-ui,sans-serif); color:var(--hotel-text); background:var(--hotel-surface); width:100%; max-width:100%; max-height:min(88dvh,calc(100dvh - env(safe-area-inset-top,0px) - 12px)); overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; transform:none; translate:none; border-radius:24px 24px 0 0; padding:12px max(20px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px)); gap:16px; transition:transform 180ms ease-out,opacity 180ms ease-out; }
+.guest-service-sheet[data-starting-style],.guest-service-sheet[data-ending-style] { transform:translateY(24px); opacity:0; }
 .guest-service-sheet-handle { display:block; width:36px; height:4px; border-radius:4px; background:var(--hotel-border); justify-self:center; }
-.guest-service-sheet-heading { display:flex; align-items:center; gap:12px; }
-.guest-service-sheet-heading [data-slot=dialog-title] { flex:1; line-height:1.4; font-size:1.25rem; }
-.guest-service-sheet-heading button { min-height:44px; min-width:44px; display:grid; place-items:center; border-radius:50%; }
+.guest-service-sheet-heading { position:sticky; top:0; z-index:1; display:flex; align-items:center; gap:12px; background:var(--hotel-surface); }
+.guest-service-sheet-heading [data-slot=dialog-title] { flex:1; min-width:0; overflow-wrap:anywhere; line-height:1.4; font-size:1.25rem; }
+.guest-service-sheet-heading button { flex-shrink:0; min-height:44px; min-width:44px; display:grid; place-items:center; border-radius:50%; }
 .guest-service-sheet-heading button svg { width:20px; }
 .guest-service-sheet .guest-service-description { font-size:1rem; line-height:1.55; color:var(--hotel-text); white-space:pre-line; overflow-wrap:anywhere; }
 .guest-service-sheet .guest-service-metadata { padding:12px 14px; border-radius:12px; background:var(--hotel-active-bg); color:var(--hotel-text); font-size:.875rem; gap:10px 20px; }
@@ -48,7 +50,11 @@
  .guest-service-group>h2 { font-size:1.25rem; padding-bottom:12px; }
  .guest-service-row>:is(a,button,div):not(.guest-service-related) { padding:14px 18px; min-height:76px; }
  .guest-service-search { max-width:520px; }
- .guest-service-sheet[data-slot=dialog-content] { max-width:560px; left:50%; top:50%; bottom:auto; transform:translate(-50%,-50%); border-radius:24px; padding:28px; }
+ .guest-service-sheet[data-slot=dialog-content] { inset:50% auto auto 50%; width:calc(100% - 2rem); max-width:560px; transform:translate(-50%,-50%); border-radius:24px; padding:28px; }
+ .guest-service-sheet[data-starting-style],.guest-service-sheet[data-ending-style] { transform:translate(-50%,-50%) scale(.95); }
+}
+@media(prefers-reduced-motion:reduce) {
+ .guest-service-sheet[data-slot=dialog-content] { transition:none; }
 }
 @media(min-width:1025px) {
  .public-bottom-dock { display:none!important; }

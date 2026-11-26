@@ -3628,3 +3628,16 @@ real e a proteção da revisão manual em rascunho inativo. O teste também reve
 interpretação incorreta de `Refrigerante`; o fluxo passa a reutilizar termos
 exatos e não ambíguos do vocabulário EN/ES já aprovado, sem sobrepor revisões
 humanas. Detalhes e fechamento na seção de publicação de `docs/SPRINT_53_FNB.md`.
+
+
+### Guest Experience — hotfix do Bottom Sheet (26/11/2026)
+
+[CORRIGIDO E VALIDADO LOCALMENTE — NÃO PUBLICADO] Reprodução real do Chrome Android:
+janela de 390 px em x=−195 após animação. O build eliminava o reset independente de
+translate, permitindo a centralização do Dialog atuar no Bottom Sheet. Serviços agora
+usa posicionamento/movimento próprios, com opt-in na primitiva e default preservado.
+Mobile ancorado embaixo; desktop centralizado; rolagem, fechamento, foco e histórico
+conferidos. 178 verificações com CSS otimizado, Chrome Android/WebKit, sete larguras,
+cinco serviços e textos curtos/longos. TypeScript/lint/build aprovados. Sem banco,
+configurações, migrações, push ou deploy. Densidade preservada. Aguardar autorização
+específica de publicação. Detalhes: `docs/GUEST_EXPERIENCE_PREMIUM_SERVICES.md`.

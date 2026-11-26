@@ -394,3 +394,74 @@ https://supabase.com/docs/guides/database/database-linter?lint=0010_security_def
 O SHA final, deployment final READY, smoke estrito, inventário de imagens e estado
 Git ficam em `out/guest-experience-premium-production/evidence/Relatorio-final-da-publicacao.md`.
 O backup bruto não é distribuído nem incluído em galeria/ZIP.
+
+
+## Hotfix crítico do Bottom Sheet — RC local (26/11/2026)
+
+**GO técnico local; NÃO PUBLICADO. Aguardar autorização específica de Bruno.**
+A produção continua no SHA `a6c9768aec7fc014d7e7e7eefc7b7000f7c29593`, deployment
+`dpl_9411tJ7CMBhXqr7DF1iKu52axnRx`, READY em `libguest.digital`. Branch isolada:
+`codex/hotfix-guest-service-bottom-sheet`, criada a partir desse estado limpo.
+
+### Causa confirmada e reprodução
+
+O Chrome instalado, com emulação Android e viewport 390×844, reproduziu os três
+casos reais de Room Service, Lavanderia e Menu de travesseiros. Após término natural
+da animação, cada janela media 390 px de largura, mas começava em **x = −195 px**.
+O visual viewport tinha largura 390 e offset zero; o portal estava fora dos ancestrais
+transformados. Portanto, não era deslocamento de safe area ou de um container do hotel.
+
+A primitiva Dialog colocava `-translate-x-1/2` e `-translate-y-1/2` no mesmo elemento
+que recebia o CSS de Bottom Sheet. A fonte tentava neutralizar isso com `transform:none`
+e `translate:none`. O CSS otimizado de produção foi inspecionado: o reset virou apenas
+`transform:translate(0)`, sem a declaração independente `translate:none`. As utilidades
+Tailwind continuaram fornecendo `translate:-50% -50%`, inclusive depois da animação.
+Cancelar a animação não eliminava o deslocamento. O mesmo defeito foi reproduzido
+localmente com o CSS exato emitido pelo build anterior, antes da alteração.
+
+A validação anterior com CSS não otimizado não cobriu essa saída do build. O novo
+verificador usa obrigatoriamente o CSS de `next build` e não desabilita nem antecipa
+animações para obter as capturas.
+
+### Correção restrita ao layout de Serviços
+
+`DialogContent` ganhou opt-in `positioning="custom"`: remove apenas para esse uso as
+classes de centralização, limites e animações do modal padrão. O comportamento default
+continua com a mesma string de classes anterior. Sheet e demais consumidores não mudam.
+O explorador de serviços usa esse opt-in e devolve foco explicitamente ao item de origem.
+
+O CSS de `.guest-service-sheet` passa a controlar seus próprios insets e movimento:
+no mobile, largura integral e ancoragem inferior, sem translação horizontal; a partir
+de 768 px, uma única centralização desktop, com largura máxima de 560 px. A transição
+mobile sobe pela borda inferior; a desktop conserva escala e centralização. O limite
+usa `dvh`, considera a safe area superior e mantém padding nas bordas inferiores/laterais.
+Conteúdo extenso tem rolagem interna, palavras longas quebram e o fechamento permanece
+acessível. Preferência por movimento reduzido é respeitada. Sem exceções por hotel/UA.
+
+### Verificação dirigida
+
+- TypeScript, lint dos três componentes/fixtures/verificador e build otimizado aprovados.
+- **140 cenários de serviço**: Chrome com emulação Android e WebKit mobile; 320, 360,
+  390, 412, 430, 768 e 1440 px; conteúdo curto/longo; Room Service, Lavanderia,
+  Menu de travesseiros, Academia e Spa dos Pés.
+- **38 verificações adicionais**: Dialog padrão nas sete larguras e dois engines;
+  cinco identidades de hotel; ancestral transformado/portal; busca + filtro + rolagem
+  não zero preservados ao voltar; mudança de viewport/rotação com janela aberta;
+  movimento reduzido; densidade 7/8 em 390×900 e 390×844 nos dois engines.
+- Limites reais e estabilidade medidos após término da animação; viewport visual,
+  centralização, largura, overflow, rolagem interna até o fim do conteúdo, fechamento,
+  foco e histórico conferidos. Capturas feitas com a janela efetivamente aberta.
+
+Os casos longos e variantes de apresentação são fixtures locais, sem banco ou chamadas
+externas. Academia pode permanecer inline no cadastro real: o teste de sua apresentação
+em detalhe usa configuração sintética local, sem editar o hotel. Emulação não equivale
+a um teste no aparelho Android físico nem em Safari/iOS real.
+
+Não houve SQL, migration, mudança de configuração, edição de conteúdo, tradução,
+pedido, impressão, QR, SmartMenu, Ordering, KDS ou Bridge. Nenhum push ou deploy.
+Evidências em `out/guest-service-sheet-hotfix/`, com reprodução, relatório geométrico,
+capturas mobile/desktop, galeria e pacote. O SHA final do commit local está no manifesto.
+
+Referências: [Dialog e foco](https://base-ui.com/react/components/dialog),
+[emulação Playwright](https://playwright.dev/docs/emulation),
+[translate independente](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/translate).
