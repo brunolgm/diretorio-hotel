@@ -1,3 +1,4 @@
+import { localizeServiceEditorial, serviceLanguageStatus } from './services/service-editorial-fields';
 import {loadServiceGuideSummaries,loadPublishedServiceGuide,type ServiceGuideSummary} from './room-guides/read.server';
 import { loadPublicFb } from './fb/read.server';
 import {hasTranslationFallback,translatedText} from './translation-fallback';
@@ -388,13 +389,7 @@ export async function getPublicHotelPageDataForHotel(
   const displaySections = typedSections.map((item) => {
     const translation = sectionTranslationsById.get(item.id);
 
-    return {
-      ...item,
-      title: translatedText(item.title,translation?.title),
-      content: translatedText(item.content,translation?.content),
-      cta: translatedText(item.cta,translation?.cta),
-      category: translatedText(item.category,translation?.category),
-    };
+    return localizeServiceEditorial(item,translation,language);
   });
 
   const displayDepartments = typedDepartments.map((item) => {
@@ -421,10 +416,10 @@ export async function getPublicHotelPageDataForHotel(
   const hasFallbackContent = language !== 'pt' && (
     typedBanners.some(i=>hasTranslationFallback(i,bannerTranslationsById.get(i.id),['title','subtitle','cta_label'])) ||
     typedAnnouncements.some(i=>hasTranslationFallback(i,announcementTranslationsById.get(i.id),['title','body'])) ||
-    typedSections.some(i=>hasTranslationFallback(i,sectionTranslationsById.get(i.id),['title','content','cta','category'])) ||
+    typedSections.some(i=>serviceLanguageStatus(i,sectionTranslationsById.get(i.id),language).status!=='current') ||
     typedDepartments.some(i=>hasTranslationFallback(i,departmentTranslationsById.get(i.id),['name','description','action'])) ||
     typedPolicies.some(i=>hasTranslationFallback(i,policyTranslationsById.get(i.id),['title','description'])));
-  const serviceFallbackIds=language==='pt'?[]:typedSections.filter(i=>hasTranslationFallback(i,sectionTranslationsById.get(i.id),['title','content','cta','category'])).map(i=>i.id);
+  const serviceFallbackIds=language==='pt'?[]:typedSections.filter(i=>serviceLanguageStatus(i,sectionTranslationsById.get(i.id),language).status!=='current').map(i=>i.id);
   const [tourismHomeAvailable, fb] = await Promise.all([
     publicTourismHomeAvailable(supabase, hotel.id), loadPublicFb(supabase, hotel.id, language),
   ]);
@@ -517,14 +512,8 @@ async function getPublicHotelServiceDetailDataForHotel(
     editorialMedia,
     roomGuide:await loadPublishedServiceGuide(supabase,hotel.id,serviceId),
     experienceVersion,
-    section: {
-      ...typedSection,
-      title: translatedText(typedSection.title,translation?.title),
-      content: translatedText(typedSection.content,translation?.content),
-      cta: translatedText(typedSection.cta,translation?.cta),
-      category: translatedText(typedSection.category,translation?.category),
-    },
-    hasFallbackContent: language !== 'pt' && hasTranslationFallback(typedSection,translation,['title','content','cta','category']),
+    section: localizeServiceEditorial(typedSection,translation||undefined,language),
+    hasFallbackContent: language !== 'pt' && serviceLanguageStatus(typedSection,translation||undefined,language).status!=='current',
   } satisfies PublicHotelServiceDetailData;
 }
 

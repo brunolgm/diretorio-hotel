@@ -845,6 +845,8 @@ export interface Database {
           id: string;
           section_id: string;
           language: string;
+          guest_fields?: Json;
+          editorial_state?: Json;
           title: string | null;
           content: string | null;
           cta: string | null;
@@ -856,6 +858,8 @@ export interface Database {
           id?: string;
           section_id: string;
           language: string;
+          guest_fields?: Json;
+          editorial_state?: Json;
           title?: string | null;
           content?: string | null;
           cta?: string | null;
@@ -867,6 +871,8 @@ export interface Database {
           id?: string;
           section_id?: string;
           language?: string;
+          guest_fields?: Json;
+          editorial_state?: Json;
           title?: string | null;
           content?: string | null;
           cta?: string | null;
@@ -1154,6 +1160,11 @@ export interface Database {
       };
     };
     Functions: {
+      save_current_hotel_service_translation: {
+        Args: {p_section_id:string;p_language:string;p_expected_source_version:string;p_expected_translation_version:string|null;p_fields:Json;p_origin:string;p_replace_manual?:boolean};
+        Returns:boolean;
+      };
+
       get_public_hotel_fb: { Args: { p_hotel_id: string; p_language?: string }; Returns: Json };
       save_current_hotel_fb: { Args: { p_kind: string; p_id: string|null; p_expected_revision: number; p_values: Json }; Returns: Json };
       save_current_hotel_fb_translation: { Args: { p_kind: string; p_id: string; p_language: string; p_source_revision: number; p_fields: Json }; Returns: boolean };

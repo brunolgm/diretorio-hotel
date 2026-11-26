@@ -3518,3 +3518,22 @@ as sete verificações autenticadas da RC anterior foram reaproveitadas.
 Relatório: `docs/GUEST_EXPERIENCE_PREMIUM_SERVICES.md`. Galeria e ZIP em
 `out/guest-experience-premium-services/`, ignorados pelo Git. Publicação aguarda
 homologação visual e autorização; SmartMenu e contratos operacionais preservados.
+
+### Guest Experience Premium — Admin e tradução automática definitiva (26/11/2026)
+
+[IMPLEMENTADO E VALIDADO LOCALMENTE] Cadastro de Serviços em quatro áreas, português
+como única fonte obrigatória, prévia pública reativa, ações avançadas e revisão EN/ES
+opcionais. O Google canônico passa a cobrir os oito campos editoriais: título, descrição,
+categoria, CTA, resumo, horário, localização e condições. Tradução seletiva, proveniência
+por campo, invalidação, fallback e confirmação para substituir revisão manual. Persistência
+com versões da fonte e da tradução impede respostas atrasadas de sobrescrever edições.
+O preenchimento retroativo é explícito, limitado a cinco serviços do hotel por execução,
+sem lote produtivo ou ativação V4. O padrão de cadastro PT com tradução automática passa
+a ser obrigatório para novas funcionalidades editoriais trilíngues.
+
+Migration aditiva `20261126053504_service_editorial_translation_state.sql`, validada
+apenas no laboratório local; requer a migration de apresentação anterior, ambas pendentes
+de aplicação produtiva autorizada. Sem alteração de RLS/grants amplos ou módulos operacionais.
+21 testes direcionados, 23 verificações autenticadas, Google real com texto sintético e
+densidade 7/8 preservada. Relatório: `docs/SERVICE_EDITORIAL_TRANSLATIONS.md` e
+`docs/GUEST_EXPERIENCE_PREMIUM_SERVICES.md`. GO técnico local; publicação continua pendente.

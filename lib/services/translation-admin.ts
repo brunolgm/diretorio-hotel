@@ -9,7 +9,6 @@ import {
   translateDepartmentFields,
   translatePolicyFields,
   translatePromotionalBannerFields,
-  translateSectionFields,
   translateTourismFields,
 } from '@/lib/services/translation-service';
 
@@ -127,6 +126,10 @@ export function formatTranslationWarning(result: TranslationSyncResult) {
   return 'Conteúdo salvo em português, mas as traduções EN e ES não puderam ser atualizadas. A publicação em PT continua disponível e o fallback em português pode ser usado na experiência pública.';
 }
 
+export function formatSectionTranslationWarning(result:TranslationSyncResult){
+  return result.status==='complete'?null:'Português salvo. Há traduções pendentes, falhas ou revisões manuais necessárias. Consulte Idiomas e traduções. Os textos manuais foram preservados.';
+}
+
 export function buildFeedbackRedirect(
   pathname: string,
   params: {
@@ -222,88 +225,12 @@ export function getTranslationWorkflowHelpItems() {
 }
 
 export function getRetranslationHelpText() {
-  return 'Use retraduzir quando alterar o texto em português e quiser atualizar EN/ES a partir da versão fonte.';
+  return 'Ao salvar, somente campos alterados ou pendentes são traduzidos. Revisões manuais são preservadas e sinalizadas quando a fonte muda.';
 }
 
-export async function syncSectionTranslations({
-  supabase,
-  sectionId,
-  fields,
-}: {
-  supabase: AppSupabaseClient;
-  sectionId: string;
-  fields: {
-    title: string;
-    content: string | null;
-    cta: string | null;
-    category: string | null;
-  };
-}): Promise<TranslationSyncResult> {
-  try {
-    const timestamp = new Date().toISOString();
-    const [englishTranslation, spanishTranslation] = await Promise.all([
-      translateSectionFields(fields, 'en'),
-      translateSectionFields(fields, 'es'),
-    ]);
-
-    const successfulLanguages: SupportedTranslationLanguage[] = [];
-    const failedLanguages: SupportedTranslationLanguage[] = [];
-    const translations = [];
-
-    if (englishTranslation) {
-      successfulLanguages.push('en');
-      translations.push({
-        section_id: sectionId,
-        language: 'en' as const,
-        ...englishTranslation,
-        updated_at: timestamp,
-      });
-    } else {
-      failedLanguages.push('en');
-    }
-
-    if (spanishTranslation) {
-      successfulLanguages.push('es');
-      translations.push({
-        section_id: sectionId,
-        language: 'es' as const,
-        ...spanishTranslation,
-        updated_at: timestamp,
-      });
-    } else {
-      failedLanguages.push('es');
-    }
-
-    if (!translations.length) {
-      return buildSyncResult(successfulLanguages, failedLanguages);
-    }
-
-    const { error } = await supabase
-      .from('hotel_section_translations')
-      .upsert(translations, { onConflict: 'section_id,language' });
-
-    if (error) {
-      logOperationalError({
-        module: 'translation',
-        action: 'syncSectionTranslations',
-        operation: 'persist translations',
-        targetId: sectionId,
-        error,
-      });
-      return buildSyncResult([], TARGET_LANGUAGES);
-    }
-
-    return buildSyncResult(successfulLanguages, failedLanguages);
-  } catch (error) {
-    logOperationalError({
-      module: 'translation',
-      action: 'syncSectionTranslations',
-      operation: 'translate and persist',
-      targetId: sectionId,
-      error,
-    });
-    return buildSyncResult([], TARGET_LANGUAGES);
-  }
+export async function syncSectionTranslations(input:Parameters<typeof import('./service-translation-sync').syncServiceEditorialTranslations>[0]) {
+  const {syncServiceEditorialTranslations}=await import('./service-translation-sync');
+  return syncServiceEditorialTranslations(input);
 }
 
 export async function syncDepartmentTranslations({

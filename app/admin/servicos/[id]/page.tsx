@@ -1,38 +1,24 @@
+import { ServiceTranslationManager } from '@/components/admin/service-translation-manager';
+import { reviewServiceTranslationAction, translateServiceLanguageAction } from '../translation-actions';
 import { buildRoomServiceHref, buildPublicHotelServiceHref } from '@/lib/public-routes';
 import { MIN_SERVICE_DETAIL_CONTENT_LENGTH } from '@/lib/service-destinations';
 import { GuestServiceFields } from '@/components/admin/guest-service-fields';
 import {ServiceGuideEditor} from '@/components/admin/service-guide-editor';
 import {saveServiceGuideAction} from './guide-actions';
 import {parseRoomGuide} from '@/lib/room-guides';
-import { FileText, Hash } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import { ServiceGuidedFields } from '@/components/admin/service-guided-fields';
 import { FeedbackToast } from '@/components/feedback-toast';
 import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
   AdminBreadcrumbs,
-  AdminField,
-  AdminFormGrid,
-  AdminGuideCard,
-  AdminHelpList,
   AdminInfoBadge,
   AdminPageHero,
   AdminSectionTitle,
-  AdminSelect,
   AdminSurface,
-  AdminTextInput,
-  AdminTextarea,
 } from '@/components/admin/ui';
 import { requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
-import {
-  SERVICE_ACTION_TYPE_OPTIONS,
-} from '@/lib/service-action-types';
 import { buildServiceCategoryOptions } from '@/lib/service-options';
-import {
-  getRetranslationHelpText,
-  getTranslationWorkflowHelpItems,
-} from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
 import { updateSectionAction } from './actions';
 
@@ -86,6 +72,8 @@ export default async function EditServicePage({ params, searchParams }: PageProp
   if(guideResult.error)throw new Error('Não foi possível carregar o guia deste serviço.');
   const guideRow=guideResult.data?.[0];
   const canPreviewGuides=profile.normalizedRole==='administrador'&&['experience.preview','core.directory','content.services','content.languages'].every(key=>guideModules.data?.some(m=>m.module_key===key&&m.is_enabled));
+  const {data:translationRows,error:translationError}=await supabase.from('hotel_section_translations').select('*').eq('section_id',section.id);
+  if(translationError)throw new Error('Não foi possível carregar as traduções.');
   const action = updateSectionAction.bind(null, id);
   const serviceCategoryOptions = buildServiceCategoryOptions(
     (hotelSectionCategories || []).map((item) => item.category)
@@ -98,8 +86,8 @@ export default async function EditServicePage({ params, searchParams }: PageProp
 
       <AdminPageHero
         eyebrow="editar serviço"
-        title="Editar item do diretório"
-        description="Atualize título, tipo de ação, descrição, link, ordem e status de exibição do serviço."
+        title="Editar serviço"
+        description="Atualize as informações em português e revise os idiomas quando necessário."
         rightSlot={
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[28px] bg-white/10 p-5 backdrop-blur">
@@ -122,113 +110,18 @@ export default async function EditServicePage({ params, searchParams }: PageProp
           action={<AdminInfoBadge>Serviço do diretório</AdminInfoBadge>}
         />
 
-        <AdminGuideCard
-          title="Como a tradução funciona neste cadastro"
-          description={getRetranslationHelpText()}
-          className="mt-8"
-        >
-          <AdminHelpList items={getTranslationWorkflowHelpItems()} />
-        </AdminGuideCard>
 
-        <form action={action}>
-          <AdminFormGrid>
-            <AdminField label="Título" className="md:col-span-2">
-              <AdminTextInput
-                name="title"
-                defaultValue={section.title || ''}
-                required
-                placeholder="Ex.: Café da manhã"
-              />
-            </AdminField>
 
-            <ServiceGuidedFields
-              categoryOptions={serviceCategoryOptions}
-              initialIcon={section.icon}
-              initialCategory={section.category}
-            />
-            <GuestServiceFields initial={section.guest_presentation} title={section.title} content={section.content} icon={section.icon} themePreset={hotel.theme_preset} serviceId={section.id} hotelId={hotel.id} hotelSlug={hotel.slug} hotelSubdomain={hotel.subdomain} canonicalRoomHref={buildRoomServiceHref({slug:hotel.slug,language:'pt'})} category={section.category} actionType={section.service_action_type} url={section.url} cta={section.cta} hasGuide={Boolean(guideRow?.published)} internalHref={buildPublicHotelServiceHref({slug:hotel.slug,serviceId:section.id,language:'pt'})} minDetailLength={MIN_SERVICE_DETAIL_CONTENT_LENGTH} />
-
-            <AdminField label="Tipo de ação do serviço">
-              <AdminSelect
-                name="service_action_type"
-                defaultValue={section.service_action_type || 'standard'}
-              >
-                {SERVICE_ACTION_TYPE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </AdminSelect>
-              <div className="mt-2 space-y-1 text-xs leading-5 text-slate-500">
-                <p>Padrão: abre a página normal do serviço.</p>
-                <p>Link externo: abre uma URL fixa configurada no serviço.</p>
-                <p>Cardápio por apartamento: usa o QR do apartamento para abrir o cardápio correto.</p>
-              </div>
-            </AdminField>
-
-            <AdminField label="Descrição" className="md:col-span-2">
-              <AdminTextarea
-                name="content"
-                defaultValue={section.content || ''}
-                placeholder="Descreva com clareza o que será apresentado ao hóspede."
-              />
-            </AdminField>
-
-            <AdminField label="Texto do botão">
-              <div className="relative">
-                <FileText className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <AdminTextInput
-                  name="cta"
-                  defaultValue={section.cta || ''}
-                  className="pl-11"
-                  placeholder="Ex.: Ver detalhes"
-                />
-              </div>
-              <p className="text-xs leading-5 text-slate-500">
-                O texto acompanha o tipo de ação configurado para o serviço.
-              </p>
-            </AdminField>
-
-            <AdminField label="Link">
-              <AdminTextInput
-                name="url"
-                defaultValue={section.url || ''}
-                placeholder="https://..."
-              />
-              <p className="text-xs leading-5 text-slate-500">
-                Obrigatório para Link externo. Em Cardápio por apartamento, o destino final é resolvido pelo QR do quarto.
-              </p>
-            </AdminField>
-
-            <AdminField label="Ordem">
-              <div className="relative">
-                <Hash className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <AdminTextInput
-                  type="number"
-                  name="sort_order"
-                  defaultValue={section.sort_order ?? 0}
-                  className="pl-11"
-                />
-              </div>
-            </AdminField>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">Status</label>
-              <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm font-medium text-slate-700">
-                <input type="checkbox" name="enabled" defaultChecked={section.enabled ?? false} />
-                Ativo no diretório
-              </label>
-            </div>
-          </AdminFormGrid>
-
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <AdminSubmitButton label="Salvar alterações" pendingLabel="Salvando..." />
-            <AdminInfoBadge>Atualização com feedback visual</AdminInfoBadge>
-          </div>
+        <form action={action} className="mt-6">
+          <input type="hidden" name="source_version" value={section.updated_at||''}/>
+          <GuestServiceFields initial={section.guest_presentation} title={section.title} content={section.content} icon={section.icon} themePreset={hotel.theme_preset} serviceId={section.id} hotelId={hotel.id} hotelSlug={hotel.slug} hotelSubdomain={hotel.subdomain} canonicalRoomHref={buildRoomServiceHref({slug:hotel.slug,language:'pt'})} category={section.category} actionType={section.service_action_type} url={section.url} cta={section.cta} hasGuide={Boolean(guideRow?.published)} internalHref={buildPublicHotelServiceHref({slug:hotel.slug,serviceId:section.id,language:'pt'})} minDetailLength={MIN_SERVICE_DETAIL_CONTENT_LENGTH} categoryOptions={serviceCategoryOptions} sortOrder={section.sort_order||0} enabled={Boolean(section.enabled)} allowRoomActions={Boolean(guideModules.data?.some(m=>m.module_key==='rooms.qr'&&m.is_enabled))}/>
+          <div className="mt-6"><AdminSubmitButton label="Salvar alterações" pendingLabel="Salvando e traduzindo..."/></div>
         </form>
+        <ServiceTranslationManager source={section} rows={translationRows||[]} sectionId={section.id} sourceVersion={section.updated_at} reviewAction={guidesEnabled?reviewServiceTranslationAction:undefined} translateAction={guidesEnabled?translateServiceLanguageAction:undefined}/>
+
       </AdminSurface>
       {guideRow?.draft&&canPreviewGuides?<AdminSurface><h2 className="font-semibold">Prévia privada do rascunho</h2><p className="mt-2 text-sm">Somente leitura; não habilita o Serviço nem publica o guia.</p><nav className="mt-3 flex flex-wrap gap-3">{(['pt','en','es'] as const).map(lang=><a className="inline-flex min-h-11 items-center rounded-xl border px-4" key={lang} href={'/preview/guias/'+section.id+'?lang='+lang} target="_blank" rel="noopener noreferrer">Prévia {lang.toUpperCase()}</a>)}</nav></AdminSurface>:null}
-      {guidesEnabled&&section.service_action_type!=='room_restaurant_menu'?<ServiceGuideEditor published={Boolean(guideRow?.published)} serviceId={section.id} revision={guideRow?.revision??0} initial={parseRoomGuide(guideRow?.draft,hotel.id,section.id)} action={saveServiceGuideAction}/>:null}
+      {guidesEnabled&&section.service_action_type!=='room_restaurant_menu'?<details className="rounded-2xl border border-slate-200 bg-white p-5"><summary className="min-h-11 cursor-pointer font-semibold">Guias vinculados · configurações avançadas</summary><ServiceGuideEditor published={Boolean(guideRow?.published)} serviceId={section.id} revision={guideRow?.revision??0} initial={parseRoomGuide(guideRow?.draft,hotel.id,section.id)} action={saveServiceGuideAction}/></details>:null}
     </main>
   );
 }

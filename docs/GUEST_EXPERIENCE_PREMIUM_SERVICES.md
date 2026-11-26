@@ -1,4 +1,56 @@
-# LIBGUEST V4 — Guest Experience Premium — Release Candidate visual final
+# LIBGUEST V4 — Guest Experience Premium — Admin e tradução automática — RC definitiva
+
+## Fechamento definitivo — Admin e tradução automática — 26/11/2026
+
+A RC visual `f58e9574a6c0739767453b463e54496b43850b11` foi preservada. A branch
+continua `feat/guest-experience-premium-services-rc`; o checkout estava limpo no início.
+A main local permanece em `96ad808628e8e06f9cd7968dde6741f6cbd50eda`, sem checkout,
+merge, push ou alterações. Os demais worktrees, inclusive o SmartMenu paralelo, não
+foram modificados. Não houve novo fetch ou alegação de sincronização remota nesta etapa.
+
+O funcionário agora pode preencher somente PT. O Google canônico traduz título,
+descrição, categoria editorial, CTA, resumo, horário, localização e condições no save.
+Somente campos alterados/pendentes elegíveis geram requisições. Texto manual ou legado
+é preservado; mudança da fonte sinaliza revisão e usa fallback PT até validação.
+A persistência compara versões da fonte e da tradução em uma transação, descartando
+respostas atrasadas. Falha do provedor mantém o cadastro em PT e permite nova tentativa.
+
+O formulário foi organizado em informações básicas, apresentação com prévia real,
+ações avançadas recolhidas e idiomas com resumo PT/EN/ES, revisão opcional e estados
+por campo. Retradução que pode substituir manual exige confirmação. Opções por QR
+só aparecem para módulo habilitado ou configuração legada existente. Guias mantêm
+seu editor e contrato, em acesso avançado recolhido.
+
+Uma ação explícita prepara o preenchimento retroativo de até cinco serviços do hotel
+por execução, sem chamadas para campos atuais ou substituição silenciosa de manuais.
+Não foi executada em produção. Detalhes e limite da janela de seleção de 1.000 registros
+estão em [Tradução editorial canônica](SERVICE_EDITORIAL_TRANSLATIONS.md).
+
+Migration nova: `20261126053504_service_editorial_translation_state.sql`, dependente
+da migration de apresentação já existente. Adiciona `guest_fields` e `editorial_state`
+na tabela de traduções existente, invalidação e RPC com allowlist, tenant, papel,
+entitlements e comparação de versões. Não altera RLS/grants amplos, nem cria infraestrutura
+paralela de tradução. Validada somente no Supabase local. Para completar o laboratório
+foram carregados contratos existentes de guias e apresentação, sem alterar esses arquivos.
+Ambas as migrations novas desta RC continuam pendentes de aplicação produtiva autorizada.
+
+Validação: 21 testes direcionados de serviços; checks de compatibilidade dos helpers
+compartilhados de tradução; 23 verificações autenticadas locais com Google simulado;
+Google real em dois batches de oito campos com texto sintético, sem banco real de hotéis.
+A persistência e os fluxos de revisão/falha foram validados com o provedor simulado.
+A densidade permanece 7/8 em 390×900 e 390×844. TypeScript, lint e build compõem o gate.
+Nenhum CSS, cabeçalho, sheet, dock ou agrupamento público homologado foi redesenhado.
+A única mudança pública é o consumo de tradução atual e o fallback correto.
+
+Os detalhes dos testes, proveniência, revisão, fallback, limitação de nomes próprios
+livres e achado pré-existente do advisor local constam na documentação de tradução.
+GO para RC definitiva local. Publicação continua NO-GO até revisão do pacote,
+aplicação autorizada das migrations e autorização de publicação. Não houve dados
+produtivos, lote produtivo, pedido, impressão, ativação V4, deploy, push ou merge.
+O SHA final completo estará no relatório e manifesto do ZIP após o commit local.
+
+As seções abaixo preservam a recuperação e as evidências da RC visual de origem;
+a decisão de tradução manual dos metadados foi substituída pelo contrato acima.
 
 ## Refinamento visual final — 26/11/2026
 
@@ -186,11 +238,11 @@ servidor, preservando a fronteira server/client. Guias e experiências dedicadas
 viram sheets; links mostram o destino sem sair da prévia e sem acionar operações.
 Atendimento usa somente o canal existente. A prévia não simula autorização de pedido.
 
-Novos metadados localizados são editoriais manuais, com fallback `translatedText` por
-campo. O fluxo automático existente continua responsável por título, descrição,
-categoria e CTA. Integrar os novos mapas à tradução automática exigiria expandir o
-contrato de revisão/invalidação; isso não foi feito para evitar sobrescrever traduções
-manuais ou criar outro mecanismo. A tradução manual existente foi preservada no teste real.
+Na RC visual anterior, os novos metadados tinham revisão manual e fallback por campo.
+Essa limitação foi resolvida no fechamento definitivo: os oito campos agora usam o
+Google canônico no salvamento, com persistência por idioma, proveniência e revisão.
+O contrato atual e a compatibilidade com mapas legados estão documentados em
+[SERVICE_EDITORIAL_TRANSLATIONS.md](SERVICE_EDITORIAL_TRANSLATIONS.md).
 
 Migration `20261126031405_guest_service_presentation.sql`: coluna JSONB nullable no
 cadastro existente, objeto até 20.000 bytes, constraint protegida para reexecução.

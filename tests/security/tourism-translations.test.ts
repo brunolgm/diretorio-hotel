@@ -271,9 +271,9 @@ test('manual retranslation requires operator and tourism, scopes item and reject
   assert.equal(foreign.requests.length, 0);
 });
 
-test('five existing editorial syncs retain their transport, persistence and feedback behavior', async () => {
+test('four unchanged editorial syncs retain their transport, persistence and feedback behavior', async () => {
   const cases = [
-    ['syncSectionTranslations', 'sectionId', 'hotel_section_translations', 'section_id,language', { title: 'Title', content: null, cta: 'CTA', category: 'Category' }],
+    // Services now has field provenance/CAS coverage in service-editorial-translations.test.ts.
     ['syncDepartmentTranslations', 'departmentId', 'hotel_department_translations', 'department_id,language', { name: 'Name', description: null, action: 'Action' }],
     ['syncPolicyTranslations', 'policyId', 'hotel_policy_translations', 'policy_id,language', { title: 'Title', description: null }],
     ['syncAnnouncementTranslations', 'announcementId', 'hotel_announcement_translations', 'announcement_id,language', { title: 'Title', body: 'Body' }],
@@ -302,7 +302,7 @@ test('five existing editorial syncs retain their transport, persistence and feed
       const result = await sync({ supabase: client, [idKey]: id, fields, hotelId:'fixture-hotel', expectedParentVersion:'2026-10-31T00:00:00Z' });
       assert.equal(result.status, mode === 'persist-error' ? 'failed' : mode);
       assert.equal(writes, 1); assert.equal(h.requests.length, 2);
-      assert.ok(h.requests.every((request) => !request.signal)); // Tourism-only timeout doesn't change existing domains.
+      assert.ok(h.requests.every((request) => !request.signal)); // These unchanged domains retain their transport timeout behavior.
       assert.ok(!h.events.includes('content.languages'));
       assert.equal(h.admin.formatTranslationWarning(result) === null, mode === 'complete');
     }

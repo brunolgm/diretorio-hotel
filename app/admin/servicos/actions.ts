@@ -21,7 +21,7 @@ import { normalizeServiceCategory, resolveServiceIconName } from '@/lib/service-
 import {
   buildFeedbackRedirect,
   buildOperationalErrorMessage,
-  formatTranslationWarning,
+  formatSectionTranslationWarning as formatTranslationWarning,
   logOperationalError,
   syncSectionTranslations,
 } from '@/lib/services/translation-admin';
@@ -97,12 +97,7 @@ export async function createSectionAction(formData: FormData) {
   const translationResult = await syncSectionTranslations({
     supabase,
     sectionId: section.id,
-    fields: {
-      title: payload.title,
-      content: payload.content,
-      cta: payload.cta,
-      category: payload.category,
-    },
+    hotelId: hotel.id,
   });
 
   revalidatePath('/admin/servicos');
@@ -267,12 +262,7 @@ export async function retranslateSectionAction(formData: FormData) {
   const translationResult = await syncSectionTranslations({
     supabase,
     sectionId: section.id,
-    fields: {
-      title: section.title,
-      content: section.content,
-      cta: section.cta,
-      category: section.category,
-    },
+    hotelId: hotel.id,
   });
 
   revalidatePath('/admin/servicos');
@@ -280,7 +270,7 @@ export async function retranslateSectionAction(formData: FormData) {
 
   redirect(
     buildFeedbackRedirect('/admin/servicos', {
-      success: 'Retradução do serviço concluída',
+      success: translationResult.status==='complete'?'Traduções atualizadas.':'Verificação de traduções concluída.',
       warning: formatTranslationWarning(translationResult),
     })
   );

@@ -142,6 +142,17 @@ O dashboard mostra uma checklist baseada nos dados do hotel autenticado. Ela ori
 - inglês e espanhol são gerados no save
 - se houver falha de tradução, o conteúdo em português continua publicado
 
+Em **Serviços**, preencha as informações básicas somente em português. Apresentação ao
+hóspede contém agrupamento, ordem, visibilidade e prévia. Ações avançadas e idiomas ficam
+recolhidos. Em **Idiomas e traduções**, confira a situação real de cada idioma, revise
+campos ou tente novamente somente pendências. Revisões manuais ficam protegidas; quando
+o português muda, o painel indica a necessidade de revisão. Substituí-las por tradução
+automática exige confirmar “Retraduzir tudo”.
+
+O botão de pendências do hotel processa até cinco serviços por vez e preserva manuais.
+Execute somente quando autorizado; confira o resultado antes de repetir, principalmente
+em falha do Google. [Contrato e procedimento](SERVICE_EDITORIAL_TRANSLATIONS.md).
+
 ## Validação rápida após mudanças
 1. abrir a rota pública no celular
 2. revisar hero, serviços, contatos e políticas

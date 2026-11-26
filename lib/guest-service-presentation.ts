@@ -41,9 +41,10 @@ export function parseGuestServicePresentation(value: unknown): GuestServicePrese
   return result;
 }
 
-export function readGuestServicePresentation(form: FormData): Json {
+export function readGuestServicePresentation(form: FormData, previous?: unknown): Json {
   const raw: Record<string, unknown> = { area: form.get('guest_area'), group: form.get('guest_group'), interaction: form.get('guest_interaction') };
-  for (const field of GUEST_SERVICE_TEXT_FIELDS) raw[field] = Object.fromEntries(['pt', 'en', 'es'].map(lang => [lang, form.get(`guest_${field}_${lang}`)]));
+  const existing=parseGuestServicePresentation(previous);
+  for (const field of GUEST_SERVICE_TEXT_FIELDS) raw[field] = Object.fromEntries((['pt', 'en', 'es'] as const).map(lang => [lang, form.has(`guest_${field}_${lang}`)?form.get(`guest_${field}_${lang}`):existing[field]?.[lang]]));
   return parseGuestServicePresentation(raw) as Json;
 }
 

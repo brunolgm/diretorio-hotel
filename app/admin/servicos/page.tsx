@@ -1,22 +1,22 @@
+import { translatePendingHotelServicesAction } from './translation-actions';
+import { ServiceTranslationManager } from '@/components/admin/service-translation-manager';
+import { serviceLanguageStatus } from '@/lib/services/service-editorial-fields';
+import { buildRoomServiceHref } from '@/lib/public-routes';
 import { GuestServiceFields } from '@/components/admin/guest-service-fields';
 import {
   CheckCircle2,
   Eye,
-  FileText,
   Languages,
   LayoutGrid,
   Pencil,
   Power,
 } from 'lucide-react';
-import { ServiceGuidedFields } from '@/components/admin/service-guided-fields';
 import { FeedbackToast } from '@/components/feedback-toast';
 import { AdminConfirmAction } from '@/components/admin/confirm-action';
 import { AdminSubmitButton } from '@/components/admin/form-submit-button';
 import {
   AdminActionGroup,
-  AdminCheckboxRow,
   AdminEmptyState,
-  AdminField,
   AdminFilterBar,
   AdminGuideCard,
   AdminHelpList,
@@ -35,19 +35,15 @@ import {
   AdminStatCard,
   AdminStatusPill,
   AdminSurface,
-  AdminTextInput,
-  AdminTextarea,
   AdminTranslationStatusPill,
 } from '@/components/admin/ui';
 import { hasMinimumRole, requireAdminAccess } from '@/lib/auth';
 import { getAdminHotel } from '@/lib/queries';
 import {
   getServiceActionTypeLabel,
-  SERVICE_ACTION_TYPE_OPTIONS,
 } from '@/lib/service-action-types';
 import { buildServiceCategoryOptions } from '@/lib/service-options';
 import {
-  getAvailableTranslationLanguages,
   getRetranslationHelpText,
   getTranslationAvailabilityDescription,
   getTranslationAvailabilityStatus,
@@ -104,7 +100,7 @@ export default async function AdminServicesPage({
   const { data: sectionTranslations, error: translationError } = sectionIds.length
     ? await supabase
         .from('hotel_section_translations')
-        .select('section_id, language')
+        .select('*')
         .in('section_id', sectionIds)
     : { data: [], error: null };
 
@@ -121,6 +117,9 @@ export default async function AdminServicesPage({
       translationsBySectionId.set(translation.section_id, currentTranslations);
     }
   );
+
+  const {data:serviceModules}=await supabase.rpc('get_current_hotel_modules');
+  const allowRoomActions=Boolean(serviceModules?.some(m=>m.module_key==='rooms.qr'&&m.is_enabled));
 
   const totalServices = sections?.length || 0;
   const activeServices = sections?.filter((item) => item.enabled).length || 0;
@@ -212,98 +211,14 @@ export default async function AdminServicesPage({
               action={<AdminInfoBadge>Publicação direta no diretório</AdminInfoBadge>}
             />
 
-            <AdminGuideCard
-              title="Como cadastrar um bom serviço"
-              description="Use cards curtos, objetivos e orientados à ação para facilitar a leitura do hóspede no celular."
-              className="mt-8"
-            >
-              <AdminHelpList
-                items={[
-                  'Prefira títulos curtos e categorias fáceis de reconhecer.',
-                  'Use a descrição para explicar o benefício ou o que o hóspede encontra ao tocar no card.',
-                  'Defina o tipo de ação do serviço para evitar comportamento ambiguo entre detalhe interno, link externo e cardápio por apartamento.',
-                ]}
-              />
-            </AdminGuideCard>
 
-            <form action={createSectionAction}>
-              <div className="mt-8 grid gap-5">
-                <AdminField label="Título" error={errorMessage?.toLowerCase().includes('título') ? errorMessage : null}>
-                  <AdminTextInput name="title" required placeholder="Ex.: Room service" aria-invalid={errorMessage?.toLowerCase().includes('título') || undefined} aria-describedby={errorMessage?.toLowerCase().includes('título') ? 'title-error' : undefined} />
-                  <AdminHelpText>
-                    Este é o texto principal do card. Prefira algo fácil de escanear.
-                  </AdminHelpText>
-                </AdminField>
 
-                <ServiceGuidedFields categoryOptions={serviceCategoryOptions} />
-                <GuestServiceFields />
-
-                <AdminField label="Descrição">
-                  <AdminTextarea
-                    name="content"
-                    className="min-h-36"
-                    placeholder="Descreva o serviço que será exibido no diretório."
-                  />
-                  <AdminHelpText>
-                    Explique em uma ou duas frases o que o hóspede encontra ao abrir este item.
-                  </AdminHelpText>
-                </AdminField>
-
-                <AdminField label="Tipo de ação do serviço">
-                  <AdminSelect name="service_action_type" defaultValue="standard">
-                    {SERVICE_ACTION_TYPE_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </AdminSelect>
-                  <AdminHelpList
-                    items={[
-                      'Padrão: abre a página normal do serviço.',
-                      'Link externo: abre uma URL fixa configurada no serviço.',
-                      'Cardápio por apartamento: usa o QR do apartamento para abrir o cardápio correto.',
-                    ]}
-                  />
-                </AdminField>
-
-                <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                  <AdminField label="Texto do botão">
-                    <AdminTextInput name="cta" placeholder="Ex.: Ver mais" />
-                    <AdminHelpText>
-                      O texto acompanha o comportamento escolhido no tipo de ação.
-                    </AdminHelpText>
-                  </AdminField>
-
-                  <AdminField label="Link">
-                    <AdminTextInput name="url" placeholder="https://..." />
-                    <AdminHelpText>
-                      Obrigatório para Link externo. Em Cardápio por apartamento, o destino final vem do QR do quarto e não desta URL.
-                    </AdminHelpText>
-                  </AdminField>
-                </div>
-
-                <AdminField label="Ordem">
-                  <AdminTextInput type="number" name="sort_order" defaultValue="0" />
-                  <AdminHelpText>
-                    Números menores aparecem primeiro e ajudam a destacar o que é mais importante.
-                  </AdminHelpText>
-                </AdminField>
-
-                <AdminCheckboxRow>
-                  <input type="checkbox" name="enabled" defaultChecked />
-                  Ativo no diretório
-                </AdminCheckboxRow>
-              </div>
-
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <AdminSubmitButton label="Criar serviço" pendingLabel="Criando..." />
-
-                <AdminInfoBadge>
-                  <FileText className="h-3.5 w-3.5" />
-                  Os serviços aparecem automaticamente no diretório público
-                </AdminInfoBadge>
-              </div>
+            <form action={createSectionAction} className="mt-6">
+              <GuestServiceFields categoryOptions={serviceCategoryOptions} themePreset={hotel.theme_preset} hotelId={hotel.id} hotelSlug={hotel.slug} hotelSubdomain={hotel.subdomain} canonicalRoomHref={buildRoomServiceHref({slug:hotel.slug,language:'pt'})} allowRoomActions={allowRoomActions}/>
+              <div className="mt-6"><AdminSubmitButton label="Criar serviço" pendingLabel="Salvando e traduzindo..."/></div>
             </form>
+            <ServiceTranslationManager source={{title:'',content:null,category:null,cta:null}}/>
+
           </AdminSurface>
         ) : (
           <AdminSurface>
@@ -338,6 +253,7 @@ export default async function AdminServicesPage({
             <AdminHelpList items={getTranslationWorkflowHelpItems()} />
           </AdminGuideCard>
 
+          {canManageServices&&serviceModules?.some(m=>m.module_key==='content.languages'&&m.is_enabled)?<form action={translatePendingHotelServicesAction} className="mt-4"><AdminSubmitButton label="Traduzir pendências deste hotel (até 5 serviços)" pendingLabel="Processando pendências..." variant="secondary"/></form>:null}
           <AdminHelpText className="mt-4">{getRetranslationHelpText()}</AdminHelpText>
 
           <AdminFilterBar>
@@ -366,9 +282,7 @@ export default async function AdminServicesPage({
           <div className="mt-6 space-y-4">
             {filteredSections.length ? (
               filteredSections.map((item) => {
-                const availableLanguages = getAvailableTranslationLanguages(
-                  translationsBySectionId.get(item.id) || []
-                );
+                const availableLanguages = new Set((['en','es'] as const).filter(language=>serviceLanguageStatus(item,translationsBySectionId.get(item.id)?.find(row=>row.language===language),language).status==='current'));
                 const translationStatus = getTranslationAvailabilityStatus(availableLanguages);
 
                 return (
@@ -412,7 +326,7 @@ export default async function AdminServicesPage({
 
                           <form action={retranslateSectionAction}>
                             <input type="hidden" name="id" value={item.id} />
-                            <AdminSubmitButton label="Retraduzir" pendingLabel="Traduzindo..." variant="secondary" />
+                            <AdminSubmitButton label="Traduzir pendências" pendingLabel="Traduzindo..." variant="secondary" />
                           </form>
 
                           <form action={toggleSectionAction}>

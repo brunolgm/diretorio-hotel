@@ -62,6 +62,14 @@ Importante:
 2. a página pública não traduz em tempo real
 3. quando EN ou ES não existem, a página usa fallback para PT
 
+Regra canônica para novas funcionalidades editoriais: todo campo público aplicável à
+experiência trilíngue deve integrar a tradução automática no salvamento, persistência,
+invalidação e revisão manual. O cadastro somente em português deve ser suficiente.
+Serviços já integra título, descrição, categoria, CTA, resumo, horário, localização e
+condições. Campos alterados são traduzidos seletivamente; manuais são preservados e
+sinalizados quando a fonte muda. Tradução obsoleta usa fallback PT. Detalhes e procedimento
+retroativo: [Tradução editorial de Serviços](SERVICE_EDITORIAL_TRANSLATIONS.md).
+
 ## Stack atual
 
 ### Frontend

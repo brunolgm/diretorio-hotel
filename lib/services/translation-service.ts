@@ -136,15 +136,27 @@ export async function translateFbFields(fields: Record<string, string|null>, lan
 }
 
 export async function translateSectionFields(
-  fields: {
-    title: string;
-    content: string | null;
-    cta: string | null;
-    category: string | null;
-  },
-  targetLanguage: SupportedTranslationLanguage
+  fields: Record<string,string|null>,
+  targetLanguage: SupportedTranslationLanguage,
+  protectedTerms: string[] = [],
 ) {
-  return tryTranslateTextFields(fields, targetLanguage);
+  // Preserve technical/numeric literals before the same Google batch used by all editorial domains.
+  const literals:string[]=[];
+  const protect=(value:string)=>{const marker=`ZXQ${String(literals.length).padStart(5,'0')}QXZ`;literals.push(value);return marker;};
+  const terms=protectedTerms.filter(Boolean).sort((a,b)=>b.length-a.length).map(value=>value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
+  const pattern=new RegExp([...(terms.length?[terms.join('|')]:[]),'https?:\\/\\/[^\\s]+','[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}','\\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\\b','(?:R\\$|US\\$|€|\\$)\\s*\\d[\\d.,]*','(?<=(?:Piso|Andar|Bloco|Quarto|UH)\\s)[A-Za-z0-9-]+','\\*?\\d+(?:[:.,/–—-]\\d+)*(?:%|h)?','\\b[A-Z][A-Z0-9_-]+\\b','\\b[A-Z][a-z]+[A-Z][A-Za-z]*\\b'].join('|'),'g');
+  const masked=Object.fromEntries(Object.entries(fields).map(([key,value])=>[key,value?.replace(pattern,protect)??null]));
+  const textual=Object.fromEntries(Object.entries(masked).filter(([,value])=>value&&/\p{L}/u.test(value.replace(/ZXQ\d{5}QXZ/g,''))));
+  const translated=Object.keys(textual).length?await tryTranslateTextFields(textual,targetLanguage,true):{};
+  if(!translated)return null;
+  const result={...masked,...translated};
+  for(const key of Object.keys(result)) {
+    if(result[key]===null)continue;
+    for(const marker of masked[key]?.match(/ZXQ\d{5}QXZ/g)||[]) if(!result[key]!.includes(marker))return null;
+    result[key]=result[key]!.replace(/ZXQ(\d{5})QXZ/g,(_,index)=>literals[Number(index)]);
+    if(fields[key]?.trim()&&!result[key]?.trim())return null;
+  }
+  return result;
 }
 
 export async function translateDepartmentFields(

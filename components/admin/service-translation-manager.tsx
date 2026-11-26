@@ -1,0 +1,27 @@
+import { AdminConfirmAction } from './confirm-action';
+import { AdminField, AdminTextInput, AdminTextarea } from './ui';
+import { AdminSubmitButton } from './form-submit-button';
+import { SERVICE_EDITORIAL_FIELDS, SERVICE_FIELD_LABELS, serviceEditorialFields, serviceFieldState, serviceLanguageStatus, serviceTranslationValue, type ServiceEditorialSource, type ServiceTranslationRow } from '@/lib/services/service-editorial-fields';
+
+type Action=(form:FormData)=>void|Promise<void>;
+export function ServiceTranslationManager({source,rows=[],sectionId,sourceVersion,reviewAction,translateAction}:{source:ServiceEditorialSource;rows?:ServiceTranslationRow[];sectionId?:string;sourceVersion?:string|null;reviewAction?:Action;translateAction?:Action}) {
+  const fields=serviceEditorialFields(source);
+  const statusLabels={current:'Atualizado',pending:'Tradução pendente',review:'Revisão necessária',failed:'Falha · tentar novamente'};
+  return <details className="mt-6 rounded-2xl border border-slate-200 bg-white p-5" data-service-translations><summary className="min-h-11 cursor-pointer text-lg font-semibold"><span>4. Idiomas e traduções</span><span className="mt-2 flex flex-wrap gap-2 text-xs font-normal text-slate-600"><span className="rounded-lg bg-slate-50 px-2 py-1">PT · Fonte</span>{(['en','es'] as const).map(language=><span key={language} className="rounded-lg bg-slate-50 px-2 py-1">{language.toUpperCase()} · {sectionId?statusLabels[serviceLanguageStatus(source,rows.find(row=>row.language===language),language).status]:'Gerado ao salvar'}</span>)}</span></summary>
+    <p className="mb-4 text-sm text-slate-600">Português é a fonte. EN e ES são gerados ao salvar. A revisão é opcional; traduções manuais nunca são substituídas sem confirmação.</p>
+    <p className="mb-3 rounded-xl bg-slate-50 p-3 text-sm"><strong>Português</strong> · Fonte do cadastro</p>
+    {(['en','es'] as const).map(language=>{const row=rows.find(r=>r.language===language),status=serviceLanguageStatus(source,row,language);
+      return <details key={language} className="mb-3 rounded-xl border border-slate-200 p-4" data-language={language}><summary className="flex min-h-11 cursor-pointer flex-wrap items-center justify-between gap-2 font-semibold"><span>{language==='en'?'English':'Español'}</span><span className={`text-sm ${status.status==='current'?'text-emerald-700':'text-amber-800'}`}>{sectionId?`${statusLabels[status.status]} · ${status.complete}/${status.total}`:'Gerado ao salvar'}</span></summary>
+      {sectionId&&reviewAction?<form action={reviewAction} className="mt-4 space-y-4">
+        <input type="hidden" name="id" value={sectionId}/><input type="hidden" name="language" value={language}/><input type="hidden" name="source_version" value={sourceVersion||''}/><input type="hidden" name="translation_version" value={row?.updated_at||''}/>
+        {SERVICE_EDITORIAL_FIELDS.filter(field=>fields[field]).map(field=>{const state=serviceFieldState(row,field),value=serviceTranslationValue(source,row,field,language),id=`service-${language}-${field}`;return <AdminField key={field} label={SERVICE_FIELD_LABELS[field]} htmlFor={id}><p className="mb-2 text-sm text-slate-500">PT: {fields[field]}</p>{field==='content'||field==='conditions'?<AdminTextarea id={id} name={field} defaultValue={value||''} maxLength={field==='content'?30000:4000}/>:<AdminTextInput id={id} name={field} defaultValue={value||''} maxLength={300}/>}<p className="mt-1 text-xs text-slate-500">{state.status==='stale'?'Fonte alterada · tradução desatualizada':state.status==='failed'?'Falha na tradução':state.origin==='manual'?'Revisada manualmente':state.origin==='auto'?'Tradução automática':value?'Existente · origem anterior não registrada':'Tradução pendente'}</p></AdminField>;})}
+        <AdminSubmitButton label={`Salvar revisão ${language.toUpperCase()}`} pendingLabel="Salvando revisão..."/>
+      </form>:<p className="mt-3 text-sm text-slate-600">Salve o serviço em português para gerar e revisar os idiomas.</p>}
+      {sectionId&&translateAction?<div className="mt-4 flex flex-wrap gap-3">
+        <form action={translateAction}><input type="hidden" name="id" value={sectionId}/><input type="hidden" name="language" value={language}/><AdminSubmitButton variant="secondary" label={`Traduzir pendências ${language.toUpperCase()}`} pendingLabel="Traduzindo..."/></form>
+        <form action={translateAction}><input type="hidden" name="id" value={sectionId}/><input type="hidden" name="language" value={language}/><input type="hidden" name="force" value="1"/><AdminSubmitButton variant="secondary" label={`Atualizar automáticas ${language.toUpperCase()}`} pendingLabel="Traduzindo..."/></form>
+        <AdminConfirmAction action={translateAction} title="Substituir traduções manuais?" description="Os textos deste idioma serão gerados novamente a partir do português atual. Esta ação também poderá substituir sua revisão manual." triggerLabel={`Retraduzir tudo ${language.toUpperCase()}`} confirmLabel="Confirmar substituição" pendingLabel="Traduzindo..." tone="warning" hiddenFields={[{name:'id',value:sectionId},{name:'language',value:language},{name:'force',value:'1'},{name:'replace_manual',value:'1'}]}/>
+      </div>:null}</details>;
+    })}
+  </details>;
+}

@@ -17,7 +17,7 @@ import { normalizeServiceActionType } from '@/lib/service-action-types';
 import { normalizeServiceCategory, resolveServiceIconName } from '@/lib/service-options';
 import {
   buildFeedbackRedirect,
-  formatTranslationWarning,
+  formatSectionTranslationWarning as formatTranslationWarning,
   syncSectionTranslations,
 } from '@/lib/services/translation-admin';
 import { createClient } from '@/lib/supabase/server';
@@ -52,7 +52,10 @@ export async function updateSectionAction(id: string, formData: FormData) {
     redirect(`/admin/servicos/${id}?error=Informe%20uma%20URL%20fixa%20para%20o%20servi%C3%A7o`);
   }
 
-  const guestPresentation = formData.has('guest_presentation_present') ? readGuestServicePresentation(formData) : undefined;
+  const {data:previous}=await supabase.from('hotel_sections').select('*').eq('id',id).eq('hotel_id',hotel.id).maybeSingle();
+  const expectedVersion=readTrimmedString(formData,'source_version');
+  if(!previous||!expectedVersion||previous.updated_at!==expectedVersion)redirect(buildFeedbackRedirect('/admin/servicos/'+id,{warning:'O serviço mudou. Recarregue antes de salvar suas alterações.'}));
+  const guestPresentation = formData.has('guest_presentation_present') ? readGuestServicePresentation(formData,previous.guest_presentation) : undefined;
   if (guestPresentation && !guestServicePresentationFits(guestPresentation)) redirect('/admin/servicos?error=' + encodeURIComponent('Os textos da apresentação ultrapassam o limite conjunto de 20 KB. Reduza os textos e tente novamente.'));
 
   const payload: Database['public']['Tables']['hotel_sections']['Update'] = {
@@ -73,6 +76,7 @@ export async function updateSectionAction(id: string, formData: FormData) {
     .update(payload)
     .eq('id', id)
     .eq('hotel_id', hotel.id)
+    .eq('updated_at',expectedVersion)
     .select('id')
     .maybeSingle();
 
@@ -87,12 +91,7 @@ export async function updateSectionAction(id: string, formData: FormData) {
   const translationResult = await syncSectionTranslations({
     supabase,
     sectionId: updatedSection.id,
-    fields: {
-      title: payload.title || '',
-      content: payload.content ?? null,
-      cta: payload.cta ?? null,
-      category: payload.category ?? null,
-    },
+    hotelId: hotel.id,
   });
 
   revalidatePath('/admin/servicos');
