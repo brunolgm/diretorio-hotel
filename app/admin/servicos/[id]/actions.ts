@@ -1,5 +1,6 @@
 'use server';
 
+import { readGuestServicePresentation } from '@/lib/guest-service-presentation';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdminAccess } from '@/lib/auth';
@@ -54,6 +55,7 @@ export async function updateSectionAction(id: string, formData: FormData) {
   const payload: Database['public']['Tables']['hotel_sections']['Update'] = {
     title,
     icon,
+    ...(formData.has('guest_presentation_present') ? { guest_presentation: readGuestServicePresentation(formData) } : {}),
     content: readNullableString(formData, 'content'),
     cta: readNullableString(formData, 'cta'),
     url,

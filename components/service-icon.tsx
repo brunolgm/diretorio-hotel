@@ -1,11 +1,10 @@
 import {
   BedDouble,
-  BellRing,
   Building2,
   Coffee,
   ConciergeBell,
   Dumbbell,
-  Droplets,
+  Waves,
   Globe,
   Heart,
   Hotel,
@@ -35,7 +34,7 @@ export function ServiceIcon({ iconName, className }: ServiceIconProps) {
     case 'UtensilsCrossed':
       return <UtensilsCrossed className={className} />;
     case 'BellRing':
-      return <BellRing className={className} />;
+      return <ConciergeBell className={className} />;
     case 'ShoppingBag':
       return <ShoppingBag className={className} />;
     case 'Sparkles':
@@ -51,7 +50,7 @@ export function ServiceIcon({ iconName, className }: ServiceIconProps) {
     case 'Dumbbell':
       return <Dumbbell className={className} />;
     case 'Droplets':
-      return <Droplets className={className} />;
+      return <Waves className={className} />;
     case 'Wifi':
       return <Wifi className={className} />;
     case 'Building2':

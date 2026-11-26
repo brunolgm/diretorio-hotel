@@ -1,6 +1,6 @@
 import {FlightHomeAccess} from './home-saved-flight';
 import type { CSSProperties } from 'react';
-import { Wifi, Coffee, Clock3, ChevronDown, ChevronRight, ConciergeBell, Utensils, Plane, MessageCircle } from 'lucide-react';
+import { Wifi, Coffee, Clock3, ChevronDown, ChevronRight, Grid2X2, ConciergeBell, Utensils, Plane, MessageCircle } from 'lucide-react';
 import {getPublicEssentials} from '@/lib/public-essentials';
 import {getPublicCopy} from '@/lib/public-copy';
 import {getUniversalMobileHome} from '@/lib/public-experience-v4';
@@ -10,7 +10,7 @@ import type {SupportedPublicLanguage} from '@/lib/public-language';
 
 export function PublicExperienceMobileTasks({pageData,language,domainContext,preferSubdomainRoot,style,desktopEssentials=false}:{pageData:PublicHotelPageData;language:SupportedPublicLanguage;domainContext:DomainContext;preferSubdomainRoot:boolean;style?:CSSProperties;desktopEssentials?:boolean}){
  const copy=getPublicCopy(language),model=getUniversalMobileHome(pageData,language,domainContext,preferSubdomainRoot);
- const actions={roomService:{label:'Room Service',icon:ConciergeBell},services:{label:copy.navigationServices,icon:ConciergeBell},dining:{label:copy.universalDining,icon:Utensils},flights:{label:copy.universalFlights,icon:Plane},contact:{label:copy.universalContact,icon:MessageCircle}};
+ const actions={roomService:{label:'Room Service',icon:ConciergeBell},services:{label:copy.navigationServices,icon:Grid2X2},dining:{label:copy.universalDining,icon:Utensils},flights:{label:copy.universalFlights,icon:Plane},contact:{label:copy.universalContact,icon:MessageCircle}};
  const compact=desktopEssentials&&pageData.hotel.theme_preset==='bugan';
  const periods=compact?getPublicEssentials(pageData,language).breakfastPeriods:[];
  const connect={pt:'Como conectar',en:'How to connect',es:'Cómo conectarse'}[language];

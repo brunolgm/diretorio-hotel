@@ -1,3 +1,4 @@
+import { GuestServiceFields } from '@/components/admin/guest-service-fields';
 import {
   CheckCircle2,
   Eye,
@@ -235,6 +236,7 @@ export default async function AdminServicesPage({
                 </AdminField>
 
                 <ServiceGuidedFields categoryOptions={serviceCategoryOptions} />
+                <GuestServiceFields />
 
                 <AdminField label="Descrição">
                   <AdminTextarea

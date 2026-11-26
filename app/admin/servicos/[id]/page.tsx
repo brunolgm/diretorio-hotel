@@ -1,3 +1,4 @@
+import { GuestServiceFields } from '@/components/admin/guest-service-fields';
 import {ServiceGuideEditor} from '@/components/admin/service-guide-editor';
 import {saveServiceGuideAction} from './guide-actions';
 import {parseRoomGuide} from '@/lib/room-guides';
@@ -143,6 +144,7 @@ export default async function EditServicePage({ params, searchParams }: PageProp
               initialIcon={section.icon}
               initialCategory={section.category}
             />
+            <GuestServiceFields initial={section.guest_presentation} title={section.title} content={section.content} icon={section.icon} themePreset={hotel.theme_preset} />
 
             <AdminField label="Tipo de ação do serviço">
               <AdminSelect

@@ -1,3 +1,5 @@
+import { GuestServiceExplorer } from './guest-service-explorer';
+import { getGuestServiceCatalog } from '@/lib/guest-service-catalog';
 import {PublicFbContent} from './public-fb-content';
 import {PublicFbPremiumShell} from './public-fb-premium-shell';
 import {PublicStayInformation} from './public-stay-information';
@@ -18,8 +20,8 @@ import {
   ChevronRight,
   Clock3,
   Coffee,
-  Hotel,
   Globe2,
+  Grid2X2,
   Info,
   MapPinned,
   MessageCircle,
@@ -176,6 +178,9 @@ export function HotelPublicAreaContent({
   const isV4=pageData.presentation?.experienceVersion==='v4';
   const theme = resolveHotelTheme(hotel.theme_preset, hotel.theme_primary_color);
   const isBugan = theme.preset === 'bugan';
+  const guestCatalog = isV4 ? getGuestServiceCatalog(pageData, language, domainContext, preferSubdomainRoot) : [];
+  const guestServices = guestCatalog.filter(item => item.area === 'services');
+  const supplemental = guestCatalog.filter(item => area === 'informacoes' ? ['information', 'hotel'].includes(item.area) : area === 'contato' ? item.area === 'contact' : area === 'cardapio' ? item.area === 'dining' : false);
   if(isBugan&&isV4&&area==='cardapio'&&pageData.fb&&!pageData.trackingOrderId)return <PublicFbPremiumShell pageData={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>;
   const isNovotel = theme.preset === 'novotel';
   const isGrandMercure = theme.preset === 'grand-mercure';
@@ -198,7 +203,7 @@ export function HotelPublicAreaContent({
     cardapio: { title: areaCopy.menuTitle, description: pageData.fb ? ({pt:'Restaurantes, bares e cardápios publicados pelo hotel.',en:'Restaurants, bars and menus published by the hotel.',es:'Restaurantes, bares y menús publicados por el hotel.'}[language]) : areaCopy.menuDescription, icon: Utensils },
     turismo: { title: areaCopy.tourismTitle, description: areaCopy.tourismDescription, icon: MapPinned },
     comunicados: { title: areaCopy.announcementsTitle, description: areaCopy.announcementsDescription, icon: BellRing },
-    servicos: { title: areaCopy.servicesTitle, description: areaCopy.servicesDescription, icon: Hotel },
+    servicos: { title: areaCopy.servicesTitle, description: areaCopy.servicesDescription, icon: Grid2X2 },
   }[area];
   const AreaIcon = areaMeta.icon;
   const whatsappHref = hotel.whatsapp_number ? `https://wa.me/${String(hotel.whatsapp_number).replace(/\D/g, '')}` : null;
@@ -234,10 +239,11 @@ export function HotelPublicAreaContent({
   return (
     <main className={`hotel-theme-page min-h-screen ${isGrandMercure ? 'grand-mercure-dock-layout' : isNovotel ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isMercure ? 'mercure-internal-page pb-[calc(5.5rem+env(safe-area-inset-bottom))] min-[1025px]:pb-12' : isBugan ? 'pb-[calc(6rem+env(safe-area-inset-bottom))]' : 'pb-10'}`} style={theme.cssVars} data-public-internal-v4={pageData.presentation?.experienceVersion==='v4'?'':undefined} data-public-area={area} data-hotel-theme={theme.preset} data-hotel-icon-style={theme.iconStyle}>
       <PublicAnalytics hotelSlug={hotel.slug} language={language} />
+      {isV4 ? <nav className="guest-desktop-navigation" aria-label={copy.navigationLabel}><a className="guest-desktop-brand" href={homeHref}>{hotel.name}</a><div>{navigationItems.map(item => <a key={item.key} href={item.href} aria-current={activeItem === item.key ? 'page' : undefined}>{item.label}</a>)}{hotel.booking_url ? <a className="guest-desktop-booking" href={hotel.booking_url} target="_blank" rel="noreferrer" data-analytics-event="booking_click" data-analytics-target-url={hotel.booking_url}>{copy.bookNow}</a> : null}</div></nav> : null}
       {isGrandMercure ? <GrandMercureGlobalMandala internal /> : null}
       <div data-public-internal-body className={`mx-auto px-4 py-5 md:px-6 md:py-8 ${isGrandMercure ? 'grand-mercure-scroll-region' : ''} ${isBrandExperience ? 'max-w-7xl' : 'max-w-5xl'}`}>
         {isBugan || isV4 ? (
-          <PublicAreaHero hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={areaCopy.back} title={areaMeta.title} description={areaMeta.description} icon={AreaIcon} />
+          <PublicAreaHero desktopImageUrl={isV4 && area === 'servicos' ? hotel.hero_image_url : null} hotel={hotel} language={language} languageBasePath={basePath} homeHref={homeHref} backLabel={areaCopy.back} title={areaMeta.title} description={areaMeta.description} icon={AreaIcon} />
         ) : isNovotel ? (
           <NovotelAreaHero
             hotel={hotel}
@@ -338,7 +344,9 @@ export function HotelPublicAreaContent({
           {area === 'informacoes'&&isV4?<><InternalAccommodation data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>{sections.length?<nav id="hotel-service-access" className="public-internal-service-access"><a href={buildAreaHref('servicos')}>{copy.navigationServices}<ChevronRight aria-hidden/></a></nav>:null}</>:null}
           {area === 'informacoes'?<RoomGuideLinks data={pageData} language={language} domainContext={domainContext} preferSubdomainRoot={preferSubdomainRoot}/>:null}
           {area === 'comunicados' ? announcements.length ? isV4?<PublicAnnouncementDirectory hotelId={hotel.id} rows={announcements} language={language}/>:<div className="grid gap-4 md:grid-cols-2">{announcements.map((announcement) => <article key={announcement.id} id={`announcement-${announcement.id}`} className="hotel-public-content-card rounded-[24px] bg-white p-5 ring-1 ring-[color:var(--hotel-border)]"><BellRing className="h-7 w-7 text-[color:var(--hotel-accent)]" /><h2 className="mt-4 font-semibold text-[color:var(--hotel-primary)]">{announcement.title}</h2><p className="mt-2 whitespace-pre-line text-sm leading-6 text-[color:var(--hotel-text-muted)]">{announcement.body}</p></article>)}</div> : <EmptyState title={areaCopy.emptyTitle} description={areaCopy.emptyDescription} /> : null}
-          {area === 'servicos' ? sections.length ? isBrandExperience || isV4 ? (
+          {isV4 && supplemental.length && !(area === 'cardapio' && pageData.fb) ? <div className="mt-6"><GuestServiceExplorer items={supplemental} language={language} themeStyle={theme.cssVars} /></div> : null}
+          {area === 'servicos' && isV4 ? <GuestServiceExplorer items={guestServices} language={language} themeStyle={theme.cssVars} /> : null}
+          {area === 'servicos' && !isV4 ? sections.length ? isBrandExperience ? (
             <NovotelServiceExplorer
               compact={isV4}
               items={serviceExplorerItems}
@@ -362,9 +370,9 @@ export function HotelPublicAreaContent({
         ) : null}
       </div>
       {isBugan ? <PublicBottomDock items={navigationItems.filter((item) => getCanonicalPublicNavigationKeys(getOverviewNavigation(pageData.layout, sections.length)).includes(item.key))} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
-      {isNovotel ? <NovotelMobileNavigation items={navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
-      {isGrandMercure ? <GrandMercureMobileNavigation items={navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
-      {isMercure ? <MercureBottomDock items={navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
+      {isNovotel ? <NovotelMobileNavigation items={isV4 ? navigationItems.filter(i => i.key !== 'menu') : navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
+      {isGrandMercure ? <GrandMercureMobileNavigation items={isV4 ? navigationItems.filter(i => i.key !== 'menu') : navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
+      {isMercure ? <MercureBottomDock items={isV4 ? navigationItems.filter(i => i.key !== 'menu') : navigationItems} activeItem={activeItem} ariaLabel={copy.navigationLabel} /> : null}
     </main>
   );
 }

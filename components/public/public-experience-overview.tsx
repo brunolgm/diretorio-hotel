@@ -10,7 +10,7 @@ import {PublicExperienceMobileTasks} from './public-experience-mobile-tasks';
 import Image from 'next/image';
 import { editorialText } from '@/lib/public-presentation';
 import { MapPin, BedDouble, Waves, Dumbbell } from 'lucide-react';
-import { ArrowUpRight, Building2, ChevronRight, ConciergeBell, MapPinned, MessageCircle, Plane, Utensils } from 'lucide-react';
+import { ArrowUpRight, Grid2X2, Building2, ChevronRight, ConciergeBell, MapPinned, MessageCircle, Plane, Utensils } from 'lucide-react';
 import { LanguageSwitcher } from './language-switcher';
 import { PublicAnalytics } from './public-analytics';
 import { PromotionalBannerCarousel } from './promotional-banner-carousel';
@@ -70,7 +70,7 @@ export function PublicExperienceOverview({ pageData, language, domainContext, pr
     ...(roomService?[{...roomService,icon:ConciergeBell}]:[]),
     ...(enabled('quick_info') ? [{ key: 'information', href: areaHref('informacoes'), label: t.hotel, icon: Building2 }] : []),
     ...(pageData.fb ? (enabled('services') && pageData.fb.outlets.length ? [{key:'menu',href:areaHref('cardapio'),label:t.dining,icon:Utensils}] : []) : restaurant || hasMenu ? [{ key: 'menu', href: restaurant ? '#restaurant' : areaHref('cardapio'), label: t.dining, icon: Utensils }] : []),
-    ...(enabled('services') && sections.length ? [{ key: 'services', href: areaHref('servicos'), label: t.services, icon: ConciergeBell }] : []),
+    ...(enabled('services') && sections.length ? [{ key: 'services', href: areaHref('servicos'), label: t.services, icon: Grid2X2 }] : []),
     ...(pageData.tourismHomeAvailable ? [{ key: 'tourism', href: areaHref('turismo'), label: t.tourism, icon: MapPinned }] : []),
     ...(flightHomeCard ? [{ key: 'flights', href: buildPublicHotelFlightCenterHref(route), label: t.flights, icon: Plane }] : []),
     ...(hasContact ? [{ key: 'contact', href: areaHref('contato'), label: t.contact, icon: MessageCircle }] : []),

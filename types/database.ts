@@ -481,6 +481,7 @@ export interface Database {
           content: string | null;
           cta: string | null;
           url: string | null;
+          guest_presentation?: Json | null;
           category: string | null;
           service_action_type: 'standard' | 'external_url' | 'room_restaurant_menu';
           enabled: boolean | null;
@@ -496,6 +497,7 @@ export interface Database {
           content?: string | null;
           cta?: string | null;
           url?: string | null;
+          guest_presentation?: Json | null;
           category?: string | null;
           service_action_type?: 'standard' | 'external_url' | 'room_restaurant_menu';
           enabled?: boolean | null;
@@ -511,6 +513,7 @@ export interface Database {
           content?: string | null;
           cta?: string | null;
           url?: string | null;
+          guest_presentation?: Json | null;
           category?: string | null;
           service_action_type?: 'standard' | 'external_url' | 'room_restaurant_menu';
           enabled?: boolean | null;

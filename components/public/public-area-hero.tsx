@@ -1,15 +1,15 @@
 import Image from 'next/image';
-import type { ElementType } from 'react';
+import type { CSSProperties, ElementType } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { LanguageSwitcher } from './language-switcher';
 import type { PublicHotel } from '@/lib/public-hotel-data';
 import type { SupportedPublicLanguage } from '@/lib/public-language';
 
-export function PublicAreaHero({ hotel, language, languageBasePath, homeHref, backLabel, title, description, icon: Icon }: {
+export function PublicAreaHero({ hotel, language, languageBasePath, homeHref, backLabel, title, description, icon: Icon, desktopImageUrl }: {
   hotel: PublicHotel; language: SupportedPublicLanguage; languageBasePath: string;
-  homeHref: string; backLabel: string; title: string; description: string; icon: ElementType;
+  homeHref: string; backLabel: string; title: string; description: string; icon: ElementType; desktopImageUrl?: string | null;
 }) {
-  return <header className="public-area-hero rounded-[20px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 text-[color:var(--hotel-text)] md:p-8">
+  return <header style={desktopImageUrl ? { '--guest-header-photo': `url(${JSON.stringify(desktopImageUrl)})` } as CSSProperties : undefined} data-guest-header-photo={desktopImageUrl ? true : undefined} className="public-area-hero rounded-[20px] border border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] p-5 text-[color:var(--hotel-text)] md:p-8">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <a href={homeHref} className="inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hotel-accent)]"><ArrowLeft className="h-4 w-4" aria-hidden="true" />{backLabel}</a>
       <LanguageSwitcher compact slug={hotel.slug} currentLanguage={language} basePath={languageBasePath} />

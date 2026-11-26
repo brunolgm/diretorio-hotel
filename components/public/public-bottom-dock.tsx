@@ -1,7 +1,7 @@
-import { Home, Info, MessageCircle, BellRing } from 'lucide-react';
+import { Home, Info, MessageCircle, Grid2X2 } from 'lucide-react';
 import type { CanonicalPublicNavigationKey } from '@/lib/public-navigation';
 
-const icons = { home: Home, services: BellRing, information: Info, contact: MessageCircle };
+const icons = { home: Home, services: Grid2X2, information: Info, contact: MessageCircle };
 
 export function PublicBottomDock({ items, activeItem, ariaLabel }: {
   items: { key: CanonicalPublicNavigationKey; href: string; label: string }[];
@@ -9,7 +9,7 @@ export function PublicBottomDock({ items, activeItem, ariaLabel }: {
   ariaLabel: string;
 }) {
   const visibleItems = items.filter((item) => item.key !== 'menu');
-  return <nav aria-label={ariaLabel} className="public-bottom-dock fixed inset-x-0 bottom-0 z-40 border-t border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] pb-[env(safe-area-inset-bottom)]">
+  return <nav aria-label={ariaLabel} className="public-bottom-dock min-[1025px]:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[color:var(--hotel-border)] bg-[var(--hotel-surface)] pb-[env(safe-area-inset-bottom)]">
     <div className="mx-auto flex max-w-3xl">
       {visibleItems.map((item) => {
         const Icon = icons[item.key as keyof typeof icons];

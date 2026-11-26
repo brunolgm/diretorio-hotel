@@ -1,0 +1,221 @@
+﻿{
+  "version": 1,
+  "scope": "Proposta a partir do snapshot público histórico autorizado, não inventário produtivo atual. Nenhuma escrita.",
+  "hotelId": "5eb7d695-ccf7-4594-b9df-fc46aaa25695",
+  "records": [
+    {
+      "id": "820f3174-a704-44a0-a181-7de5f6415952",
+      "title": "Conheça o hotel",
+      "expected": {
+        "category": "Hotel",
+        "service_action_type": "standard",
+        "url": null,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "hotel",
+        "group": "Hotel",
+        "interaction": "detail"
+      },
+      "preserveOriginal": true
+    },
+    {
+      "id": "fdfc4bb7-6324-4704-af41-3396b9dff5da",
+      "title": "Acesso ao Wi-Fi",
+      "expected": {
+        "category": "Wi-Fi",
+        "service_action_type": "standard",
+        "url": null,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "information",
+        "group": "Wi-Fi",
+        "interaction": "detail"
+      },
+      "preserveOriginal": true
+    },
+    {
+      "id": "c0d9e423-fd45-4e35-a9c5-8dfa5ac01234",
+      "title": "Restaurante Filipe",
+      "expected": {
+        "category": "Restaurante",
+        "service_action_type": "standard",
+        "url": null,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "dining",
+        "group": "Restaurante",
+        "interaction": "detail"
+      },
+      "preserveOriginal": true
+    },
+    {
+      "id": "d3401adb-0545-47e1-b7a3-78ce36a57501",
+      "title": "Room Service",
+      "expected": {
+        "category": "Room service",
+        "service_action_type": "external_url",
+        "url": "https://hotel-bugan.goomer.app/menu",
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "services",
+        "group": "Conforto e conveniência",
+        "interaction": "page"
+      },
+      "preserveOriginal": true
+    },
+    {
+      "id": "63b00aab-b324-4b8a-a0b0-7f23391285db",
+      "title": "Lavanderia",
+      "expected": {
+        "category": "Lavanderia",
+        "service_action_type": "standard",
+        "url": null,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "services",
+        "group": "Conforto e conveniência",
+        "interaction": "detail"
+      },
+      "preserveOriginal": true
+    },
+    {
+      "id": "9a33644f-6c2e-4f00-8fc7-3b9d3132ec7b",
+      "title": "Piscina",
+      "expected": {
+        "category": "Piscina",
+        "service_action_type": "standard",
+        "url": null,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "inline"
+      },
+      "preserveOriginal": true
+    },
+    {
+      "id": "58fe0683-ba13-40c4-9562-7511b58b153b",
+      "title": "Academia",
+      "expected": {
+        "category": "Academia",
+        "service_action_type": "standard",
+        "url": null,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "inline"
+      },
+      "preserveOriginal": true
+    },
+    {
+      "id": "8e721e68-3b93-40d0-8533-33087c210d16",
+      "title": "Sauna",
+      "expected": {
+        "category": "Bem-estar",
+        "service_action_type": "standard",
+        "url": null,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "inline"
+      },
+      "preserveOriginal": true
+    },
+    {
+      "id": "60bee825-5d1b-4935-8653-89a7790a9b5c",
+      "title": "Menu de travesseiros",
+      "expected": {
+        "category": "Hospedagem",
+        "service_action_type": "standard",
+        "url": null,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "services",
+        "group": "Conforto e conveniência",
+        "interaction": "detail"
+      },
+      "preserveOriginal": true
+    },
+    {
+      "id": "4ad57306-7850-4bd6-bbba-845ca0f3cfeb",
+      "title": "Spa dos Pés",
+      "expected": {
+        "category": "Spa",
+        "service_action_type": "standard",
+        "url": null,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "services",
+        "group": "Lazer e bem-estar",
+        "interaction": "detail"
+      },
+      "preserveOriginal": true
+    },
+    {
+      "id": "a3c38c6e-cd53-4b86-a328-32522e5dd6b6",
+      "title": "Estacionamento",
+      "expected": {
+        "category": "Estacionamento",
+        "service_action_type": "standard",
+        "url": null,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "services",
+        "group": "Mobilidade",
+        "interaction": "inline"
+      },
+      "preserveOriginal": true
+    },
+    {
+      "id": "a9c578fe-c335-4a43-969a-5c3b45e4d52b",
+      "title": "Acomodações",
+      "expected": {
+        "category": "Hospedagem",
+        "service_action_type": "standard",
+        "url": "https://atlantica.letsbook.com.br/reserva/busca?hotel=22",
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "hotel",
+        "group": "Conforto e conveniência",
+        "interaction": "page"
+      },
+      "preserveOriginal": true
+    },
+    {
+      "id": "2df21215-0bca-48e7-bf85-1c67f5474326",
+      "title": "Segurança",
+      "expected": {
+        "category": "Atendimento",
+        "service_action_type": "standard",
+        "url": null,
+        "updated_at": "2026-10-28T16:44:28.07639+00:00"
+      },
+      "proposed": {
+        "area": "information",
+        "group": "Atendimento",
+        "interaction": "detail"
+      },
+      "preserveOriginal": true
+    }
+  ],
+  "ambiguities": [
+    "O snapshot tem 13 serviços; o acesso nativo adicional é derivado do grafo F&B e não constitui um segundo cadastro. Confirmar os 14 acessos atuais antes de persistir classificação.",
+    "A fixture adiciona um segundo acesso sintético para comprovar deduplicação; seu ID não é ID produtivo.",
+    "Room Service: acesso nativo somente quando o resolvedor canônico permite. Goomer e o registro original são preservados.",
+    "Novos conteúdos ou divergências de updated_at exigem nova revisão; nenhum executor de escrita é fornecido."
+  ]
+}

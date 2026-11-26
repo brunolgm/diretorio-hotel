@@ -1,5 +1,26 @@
 # PRODUCT MAP
 
+## Guest Experience Premium — Serviços V4 — 26/11/2026
+
+Implementação local em `feat/guest-experience-premium-services`, base `a1b146f`.
+Catálogo compartilhado agrupado, linhas compactas, busca/filtros PT/EN/ES,
+sheet/modal acessível, Room Service pelo resolvedor canônico e prévia Admin.
+Home e fluxos operacionais preservados; Serviços usa grid, Room Service cloche,
+piscina ondas; dock Bugan oculto no desktop. Faixa desktop usa mídia existente.
+Admin estende o cadastro existente com apresentação opcional e migration aditiva
+**não aplicada em produção**. Metadados não autorizam pedidos ou ativam módulos.
+Classificação proposta determinística, sem escrita/exclusão de registros ou traduções.
+Snapshot histórico tem 13 serviços; o 14º acesso é sintético na fixture de deduplicação,
+sem afirmar auditoria do inventário produtivo atual. SmartMenu paralelo tem resolvedor
+com rota mais nova: integrar pelo contrato e revalidar os arquivos compartilhados.
+
+TypeScript/build/lint, 12 testes direcionados, 30 cenários browser e migration local
+transacional com rollback. Evidências reais dos componentes em `out/`, não commitadas.
+Pendências: reconciliação editorial atual, homologação autenticada dos contextos reais
+e comparação com o mockup de Serviços não disponibilizado nesta execução.
+Relatório, matriz e limites: [GUEST_EXPERIENCE_PREMIUM_SERVICES.md](GUEST_EXPERIENCE_PREMIUM_SERVICES.md).
+Sem push, merge, deploy ou alterações produtivas.
+
 ## Central de Voos V4 premium — 29/10/2026
 
 Base `a9118fb`. Apresentação compartilhada opt-in V4: identidade compacta,
